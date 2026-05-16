@@ -76,5 +76,4 @@ Recent verification covered:
 
 - building the solution with zero warnings and zero errors
 - formatting verification with `dotnet format --verify-no-changes`
-- running the desktop app
-- UI Automation interaction for the file flyout, outline/Markdown switching, title editing, and zoom controls
+- running the desktop app and screenshot-checking the outline, Markdown editor, file menu, and zoom controls

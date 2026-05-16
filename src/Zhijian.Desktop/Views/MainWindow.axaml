@@ -16,53 +16,18 @@
              MinHeight="640"
              IsMoveEnabled="False"
              Title="枝见 Zhijian"
-             TitleBarFrameBackground="#FFFFFF">
+             TitleBarFrameBackground="{Binding TitleBarBackground}">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
     <atom:Window.Logo>
-        <Image Source="/Assets/logo.png"
-               Width="20"
-               Height="20"/>
+        <Image Source="/Assets/logo.png"/>
     </atom:Window.Logo>
-
-    <atom:Window.TitleBarFrameLayer>
-        <atom:WindowTitleBar>
-            <atom:WindowTitleBar.LeftAddOn>
-                <atom:Menu VerticalAlignment="Center"
-                           AutomationProperties.Name="File menu">
-                    <atom:MenuItem x:Name="FileMenuItem"
-                                   Header="文件"
-                                   PointerPressed="HandleFileMenuPointerPressed"
-                                   Click="HandleFileMenuClick">
-                        <atom:MenuItem Header="导入">
-                            <atom:MenuItem Header="Markdown" Command="{Binding ImportMarkdownCommand}"/>
-                            <atom:MenuItem Header="OPML" Command="{Binding ImportOpmlCommand}"/>
-                            <atom:MenuItem Header="XMind" Command="{Binding ImportXMindCommand}"/>
-                        </atom:MenuItem>
-                        <atom:MenuItem Header="导出">
-                            <atom:MenuItem Header="Markdown" Command="{Binding ExportMarkdownCommand}"/>
-                            <atom:MenuItem Header="OPML" Command="{Binding ExportOpmlCommand}"/>
-                            <atom:MenuItem Header="XMind" Command="{Binding ExportXMindCommand}"/>
-                        </atom:MenuItem>
-                    </atom:MenuItem>
-                </atom:Menu>
-            </atom:WindowTitleBar.LeftAddOn>
-
-            <atom:WindowTitleBar.RightAddOn>
-                <atom:ToggleSwitch VerticalAlignment="Center"
-                                   IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                   ToolTip.Tip="Toggle dark theme"/>
-            </atom:WindowTitleBar.RightAddOn>
-        </atom:WindowTitleBar>
-    </atom:Window.TitleBarFrameLayer>
 
     <atom:Window.Styles>
         <Style Selector="Border.panel">
-            <Setter Property="Background" Value="#FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#DDE3EA"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="BoxShadow" Value="0 6 18 0 #10000000"/>
@@ -70,20 +35,23 @@
         <Style Selector="TextBlock.panelTitle">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#0F172A"/>
         </Style>
         <Style Selector="TextBlock.muted">
             <Setter Property="Foreground" Value="#667085"/>
         </Style>
     </atom:Window.Styles>
 
-    <Grid Background="#F3F6FA">
+    <Grid Background="{Binding ShellBackground}">
         <Grid Margin="16" ColumnDefinitions="440,10,*">
-            <Border Grid.Column="0" Classes="panel">
+            <Border Grid.Column="0"
+                    Classes="panel"
+                    Background="{Binding PanelBackground}"
+                    BorderBrush="{Binding PanelBorderBrush}">
                 <Grid RowDefinitions="Auto,*,Auto">
                     <Grid Grid.Row="0" Margin="14,12,12,10" ColumnDefinitions="*,Auto">
                         <TextBlock Text="{Binding EditorPaneTitle}"
                                    Classes="panelTitle"
+                                   Foreground="{Binding PrimaryTextBrush}"
                                    VerticalAlignment="Center"/>
                         <atom:Button Grid.Column="1"
                                      Width="34"
@@ -107,34 +75,40 @@
 
                     <views:OutlineEditor Grid.Row="1"
                                          IsVisible="{Binding IsOutlineMode}"
+                                         IsDarkTheme="{Binding IsDarkTheme}"
                                          Roots="{Binding Roots}"
                                          SelectedNode="{Binding SelectedNode, Mode=TwoWay}"/>
 
-                    <TextBox Grid.Row="1"
-                             IsVisible="{Binding IsMarkdownMode}"
-                             Text="{Binding MarkdownText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             FontFamily="Consolas, Menlo, monospace"
-                             FontSize="14"
-                             Margin="14"
-                             PlaceholderText="Markdown"
-                             AutomationProperties.Name="Markdown editor"/>
+                    <atom:TextBox Grid.Row="1"
+                                  IsVisible="{Binding IsMarkdownMode}"
+                                  Text="{Binding MarkdownText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  AcceptsReturn="True"
+                                  TextWrapping="Wrap"
+                                  FontFamily="Consolas, Menlo, monospace"
+                                  FontSize="14"
+                                  Margin="14"
+                                  Padding="10,8"
+                                  PlaceholderText="Markdown"
+                                  Foreground="{Binding PrimaryTextBrush}"
+                                  Background="{Binding PanelBackground}"
+                                  BorderBrush="{Binding PanelBorderBrush}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  AutomationProperties.Name="Markdown editor"/>
 
                     <Border Grid.Row="2"
-                            Background="#F8FAFC"
-                            BorderBrush="#E5EAF1"
+                            Background="{Binding PanelFooterBackground}"
+                            BorderBrush="{Binding PanelBorderBrush}"
                             BorderThickness="0,1,0,0"
                             Padding="12,8">
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Text="{Binding StatusText}"
-                                       Classes="muted"
+                                       Foreground="{Binding SecondaryTextBrush}"
                                        FontSize="12"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="1"
                                        Text="{Binding SelectedNodeSummary}"
-                                       Classes="muted"
+                                       Foreground="{Binding SecondaryTextBrush}"
                                        FontSize="12"
                                        VerticalAlignment="Center"/>
                         </Grid>
@@ -148,20 +122,26 @@
                           ResizeDirection="Columns"
                           ShowsPreview="True"/>
 
-            <Border Grid.Column="2" Classes="panel" Padding="14">
+            <Border Grid.Column="2"
+                    Classes="panel"
+                    Background="{Binding PanelBackground}"
+                    BorderBrush="{Binding PanelBorderBrush}"
+                    Padding="14">
                 <Grid RowDefinitions="Auto,*" RowSpacing="10">
                     <Grid ColumnDefinitions="*,Auto">
                         <TextBlock Text="脑图"
                                    Classes="panelTitle"
+                                   Foreground="{Binding PrimaryTextBrush}"
                                    VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1"
                                    Text="{Binding SelectedNodeSummary}"
-                                   Classes="muted"
+                                   Foreground="{Binding SecondaryTextBrush}"
                                    FontSize="12"
                                    VerticalAlignment="Center"/>
                     </Grid>
 
                     <views:MindMapEditor Grid.Row="1"
+                                         IsDarkTheme="{Binding IsDarkTheme}"
                                          Roots="{Binding Roots}"
                                          SelectedNode="{Binding SelectedNode, Mode=TwoWay}"/>
                 </Grid>

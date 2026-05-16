@@ -12,6 +12,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Zhijian.Desktop.Models;
 using Zhijian.Desktop.ViewModels;
+using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
 
 namespace Zhijian.Desktop.Views;
 
@@ -25,6 +26,9 @@ public class OutlineEditor : UserControl
             nameof(SelectedNode),
             defaultBindingMode: BindingMode.TwoWay);
 
+    public static readonly StyledProperty<bool> IsDarkThemeProperty =
+        AvaloniaProperty.Register<OutlineEditor, bool>(nameof(IsDarkTheme));
+
     private const double IndentSize = 24;
     private const double DropEdgeRatio = 0.28;
 
@@ -35,7 +39,7 @@ public class OutlineEditor : UserControl
     };
 
     private readonly Dictionary<MindMapNode, Border> _rowFrames = [];
-    private readonly Dictionary<MindMapNode, TextBox> _titleEditors = [];
+    private readonly Dictionary<MindMapNode, AtomTextBox> _titleEditors = [];
     private readonly Dictionary<MindMapNode, Ellipse> _dragDots = [];
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
@@ -69,6 +73,12 @@ public class OutlineEditor : UserControl
         set => SetValue(SelectedNodeProperty, value);
     }
 
+    public bool IsDarkTheme
+    {
+        get => GetValue(IsDarkThemeProperty);
+        set => SetValue(IsDarkThemeProperty, value);
+    }
+
     private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -82,6 +92,10 @@ public class OutlineEditor : UserControl
         else if (change.Property == SelectedNodeProperty)
         {
             ApplySelectionState();
+        }
+        else if (change.Property == IsDarkThemeProperty)
+        {
+            Rebuild();
         }
     }
 
@@ -176,11 +190,13 @@ public class OutlineEditor : UserControl
             dot.PointerPressed += (sender, e) => HandleDotPointerPressed(node, sender as Control, e);
         }
 
-        var titleBox = new TextBox
+        var titleBox = new AtomTextBox
         {
             Margin = new Thickness(0, 1, 4, 1),
             BorderThickness = new Thickness(0),
             Background = Brushes.Transparent,
+            Foreground = GetPrimaryTextBrush(),
+            PlaceholderForeground = GetPlaceholderTextBrush(),
             FontSize = isRoot ? 16 : 15,
             FontWeight = isRoot ? FontWeight.SemiBold : FontWeight.Regular,
             PlaceholderText = isRoot ? "中心主题" : "主题",
@@ -188,7 +204,7 @@ public class OutlineEditor : UserControl
             VerticalContentAlignment = VerticalAlignment.Center,
             MinHeight = 28
         };
-        titleBox.Bind(TextBox.TextProperty, new Binding(nameof(MindMapNode.Title))
+        titleBox.Bind(AtomTextBox.TextProperty, new Binding(nameof(MindMapNode.Title))
         {
             Source = node,
             Mode = BindingMode.TwoWay,
@@ -197,7 +213,7 @@ public class OutlineEditor : UserControl
         titleBox.GotFocus += (_, _) => SelectNode(node);
         titleBox.AddHandler(
             KeyDownEvent,
-            (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
+            (sender, e) => HandleTitleKeyDown(node, sender as AtomTextBox, e),
             RoutingStrategies.Tunnel,
             handledEventsToo: true);
         Grid.SetColumn(titleBox, 1);
@@ -208,7 +224,7 @@ public class OutlineEditor : UserControl
 
         frame.PointerPressed += (_, e) =>
         {
-            if (e.Source is TextBox or Ellipse)
+            if (e.Source is AtomTextBox or Ellipse)
             {
                 return;
             }
@@ -227,7 +243,7 @@ public class OutlineEditor : UserControl
         }
     }
 
-    private void HandleTitleKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
+    private void HandleTitleKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
     {
         var viewModel = ViewModel;
         if (viewModel is null)
@@ -401,7 +417,7 @@ public class OutlineEditor : UserControl
             frame.Background = Brushes.Transparent;
             frame.BorderBrush = Brush.Parse(isDropTarget
                 ? _dropPlacement == MindMapDropPlacement.Child ? "#22C55E" : "#2563EB"
-                : selected ? "#CBD5E1" : "#00000000");
+                : selected ? IsDarkTheme ? "#64748B" : "#CBD5E1" : "#00000000");
         }
 
         foreach (var (node, dot) in _dragDots)
@@ -411,8 +427,18 @@ public class OutlineEditor : UserControl
                 continue;
             }
 
-            dot.Fill = Brush.Parse(ReferenceEquals(node, _dragNode) ? "#2563EB" : "#111111");
+            dot.Fill = Brush.Parse(ReferenceEquals(node, _dragNode) ? "#2563EB" : IsDarkTheme ? "#CBD5E1" : "#111111");
         }
+    }
+
+    private IBrush GetPrimaryTextBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#F9FAFB" : "#111827");
+    }
+
+    private IBrush GetPlaceholderTextBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#94A3B8" : "#667085");
     }
 
     private void HandleNodePropertyChanged(object? sender, PropertyChangedEventArgs e)

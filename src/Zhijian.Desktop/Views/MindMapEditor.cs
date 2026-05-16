@@ -14,9 +14,11 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using AtomUI.Icons.AntDesign;
 using Zhijian.Desktop.Models;
 using Zhijian.Desktop.ViewModels;
 using AtomButton = AtomUI.Desktop.Controls.Button;
+using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
 
 namespace Zhijian.Desktop.Views;
 
@@ -29,6 +31,9 @@ public class MindMapEditor : UserControl
         AvaloniaProperty.Register<MindMapEditor, MindMapNode?>(
             nameof(SelectedNode),
             defaultBindingMode: BindingMode.TwoWay);
+
+    public static readonly StyledProperty<bool> IsDarkThemeProperty =
+        AvaloniaProperty.Register<MindMapEditor, bool>(nameof(IsDarkTheme));
 
     private const double RootWidth = 72;
     private const double RootMinHeight = 46;
@@ -51,6 +56,7 @@ public class MindMapEditor : UserControl
     };
     private readonly LayoutTransformControl _zoomHost;
     private readonly ScrollViewer _scrollViewer;
+    private readonly Border _zoomControlsFrame;
     private readonly TextBlock _zoomText = new()
     {
         Width = 48,
@@ -61,7 +67,7 @@ public class MindMapEditor : UserControl
     };
 
     private readonly Dictionary<MindMapNode, Border> _nodeFrames = [];
-    private readonly Dictionary<MindMapNode, TextBox> _titleEditors = [];
+    private readonly Dictionary<MindMapNode, AtomTextBox> _titleEditors = [];
     private readonly List<Connector> _connectors = [];
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
@@ -95,10 +101,11 @@ public class MindMapEditor : UserControl
         var viewport = new Grid();
         viewport.Children.Add(_scrollViewer);
 
-        var zoomControls = CreateZoomControls();
-        viewport.Children.Add(zoomControls);
+        _zoomControlsFrame = CreateZoomControls();
+        viewport.Children.Add(_zoomControlsFrame);
 
         Content = viewport;
+        ApplyTheme();
         UpdateZoomText();
         AddHandler(PointerPressedEvent, HandleCanvasPanStarted, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerMovedEvent, HandleCanvasPanned, RoutingStrategies.Tunnel, handledEventsToo: true);
@@ -124,6 +131,12 @@ public class MindMapEditor : UserControl
         set => SetValue(SelectedNodeProperty, value);
     }
 
+    public bool IsDarkTheme
+    {
+        get => GetValue(IsDarkThemeProperty);
+        set => SetValue(IsDarkThemeProperty, value);
+    }
+
     private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -137,6 +150,11 @@ public class MindMapEditor : UserControl
         else if (change.Property == SelectedNodeProperty)
         {
             ApplySelectionState();
+        }
+        else if (change.Property == IsDarkThemeProperty)
+        {
+            ApplyTheme();
+            Rebuild();
         }
     }
 
@@ -255,7 +273,7 @@ public class MindMapEditor : UserControl
             }
         };
 
-        var titleBox = new TextBox
+        var titleBox = new AtomTextBox
         {
             BorderThickness = new Thickness(0),
             Background = Brushes.Transparent,
@@ -270,7 +288,7 @@ public class MindMapEditor : UserControl
             MinHeight = metrics.MinHeight - metrics.Padding.Top - metrics.Padding.Bottom,
             Padding = new Thickness(0)
         };
-        titleBox.Bind(TextBox.TextProperty, new Binding(nameof(MindMapNode.Title))
+        titleBox.Bind(AtomTextBox.TextProperty, new Binding(nameof(MindMapNode.Title))
         {
             Source = node,
             Mode = BindingMode.TwoWay,
@@ -279,7 +297,7 @@ public class MindMapEditor : UserControl
         titleBox.GotFocus += (_, _) => SelectNode(node);
         titleBox.AddHandler(
             KeyDownEvent,
-            (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
+            (sender, e) => HandleTitleKeyDown(node, sender as AtomTextBox, e),
             RoutingStrategies.Tunnel,
             handledEventsToo: true);
 
@@ -292,7 +310,7 @@ public class MindMapEditor : UserControl
 
         root.PointerPressed += (_, e) =>
         {
-            if (e.Source is TextBox)
+            if (e.Source is AtomTextBox)
             {
                 return;
             }
@@ -306,7 +324,7 @@ public class MindMapEditor : UserControl
         return root;
     }
 
-    private void HandleTitleKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
+    private void HandleTitleKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
     {
         var viewModel = ViewModel;
         if (viewModel is null)
@@ -482,7 +500,7 @@ public class MindMapEditor : UserControl
 
     private void HandleKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Space || e.Source is TextBox)
+        if (e.Key != Key.Space || e.Source is AtomTextBox)
         {
             return;
         }
@@ -535,10 +553,10 @@ public class MindMapEditor : UserControl
             Orientation = Orientation.Horizontal,
             Spacing = 4
         };
-        controls.Children.Add(CreateZoomButton("-", () => SetZoom(_zoomScale / ZoomFactor), "缩小"));
+        controls.Children.Add(CreateZoomButton(CreateZoomIcon<ZoomOutOutlined>(), () => SetZoom(_zoomScale / ZoomFactor), "缩小"));
         controls.Children.Add(_zoomText);
         controls.Children.Add(CreateZoomButton("100%", () => SetZoom(1), "重置缩放"));
-        controls.Children.Add(CreateZoomButton("+", () => SetZoom(_zoomScale * ZoomFactor), "放大"));
+        controls.Children.Add(CreateZoomButton(CreateZoomIcon<ZoomInOutlined>(), () => SetZoom(_zoomScale * ZoomFactor), "放大"));
 
         return new Border
         {
@@ -546,8 +564,8 @@ public class MindMapEditor : UserControl
             VerticalAlignment = VerticalAlignment.Bottom,
             Margin = new Thickness(0, 0, 14, 14),
             Padding = new Thickness(8, 6),
-            Background = Brush.Parse("#F8FAFC"),
-            BorderBrush = Brush.Parse("#CBD5E1"),
+            Background = GetPanelBackgroundBrush(),
+            BorderBrush = GetPanelBorderBrush(),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(6),
             BoxShadow = BoxShadows.Parse("0 6 18 0 #16000000"),
@@ -573,7 +591,7 @@ public class MindMapEditor : UserControl
 
         for (var current = visual; current is not null; current = current.GetVisualParent())
         {
-            if (current is TextBox or Button or ScrollBar or Thumb)
+            if (current is AtomTextBox or Button or ScrollBar or Thumb)
             {
                 return false;
             }
@@ -592,7 +610,7 @@ public class MindMapEditor : UserControl
         return true;
     }
 
-    private static AtomButton CreateZoomButton(string content, Action action, string tooltip)
+    private static AtomButton CreateZoomButton(object content, Action action, string tooltip)
     {
         var button = new AtomButton
         {
@@ -606,6 +624,17 @@ public class MindMapEditor : UserControl
         AutomationProperties.SetName(button, tooltip);
         button.Click += (_, _) => action();
         return button;
+    }
+
+    private static TIcon CreateZoomIcon<TIcon>()
+        where TIcon : AntDesignIcon, new()
+    {
+        return new TIcon
+        {
+            Width = 14,
+            Height = 14,
+            Foreground = Brush.Parse("#334155")
+        };
     }
 
     private void UpdateZoomText()
@@ -777,12 +806,12 @@ public class MindMapEditor : UserControl
                 BranchWidth,
                 BranchMinHeight,
                 new CornerRadius(8),
-                Brush.Parse("#EEF0F3"),
+                Brush.Parse(IsDarkTheme ? "#1F2937" : "#EEF0F3"),
                 Brushes.Transparent,
                 new Thickness(0),
                 new Thickness(12, 5),
-                BoxShadows.Parse("0 3 10 0 #0C000000"),
-                Brush.Parse("#111827"),
+                BoxShadows.Parse(IsDarkTheme ? "0 3 10 0 #26000000" : "0 3 10 0 #0C000000"),
+                GetPrimaryTextBrush(),
                 17,
                 FontWeight.Medium,
                 HorizontalAlignment.Center,
@@ -799,7 +828,7 @@ public class MindMapEditor : UserControl
             new Thickness(0),
             new Thickness(0, 2),
             default,
-            Brush.Parse("#111827"),
+            GetPrimaryTextBrush(),
             16,
             FontWeight.Regular,
             HorizontalAlignment.Left,
@@ -838,4 +867,50 @@ public class MindMapEditor : UserControl
         HorizontalAlignment TextAlignment,
         string Placeholder,
         bool IsTextOnly);
+
+    private void ApplyTheme()
+    {
+        var canvasBrush = GetCanvasBackgroundBrush();
+        _canvas.Background = canvasBrush;
+        _scrollViewer.Background = canvasBrush;
+        _zoomText.Foreground = GetSecondaryTextBrush();
+        _zoomControlsFrame.Background = GetPanelBackgroundBrush();
+        _zoomControlsFrame.BorderBrush = GetPanelBorderBrush();
+
+        if (_zoomControlsFrame.Child is StackPanel controls)
+        {
+            foreach (var child in controls.Children)
+            {
+                if (child is AtomButton { Content: AntDesignIcon icon })
+                {
+                    icon.Foreground = GetSecondaryTextBrush();
+                }
+            }
+        }
+    }
+
+    private IBrush GetCanvasBackgroundBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#111827" : "#F8FAFC");
+    }
+
+    private IBrush GetPanelBackgroundBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#1F2937" : "#F8FAFC");
+    }
+
+    private IBrush GetPanelBorderBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#374151" : "#CBD5E1");
+    }
+
+    private IBrush GetPrimaryTextBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#F9FAFB" : "#111827");
+    }
+
+    private IBrush GetSecondaryTextBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#CBD5E1" : "#334155");
+    }
 }

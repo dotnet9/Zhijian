@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using AtomUI.Controls;
 using Avalonia;
-using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Zhijian.Desktop.Models;
@@ -86,7 +86,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         WatchTree();
         AssignMissingColors(Root);
-        IsDarkTheme = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
+        IsDarkTheme = Application.Current?.IsDarkThemeMode() ?? false;
         SelectedNode = Root;
         AutoLayout();
         SyncMarkdownFromTree();
@@ -107,6 +107,20 @@ public partial class MainWindowViewModel : ViewModelBase
         : $"{NodeCount} 个节点 · 第 {GetLevel(SelectedNode)} 层 · {SelectedNode.Children.Count} 个子节点";
 
     public int NodeCount => FlattenNodes().Count;
+
+    public string ShellBackground => IsDarkTheme ? "#111827" : "#F3F6FA";
+
+    public string PanelBackground => IsDarkTheme ? "#1F2937" : "#FFFFFF";
+
+    public string PanelFooterBackground => IsDarkTheme ? "#111827" : "#F8FAFC";
+
+    public string PanelBorderBrush => IsDarkTheme ? "#374151" : "#DDE3EA";
+
+    public string TitleBarBackground => IsDarkTheme ? "#111827" : "#FFFFFF";
+
+    public string PrimaryTextBrush => IsDarkTheme ? "#F9FAFB" : "#0F172A";
+
+    public string SecondaryTextBrush => IsDarkTheme ? "#CBD5E1" : "#667085";
 
     [RelayCommand]
     public void ToggleEditorMode()
@@ -427,10 +441,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     partial void OnIsDarkThemeChanged(bool value)
     {
-        if (Application.Current is not null)
-        {
-            Application.Current.RequestedThemeVariant = value ? ThemeVariant.Dark : ThemeVariant.Light;
-        }
+        Application.Current?.SetDarkThemeMode(value);
+        OnPropertyChanged(nameof(ShellBackground));
+        OnPropertyChanged(nameof(PanelBackground));
+        OnPropertyChanged(nameof(PanelFooterBackground));
+        OnPropertyChanged(nameof(PanelBorderBrush));
+        OnPropertyChanged(nameof(TitleBarBackground));
+        OnPropertyChanged(nameof(PrimaryTextBrush));
+        OnPropertyChanged(nameof(SecondaryTextBrush));
     }
 
     partial void OnSelectedNodeChanged(MindMapNode? value)
