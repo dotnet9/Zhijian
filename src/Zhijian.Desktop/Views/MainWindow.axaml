@@ -1,35 +1,71 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:views="using:Zhijian.Desktop.Views"
-        xmlns:vm="using:Zhijian.Desktop.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1240" d:DesignHeight="820"
-        x:Class="Zhijian.Desktop.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/logo.png"
-        Width="1240"
-        Height="820"
-        MinWidth="980"
-        MinHeight="640"
-        Title="枝见 Zhijian">
+<atom:Window xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:atom="using:AtomUI.Desktop.Controls"
+             xmlns:icons="using:AtomUI.Icons.AntDesign"
+             xmlns:views="using:Zhijian.Desktop.Views"
+             xmlns:vm="using:Zhijian.Desktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1240" d:DesignHeight="820"
+             x:Class="Zhijian.Desktop.Views.MainWindow"
+             x:DataType="vm:MainWindowViewModel"
+             Icon="/Assets/logo.png"
+             Width="1240"
+             Height="820"
+             MinWidth="980"
+             MinHeight="640"
+             IsMoveEnabled="False"
+             Title="枝见 Zhijian"
+             TitleBarFrameBackground="#FFFFFF">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Window.Styles>
+    <atom:Window.Logo>
+        <Image Source="/Assets/logo.png"
+               Width="20"
+               Height="20"/>
+    </atom:Window.Logo>
+
+    <atom:Window.TitleBarFrameLayer>
+        <atom:WindowTitleBar>
+            <atom:WindowTitleBar.LeftAddOn>
+                <atom:Menu VerticalAlignment="Center"
+                           AutomationProperties.Name="File menu">
+                    <atom:MenuItem x:Name="FileMenuItem"
+                                   Header="文件"
+                                   PointerPressed="HandleFileMenuPointerPressed"
+                                   Click="HandleFileMenuClick">
+                        <atom:MenuItem Header="导入">
+                            <atom:MenuItem Header="Markdown" Command="{Binding ImportMarkdownCommand}"/>
+                            <atom:MenuItem Header="OPML" Command="{Binding ImportOpmlCommand}"/>
+                            <atom:MenuItem Header="XMind" Command="{Binding ImportXMindCommand}"/>
+                        </atom:MenuItem>
+                        <atom:MenuItem Header="导出">
+                            <atom:MenuItem Header="Markdown" Command="{Binding ExportMarkdownCommand}"/>
+                            <atom:MenuItem Header="OPML" Command="{Binding ExportOpmlCommand}"/>
+                            <atom:MenuItem Header="XMind" Command="{Binding ExportXMindCommand}"/>
+                        </atom:MenuItem>
+                    </atom:MenuItem>
+                </atom:Menu>
+            </atom:WindowTitleBar.LeftAddOn>
+
+            <atom:WindowTitleBar.RightAddOn>
+                <atom:ToggleSwitch VerticalAlignment="Center"
+                                   IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                                   ToolTip.Tip="Toggle dark theme"/>
+            </atom:WindowTitleBar.RightAddOn>
+        </atom:WindowTitleBar>
+    </atom:Window.TitleBarFrameLayer>
+
+    <atom:Window.Styles>
         <Style Selector="Border.panel">
             <Setter Property="Background" Value="#FFFFFF"/>
             <Setter Property="BorderBrush" Value="#DDE3EA"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="BoxShadow" Value="0 6 18 0 #10000000"/>
-        </Style>
-        <Style Selector="TextBlock.sectionTitle">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#223042"/>
         </Style>
         <Style Selector="TextBlock.panelTitle">
             <Setter Property="FontSize" Value="16"/>
@@ -39,86 +75,42 @@
         <Style Selector="TextBlock.muted">
             <Setter Property="Foreground" Value="#667085"/>
         </Style>
-        <Style Selector="Button.iconButton">
-            <Setter Property="Width" Value="34"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Padding" Value="7"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-        <Style Selector="Button.toolbarButton">
-            <Setter Property="MinHeight" Value="30"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="FontSize" Value="12"/>
-        </Style>
-    </Window.Styles>
+    </atom:Window.Styles>
 
-    <Grid RowDefinitions="Auto,*" Background="#F3F6FA">
-        <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#DDE3EA" BorderThickness="0,0,0,1">
-            <Menu>
-                <MenuItem Header="文件">
-                    <MenuItem Header="导入">
-                        <MenuItem Header="Markdown" Command="{Binding ImportMarkdownCommand}"/>
-                        <MenuItem Header="OPML" Command="{Binding ImportOpmlCommand}"/>
-                        <MenuItem Header="XMind" Command="{Binding ImportXMindCommand}"/>
-                    </MenuItem>
-                    <MenuItem Header="导出">
-                        <MenuItem Header="Markdown" Command="{Binding ExportMarkdownCommand}"/>
-                        <MenuItem Header="OPML" Command="{Binding ExportOpmlCommand}"/>
-                        <MenuItem Header="XMind" Command="{Binding ExportXMindCommand}"/>
-                    </MenuItem>
-                </MenuItem>
-            </Menu>
-        </Border>
-
-        <Grid Grid.Row="1" Margin="16" ColumnDefinitions="460,10,*">
+    <Grid Background="#F3F6FA">
+        <Grid Margin="16" ColumnDefinitions="440,10,*">
             <Border Grid.Column="0" Classes="panel">
-                <Grid RowDefinitions="Auto,Auto,*,196,Auto">
-                    <Grid Grid.Row="0" Margin="14,12,14,8" ColumnDefinitions="*,Auto">
-                        <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding EditorPaneTitle}" Classes="panelTitle"/>
-                            <TextBlock Text="{Binding EditorPaneHint}" Classes="muted" FontSize="12"/>
-                        </StackPanel>
-                        <Button Grid.Column="1"
-                                Classes="iconButton"
-                                Command="{Binding ToggleEditorModeCommand}"
-                                AutomationProperties.Name="Toggle outline markdown"
-                                ToolTip.Tip="{Binding ToggleEditorToolTip}">
-                            <PathIcon Width="18"
-                                      Height="18"
-                                      Data="M7,7 L3,11 L7,15 M3,11 H21 M17,9 L21,13 L17,17 M21,13 H3"/>
-                        </Button>
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <Grid Grid.Row="0" Margin="14,12,12,10" ColumnDefinitions="*,Auto">
+                        <TextBlock Text="{Binding EditorPaneTitle}"
+                                   Classes="panelTitle"
+                                   VerticalAlignment="Center"/>
+                        <atom:Button Grid.Column="1"
+                                     Width="34"
+                                     Height="34"
+                                     Padding="7"
+                                     Command="{Binding ToggleEditorModeCommand}"
+                                     AutomationProperties.Name="Toggle outline markdown"
+                                     ToolTip.Tip="{Binding ToggleEditorToolTip}">
+                            <Grid Width="18" Height="18">
+                                <icons:FileMarkdownOutlined Width="18"
+                                                            Height="18"
+                                                            Foreground="#223042"
+                                                            IsVisible="{Binding IsOutlineMode}"/>
+                                <icons:UnorderedListOutlined Width="18"
+                                                            Height="18"
+                                                            Foreground="#223042"
+                                                            IsVisible="{Binding IsMarkdownMode}"/>
+                            </Grid>
+                        </atom:Button>
                     </Grid>
 
-                    <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#E5EAF1" BorderThickness="0,1,0,1" Padding="12,8">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Classes="toolbarButton"
-                                    Content="子节点"
-                                    Command="{Binding CreateChildCommand}"
-                                    AutomationProperties.Name="Add child node"/>
-                            <Button Classes="toolbarButton"
-                                    Content="同级"
-                                    Command="{Binding CreateSiblingCommand}"
-                                    AutomationProperties.Name="Add sibling node"/>
-                            <Button Classes="toolbarButton"
-                                    Content="提升"
-                                    Command="{Binding PromoteSelectedCommand}"/>
-                            <Button Classes="toolbarButton"
-                                    Content="降低"
-                                    Command="{Binding DemoteSelectedCommand}"/>
-                            <Button Classes="toolbarButton"
-                                    Content="删除"
-                                    Command="{Binding DeleteSelectedCommand}"
-                                    AutomationProperties.Name="Delete selected node"/>
-                        </StackPanel>
-                    </Border>
-
-                    <views:OutlineEditor Grid.Row="2"
+                    <views:OutlineEditor Grid.Row="1"
                                          IsVisible="{Binding IsOutlineMode}"
                                          Roots="{Binding Roots}"
                                          SelectedNode="{Binding SelectedNode, Mode=TwoWay}"/>
 
-                    <TextBox Grid.Row="2"
+                    <TextBox Grid.Row="1"
                              IsVisible="{Binding IsMarkdownMode}"
                              Text="{Binding MarkdownText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True"
@@ -129,48 +121,23 @@
                              PlaceholderText="Markdown"
                              AutomationProperties.Name="Markdown editor"/>
 
-                    <Border Grid.Row="3" Background="#FBFCFE" BorderBrush="#E5EAF1" BorderThickness="0,1,0,0" Padding="14,10">
-                        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8">
-                            <StackPanel Spacing="2">
-                                <TextBlock Text="节点属性" Classes="sectionTitle"/>
-                                <TextBlock Text="{Binding SelectedNodePath}"
-                                           Classes="muted"
-                                           FontSize="12"
-                                           TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-
-                            <TextBox Grid.Row="1"
-                                     Text="{Binding SelectedNodeTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     PlaceholderText="节点标题"
-                                     AutomationProperties.Name="Selected node title"/>
-
-                            <TextBox Grid.Row="2"
-                                     Text="{Binding SelectedNodeNote, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     PlaceholderText="添加备注..."
-                                     AcceptsReturn="True"
-                                     TextWrapping="Wrap"
-                                     AutomationProperties.Name="Selected node note"/>
-
-                            <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
-                                <TextBlock Text="{Binding SelectedNodeSummary}"
-                                           Classes="muted"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <Button Grid.Column="1"
-                                        Classes="toolbarButton"
-                                        Content="清空备注"
-                                        Command="{Binding ClearSelectedNoteCommand}"/>
-                            </Grid>
+                    <Border Grid.Row="2"
+                            Background="#F8FAFC"
+                            BorderBrush="#E5EAF1"
+                            BorderThickness="0,1,0,0"
+                            Padding="12,8">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{Binding StatusText}"
+                                       Classes="muted"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding SelectedNodeSummary}"
+                                       Classes="muted"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"/>
                         </Grid>
-                    </Border>
-
-                    <Border Grid.Row="4" Background="#F8FAFC" BorderBrush="#E5EAF1" BorderThickness="0,1,0,0" Padding="12,8">
-                        <TextBlock Text="{Binding StatusText}"
-                                   Classes="muted"
-                                   FontSize="12"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"/>
                     </Border>
                 </Grid>
             </Border>
@@ -184,10 +151,9 @@
             <Border Grid.Column="2" Classes="panel" Padding="14">
                 <Grid RowDefinitions="Auto,*" RowSpacing="10">
                     <Grid ColumnDefinitions="*,Auto">
-                        <StackPanel Spacing="2">
-                            <TextBlock Text="脑图" Classes="panelTitle"/>
-                            <TextBlock Text="选中节点后 Enter 新建同级，Tab 新建子级，Delete / Backspace 删除" Classes="muted" FontSize="12"/>
-                        </StackPanel>
+                        <TextBlock Text="脑图"
+                                   Classes="panelTitle"
+                                   VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1"
                                    Text="{Binding SelectedNodeSummary}"
                                    Classes="muted"
@@ -202,4 +168,4 @@
             </Border>
         </Grid>
     </Grid>
-</Window>
+</atom:Window>

@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Avalonia;
+using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Zhijian.Desktop.Models;
@@ -17,9 +19,9 @@ public enum MindMapDropPlacement
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private const double HorizontalSpacing = 270;
-    private const double VerticalSpacing = 104;
-    private const double RootX = 220;
+    private const double HorizontalSpacing = 160;
+    private const double VerticalSpacing = 66;
+    private const double RootX = 72;
 
     private static readonly string[] Palette =
     [
@@ -38,7 +40,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private int _nextPaletteIndex;
     private bool _isApplyingMarkdown;
     private bool _isSyncingMarkdownFromTree;
-    private bool _isUpdatingSelectionFields;
 
     [ObservableProperty]
     private MindMapNode? _selectedNode;
@@ -47,16 +48,13 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _isMarkdownMode;
 
     [ObservableProperty]
+    private bool _isDarkTheme;
+
+    [ObservableProperty]
     private string _markdownText = string.Empty;
 
     [ObservableProperty]
     private string _statusText = "就绪";
-
-    [ObservableProperty]
-    private string _selectedNodeTitle = string.Empty;
-
-    [ObservableProperty]
-    private string _selectedNodeNote = string.Empty;
 
     public MainWindowViewModel()
         : this(new DisabledMindMapFileService())
@@ -88,6 +86,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         WatchTree();
         AssignMissingColors(Root);
+        IsDarkTheme = Application.Current?.ActualThemeVariant == ThemeVariant.Dark;
         SelectedNode = Root;
         AutoLayout();
         SyncMarkdownFromTree();
@@ -101,13 +100,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public string EditorPaneTitle => IsMarkdownMode ? "Markdown" : "大纲";
 
-    public string EditorPaneHint => IsMarkdownMode
-        ? "使用 # 表示节点层级，节点下方文字作为备注"
-        : "Enter / Tab / Shift+Tab / Delete";
-
     public string ToggleEditorToolTip => IsMarkdownMode ? "切换到大纲视图" : "切换到 Markdown 视图";
-
-    public string SelectedNodePath => SelectedNode is null ? "未选择节点" : string.Join(" / ", GetNodePath(SelectedNode));
 
     public string SelectedNodeSummary => SelectedNode is null
         ? $"{NodeCount} 个节点"
@@ -334,72 +327,6 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void CreateChild()
-    {
-        var parent = SelectedNode ?? Root;
-        AddChild(parent);
-        StatusText = $"已在“{parent.Title}”下新增子节点";
-    }
-
-    [RelayCommand]
-    private void CreateSibling()
-    {
-        var current = SelectedNode ?? Root;
-        AddSibling(current);
-        StatusText = IsRoot(current) ? "已新增二级节点" : "已新增同级节点";
-    }
-
-    [RelayCommand]
-    private void DeleteSelected()
-    {
-        if (SelectedNode is null || IsRoot(SelectedNode))
-        {
-            StatusText = "中心主题不能删除";
-            return;
-        }
-
-        var title = SelectedNode.Title;
-        DeleteNode(SelectedNode);
-        StatusText = $"已删除“{title}”";
-    }
-
-    [RelayCommand]
-    private void PromoteSelected()
-    {
-        if (PromoteNode(SelectedNode))
-        {
-            StatusText = "已提升节点层级";
-            return;
-        }
-
-        StatusText = "当前节点不能继续提升";
-    }
-
-    [RelayCommand]
-    private void DemoteSelected()
-    {
-        if (DemoteNode(SelectedNode))
-        {
-            StatusText = "已降低节点层级";
-            return;
-        }
-
-        StatusText = "需要有前一个同级节点才能降低层级";
-    }
-
-    [RelayCommand]
-    private void ClearSelectedNote()
-    {
-        if (SelectedNode is null)
-        {
-            return;
-        }
-
-        SelectedNode.Note = string.Empty;
-        StatusText = "已清空备注";
-    }
-
-    [RelayCommand]
     private async Task ImportMarkdownAsync()
     {
         await RunFileOperationAsync(async () =>
@@ -495,37 +422,19 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(IsOutlineMode));
         OnPropertyChanged(nameof(EditorPaneTitle));
-        OnPropertyChanged(nameof(EditorPaneHint));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
+    }
+
+    partial void OnIsDarkThemeChanged(bool value)
+    {
+        if (Application.Current is not null)
+        {
+            Application.Current.RequestedThemeVariant = value ? ThemeVariant.Dark : ThemeVariant.Light;
+        }
     }
 
     partial void OnSelectedNodeChanged(MindMapNode? value)
     {
-        UpdateSelectionFields();
-        OnPropertyChanged(nameof(SelectedNodePath));
-        OnPropertyChanged(nameof(SelectedNodeSummary));
-    }
-
-    partial void OnSelectedNodeTitleChanged(string value)
-    {
-        if (_isUpdatingSelectionFields || SelectedNode is null)
-        {
-            return;
-        }
-
-        SelectedNode.Title = value;
-        OnPropertyChanged(nameof(SelectedNodePath));
-        OnPropertyChanged(nameof(SelectedNodeSummary));
-    }
-
-    partial void OnSelectedNodeNoteChanged(string value)
-    {
-        if (_isUpdatingSelectionFields || SelectedNode is null)
-        {
-            return;
-        }
-
-        SelectedNode.Note = value;
         OnPropertyChanged(nameof(SelectedNodeSummary));
     }
 
@@ -654,11 +563,6 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (e.PropertyName is nameof(MindMapNode.Title) or nameof(MindMapNode.Note))
         {
-            if (ReferenceEquals(sender, SelectedNode))
-            {
-                UpdateSelectionFields();
-            }
-
             SyncMarkdownFromTree();
         }
     }
@@ -723,55 +627,9 @@ public partial class MainWindowViewModel : ViewModelBase
         return false;
     }
 
-    private IReadOnlyList<string> GetNodePath(MindMapNode target)
-    {
-        var path = new List<string>();
-        if (TryBuildNodePath(Root, target, path))
-        {
-            return path;
-        }
-
-        return [target.Title];
-    }
-
-    private static bool TryBuildNodePath(MindMapNode current, MindMapNode target, List<string> path)
-    {
-        path.Add(string.IsNullOrWhiteSpace(current.Title) ? "未命名主题" : current.Title);
-        if (ReferenceEquals(current, target))
-        {
-            return true;
-        }
-
-        foreach (var child in current.Children)
-        {
-            if (TryBuildNodePath(child, target, path))
-            {
-                return true;
-            }
-        }
-
-        path.RemoveAt(path.Count - 1);
-        return false;
-    }
-
-    private void UpdateSelectionFields()
-    {
-        try
-        {
-            _isUpdatingSelectionFields = true;
-            SelectedNodeTitle = SelectedNode?.Title ?? string.Empty;
-            SelectedNodeNote = SelectedNode?.Note ?? string.Empty;
-        }
-        finally
-        {
-            _isUpdatingSelectionFields = false;
-        }
-    }
-
     private void RefreshTreeSummary()
     {
         OnPropertyChanged(nameof(NodeCount));
-        OnPropertyChanged(nameof(SelectedNodePath));
         OnPropertyChanged(nameof(SelectedNodeSummary));
     }
 

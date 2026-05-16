@@ -13,8 +13,10 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Zhijian.Desktop.Models;
 using Zhijian.Desktop.ViewModels;
+using AtomButton = AtomUI.Desktop.Controls.Button;
 
 namespace Zhijian.Desktop.Views;
 
@@ -28,12 +30,14 @@ public class MindMapEditor : UserControl
             nameof(SelectedNode),
             defaultBindingMode: BindingMode.TwoWay);
 
-    private const double NodeWidth = 220;
-    private const double NodeHeight = 96;
-    private const double RootWidth = 240;
-    private const double RootHeight = 108;
-    private const double MinCanvasWidth = 1160;
-    private const double MinCanvasHeight = 720;
+    private const double RootWidth = 72;
+    private const double RootMinHeight = 46;
+    private const double BranchWidth = 112;
+    private const double BranchMinHeight = 42;
+    private const double LeafWidth = 190;
+    private const double LeafMinHeight = 30;
+    private const double MinCanvasWidth = 920;
+    private const double MinCanvasHeight = 620;
     private const double MinZoom = 0.1;
     private const double MaxZoom = 2.0;
     private const double ZoomFactor = 1.1;
@@ -41,6 +45,7 @@ public class MindMapEditor : UserControl
     private readonly Canvas _canvas = new()
     {
         Background = Brush.Parse("#F8FAFC"),
+        Cursor = new Cursor(StandardCursorType.Hand),
         MinWidth = MinCanvasWidth,
         MinHeight = MinCanvasHeight
     };
@@ -64,10 +69,15 @@ public class MindMapEditor : UserControl
     private MindMapNode? _dragNode;
     private Point _dragStartPointer;
     private Point _dragStartNode;
+    private bool _isPanningCanvas;
+    private bool _isSpacePressed;
+    private Point _panStartPointer;
+    private Vector _panStartOffset;
     private double _zoomScale = 1;
 
     public MindMapEditor()
     {
+        Focusable = true;
         _zoomHost = new LayoutTransformControl
         {
             Child = _canvas,
@@ -90,6 +100,15 @@ public class MindMapEditor : UserControl
 
         Content = viewport;
         UpdateZoomText();
+        AddHandler(PointerPressedEvent, HandleCanvasPanStarted, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(PointerMovedEvent, HandleCanvasPanned, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(PointerReleasedEvent, HandleCanvasPanCompleted, RoutingStrategies.Tunnel, handledEventsToo: true);
+        _scrollViewer.AddHandler(PointerPressedEvent, HandleCanvasPanStarted, RoutingStrategies.Tunnel, handledEventsToo: true);
+        _scrollViewer.AddHandler(PointerMovedEvent, HandleCanvasPanned, RoutingStrategies.Tunnel, handledEventsToo: true);
+        _scrollViewer.AddHandler(PointerReleasedEvent, HandleCanvasPanCompleted, RoutingStrategies.Tunnel, handledEventsToo: true);
+        _scrollViewer.PointerCaptureLost += (_, _) => StopCanvasPan();
+        AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerWheelChangedEvent, HandlePointerWheelChanged, RoutingStrategies.Tunnel, handledEventsToo: true);
     }
 
@@ -187,14 +206,15 @@ public class MindMapEditor : UserControl
     {
         foreach (var child in parent.Children)
         {
-            var line = new Line
+            var path = new Avalonia.Controls.Shapes.Path
             {
-                Stroke = Brush.Parse("#9CB7D3"),
-                StrokeThickness = 2
+                Stroke = Brush.Parse("#148BFF"),
+                StrokeThickness = 2,
+                IsHitTestVisible = false
             };
 
-            _canvas.Children.Add(line);
-            _connectors.Add(new Connector(parent, child, line));
+            _canvas.Children.Add(path);
+            _connectors.Add(new Connector(parent, child, path));
             AddConnectors(child);
         }
     }
@@ -214,16 +234,17 @@ public class MindMapEditor : UserControl
 
     private Border CreateNodeVisual(MindMapNode node)
     {
-        var isRoot = ViewModel?.IsRoot(node) == true;
+        var metrics = GetNodeMetrics(node);
         var root = new Border
         {
-            Width = isRoot ? RootWidth : NodeWidth,
-            Height = isRoot ? RootHeight : NodeHeight,
-            CornerRadius = new CornerRadius(8),
-            Background = Brush.Parse("#FFFFFF"),
-            BorderBrush = Brush.Parse(node.AccentColor),
-            BorderThickness = new Thickness(isRoot ? 2 : 1),
-            BoxShadow = BoxShadows.Parse(isRoot ? "0 8 24 0 #22000000" : "0 4 16 0 #16000000"),
+            Width = metrics.Width,
+            MinHeight = metrics.MinHeight,
+            CornerRadius = metrics.CornerRadius,
+            Background = metrics.Background,
+            BorderBrush = metrics.BorderBrush,
+            BorderThickness = metrics.BorderThickness,
+            Padding = metrics.Padding,
+            BoxShadow = metrics.BoxShadow,
             DataContext = node,
             Focusable = true,
             Transitions = new Transitions
@@ -234,33 +255,20 @@ public class MindMapEditor : UserControl
             }
         };
 
-        var layout = new Grid
-        {
-            RowDefinitions = new RowDefinitions("10,*,24")
-        };
-
-        var dragHandle = new Border
-        {
-            Background = Brush.Parse(node.AccentColor),
-            Cursor = new Cursor(StandardCursorType.SizeAll),
-            CornerRadius = new CornerRadius(8, 8, 0, 0)
-        };
-        ToolTip.SetTip(dragHandle, "拖拽移动节点");
-        dragHandle.PointerPressed += (sender, e) => HandleNodeDragStarted(node, sender as Control, e);
-        dragHandle.PointerMoved += HandleNodeDragged;
-        dragHandle.PointerReleased += HandleNodeDragCompleted;
-
         var titleBox = new TextBox
         {
-            Margin = new Thickness(12, 4, 12, 0),
             BorderThickness = new Thickness(0),
             Background = Brushes.Transparent,
-            FontSize = isRoot ? 18 : 14,
-            FontWeight = isRoot ? FontWeight.SemiBold : FontWeight.Medium,
+            Foreground = metrics.Foreground,
+            FontSize = metrics.FontSize,
+            FontWeight = metrics.FontWeight,
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = false,
-            PlaceholderText = isRoot ? "中心主题" : "主题",
-            VerticalContentAlignment = VerticalAlignment.Center
+            PlaceholderText = metrics.Placeholder,
+            HorizontalContentAlignment = metrics.TextAlignment,
+            VerticalContentAlignment = VerticalAlignment.Center,
+            MinHeight = metrics.MinHeight - metrics.Padding.Top - metrics.Padding.Bottom,
+            Padding = new Thickness(0)
         };
         titleBox.Bind(TextBox.TextProperty, new Binding(nameof(MindMapNode.Title))
         {
@@ -269,28 +277,18 @@ public class MindMapEditor : UserControl
             UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
         });
         titleBox.GotFocus += (_, _) => SelectNode(node);
-        titleBox.KeyDown += (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e);
+        titleBox.AddHandler(
+            KeyDownEvent,
+            (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
+            RoutingStrategies.Tunnel,
+            handledEventsToo: true);
 
-        var notePreview = new TextBlock
+        root.Child = titleBox;
+        root.SizeChanged += (_, _) =>
         {
-            Margin = new Thickness(12, 0, 12, 8),
-            FontSize = 11,
-            Foreground = Brush.Parse("#64748B"),
-            TextTrimming = TextTrimming.CharacterEllipsis,
-            VerticalAlignment = VerticalAlignment.Center
+            UpdateConnectors();
+            EnsureCanvasSize();
         };
-        notePreview.Bind(TextBlock.TextProperty, new Binding(nameof(MindMapNode.Note))
-        {
-            Source = node,
-            Mode = BindingMode.OneWay
-        });
-
-        Grid.SetRow(titleBox, 1);
-        Grid.SetRow(notePreview, 2);
-        layout.Children.Add(dragHandle);
-        layout.Children.Add(titleBox);
-        layout.Children.Add(notePreview);
-        root.Child = layout;
 
         root.PointerPressed += (_, e) =>
         {
@@ -341,7 +339,7 @@ public class MindMapEditor : UserControl
         }
 
         if ((e.Key == Key.Delete || e.Key == Key.Back)
-            && string.IsNullOrEmpty(editor?.Text)
+            && string.IsNullOrWhiteSpace(editor?.Text)
             && !viewModel.IsRoot(node))
         {
             var focusTarget = viewModel.DeleteNode(node);
@@ -384,7 +382,7 @@ public class MindMapEditor : UserControl
 
     private void HandleNodeDragStarted(MindMapNode node, Control? control, PointerPressedEventArgs e)
     {
-        if (control is null)
+        if (control is null || !e.GetCurrentPoint(control).Properties.IsLeftButtonPressed)
         {
             return;
         }
@@ -426,6 +424,78 @@ public class MindMapEditor : UserControl
         _dragNode = null;
         e.Pointer.Capture(null);
         e.Handled = true;
+    }
+
+    private void HandleCanvasPanStarted(object? sender, PointerPressedEventArgs e)
+    {
+        if (_isPanningCanvas
+            || _dragNode is not null
+            || !_isSpacePressed
+            || !IsCanvasPanSource(e.Source)
+            || !e.GetCurrentPoint(_scrollViewer).Properties.IsLeftButtonPressed)
+        {
+            return;
+        }
+
+        _isPanningCanvas = true;
+        _panStartPointer = e.GetPosition(_scrollViewer);
+        _panStartOffset = _scrollViewer.Offset;
+        _canvas.Cursor = new Cursor(StandardCursorType.SizeAll);
+        _scrollViewer.Cursor = new Cursor(StandardCursorType.SizeAll);
+        e.Pointer.Capture(_scrollViewer);
+        e.Handled = true;
+    }
+
+    private void HandleCanvasPanned(object? sender, PointerEventArgs e)
+    {
+        if (!_isPanningCanvas)
+        {
+            return;
+        }
+
+        var current = e.GetPosition(_scrollViewer);
+        var delta = current - _panStartPointer;
+        _scrollViewer.Offset = ClampScrollOffset(new Vector(
+            _panStartOffset.X - delta.X,
+            _panStartOffset.Y - delta.Y));
+        e.Handled = true;
+    }
+
+    private void HandleCanvasPanCompleted(object? sender, PointerReleasedEventArgs e)
+    {
+        if (!_isPanningCanvas)
+        {
+            return;
+        }
+
+        StopCanvasPan();
+        e.Pointer.Capture(null);
+        e.Handled = true;
+    }
+
+    private void StopCanvasPan()
+    {
+        _isPanningCanvas = false;
+        _canvas.Cursor = new Cursor(StandardCursorType.Hand);
+        _scrollViewer.Cursor = Cursor.Default;
+    }
+
+    private void HandleKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Space || e.Source is TextBox)
+        {
+            return;
+        }
+
+        _isSpacePressed = true;
+    }
+
+    private void HandleKeyUp(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Space)
+        {
+            _isSpacePressed = false;
+        }
     }
 
     private void HandlePointerWheelChanged(object? sender, PointerWheelEventArgs e)
@@ -485,9 +555,46 @@ public class MindMapEditor : UserControl
         };
     }
 
-    private static Button CreateZoomButton(string content, Action action, string tooltip)
+    private Vector ClampScrollOffset(Vector offset)
     {
-        var button = new Button
+        var maxX = Math.Max(0, _scrollViewer.Extent.Width - _scrollViewer.Viewport.Width);
+        var maxY = Math.Max(0, _scrollViewer.Extent.Height - _scrollViewer.Viewport.Height);
+        return new Vector(
+            Math.Clamp(offset.X, 0, maxX),
+            Math.Clamp(offset.Y, 0, maxY));
+    }
+
+    private bool IsCanvasPanSource(object? source)
+    {
+        if (source is not Visual visual)
+        {
+            return false;
+        }
+
+        for (var current = visual; current is not null; current = current.GetVisualParent())
+        {
+            if (current is TextBox or Button or ScrollBar or Thumb)
+            {
+                return false;
+            }
+
+            if (_nodeFrames.Values.Contains(current))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(current, _scrollViewer))
+            {
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    private static AtomButton CreateZoomButton(string content, Action action, string tooltip)
+    {
+        var button = new AtomButton
         {
             Content = content,
             MinWidth = 34,
@@ -575,10 +682,15 @@ public class MindMapEditor : UserControl
     {
         foreach (var (node, frame) in _nodeFrames)
         {
+            var metrics = GetNodeMetrics(node);
             var selected = ReferenceEquals(node, SelectedNode);
-            frame.BorderBrush = Brush.Parse(selected ? node.AccentColor : "#DDE3EA");
-            frame.BorderThickness = new Thickness(selected ? 2 : 1);
-            frame.BoxShadow = BoxShadows.Parse(selected ? "0 8 24 0 #26000000" : "0 4 16 0 #16000000");
+            frame.BorderBrush = selected ? Brush.Parse("#148BFF") : metrics.BorderBrush;
+            frame.BorderThickness = selected
+                ? new Thickness(metrics.IsTextOnly ? 0 : 2)
+                : metrics.BorderThickness;
+            frame.BoxShadow = selected && !metrics.IsTextOnly
+                ? BoxShadows.Parse("0 6 18 0 #18000000")
+                : metrics.BoxShadow;
         }
     }
 
@@ -597,16 +709,16 @@ public class MindMapEditor : UserControl
     {
         foreach (var connector in _connectors)
         {
-            var parentWidth = ViewModel?.IsRoot(connector.Parent) == true ? RootWidth : NodeWidth;
-            var parentHeight = ViewModel?.IsRoot(connector.Parent) == true ? RootHeight : NodeHeight;
-            var childHeight = ViewModel?.IsRoot(connector.Child) == true ? RootHeight : NodeHeight;
-
-            connector.Line.StartPoint = new Point(
-                connector.Parent.X + parentWidth,
-                connector.Parent.Y + parentHeight / 2);
-            connector.Line.EndPoint = new Point(
+            var parentSize = GetRenderedNodeSize(connector.Parent);
+            var childSize = GetRenderedNodeSize(connector.Child);
+            var start = new Point(
+                connector.Parent.X + parentSize.Width,
+                connector.Parent.Y + parentSize.Height / 2);
+            var end = new Point(
                 connector.Child.X,
-                connector.Child.Y + childHeight / 2);
+                connector.Child.Y + childSize.Height / 2);
+
+            connector.Path.Data = CreateConnectorGeometry(start, end);
         }
     }
 
@@ -615,14 +727,115 @@ public class MindMapEditor : UserControl
         var nodes = _nodeFrames.Keys.ToList();
         var width = nodes.Count == 0
             ? MinCanvasWidth
-            : nodes.Max(node => node.X + (ViewModel?.IsRoot(node) == true ? RootWidth : NodeWidth) + 180);
+            : nodes.Max(node => node.X + GetRenderedNodeSize(node).Width + 120);
         var height = nodes.Count == 0
             ? MinCanvasHeight
-            : nodes.Max(node => node.Y + (ViewModel?.IsRoot(node) == true ? RootHeight : NodeHeight) + 160);
+            : nodes.Max(node => node.Y + GetRenderedNodeSize(node).Height + 120);
 
         _canvas.Width = Math.Max(MinCanvasWidth, width);
         _canvas.Height = Math.Max(MinCanvasHeight, height);
     }
 
-    private sealed record Connector(MindMapNode Parent, MindMapNode Child, Line Line);
+    private Size GetRenderedNodeSize(MindMapNode node)
+    {
+        if (_nodeFrames.TryGetValue(node, out var frame)
+            && frame.Bounds.Width > 0
+            && frame.Bounds.Height > 0)
+        {
+            return frame.Bounds.Size;
+        }
+
+        var metrics = GetNodeMetrics(node);
+        return new Size(metrics.Width, metrics.MinHeight);
+    }
+
+    private NodeMetrics GetNodeMetrics(MindMapNode node)
+    {
+        var level = ViewModel?.GetLevel(node) ?? 1;
+        if (level <= 1)
+        {
+            return new NodeMetrics(
+                RootWidth,
+                RootMinHeight,
+                new CornerRadius(8),
+                Brush.Parse("#148BFF"),
+                Brushes.Transparent,
+                new Thickness(0),
+                new Thickness(10, 5),
+                BoxShadows.Parse("0 6 18 0 #16000000"),
+                Brushes.White,
+                18,
+                FontWeight.SemiBold,
+                HorizontalAlignment.Center,
+                "中心主题",
+                IsTextOnly: false);
+        }
+
+        if (level == 2)
+        {
+            return new NodeMetrics(
+                BranchWidth,
+                BranchMinHeight,
+                new CornerRadius(8),
+                Brush.Parse("#EEF0F3"),
+                Brushes.Transparent,
+                new Thickness(0),
+                new Thickness(12, 5),
+                BoxShadows.Parse("0 3 10 0 #0C000000"),
+                Brush.Parse("#111827"),
+                17,
+                FontWeight.Medium,
+                HorizontalAlignment.Center,
+                "主题",
+                IsTextOnly: false);
+        }
+
+        return new NodeMetrics(
+            LeafWidth,
+            LeafMinHeight,
+            new CornerRadius(0),
+            Brushes.Transparent,
+            Brushes.Transparent,
+            new Thickness(0),
+            new Thickness(0, 2),
+            default,
+            Brush.Parse("#111827"),
+            16,
+            FontWeight.Regular,
+            HorizontalAlignment.Left,
+            "主题",
+            IsTextOnly: true);
+    }
+
+    private static Geometry CreateConnectorGeometry(Point start, Point end)
+    {
+        var geometry = new StreamGeometry();
+        using var context = geometry.Open();
+        var distance = Math.Max(32, end.X - start.X);
+        var controlOffset = distance * 0.55;
+        context.BeginFigure(start, isFilled: false);
+        context.CubicBezierTo(
+            new Point(start.X + controlOffset, start.Y),
+            new Point(end.X - controlOffset, end.Y),
+            end);
+        return geometry;
+    }
+
+    private sealed record Connector(MindMapNode Parent, MindMapNode Child, Avalonia.Controls.Shapes.Path Path);
+
+    private sealed record NodeMetrics(
+        double Width,
+        double MinHeight,
+        CornerRadius CornerRadius,
+        IBrush Background,
+        IBrush BorderBrush,
+        Thickness BorderThickness,
+        Thickness Padding,
+        BoxShadows BoxShadow,
+        IBrush Foreground,
+        double FontSize,
+        FontWeight FontWeight,
+        HorizontalAlignment TextAlignment,
+        string Placeholder,
+        bool IsTextOnly);
 }

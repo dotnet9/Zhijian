@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -194,7 +195,11 @@ public class OutlineEditor : UserControl
             UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
         });
         titleBox.GotFocus += (_, _) => SelectNode(node);
-        titleBox.KeyDown += (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e);
+        titleBox.AddHandler(
+            KeyDownEvent,
+            (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
+            RoutingStrategies.Tunnel,
+            handledEventsToo: true);
         Grid.SetColumn(titleBox, 1);
 
         grid.Children.Add(dot);
@@ -254,7 +259,7 @@ public class OutlineEditor : UserControl
         }
 
         if ((e.Key == Key.Delete || e.Key == Key.Back)
-            && string.IsNullOrEmpty(editor?.Text)
+            && string.IsNullOrWhiteSpace(editor?.Text)
             && !viewModel.IsRoot(node))
         {
             var focusTarget = viewModel.DeleteNode(node);
