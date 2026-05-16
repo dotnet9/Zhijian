@@ -4,7 +4,9 @@ Zhijian is an Avalonia and AtomUI application for editing mind maps stored as Ma
 
 ## Repository layout
 
-- `src/Zhijian`: the single application project.
+- `src/CodeWF.MindView`: reusable mind-map controls, shared node model, and Markdown/OPML/XMind import/export contracts.
+- `src/CodeWF.MindView.Themes`: default resources for the mind-map controls.
+- `src/Zhijian`: the desktop application project. It owns the outline view, Markdown pane, shell, and file-picker implementation.
 - `docs`: design notes and project documentation.
 - `Directory.Packages.props`: centrally managed NuGet package versions.
 - `Directory.Build.props`: shared MSBuild settings.
@@ -19,4 +21,4 @@ Zhijian is an Avalonia and AtomUI application for editing mind maps stored as Ma
 
 ## Platform scope
 
-The project targets `net10.0` as one AtomUI desktop application. It does not keep platform-suffixed project names because there is no parallel web, mobile, or other platform project in this repository.
+The application targets `net10.0`. The reusable CodeWF.MindView libraries multi-target `net8.0`, `net9.0`, and `net10.0` so the control can be reused outside the Zhijian desktop shell.

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using CodeWF.MindView;
 
 namespace Zhijian.Services;
 

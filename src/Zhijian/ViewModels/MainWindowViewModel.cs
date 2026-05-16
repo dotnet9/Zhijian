@@ -3,9 +3,9 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using AtomUI.Controls;
 using Avalonia;
+using CodeWF.MindView;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Zhijian.Models;
 using Zhijian.Services;
 
 namespace Zhijian.ViewModels;
@@ -17,7 +17,7 @@ public enum MindMapDropPlacement
     Child
 }
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorController
 {
     private const double HorizontalSpacing = 160;
     private const double VerticalSpacing = 66;

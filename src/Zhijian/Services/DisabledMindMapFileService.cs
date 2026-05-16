@@ -1,4 +1,6 @@
-﻿namespace Zhijian.Services;
+using CodeWF.MindView;
+
+namespace Zhijian.Services;
 
 public sealed class DisabledMindMapFileService : IMindMapFileService
 {

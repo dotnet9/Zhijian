@@ -49,7 +49,9 @@ Zhijian uses Markdown as the default readable storage format and can also exchan
 
 ```text
 Zhijian/
-|-- src/Zhijian/              Avalonia and AtomUI application
+|-- src/CodeWF.MindView/        reusable mind-map controls and document codecs
+|-- src/CodeWF.MindView.Themes/ default resources for CodeWF.MindView
+|-- src/Zhijian/                Avalonia and AtomUI application
 |-- docs/                     Design notes and reference images
 |-- Directory.Build.props     Shared MSBuild settings
 |-- Directory.Packages.props  Central package versions

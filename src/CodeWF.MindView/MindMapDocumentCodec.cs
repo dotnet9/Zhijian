@@ -2,9 +2,8 @@
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
-using Zhijian.Models;
 
-namespace Zhijian.Services;
+namespace CodeWF.MindView;
 
 public static class MindMapDocumentCodec
 {
@@ -120,7 +119,7 @@ public static class MindMapDocumentCodec
         using (var archive = new ZipArchive(memory, ZipArchiveMode.Create, leaveOpen: true))
         {
             WriteArchiveEntry(archive, "content.json", CreateXMindContentJson(root));
-            WriteArchiveEntry(archive, "metadata.json", "{\"creator\":{\"name\":\"Zhijian\",\"version\":\"1.0\"}}");
+            WriteArchiveEntry(archive, "metadata.json", "{\"creator\":{\"name\":\"CodeWF.MindView\",\"version\":\"1.0\"}}");
             WriteArchiveEntry(archive, "manifest.json", "{\"file-entries\":{\"content.json\":{},\"metadata.json\":{}}}");
         }
 

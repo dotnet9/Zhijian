@@ -1,4 +1,4 @@
-﻿namespace Zhijian.Services;
+namespace CodeWF.MindView;
 
 public interface IMindMapFileService
 {

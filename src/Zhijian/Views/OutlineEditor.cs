@@ -10,7 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
-using Zhijian.Models;
+using CodeWF.MindView;
 using Zhijian.ViewModels;
 using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
 

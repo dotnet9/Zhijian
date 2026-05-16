@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:atom="using:AtomUI.Desktop.Controls"
              xmlns:icons="using:AtomUI.Icons.AntDesign"
+             xmlns:mind="https://codewf.com"
              xmlns:views="using:Zhijian.Views"
              xmlns:vm="using:Zhijian.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -129,11 +130,11 @@
                                    Foreground="{Binding PrimaryTextBrush}"
                                    VerticalAlignment="Center"/>
 
-                        <views:MindMapEditor x:Name="MindMap"
-                                             Grid.Row="1"
-                                             IsDarkTheme="{Binding IsDarkTheme}"
-                                             Roots="{Binding Roots}"
-                                             SelectedNode="{Binding SelectedNode, Mode=TwoWay}"/>
+                        <mind:MindMapEditor x:Name="MindMap"
+                                            Grid.Row="1"
+                                            IsDarkTheme="{Binding IsDarkTheme}"
+                                            Roots="{Binding Roots}"
+                                            SelectedNode="{Binding SelectedNode, Mode=TwoWay}"/>
                     </Grid>
                 </Border>
             </Grid>
@@ -264,13 +265,13 @@
                                            FontSize="12"
                                            Foreground="{Binding SecondaryTextBrush}"
                                            HorizontalAlignment="Center"/>
-                                <views:MindMapMiniMap x:Name="MiniMap"
-                                                      Grid.Row="1"
-                                                      Width="260"
-                                                      Height="160"
-                                                      Roots="{Binding Roots}"
-                                                      IsDarkTheme="{Binding IsDarkTheme}"
-                                                      ViewportBounds="{Binding ViewportBounds, ElementName=MindMap}"/>
+                                <mind:MindMapMiniMap x:Name="MiniMap"
+                                                     Grid.Row="1"
+                                                     Width="260"
+                                                     Height="160"
+                                                     Roots="{Binding Roots}"
+                                                     IsDarkTheme="{Binding IsDarkTheme}"
+                                                     ViewportBounds="{Binding ViewportBounds, ElementName=MindMap}"/>
                             </Grid>
                         </Border>
                     </atom:Popup>

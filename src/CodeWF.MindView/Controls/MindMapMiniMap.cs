@@ -5,9 +5,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using Zhijian.Models;
+using CodeWF.MindView;
 
-namespace Zhijian.Views;
+namespace CodeWF.MindView.Controls;
 
 public class MindMapMiniMap : Control
 {
@@ -87,8 +87,8 @@ public class MindMapMiniMap : Control
     {
         base.Render(context);
 
-        var background = Brush.Parse(IsDarkTheme ? "#0F172A" : "#F8FAFC");
-        var border = new Pen(Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA"), 1);
+        var background = GetResourceBrush(MindViewStyleKeys.MiniMapBackgroundBrushResource, "#F8FAFC", "#0F172A");
+        var border = new Pen(GetResourceBrush(MindViewStyleKeys.MiniMapBorderBrushResource, "#D8E0EA", "#334155"), 1);
         context.DrawRectangle(background, border, new RoundedRect(Bounds, 6));
 
         var nodes = FlattenNodes();
@@ -133,8 +133,8 @@ public class MindMapMiniMap : Control
             if (rect.Width > 2 && rect.Height > 2)
             {
                 context.DrawRectangle(
-                    Brush.Parse(IsDarkTheme ? "#1D4ED826" : "#148BFF22"),
-                    new Pen(Brush.Parse("#148BFF"), 1.2),
+                    GetResourceBrush(MindViewStyleKeys.MiniMapViewportBrushResource, "#148BFF22", "#1D4ED826"),
+                    new Pen(GetResourceBrush(MindViewStyleKeys.SelectionBrushResource, "#148BFF", "#60A5FA"), 1.2),
                     rect);
             }
         }
@@ -235,7 +235,7 @@ public class MindMapMiniMap : Control
 
     private void DrawConnectors(DrawingContext context, MindMapNode parent, Func<Point, Point> toPreview)
     {
-        var pen = new Pen(Brush.Parse(IsDarkTheme ? "#60A5FA" : "#148BFF"), 1);
+        var pen = new Pen(GetResourceBrush(MindViewStyleKeys.ConnectorBrushResource, "#148BFF", "#60A5FA"), 1);
         foreach (var child in parent.Children)
         {
             var start = toPreview(new Point(parent.X + NodeWidth, parent.Y + NodeHeight / 2));
@@ -266,5 +266,15 @@ public class MindMapMiniMap : Control
             : node.AccentColor);
         var opacityBrush = new SolidColorBrush(((ISolidColorBrush)fill).Color, IsDarkTheme ? 0.75 : 0.9);
         context.DrawRectangle(opacityBrush, null, new RoundedRect(rect, 4));
+    }
+
+    private IBrush GetResourceBrush(string key, string lightFallback, string darkFallback)
+    {
+        if (TryGetResource(key, ActualThemeVariant, out var value) && value is IBrush brush)
+        {
+            return brush;
+        }
+
+        return Brush.Parse(IsDarkTheme ? darkFallback : lightFallback);
     }
 }

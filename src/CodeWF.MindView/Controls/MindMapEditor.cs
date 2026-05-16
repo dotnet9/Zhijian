@@ -13,11 +13,10 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Zhijian.Models;
-using Zhijian.ViewModels;
+using CodeWF.MindView;
 using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
 
-namespace Zhijian.Views;
+namespace CodeWF.MindView.Controls;
 
 public class MindMapEditor : UserControl
 {
@@ -31,6 +30,9 @@ public class MindMapEditor : UserControl
 
     public static readonly StyledProperty<bool> IsDarkThemeProperty =
         AvaloniaProperty.Register<MindMapEditor, bool>(nameof(IsDarkTheme));
+
+    public static readonly StyledProperty<IMindMapEditorController?> ControllerProperty =
+        AvaloniaProperty.Register<MindMapEditor, IMindMapEditorController?>(nameof(Controller));
 
     public static readonly DirectProperty<MindMapEditor, string> ZoomTextProperty =
         AvaloniaProperty.RegisterDirect<MindMapEditor, string>(
@@ -136,6 +138,12 @@ public class MindMapEditor : UserControl
         set => SetValue(IsDarkThemeProperty, value);
     }
 
+    public IMindMapEditorController? Controller
+    {
+        get => GetValue(ControllerProperty);
+        set => SetValue(ControllerProperty, value);
+    }
+
     public string ZoomText
     {
         get => _zoomText;
@@ -148,7 +156,7 @@ public class MindMapEditor : UserControl
         private set => SetAndRaise(ViewportBoundsProperty, ref _viewportBounds, value);
     }
 
-    private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
+    private IMindMapEditorController? ControllerContext => Controller ?? DataContext as IMindMapEditorController;
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
@@ -165,6 +173,10 @@ public class MindMapEditor : UserControl
         else if (change.Property == IsDarkThemeProperty)
         {
             ApplyTheme();
+            Rebuild();
+        }
+        else if (change.Property == ControllerProperty)
+        {
             Rebuild();
         }
     }
@@ -278,7 +290,7 @@ public class MindMapEditor : UserControl
         {
             var path = new Avalonia.Controls.Shapes.Path
             {
-                Stroke = Brush.Parse("#148BFF"),
+                Stroke = GetConnectorBrush(),
                 StrokeThickness = 2,
                 IsHitTestVisible = false
             };
@@ -378,15 +390,15 @@ public class MindMapEditor : UserControl
 
     private void HandleTitleKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
     {
-        var viewModel = ViewModel;
-        if (viewModel is null)
+        var controller = ControllerContext;
+        if (controller is null)
         {
             return;
         }
 
         if (e.Key == Key.Enter)
         {
-            var nextNode = viewModel.HandleMapEnter(node);
+            var nextNode = controller.HandleMapEnter(node);
             FocusNode(nextNode);
             e.Handled = true;
             return;
@@ -396,11 +408,11 @@ public class MindMapEditor : UserControl
         {
             var nextNode = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
                 ? node
-                : viewModel.HandleMapTab(node);
+                : controller.HandleMapTab(node);
 
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                viewModel.PromoteNode(node);
+                controller.PromoteNode(node);
             }
 
             FocusNode(nextNode);
@@ -410,9 +422,9 @@ public class MindMapEditor : UserControl
 
         if ((e.Key == Key.Delete || e.Key == Key.Back)
             && string.IsNullOrWhiteSpace(editor?.Text)
-            && !viewModel.IsRoot(node))
+            && !controller.IsRoot(node))
         {
-            var focusTarget = viewModel.DeleteNode(node);
+            var focusTarget = controller.DeleteNode(node);
             FocusNode(focusTarget);
             e.Handled = true;
         }
@@ -420,15 +432,15 @@ public class MindMapEditor : UserControl
 
     private void HandleFrameKeyDown(MindMapNode node, KeyEventArgs e)
     {
-        var viewModel = ViewModel;
-        if (viewModel is null)
+        var controller = ControllerContext;
+        if (controller is null)
         {
             return;
         }
 
         if (e.Key == Key.Delete || e.Key == Key.Back)
         {
-            var focusTarget = viewModel.DeleteNode(node);
+            var focusTarget = controller.DeleteNode(node);
             FocusFrame(focusTarget);
             e.Handled = true;
             return;
@@ -436,7 +448,7 @@ public class MindMapEditor : UserControl
 
         if (e.Key == Key.Enter)
         {
-            var nextNode = viewModel.HandleMapEnter(node);
+            var nextNode = controller.HandleMapEnter(node);
             FocusNode(nextNode);
             e.Handled = true;
             return;
@@ -444,7 +456,7 @@ public class MindMapEditor : UserControl
 
         if (e.Key == Key.Tab && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
-            var nextNode = viewModel.HandleMapTab(node);
+            var nextNode = controller.HandleMapTab(node);
             FocusNode(nextNode);
             e.Handled = true;
         }
@@ -785,7 +797,7 @@ public class MindMapEditor : UserControl
         {
             var metrics = GetNodeMetrics(node);
             var selected = ReferenceEquals(node, SelectedNode);
-            frame.BorderBrush = selected ? Brush.Parse("#148BFF") : metrics.BorderBrush;
+            frame.BorderBrush = selected ? GetSelectionBrush() : metrics.BorderBrush;
             frame.BorderThickness = selected
                 ? new Thickness(metrics.IsTextOnly ? 0 : 2)
                 : metrics.BorderThickness;
@@ -852,19 +864,19 @@ public class MindMapEditor : UserControl
 
     private NodeMetrics GetNodeMetrics(MindMapNode node)
     {
-        var level = ViewModel?.GetLevel(node) ?? 1;
+        var level = ControllerContext?.GetLevel(node) ?? 1;
         if (level <= 1)
         {
             return new NodeMetrics(
                 RootWidth,
                 RootMinHeight,
                 new CornerRadius(8),
-                Brush.Parse("#148BFF"),
+                GetResourceBrush(MindViewStyleKeys.RootBackgroundBrushResource, "#148BFF", "#148BFF"),
                 Brushes.Transparent,
                 new Thickness(0),
                 new Thickness(10, 5),
                 BoxShadows.Parse("0 6 18 0 #16000000"),
-                Brushes.White,
+                GetResourceBrush(MindViewStyleKeys.RootForegroundBrushResource, "#FFFFFF", "#FFFFFF"),
                 18,
                 FontWeight.SemiBold,
                 HorizontalAlignment.Center,
@@ -878,7 +890,7 @@ public class MindMapEditor : UserControl
                 BranchWidth,
                 BranchMinHeight,
                 new CornerRadius(8),
-                Brush.Parse(IsDarkTheme ? "#1F2937" : "#EEF0F3"),
+                GetResourceBrush(MindViewStyleKeys.BranchBackgroundBrushResource, "#EEF0F3", "#1F2937"),
                 Brushes.Transparent,
                 new Thickness(0),
                 new Thickness(12, 5),
@@ -949,7 +961,17 @@ public class MindMapEditor : UserControl
 
     private IBrush GetCanvasBackgroundBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#111827" : "#F8FAFC");
+        return GetResourceBrush(MindViewStyleKeys.CanvasBackgroundBrushResource, "#F8FAFC", "#111827");
+    }
+
+    private IBrush GetConnectorBrush()
+    {
+        return GetResourceBrush(MindViewStyleKeys.ConnectorBrushResource, "#148BFF", "#60A5FA");
+    }
+
+    private IBrush GetSelectionBrush()
+    {
+        return GetResourceBrush(MindViewStyleKeys.SelectionBrushResource, "#148BFF", "#60A5FA");
     }
 
     private IBrush GetPanelBackgroundBrush()
@@ -964,11 +986,21 @@ public class MindMapEditor : UserControl
 
     private IBrush GetPrimaryTextBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#F9FAFB" : "#111827");
+        return GetResourceBrush(MindViewStyleKeys.PrimaryTextBrushResource, "#111827", "#F9FAFB");
     }
 
     private IBrush GetSecondaryTextBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#CBD5E1" : "#334155");
+        return GetResourceBrush(MindViewStyleKeys.SecondaryTextBrushResource, "#334155", "#CBD5E1");
+    }
+
+    private IBrush GetResourceBrush(string key, string lightFallback, string darkFallback)
+    {
+        if (TryGetResource(key, ActualThemeVariant, out var value) && value is IBrush brush)
+        {
+            return brush;
+        }
+
+        return Brush.Parse(IsDarkTheme ? darkFallback : lightFallback);
     }
 }
