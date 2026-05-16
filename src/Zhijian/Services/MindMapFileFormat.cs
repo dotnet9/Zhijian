@@ -1,4 +1,4 @@
-namespace Zhijian.Desktop.Services;
+﻿namespace Zhijian.Services;
 
 public enum MindMapFileFormat
 {

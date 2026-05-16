@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Zhijian.Desktop.ViewModels;
+namespace Zhijian.ViewModels;
 
 public abstract class ViewModelBase : ObservableObject
 {

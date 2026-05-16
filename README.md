@@ -1,6 +1,6 @@
 # Zhijian
 
-Zhijian is a lightweight desktop mind-map editor built with Avalonia. It focuses on a fast dual-pane workflow: edit the outline or Markdown on the left, and keep a live mind-map preview on the right.
+Zhijian is a lightweight mind-map editor built with Avalonia and AtomUI. It focuses on a fast dual-pane workflow: edit the outline or Markdown on the left, and keep a live mind-map preview on the right.
 
 ## Features
 
@@ -15,7 +15,9 @@ Zhijian is a lightweight desktop mind-map editor built with Avalonia. It focuses
 - Keyboard-first outline editing for adding, moving, promoting, demoting, and deleting nodes.
 - Mind-map node editing with inline titles, note previews, drag movement, and selection sync.
 - Mind-map canvas panning with `Space + left mouse` on empty canvas space.
-- Zoom controls on the mind-map canvas plus `Ctrl + mouse wheel` zoom from 10% to 200%.
+- Unified status bar with node statistics, undo/redo step history, mini-map preview, center-topic navigation, zoom, and help actions.
+- Zoom controls in the status bar plus `Ctrl + mouse wheel` zoom from 10% to 200%.
+- Draggable splitter between the outline and mind-map panes.
 - Title-bar file menu for Markdown, OPML, and XMind import/export.
 - Title-bar theme switch between light and dark modes.
 - Import and export support for Markdown, OPML, and XMind.
@@ -31,7 +33,7 @@ Keyboard shortcuts are available when editing a node title:
 - `Shift + Tab`: promote a node.
 - `Delete` or `Backspace`: delete an empty non-root node. Pressing `Backspace` once clears the last character; pressing it again on the empty title removes the node.
 
-The right pane is the mind-map canvas. Select or edit nodes directly, drag node color handles to reposition nodes, hold `Space` and drag empty canvas space with the left mouse button to pan, and use the zoom control in the lower-right corner for a comfortable canvas scale.
+The right pane is the mind-map canvas. Select or edit nodes directly, drag node color handles to reposition nodes, hold `Space` and drag empty canvas space with the left mouse button to pan, and use the status bar controls for zoom, mini-map navigation, and centering the root topic. `Ctrl + L` also returns the canvas to the center topic.
 
 File actions are available from the title bar through the `File` menu.
 
@@ -47,7 +49,7 @@ Zhijian uses Markdown as the default readable storage format and can also exchan
 
 ```text
 Zhijian/
-|-- src/Zhijian.Desktop/      Avalonia desktop application
+|-- src/Zhijian/              Avalonia and AtomUI application
 |-- docs/                     Design notes and reference images
 |-- Directory.Build.props     Shared MSBuild settings
 |-- Directory.Packages.props  Central package versions
@@ -67,7 +69,7 @@ Common commands:
 dotnet restore Zhijian.slnx
 dotnet build Zhijian.slnx
 dotnet format Zhijian.slnx --verify-no-changes
-dotnet run --project src/Zhijian.Desktop/Zhijian.Desktop.csproj
+dotnet run --project src/Zhijian/Zhijian.csproj
 ```
 
 ## Verification
@@ -76,4 +78,4 @@ Recent verification covered:
 
 - building the solution with zero warnings and zero errors
 - formatting verification with `dotnet format --verify-no-changes`
-- running the desktop app and screenshot-checking the outline, Markdown editor, file menu, and zoom controls
+- running the app and screenshot-checking the title bar, draggable split view, unified status bar, mini-map, center-topic action, Space-drag canvas panning, and dark theme

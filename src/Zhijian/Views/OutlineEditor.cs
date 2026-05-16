@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using Avalonia;
@@ -10,11 +10,11 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
-using Zhijian.Desktop.Models;
-using Zhijian.Desktop.ViewModels;
+using Zhijian.Models;
+using Zhijian.ViewModels;
 using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
 
-namespace Zhijian.Desktop.Views;
+namespace Zhijian.Views;
 
 public class OutlineEditor : UserControl
 {

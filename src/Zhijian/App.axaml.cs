@@ -1,15 +1,15 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using AtomUI;
 using AtomUI.Desktop.Controls;
 using AtomUI.Theme;
 using AtomUI.Theme.Language;
-using Zhijian.Desktop.Services;
-using Zhijian.Desktop.ViewModels;
-using Zhijian.Desktop.Views;
+using Zhijian.Services;
+using Zhijian.ViewModels;
+using Zhijian.Views;
 
-namespace Zhijian.Desktop;
+namespace Zhijian;
 
 public partial class App : Application
 {

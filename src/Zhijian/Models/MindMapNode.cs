@@ -1,7 +1,7 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Zhijian.Desktop.Models;
+namespace Zhijian.Models;
 
 public partial class MindMapNode : ObservableObject
 {

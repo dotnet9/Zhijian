@@ -1,8 +1,8 @@
-using System.Text;
+﻿using System.Text;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 
-namespace Zhijian.Desktop.Services;
+namespace Zhijian.Services;
 
 public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileService
 {

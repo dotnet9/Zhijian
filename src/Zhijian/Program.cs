@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace Zhijian.Desktop;
+namespace Zhijian;
 
 sealed class Program
 {

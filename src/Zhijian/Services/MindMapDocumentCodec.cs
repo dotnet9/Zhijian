@@ -1,10 +1,10 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
-using Zhijian.Desktop.Models;
+using Zhijian.Models;
 
-namespace Zhijian.Desktop.Services;
+namespace Zhijian.Services;
 
 public static class MindMapDocumentCodec
 {

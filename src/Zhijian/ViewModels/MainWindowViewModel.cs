@@ -1,14 +1,14 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using AtomUI.Controls;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Zhijian.Desktop.Models;
-using Zhijian.Desktop.Services;
+using Zhijian.Models;
+using Zhijian.Services;
 
-namespace Zhijian.Desktop.ViewModels;
+namespace Zhijian.ViewModels;
 
 public enum MindMapDropPlacement
 {
@@ -22,6 +22,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private const double HorizontalSpacing = 160;
     private const double VerticalSpacing = 66;
     private const double RootX = 72;
+    private const int MaxHistorySteps = 80;
 
     private static readonly string[] Palette =
     [
@@ -37,9 +38,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private readonly IMindMapFileService _fileService;
     private readonly HashSet<MindMapNode> _observedNodes = [];
+    private readonly List<HistoryEntry> _history = [];
     private int _nextPaletteIndex;
+    private int _historyIndex = -1;
     private bool _isApplyingMarkdown;
     private bool _isSyncingMarkdownFromTree;
+    private bool _isRestoringHistory;
 
     [ObservableProperty]
     private MindMapNode? _selectedNode;
@@ -90,6 +94,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedNode = Root;
         AutoLayout();
         SyncMarkdownFromTree();
+        RecordHistoryStep("初始内容");
     }
 
     public ObservableCollection<MindMapNode> Roots { get; }
@@ -107,6 +112,12 @@ public partial class MainWindowViewModel : ViewModelBase
         : $"{NodeCount} 个节点 · 第 {GetLevel(SelectedNode)} 层 · {SelectedNode.Children.Count} 个子节点";
 
     public int NodeCount => FlattenNodes().Count;
+
+    public bool CanUndo => _historyIndex > 0;
+
+    public bool CanRedo => _historyIndex >= 0 && _historyIndex < _history.Count - 1;
+
+    public string HistorySummary => _history.Count == 0 ? "步骤 0/0" : $"步骤 {_historyIndex + 1}/{_history.Count}";
 
     public string ShellBackground => IsDarkTheme ? "#111827" : "#F3F6FA";
 
@@ -134,6 +145,32 @@ public partial class MainWindowViewModel : ViewModelBase
 
         SyncMarkdownFromTree();
         IsMarkdownMode = true;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUndo))]
+    private void Undo()
+    {
+        if (!CanUndo)
+        {
+            return;
+        }
+
+        _historyIndex--;
+        RestoreHistoryEntry(_history[_historyIndex]);
+        StatusText = $"已后退：{_history[_historyIndex].Label}";
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRedo))]
+    private void Redo()
+    {
+        if (!CanRedo)
+        {
+            return;
+        }
+
+        _historyIndex++;
+        RestoreHistoryEntry(_history[_historyIndex]);
+        StatusText = $"已前进：{_history[_historyIndex].Label}";
     }
 
     public bool IsRoot(MindMapNode? node)
@@ -186,6 +223,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedNode = child;
         AutoLayout();
         SyncMarkdownFromTree();
+        RecordHistoryStep("添加子主题");
         return child;
     }
 
@@ -204,6 +242,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedNode = sibling;
         AutoLayout();
         SyncMarkdownFromTree();
+        RecordHistoryStep("添加同级主题");
         return sibling;
     }
 
@@ -224,6 +263,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedNode = focusTarget;
         AutoLayout();
         SyncMarkdownFromTree();
+        RecordHistoryStep("删除主题");
         return focusTarget;
     }
 
@@ -252,6 +292,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedNode = node;
         AutoLayout();
         SyncMarkdownFromTree();
+        RecordHistoryStep("降级主题");
         return true;
     }
 
@@ -280,6 +321,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedNode = node;
         AutoLayout();
         SyncMarkdownFromTree();
+        RecordHistoryStep("升级主题");
         return true;
     }
 
@@ -337,6 +379,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedNode = node;
         AutoLayout();
         SyncMarkdownFromTree();
+        RecordHistoryStep("移动主题");
         return true;
     }
 
@@ -351,7 +394,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            ReplaceTree(MindMapDocumentCodec.FromMarkdown(content));
+            ReplaceTree(MindMapDocumentCodec.FromMarkdown(content), "导入 Markdown");
             StatusText = "已导入 Markdown";
         });
     }
@@ -367,7 +410,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            ReplaceTree(MindMapDocumentCodec.FromOpml(content));
+            ReplaceTree(MindMapDocumentCodec.FromOpml(content), "导入 OPML");
             StatusText = "已导入 OPML";
         });
     }
@@ -383,7 +426,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            ReplaceTree(MindMapDocumentCodec.FromXMind(content));
+            ReplaceTree(MindMapDocumentCodec.FromXMind(content), "导入 XMind");
             StatusText = "已导入 XMind";
         });
     }
@@ -489,7 +532,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private void ReplaceTree(MindMapNode root)
+    private void ReplaceTree(MindMapNode root, string historyLabel)
     {
         try
         {
@@ -506,6 +549,8 @@ public partial class MainWindowViewModel : ViewModelBase
             _isApplyingMarkdown = false;
             SyncMarkdownFromTree();
         }
+
+        RecordHistoryStep(historyLabel);
     }
 
     private static void AppendFlattened(MindMapNode node, List<MindMapNode> nodes)
@@ -582,6 +627,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (e.PropertyName is nameof(MindMapNode.Title) or nameof(MindMapNode.Note))
         {
             SyncMarkdownFromTree();
+            RecordHistoryStep("编辑主题");
         }
     }
 
@@ -748,5 +794,70 @@ public partial class MainWindowViewModel : ViewModelBase
                 SyncMarkdownFromTree();
             }
         }
+
+        RecordHistoryStep("编辑 Markdown");
     }
+
+    private void RecordHistoryStep(string label)
+    {
+        if (_isRestoringHistory || Roots.Count == 0)
+        {
+            return;
+        }
+
+        var snapshot = MindMapDocumentCodec.ToMarkdown(Root);
+        if (_historyIndex >= 0 && _history[_historyIndex].Snapshot == snapshot)
+        {
+            return;
+        }
+
+        if (_historyIndex < _history.Count - 1)
+        {
+            _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
+        }
+
+        _history.Add(new HistoryEntry(label, snapshot));
+        if (_history.Count > MaxHistorySteps)
+        {
+            _history.RemoveAt(0);
+        }
+
+        _historyIndex = _history.Count - 1;
+        RefreshHistoryState();
+    }
+
+    private void RestoreHistoryEntry(HistoryEntry entry)
+    {
+        try
+        {
+            _isRestoringHistory = true;
+            _isApplyingMarkdown = true;
+            var root = MindMapDocumentCodec.FromMarkdown(entry.Snapshot);
+
+            Roots.Clear();
+            Roots.Add(root);
+            AssignMissingColors(root);
+            SelectedNode = root;
+            AutoLayout();
+            RefreshTreeSummary();
+        }
+        finally
+        {
+            _isApplyingMarkdown = false;
+            _isRestoringHistory = false;
+            SyncMarkdownFromTree();
+            RefreshHistoryState();
+        }
+    }
+
+    private void RefreshHistoryState()
+    {
+        OnPropertyChanged(nameof(CanUndo));
+        OnPropertyChanged(nameof(CanRedo));
+        OnPropertyChanged(nameof(HistorySummary));
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+    }
+
+    private sealed record HistoryEntry(string Label, string Snapshot);
 }
