@@ -384,8 +384,9 @@ public class MindMapEditor : UserControl
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = false,
             PlaceholderText = metrics.Placeholder,
-            PlaceholderForeground = GetSecondaryTextBrush(),
+            PlaceholderForeground = isRoot ? Brushes.White : GetSecondaryTextBrush(),
             FocusAdorner = null,
+            TextAlignment = ToTextAlignment(metrics.TextAlignment),
             HorizontalContentAlignment = metrics.TextAlignment,
             VerticalContentAlignment = VerticalAlignment.Center,
             MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
@@ -516,17 +517,21 @@ public class MindMapEditor : UserControl
 
     private TextBox CreateNoteEditor(MindMapNode node, NodeMetrics metrics)
     {
+        var noteForeground = metrics.IsTextOnly
+            ? GetSecondaryTextBrush()
+            : Brush.Parse(IsDarkTheme ? "#CBD5E1" : "#D1D5DB");
         var noteBox = new TextBox
         {
             BorderThickness = new Thickness(0),
             Background = Brushes.Transparent,
-            Foreground = GetSecondaryTextBrush(),
+            Foreground = noteForeground,
             FontSize = MindMapLayoutMetrics.NoteFontSize,
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = true,
             PlaceholderText = "备注",
-            PlaceholderForeground = GetSecondaryTextBrush(),
+            PlaceholderForeground = noteForeground,
             FocusAdorner = null,
+            TextAlignment = ToTextAlignment(metrics.TextAlignment),
             MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
             MaxWidth = Math.Max(12, metrics.MaxWidth - metrics.Padding.Left - metrics.Padding.Right),
             MinHeight = MindMapLayoutMetrics.NoteMinHeight,
@@ -1679,12 +1684,12 @@ public class MindMapEditor : UserControl
                 MindMapLayoutMetrics.BranchMaxWidth,
                 MindMapLayoutMetrics.BranchMinHeight,
                 new CornerRadius(8),
-                GetResourceBrush(MindViewStyleKeys.BranchBackgroundBrushResource, "#EEF0F3", "#1F2937"),
+                GetNodeAccentBrush(node, "#2563EB"),
                 Brushes.Transparent,
                 new Thickness(0),
                 new Thickness(12, 5),
-                BoxShadows.Parse(IsDarkTheme ? "0 3 10 0 #26000000" : "0 3 10 0 #0C000000"),
-                GetPrimaryTextBrush(),
+                BoxShadows.Parse(IsDarkTheme ? "0 4 14 0 #2A000000" : "0 5 16 0 #18000000"),
+                Brushes.White,
                 17,
                 FontWeight.Medium,
                 HorizontalAlignment.Center,
@@ -1782,7 +1787,29 @@ public class MindMapEditor : UserControl
 
     private IBrush GetSecondaryTextBrush()
     {
-        return GetResourceBrush(MindViewStyleKeys.SecondaryTextBrushResource, "#334155", "#CBD5E1");
+        return GetResourceBrush(MindViewStyleKeys.SecondaryTextBrushResource, "#6B7280", "#9CA3AF");
+    }
+
+    private static IBrush GetNodeAccentBrush(MindMapNode node, string fallback)
+    {
+        try
+        {
+            return Brush.Parse(string.IsNullOrWhiteSpace(node.AccentColor) ? fallback : node.AccentColor);
+        }
+        catch (FormatException)
+        {
+            return Brush.Parse(fallback);
+        }
+    }
+
+    private static TextAlignment ToTextAlignment(HorizontalAlignment alignment)
+    {
+        return alignment switch
+        {
+            HorizontalAlignment.Center => TextAlignment.Center,
+            HorizontalAlignment.Right => TextAlignment.Right,
+            _ => TextAlignment.Left
+        };
     }
 
     private IBrush GetResourceBrush(string key, string lightFallback, string darkFallback)

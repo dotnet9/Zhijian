@@ -2,34 +2,34 @@
 
 English version: [source-design.md](source-design.md)
 
-枝见把可复用 Avalonia 脑图能力和 AtomUI 桌面应用外壳拆开维护。核心规则很清楚：通用文档模型、脑图画布和格式编解码放在 `CodeWF.MindView`；具体桌面体验、菜单、窗口和文件交互放在 `Zhijian`。
+枝见拆分为可复用 Avalonia 脑图库和 AtomUI 桌面应用。核心设计规则很简单：可复用的文档和画布行为放在 `CodeWF.MindView`，产品化桌面工作流放在 `Zhijian`。
 
-![枝见实际运行界面](media/zhijian-main-window.png)
+![枝见运行界面](media/zhijian-main-window.png)
 
 ## 设计目标
 
-- **模型唯一**：大纲、Markdown、脑图、导入导出都围绕 `MindMapNode` 工作。
-- **控件可复用**：`CodeWF.MindView` 只引用 Avalonia，不引用 AtomUI。
-- **体验由应用负责**：枝见应用使用 AtomUI 的窗口、菜单、文本框、按钮、对话框和 ToolTip。
-- **交互即时同步**：在大纲或脑图任一侧编辑，另一侧立即反映同一棵树。
-- **布局可预测**：节点标题和备注都参与宽高估算，减少深层脑图重叠。
-- **菜单更顺手**：大纲和脑图菜单直接提供常用结构操作，不把高频动作只藏在快捷键里。
+- **单一模型**：大纲、Markdown、脑图、打开/保存和导出都围绕 `MindMapNode` 工作。
+- **控件可复用**：`CodeWF.MindView` 只引用 Avalonia，不依赖 AtomUI。
+- **体验由应用层负责**：枝见使用 AtomUI 窗口、菜单、列表、文本框、按钮、对话框和 ToolTip。
+- **即时同步**：大纲、Markdown 或脑图中的编辑都会通过同一棵树更新其他视图。
+- **布局可预期**：节点标题和备注都会参与宽高估算，减少深层脑图重叠。
+- **操作友好**：文件菜单、节点菜单、快捷键、小图、缩放和画布拖拽都有可见入口。
 
-## 真实交互截图
+## 真实交互素材
 
-以下资源均来自本轮实际运行枝见桌面程序，并通过模拟用户操作截取。
+这些素材都来自真实运行的桌面程序，并通过模拟用户操作截取。
 
 ![文件菜单](media/zhijian-file-menu.png)
 
-![大纲结构菜单](media/zhijian-outline-menu.png)
+![打开文件夹](media/zhijian-open-folder.gif)
 
-![脑图结构菜单](media/zhijian-mind-menu.png)
+![大纲和脑图菜单](media/zhijian-node-menus.gif)
 
-![备注同步](media/zhijian-note-sync.gif)
+![小图](media/zhijian-minimap.gif)
 
-![拖动分隔条](media/zhijian-splitter-resize.gif)
+![缩放](media/zhijian-zoom.gif)
 
-![小图预览](media/zhijian-minimap-popover.png)
+![画布拖拽](media/zhijian-canvas-pan.gif)
 
 ## 项目组织
 
@@ -37,47 +37,57 @@ English version: [source-design.md](source-design.md)
 src/
   CodeWF.MindView/
     MindMapNode.cs              共享节点模型
-    MindMapLayoutMetrics.cs     节点尺寸与布局估算
-    MindMapDropPlacement.cs     拖拽落点：前、后、子节点
+    MindMapLayoutMetrics.cs     节点尺寸和布局估算
+    MindMapDropPlacement.cs     前 / 后 / 子级拖拽语义
     MindMapDocumentCodec.cs     Markdown / OPML / XMind 编解码
+    IMindMapEditorController.cs 编辑器宿主接口
+    IMindMapFileService.cs      应用使用的文件服务抽象
     Controls/
-      MindMapEditor.cs          脑图主编辑控件
+      MindMapEditor.cs          主要脑图编辑控件
       MindMapMiniMap.cs         小图概览控件
   CodeWF.MindView.Themes/
-    Themes/Common.axaml         脑图控件默认资源
+    Themes/Common.axaml         默认脑图资源
   Zhijian/
-    Views/MainWindow.axaml      主窗口布局
+    Views/MainWindow.axaml      主桌面布局
     Views/OutlineEditor.cs      AtomUI 大纲编辑器
+    Views/*Window.axaml         对话框、关于、更新日志、感谢窗口
+    Services/                  Avalonia 文件和应用动作服务
     ViewModels/MainWindowViewModel.cs
 ```
 
 ## 数据模型
 
-`MindMapNode` 是共享文档模型，保存标题、备注、颜色、布局坐标和子节点。`MainWindowViewModel` 持有根节点集合和当前选中节点：
+`MindMapNode` 是共享文档模型。它保存标题、备注、强调色、布局坐标和子节点。`MainWindowViewModel` 持有根集合和当前选择：
 
 ```csharp
 public ObservableCollection<MindMapNode> Roots { get; }
 public MindMapNode? SelectedNode { get; set; }
 ```
 
-大纲编辑器、Markdown 编辑器、脑图编辑器、小图和文件编解码都读写这一份模型。树结构变化时会重新订阅节点通知，保证新建节点也进入同步链路。
+大纲编辑器、Markdown 编辑器、脑图编辑器、小图和文件编解码都读写同一个模型。结构变化后会重新订阅节点通知，确保新建节点继续参与同步。
+
+## 桌面工作流
+
+文件菜单属于应用层工作流。它负责创建空白文档、启动新编辑器进程、打开支持的文件、把文件夹加载到文件 Tab、把最近文件保存到 `recent-files.json`、保存当前文档、另存为其他格式、打开当前文件位置，以及关闭前询问是否保存未保存改动。
+
+文件夹 Tab 使用 AtomUI `ListBox`，因为桌面应用刻意运行在 AtomUI 样式体系上，而不是 Avalonia Fluent 样式体系。
 
 ## 脑图控件
 
-`MindMapEditor` 在 `ScrollViewer` 内部通过画布绘制节点和连接线，负责：
+`MindMapEditor` 在滚动视图中的 Canvas 上渲染节点和连线。它处理：
 
 - 标题和备注内联编辑
-- 拖拽改父子关系或调整同级顺序
+- 拖拽重排兄弟节点和调整父子关系
 - 虚线落点预览
-- 缩放和画布平移
-- 为小图提供视口信息
-- 节点悬浮操作栏：备注和删除
+- 缩放和 `Space + 左键拖拽` 画布平移
+- 给小图使用的视口跟踪
+- 常用结构编辑、备注和删除的浮动节点操作
 
-节点编辑器使用 Avalonia 控件，而不是 AtomUI 控件，这样 `CodeWF.MindView` 保持独立可复用。
+节点编辑器使用 Avalonia 控件，而不是 AtomUI 控件，所以可复用库保持独立。
 
 ## 大纲编辑器
 
-`OutlineEditor` 属于应用层，因为它使用 AtomUI 文本框、菜单和 AntDesign 图标。节点圆点菜单提供这些高频结构操作：
+`OutlineEditor` 属于应用层代码，因为它使用 AtomUI 文本框、菜单和 AntDesign 图标。节点圆点菜单提供用户常用结构操作：
 
 - 添加子级
 - 添加同级
@@ -88,11 +98,11 @@ public MindMapNode? SelectedNode { get; set; }
 - 编辑备注
 - 删除
 
-同一个圆点区域同时支持点击/右键菜单和拖拽。只有移动距离超过阈值才进入拖拽，避免普通点击菜单时被拖拽逻辑抢占。
+同一个圆点区域支持点击/右键菜单和拖拽。只有移动距离超过阈值才进入拖拽，避免菜单点击和拖拽互相抢事件。
 
 ## 新应用接入
 
-新的 Avalonia 应用可以只使用可复用控件，不需要引用 `Zhijian` 桌面应用。
+新的 Avalonia 应用可以不引用 `Zhijian` 桌面应用，只复用控件库。
 
 添加项目引用：
 
@@ -115,7 +125,7 @@ public MindMapNode? SelectedNode { get; set; }
 </Application>
 ```
 
-在页面中使用脑图编辑器：
+在视图中放置编辑器：
 
 ```xml
 <UserControl
@@ -135,7 +145,7 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
 {
     public ObservableCollection<MindMapNode> Roots { get; } =
     [
-        new MindMapNode("中心主题")
+        new MindMapNode("Center topic")
     ];
 
     public MindMapNode? SelectedNode { get; set; }
@@ -144,14 +154,19 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
     public bool IsRoot(MindMapNode? node) => ...;
     public MindMapNode HandleMapEnter(MindMapNode node) => ...;
     public MindMapNode HandleMapTab(MindMapNode node) => ...;
+    public MindMapNode AddChild(MindMapNode? parent, string title = "New topic") => ...;
+    public MindMapNode AddSibling(MindMapNode? node, string title = "New topic") => ...;
     public bool PromoteNode(MindMapNode? node) => ...;
+    public bool DemoteNode(MindMapNode? node) => ...;
     public MindMapNode DeleteNode(MindMapNode? node) => ...;
     public bool CanMoveNode(MindMapNode? node, MindMapNode? target) => ...;
     public bool MoveNode(MindMapNode? node, MindMapNode? target, MindMapDropPlacement placement) => ...;
 }
 ```
 
-如果新应用还需要大纲视图、标题栏菜单、文件导入导出或 Markdown 面板，可以参考 `src/Zhijian` 的完整实现。注意这些属于应用外壳代码，而 `CodeWF.MindView` 是可复用的 Avalonia-only 控件库。
+如果新应用还需要大纲编辑器、标题栏菜单、文件打开/保存、文件夹浏览、最近文件或 Markdown 编辑，可以参考并复用 `src/Zhijian` 的应用层实现。需要区分的是：这些是应用外壳代码，而 `CodeWF.MindView` 是可复用的 Avalonia-only 控件库。
+
+仓库地址：<https://github.com/dotnet9/Zhijian>
 
 ## 开源项目感谢
 

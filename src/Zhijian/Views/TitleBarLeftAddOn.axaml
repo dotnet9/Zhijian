@@ -9,6 +9,18 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
+    <UserControl.Styles>
+        <Style Selector="atom|MenuItem /template/ atom|Icon#MenuIndicatorIcon">
+            <Setter Property="IsVisible" Value="False"/>
+            <Setter Property="Width" Value="0"/>
+            <Setter Property="Height" Value="0"/>
+        </Style>
+        <Style Selector="atom|MenuItem /template/ Panel#PART_MenuIndicatorIconHost">
+            <Setter Property="Width" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+    </UserControl.Styles>
+
     <StackPanel Orientation="Horizontal"
                 VerticalAlignment="Center"
                 Spacing="14">
@@ -22,20 +34,26 @@
                    VerticalAlignment="Center">
             <atom:MenuItem Header="文件"
                            AutomationProperties.Name="File menu">
-                <atom:MenuItem Header="导入 Markdown" Command="{Binding ImportMarkdownCommand}"/>
-                <atom:MenuItem Header="导入 OPML" Command="{Binding ImportOpmlCommand}"/>
-                <atom:MenuItem Header="导入 XMind" Command="{Binding ImportXMindCommand}"/>
-                <atom:MenuItem Header="导出 Markdown" Command="{Binding ExportMarkdownCommand}"/>
-                <atom:MenuItem Header="导出 OPML" Command="{Binding ExportOpmlCommand}"/>
-                <atom:MenuItem Header="导出 XMind" Command="{Binding ExportXMindCommand}"/>
+                <atom:MenuItem x:Name="NewDocumentItem" Header="新建" InputGesture="Ctrl+N"/>
+                <atom:MenuItem x:Name="NewWindowItem" Header="新建窗口" InputGesture="Ctrl+Shift+N"/>
+                <atom:MenuItem x:Name="OpenDocumentItem" Header="打开..." InputGesture="Ctrl+O"/>
+                <atom:MenuItem x:Name="OpenFolderItem" Header="打开文件夹..." InputGesture="Ctrl+K"/>
+                <atom:MenuItem x:Name="RecentFilesMenu"
+                               Header="打开最近文件"/>
+                <atom:MenuSeparator/>
+                <atom:MenuItem x:Name="SaveItem" Header="保存" InputGesture="Ctrl+S"/>
+                <atom:MenuItem x:Name="SaveAsItem" Header="另存为..." InputGesture="Ctrl+Shift+S"/>
+                <atom:MenuItem x:Name="OpenFileLocationItem" Header="打开文件位置"/>
+                <atom:MenuSeparator/>
+                <atom:MenuItem x:Name="CloseItem" Header="关闭"/>
             </atom:MenuItem>
 
             <atom:MenuItem Header="关于"
                            AutomationProperties.Name="About menu">
-                <atom:MenuItem Header="打开网站" Command="{Binding OpenWebsiteCommand}"/>
-                <atom:MenuItem Header="更新日志" Command="{Binding ShowChangelogCommand}"/>
-                <atom:MenuItem Header="感谢" Command="{Binding ShowThanksCommand}"/>
-                <atom:MenuItem Header="关于" Command="{Binding ShowAboutCommand}"/>
+                <atom:MenuItem x:Name="OpenWebsiteItem" Header="打开网站"/>
+                <atom:MenuItem x:Name="ShowChangelogItem" Header="更新日志"/>
+                <atom:MenuItem x:Name="ShowThanksItem" Header="感谢"/>
+                <atom:MenuItem x:Name="ShowAboutItem" Header="关于"/>
             </atom:MenuItem>
         </atom:Menu>
     </StackPanel>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Text.Json;
 using AtomUI.Controls;
 using Avalonia;
 using CodeWF.MindView;
@@ -18,28 +19,34 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private const double RootY = 72;
     private const double MinNodeY = 24;
     private const int MaxHistorySteps = 80;
+    private const int MaxRecentFiles = 12;
+    private const string RecentFilesName = "recent-files.json";
 
     private static readonly string[] Palette =
     [
-        "#235C9B",
-        "#47A878",
-        "#E69B38",
-        "#7A5AF8",
-        "#D94D68",
-        "#1F8A9B",
-        "#9B6A23",
-        "#4A6FD9"
+        "#2563EB",
+        "#16A34A",
+        "#F97316",
+        "#DB2777",
+        "#7C3AED",
+        "#0891B2",
+        "#DC2626",
+        "#CA8A04",
+        "#0D9488",
+        "#4F46E5"
     ];
 
     private readonly IMindMapFileService _fileService;
     private readonly IApplicationActionService _applicationActionService;
     private readonly HashSet<MindMapNode> _observedNodes = [];
     private readonly List<HistoryEntry> _history = [];
-    private int _nextPaletteIndex;
+    private int _nextPaletteIndex = Random.Shared.Next(Palette.Length);
     private int _historyIndex = -1;
     private bool _isApplyingMarkdown;
     private bool _isSyncingMarkdownFromTree;
     private bool _isRestoringHistory;
+    private bool _isLoadingDocument;
+    private MindMapFileFormat _currentFileFormat = MindMapFileFormat.Markdown;
 
     [ObservableProperty]
     private MindMapNode? _selectedNode;
@@ -55,6 +62,18 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     [ObservableProperty]
     private string _statusText = "就绪";
+
+    [ObservableProperty]
+    private string? _currentFilePath;
+
+    [ObservableProperty]
+    private bool _isDirty;
+
+    [ObservableProperty]
+    private int _workspaceTabIndex = 1;
+
+    [ObservableProperty]
+    private MindMapFileItem? _selectedFolderFile;
 
     public MainWindowViewModel()
         : this(new DisabledMindMapFileService(), new DisabledApplicationActionService())
@@ -72,25 +91,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         _fileService = fileService;
         _applicationActionService = applicationActionService;
-        Roots = new ObservableCollection<MindMapNode>
-        {
-            CreateNode(
-                "枝见",
-                new MindMapNode(
-                    "产品愿景",
-                    new MindMapNode("Markdown 默认存储"),
-                    new MindMapNode("三种编辑视图")),
-                new MindMapNode(
-                    "编辑体验",
-                    new MindMapNode("树形编辑"),
-                    new MindMapNode("图形编辑"),
-                    new MindMapNode("双视图")),
-                new MindMapNode(
-                    "导入导出",
-                    new MindMapNode("XMind"),
-                    new MindMapNode("OPML"),
-                    new MindMapNode("Markdown")))
-        };
+        Roots = new ObservableCollection<MindMapNode> { CreateBlankRoot() };
+        FolderFiles = [];
+        RecentFiles = [];
 
         WatchTree();
         AssignMissingColors(Root);
@@ -98,10 +101,16 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = Root;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("初始内容");
+        RecordHistoryStep("空白脑图");
+        MarkDocumentClean();
+        LoadRecentFiles();
     }
 
     public ObservableCollection<MindMapNode> Roots { get; }
+
+    public ObservableCollection<MindMapFileItem> FolderFiles { get; }
+
+    public ObservableCollection<RecentFileItem> RecentFiles { get; }
 
     public MindMapNode Root => Roots[0];
 
@@ -123,6 +132,16 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public string HistorySummary => _history.Count == 0 ? "步骤 0/0" : $"步骤 {_historyIndex + 1}/{_history.Count}";
 
+    public string WindowTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName} - 枝见 Zhijian";
+
+    public string CurrentDocumentName => string.IsNullOrWhiteSpace(CurrentFilePath)
+        ? "未命名"
+        : Path.GetFileName(CurrentFilePath);
+
+    public bool HasFolderFiles => FolderFiles.Count > 0;
+
+    public string FolderSummary => HasFolderFiles ? $"{FolderFiles.Count} 个脑图文件" : "未打开文件夹";
+
     public string ShellBackground => IsDarkTheme ? "#111827" : "#F3F6FA";
 
     public string PanelBackground => IsDarkTheme ? "#1F2937" : "#FFFFFF";
@@ -136,6 +155,115 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public string PrimaryTextBrush => IsDarkTheme ? "#F9FAFB" : "#0F172A";
 
     public string SecondaryTextBrush => IsDarkTheme ? "#CBD5E1" : "#667085";
+
+    public bool HasCurrentFile => !string.IsNullOrWhiteSpace(CurrentFilePath) && File.Exists(CurrentFilePath);
+
+    [RelayCommand]
+    private async Task NewDocumentAsync()
+    {
+        if (!await EnsureCanChangeDocumentAsync())
+        {
+            return;
+        }
+
+        SetBlankDocument();
+        StatusText = "已新建空白脑图";
+    }
+
+    [RelayCommand]
+    private void NewWindow()
+    {
+        _applicationActionService.OpenNewWindow();
+        StatusText = "已打开新窗口";
+    }
+
+    [RelayCommand]
+    private async Task OpenDocumentAsync()
+    {
+        await RunFileOperationAsync(async () =>
+        {
+            if (!await EnsureCanChangeDocumentAsync())
+            {
+                return;
+            }
+
+            StatusText = "正在打开脑图文件...";
+            var result = await _fileService.OpenAsync();
+            if (result is null)
+            {
+                return;
+            }
+
+            LoadOpenResult(result);
+        });
+    }
+
+    [RelayCommand]
+    private async Task OpenFolderAsync()
+    {
+        await RunFileOperationAsync(async () =>
+        {
+            StatusText = "正在打开文件夹...";
+            var folderPath = await _fileService.PickFolderAsync();
+            if (string.IsNullOrWhiteSpace(folderPath))
+            {
+                return;
+            }
+
+            LoadFolderFiles(folderPath);
+            WorkspaceTabIndex = 0;
+            StatusText = $"已打开文件夹：{folderPath}";
+        });
+    }
+
+    [RelayCommand]
+    private async Task OpenRecentFileAsync(string? filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            return;
+        }
+
+        await RunFileOperationAsync(async () =>
+        {
+            if (!await EnsureCanChangeDocumentAsync())
+            {
+                return;
+            }
+
+            LoadFilePath(filePath);
+        });
+    }
+
+    [RelayCommand]
+    private async Task SaveAsync()
+    {
+        await RunFileOperationAsync(async () => await SaveDocumentAsync(forceSaveAs: false));
+    }
+
+    [RelayCommand]
+    private async Task SaveAsAsync()
+    {
+        await RunFileOperationAsync(async () => await SaveDocumentAsync(forceSaveAs: true));
+    }
+
+    [RelayCommand(CanExecute = nameof(HasCurrentFile))]
+    private void OpenFileLocation()
+    {
+        if (CurrentFilePath is null)
+        {
+            return;
+        }
+
+        _applicationActionService.OpenFileLocation(CurrentFilePath);
+        StatusText = "已打开文件位置";
+    }
+
+    [RelayCommand]
+    private void Close()
+    {
+        _applicationActionService.CloseMainWindow();
+    }
 
     [RelayCommand]
     public void ToggleEditorMode()
@@ -616,6 +744,31 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(SelectedNodeSummary));
     }
 
+    partial void OnCurrentFilePathChanged(string? value)
+    {
+        OnPropertyChanged(nameof(CurrentDocumentName));
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(HasCurrentFile));
+        OpenFileLocationCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsDirtyChanged(bool value)
+    {
+        OnPropertyChanged(nameof(WindowTitle));
+    }
+
+    partial void OnSelectedFolderFileChanged(MindMapFileItem? value)
+    {
+        if (value is null
+            || _isLoadingDocument
+            || string.Equals(value.FilePath, CurrentFilePath, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _ = OpenFolderFileAsync(value);
+    }
+
     partial void OnMarkdownTextChanged(string value)
     {
         if (_isSyncingMarkdownFromTree || _isApplyingMarkdown || !IsMarkdownMode)
@@ -639,6 +792,373 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             StatusText = exception.Message;
         }
+    }
+
+    public async Task<bool> ConfirmCloseAsync()
+    {
+        return await EnsureCanChangeDocumentAsync();
+    }
+
+    private async Task<bool> EnsureCanChangeDocumentAsync()
+    {
+        if (!IsDirty)
+        {
+            return true;
+        }
+
+        var decision = await _fileService.ConfirmSaveChangesAsync(CurrentDocumentName);
+        if (decision == MindMapSaveChangesDecision.Cancel)
+        {
+            return false;
+        }
+
+        if (decision == MindMapSaveChangesDecision.Discard)
+        {
+            return true;
+        }
+
+        await SaveDocumentAsync(forceSaveAs: false);
+        return !IsDirty;
+    }
+
+    private void SetBlankDocument()
+    {
+        try
+        {
+            _isLoadingDocument = true;
+            ReplaceTree(CreateBlankRoot(), "空白脑图");
+            ResetHistory("空白脑图");
+            CurrentFilePath = null;
+            _currentFileFormat = MindMapFileFormat.Markdown;
+            WorkspaceTabIndex = 1;
+            MarkDocumentClean();
+        }
+        finally
+        {
+            _isLoadingDocument = false;
+        }
+    }
+
+    private async Task OpenFolderFileAsync(MindMapFileItem file)
+    {
+        await RunFileOperationAsync(async () =>
+        {
+            if (!await EnsureCanChangeDocumentAsync())
+            {
+                SelectedFolderFile = FolderFiles.FirstOrDefault(item => item.FilePath == CurrentFilePath);
+                return;
+            }
+
+            LoadFilePath(file.FilePath);
+            WorkspaceTabIndex = 1;
+        });
+    }
+
+    private void LoadOpenResult(MindMapFileOpenResult result)
+    {
+        var root = result.Format == MindMapFileFormat.XMind
+            ? MindMapDocumentCodec.FromXMind(result.BinaryContent ?? [])
+            : result.Format == MindMapFileFormat.Opml
+                ? MindMapDocumentCodec.FromOpml(result.TextContent ?? string.Empty)
+                : MindMapDocumentCodec.FromMarkdown(result.TextContent ?? string.Empty);
+
+        LoadDocument(root, result.FilePath, result.Format, $"打开 {Path.GetFileName(result.FilePath)}");
+    }
+
+    private void LoadFilePath(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            RemoveRecentFile(filePath);
+            StatusText = "文件不存在，已从最近文件中移除";
+            return;
+        }
+
+        var format = GetFormatFromPath(filePath);
+        var root = format switch
+        {
+            MindMapFileFormat.Markdown => MindMapDocumentCodec.FromMarkdown(File.ReadAllText(filePath)),
+            MindMapFileFormat.Opml => MindMapDocumentCodec.FromOpml(File.ReadAllText(filePath)),
+            MindMapFileFormat.XMind => MindMapDocumentCodec.FromXMind(File.ReadAllBytes(filePath)),
+            _ => CreateBlankRoot()
+        };
+
+        LoadDocument(root, filePath, format, $"打开 {Path.GetFileName(filePath)}");
+    }
+
+    private void LoadDocument(MindMapNode root, string filePath, MindMapFileFormat format, string historyLabel)
+    {
+        try
+        {
+            _isLoadingDocument = true;
+            _currentFileFormat = format;
+            CurrentFilePath = filePath;
+            ReplaceTree(root, historyLabel);
+            ResetHistory(historyLabel);
+            MarkDocumentClean();
+            AddRecentFile(filePath);
+            SelectFolderFile(filePath);
+            WorkspaceTabIndex = 1;
+            StatusText = $"已打开：{Path.GetFileName(filePath)}";
+        }
+        finally
+        {
+            _isLoadingDocument = false;
+        }
+    }
+
+    private async Task SaveDocumentAsync(bool forceSaveAs)
+    {
+        ApplyMarkdownEditsIfNeeded();
+
+        var targetPath = CurrentFilePath;
+        var targetFormat = _currentFileFormat;
+        if (forceSaveAs || string.IsNullOrWhiteSpace(targetPath))
+        {
+            var saveTarget = await _fileService.PickSaveTargetAsync(targetFormat, GetSuggestedFileName(targetFormat));
+            if (saveTarget is null)
+            {
+                return;
+            }
+
+            targetPath = saveTarget.FilePath;
+            targetFormat = saveTarget.Format;
+        }
+
+        WriteDocument(targetPath, targetFormat);
+        _currentFileFormat = targetFormat;
+        CurrentFilePath = targetPath;
+        AddRecentFile(targetPath);
+        RefreshFolderFile(targetPath);
+        MarkDocumentClean();
+        StatusText = $"已保存：{Path.GetFileName(targetPath)}";
+    }
+
+    private void WriteDocument(string filePath, MindMapFileFormat format)
+    {
+        var directory = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrWhiteSpace(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        switch (format)
+        {
+            case MindMapFileFormat.Markdown:
+                File.WriteAllText(filePath, MindMapDocumentCodec.ToMarkdown(Root));
+                break;
+            case MindMapFileFormat.Opml:
+                File.WriteAllText(filePath, MindMapDocumentCodec.ToOpml(Root));
+                break;
+            case MindMapFileFormat.XMind:
+                File.WriteAllBytes(filePath, MindMapDocumentCodec.ToXMind(Root));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(format), format, null);
+        }
+    }
+
+    private string GetSuggestedFileName(MindMapFileFormat format)
+    {
+        if (!string.IsNullOrWhiteSpace(CurrentFilePath))
+        {
+            return Path.GetFileName(CurrentFilePath);
+        }
+
+        var title = string.IsNullOrWhiteSpace(Root.Title) ? "未命名脑图" : Root.Title.Trim();
+        foreach (var invalid in Path.GetInvalidFileNameChars())
+        {
+            title = title.Replace(invalid, '-');
+        }
+
+        return $"{title}.{GetDefaultExtension(format)}";
+    }
+
+    private void LoadFolderFiles(string folderPath)
+    {
+        FolderFiles.Clear();
+        foreach (var filePath in Directory.EnumerateFiles(folderPath)
+                     .Where(IsSupportedFile)
+                     .OrderByDescending(File.GetLastWriteTime))
+        {
+            FolderFiles.Add(CreateFileItem(filePath));
+        }
+
+        SelectFolderFile(CurrentFilePath);
+        OnPropertyChanged(nameof(HasFolderFiles));
+        OnPropertyChanged(nameof(FolderSummary));
+    }
+
+    private void RefreshFolderFile(string filePath)
+    {
+        var existing = FolderFiles.FirstOrDefault(item => item.FilePath == filePath);
+        if (existing is not null)
+        {
+            var index = FolderFiles.IndexOf(existing);
+            FolderFiles[index] = CreateFileItem(filePath);
+            SelectFolderFile(filePath);
+            return;
+        }
+
+        if (FolderFiles.Count > 0 && IsSupportedFile(filePath))
+        {
+            FolderFiles.Insert(0, CreateFileItem(filePath));
+            SelectFolderFile(filePath);
+            OnPropertyChanged(nameof(HasFolderFiles));
+            OnPropertyChanged(nameof(FolderSummary));
+        }
+    }
+
+    private void SelectFolderFile(string? filePath)
+    {
+        SelectedFolderFile = filePath is null
+            ? null
+            : FolderFiles.FirstOrDefault(item => string.Equals(item.FilePath, filePath, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private MindMapFileItem CreateFileItem(string filePath)
+    {
+        return new MindMapFileItem(
+            filePath,
+            Path.GetFileNameWithoutExtension(filePath),
+            Path.GetExtension(filePath),
+            CreateFilePreview(filePath),
+            File.GetLastWriteTime(filePath));
+    }
+
+    private static string CreateFilePreview(string filePath)
+    {
+        try
+        {
+            if (GetFormatFromPath(filePath) == MindMapFileFormat.XMind)
+            {
+                var root = MindMapDocumentCodec.FromXMind(File.ReadAllBytes(filePath));
+                return string.IsNullOrWhiteSpace(root.Title) ? "XMind 脑图" : root.Title.Trim();
+            }
+
+            return string.Join(
+                Environment.NewLine,
+                File.ReadLines(filePath)
+                    .Select(line => line.Trim())
+                    .Where(line => !string.IsNullOrWhiteSpace(line))
+                    .Take(2));
+        }
+        catch
+        {
+            return "无法预览";
+        }
+    }
+
+    private void LoadRecentFiles()
+    {
+        RecentFiles.Clear();
+        var filePath = GetRecentFilesPath();
+        if (!File.Exists(filePath))
+        {
+            return;
+        }
+
+        try
+        {
+            var paths = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(filePath)) ?? [];
+            foreach (var path in paths.Where(File.Exists).Where(IsSupportedFile).Take(MaxRecentFiles))
+            {
+                RecentFiles.Add(new RecentFileItem(path));
+            }
+        }
+        catch
+        {
+            RecentFiles.Clear();
+        }
+    }
+
+    private void AddRecentFile(string filePath)
+    {
+        RemoveRecentFile(filePath, save: false);
+        RecentFiles.Insert(0, new RecentFileItem(filePath));
+        while (RecentFiles.Count > MaxRecentFiles)
+        {
+            RecentFiles.RemoveAt(RecentFiles.Count - 1);
+        }
+
+        SaveRecentFiles();
+    }
+
+    private void RemoveRecentFile(string filePath, bool save = true)
+    {
+        var existing = RecentFiles.FirstOrDefault(item =>
+            string.Equals(item.FilePath, filePath, StringComparison.OrdinalIgnoreCase));
+        if (existing is not null)
+        {
+            RecentFiles.Remove(existing);
+        }
+
+        if (save)
+        {
+            SaveRecentFiles();
+        }
+    }
+
+    private void SaveRecentFiles()
+    {
+        var filePath = GetRecentFilesPath();
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+        File.WriteAllText(filePath, JsonSerializer.Serialize(RecentFiles.Select(item => item.FilePath).ToList()));
+    }
+
+    private static string GetRecentFilesPath()
+    {
+        return Path.Combine(AppContext.BaseDirectory, RecentFilesName);
+    }
+
+    private static bool IsSupportedFile(string filePath)
+    {
+        return Path.GetExtension(filePath).ToLowerInvariant() is ".md" or ".markdown" or ".opml" or ".xml" or ".xmind";
+    }
+
+    private static MindMapFileFormat GetFormatFromPath(string filePath)
+    {
+        return Path.GetExtension(filePath).ToLowerInvariant() switch
+        {
+            ".md" or ".markdown" => MindMapFileFormat.Markdown,
+            ".opml" or ".xml" => MindMapFileFormat.Opml,
+            ".xmind" => MindMapFileFormat.XMind,
+            _ => MindMapFileFormat.Markdown
+        };
+    }
+
+    private static string GetDefaultExtension(MindMapFileFormat format)
+    {
+        return format switch
+        {
+            MindMapFileFormat.Markdown => "md",
+            MindMapFileFormat.Opml => "opml",
+            MindMapFileFormat.XMind => "xmind",
+            _ => "md"
+        };
+    }
+
+    private void MarkDocumentDirty()
+    {
+        if (_isLoadingDocument || _isRestoringHistory)
+        {
+            return;
+        }
+
+        IsDirty = true;
+    }
+
+    private void MarkDocumentClean()
+    {
+        IsDirty = false;
+    }
+
+    private void ResetHistory(string label)
+    {
+        _history.Clear();
+        _historyIndex = -1;
+        RecordHistoryStep(label);
+        RefreshHistoryState();
     }
 
     private void ApplyMarkdownEditsIfNeeded()
@@ -904,6 +1424,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         return node;
     }
 
+    private MindMapNode CreateBlankRoot()
+    {
+        return CreateNode(string.Empty);
+    }
+
     private void AssignMissingColors(MindMapNode node)
     {
         if (string.IsNullOrWhiteSpace(node.AccentColor))
@@ -992,6 +1517,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         _historyIndex = _history.Count - 1;
         RefreshHistoryState();
+        MarkDocumentDirty();
     }
 
     private void RestoreHistoryEntry(HistoryEntry entry)
@@ -1030,4 +1556,23 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private readonly record struct LayoutResult(double CenterY, double Top, double Bottom);
 
     private sealed record HistoryEntry(string Label, string Snapshot);
+}
+
+public sealed record MindMapFileItem(
+    string FilePath,
+    string Name,
+    string Extension,
+    string Preview,
+    DateTime ModifiedAt)
+{
+    public string DisplayName => Name;
+
+    public string ExtensionText => Extension.TrimStart('.');
+}
+
+public sealed record RecentFileItem(string FilePath)
+{
+    public string DisplayName => Path.GetFileName(FilePath);
+
+    public string FolderName => Path.GetDirectoryName(FilePath) ?? string.Empty;
 }

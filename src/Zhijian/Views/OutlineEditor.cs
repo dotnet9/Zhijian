@@ -16,6 +16,7 @@ using Zhijian.ViewModels;
 using AtomMenuFlyout = AtomUI.Desktop.Controls.MenuFlyout;
 using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
 using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
+using AtomToolTip = AtomUI.Desktop.Controls.ToolTip;
 
 namespace Zhijian.Views;
 
@@ -199,7 +200,7 @@ public class OutlineEditor : UserControl
 
         if (!isRoot)
         {
-            ToolTip.SetTip(dot, "拖到节点中部成为子节点，拖到上下边缘成为同级节点");
+            AtomToolTip.SetTip(dot, "拖到节点中部成为子节点，拖到上下边缘成为同级节点");
             dot.PointerPressed += (sender, e) => HandleDotPointerPressed(node, sender as Control, e);
         }
 
@@ -241,7 +242,7 @@ public class OutlineEditor : UserControl
             Background = Brushes.Transparent,
             Foreground = GetSecondaryTextBrush(),
             PlaceholderForeground = GetPlaceholderTextBrush(),
-            FontSize = 12,
+            FontSize = MindMapLayoutMetrics.NoteFontSize,
             PlaceholderText = "备注",
             AcceptsReturn = true,
             TextWrapping = TextWrapping.Wrap,
@@ -733,7 +734,7 @@ public class OutlineEditor : UserControl
 
     private IBrush GetSecondaryTextBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#CBD5E1" : "#475467");
+        return Brush.Parse(IsDarkTheme ? "#9CA3AF" : "#6B7280");
     }
 
     private IBrush GetPlaceholderTextBrush()

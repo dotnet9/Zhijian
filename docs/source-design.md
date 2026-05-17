@@ -8,12 +8,12 @@ Zhijian is split into a reusable Avalonia mind-map library and an AtomUI desktop
 
 ## Design Goals
 
-- **Single model**: outline, Markdown, mind map, import, and export all work with `MindMapNode`.
+- **Single model**: outline, Markdown, mind map, open/save, and export all work with `MindMapNode`.
 - **Reusable controls**: `CodeWF.MindView` references Avalonia only, so it can be used without AtomUI.
-- **Application-owned experience**: Zhijian uses AtomUI windows, menus, text boxes, buttons, dialogs, and tooltips.
-- **Immediate synchronization**: edits in the outline or mind map update the other side through the same tree.
+- **Application-owned experience**: Zhijian uses AtomUI windows, menus, list boxes, text boxes, buttons, dialogs, and tooltips.
+- **Immediate synchronization**: edits in the outline, Markdown, or mind map update the other views through the same tree.
 - **Predictable layout**: node titles and notes participate in width and height estimation, reducing overlap in deeper maps.
-- **Friendly menus**: outline and mind-map menus expose common structure operations instead of hiding them behind keyboard-only workflows.
+- **Friendly operations**: file menus, outline menus, mind-map menus, keyboard shortcuts, mini-map, zoom, and canvas panning are available from visible controls.
 
 ## Runtime Interaction Evidence
 
@@ -21,15 +21,15 @@ These assets were captured from a real running desktop session by simulating use
 
 ![File menu](media/zhijian-file-menu.png)
 
-![Outline structure menu](media/zhijian-outline-menu.png)
+![Open folder](media/zhijian-open-folder.gif)
 
-![Mind-map structure menu](media/zhijian-mind-menu.png)
+![Outline and mind-map menus](media/zhijian-node-menus.gif)
 
-![Note synchronization](media/zhijian-note-sync.gif)
+![Mini-map](media/zhijian-minimap.gif)
 
-![Splitter resizing](media/zhijian-splitter-resize.gif)
+![Zoom](media/zhijian-zoom.gif)
 
-![Mini-map popover](media/zhijian-minimap-popover.png)
+![Canvas panning](media/zhijian-canvas-pan.gif)
 
 ## Project Organization
 
@@ -40,6 +40,8 @@ src/
     MindMapLayoutMetrics.cs     node size and layout estimation
     MindMapDropPlacement.cs     before / after / child drop semantics
     MindMapDocumentCodec.cs     Markdown / OPML / XMind codecs
+    IMindMapEditorController.cs editor host contract
+    IMindMapFileService.cs      file service abstraction used by the app
     Controls/
       MindMapEditor.cs          main mind-map editing control
       MindMapMiniMap.cs         mini-map overview control
@@ -48,12 +50,14 @@ src/
   Zhijian/
     Views/MainWindow.axaml      main desktop layout
     Views/OutlineEditor.cs      AtomUI outline editor
+    Views/*Window.axaml         dialogs and about/changelog/thanks windows
+    Services/                  Avalonia file and app action services
     ViewModels/MainWindowViewModel.cs
 ```
 
 ## Data Model
 
-`MindMapNode` is the shared document model. It stores title, note, color, layout coordinates, and children. `MainWindowViewModel` owns the root collection and current selection:
+`MindMapNode` is the shared document model. It stores title, note, accent color, layout coordinates, and children. `MainWindowViewModel` owns the root collection and current selection:
 
 ```csharp
 public ObservableCollection<MindMapNode> Roots { get; }
@@ -62,6 +66,12 @@ public MindMapNode? SelectedNode { get; set; }
 
 The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs all read and write this same model. Structure changes re-subscribe node notifications so newly created nodes stay part of the synchronization pipeline.
 
+## Desktop Workflow
+
+The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing.
+
+The folder tab uses AtomUI `ListBox` because the app intentionally runs on AtomUI styling rather than Avalonia Fluent styling.
+
 ## Mind-Map Control
 
 `MindMapEditor` renders nodes and connectors on a canvas inside a scroll viewer. It handles:
@@ -69,9 +79,9 @@ The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs 
 - inline title and note editing
 - drag/drop reparenting and sibling reordering
 - dashed drop previews
-- zoom and canvas panning
+- zoom and `Space + left drag` canvas panning
 - viewport tracking for the mini-map
-- floating node actions for note editing and deletion
+- floating node actions for common structure edits, note editing, and deletion
 
 Node editors use Avalonia controls, not AtomUI controls, so the reusable library stays independent.
 
@@ -144,14 +154,19 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
     public bool IsRoot(MindMapNode? node) => ...;
     public MindMapNode HandleMapEnter(MindMapNode node) => ...;
     public MindMapNode HandleMapTab(MindMapNode node) => ...;
+    public MindMapNode AddChild(MindMapNode? parent, string title = "New topic") => ...;
+    public MindMapNode AddSibling(MindMapNode? node, string title = "New topic") => ...;
     public bool PromoteNode(MindMapNode? node) => ...;
+    public bool DemoteNode(MindMapNode? node) => ...;
     public MindMapNode DeleteNode(MindMapNode? node) => ...;
     public bool CanMoveNode(MindMapNode? node, MindMapNode? target) => ...;
     public bool MoveNode(MindMapNode? node, MindMapNode? target, MindMapDropPlacement placement) => ...;
 }
 ```
 
-If the new app also needs an outline editor, title-bar menus, file import/export, or Markdown editing, use `src/Zhijian` as the reference implementation. Keep in mind that those pieces are application-shell code, while `CodeWF.MindView` is the reusable Avalonia-only control library.
+If the new app also needs an outline editor, title-bar menus, file open/save, folder browsing, recent files, or Markdown editing, use `src/Zhijian` as the reference implementation. Keep in mind that those pieces are application-shell code, while `CodeWF.MindView` is the reusable Avalonia-only control library.
+
+Repository: <https://github.com/dotnet9/Zhijian>
 
 ## Open Source Thanks
 

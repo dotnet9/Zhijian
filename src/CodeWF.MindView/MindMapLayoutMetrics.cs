@@ -30,9 +30,9 @@ public static class MindMapLayoutMetrics
     public const double LeafMaxWidth = 260;
     public const double LeafMinHeight = 30;
     public const double DragHandleHitWidth = 16;
-    public const double NoteFontSize = 12;
+    public const double NoteFontSize = 13;
     public const double NoteVerticalSpacing = 4;
-    public const double NoteMinHeight = 26;
+    public const double NoteMinHeight = 28;
 
     public static MindMapNodeVisualKind GetVisualKind(int level)
     {

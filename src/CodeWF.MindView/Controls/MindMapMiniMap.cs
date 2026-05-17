@@ -185,6 +185,7 @@ public class MindMapMiniMap : Control
     private void HandleNodeChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(MindMapNode.Title)
+            or nameof(MindMapNode.Note)
             or nameof(MindMapNode.X)
             or nameof(MindMapNode.Y)
             or nameof(MindMapNode.AccentColor))
@@ -288,7 +289,7 @@ public class MindMapMiniMap : Control
 
         var fill = kind == MindMapNodeVisualKind.Root
             ? GetResourceBrush(MindViewStyleKeys.RootBackgroundBrushResource, "#148BFF", "#148BFF")
-            : GetResourceBrush(MindViewStyleKeys.BranchBackgroundBrushResource, "#EEF0F3", "#1F2937");
+            : GetNodeAccentBrush(node.Node, "#2563EB");
         context.DrawRectangle(WithOpacity(fill, IsDarkTheme ? 0.78 : 0.92), null, new RoundedRect(rect, 4));
     }
 
@@ -319,5 +320,17 @@ public class MindMapMiniMap : Control
         return brush is ISolidColorBrush solidColorBrush
             ? new SolidColorBrush(solidColorBrush.Color, opacity)
             : brush;
+    }
+
+    private static IBrush GetNodeAccentBrush(MindMapNode node, string fallback)
+    {
+        try
+        {
+            return Brush.Parse(string.IsNullOrWhiteSpace(node.AccentColor) ? fallback : node.AccentColor);
+        }
+        catch (FormatException)
+        {
+            return Brush.Parse(fallback);
+        }
     }
 }

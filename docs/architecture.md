@@ -6,7 +6,7 @@ Zhijian is an Avalonia and AtomUI desktop application for editing Markdown-first
 
 - `CodeWF.MindView` contains the shared node model, editor control, mini-map control, and Markdown/OPML/XMind codecs.
 - `CodeWF.MindView.Themes` contains default Avalonia resources for the reusable controls.
-- `Zhijian` contains the AtomUI desktop shell, title-bar menus, outline editor, Markdown pane, dialogs, file services, and application ViewModels.
+- `Zhijian` contains the AtomUI desktop shell, title-bar menus, outline editor, Markdown pane, dialogs, file services, recent-file storage, and application ViewModels.
 
 ![Runtime architecture view](media/zhijian-main-window.png)
 
@@ -14,9 +14,13 @@ Zhijian is an Avalonia and AtomUI desktop application for editing Markdown-first
 
 The screenshots and GIFs in `docs/media` were captured from a real running Zhijian desktop session with simulated user operations.
 
-![Resizable panes](media/zhijian-splitter-resize.gif)
+![Open folder workflow](media/zhijian-open-folder.gif)
 
-![Markdown and dark theme](media/zhijian-markdown-theme.gif)
+![Node menus](media/zhijian-node-menus.gif)
+
+![Mini-map navigation](media/zhijian-minimap.gif)
+
+![Canvas panning](media/zhijian-canvas-pan.gif)
 
 ## Dependency Direction
 
@@ -33,23 +37,24 @@ Zhijian
             |-- owns model, mind-map editor, mini-map, and codecs
 ```
 
-`CodeWF.MindView` intentionally has no AtomUI dependency. This keeps the mind-map editor reusable in a plain Avalonia application, while Zhijian can still use AtomUI for its window, menus, buttons, text boxes, tooltips, and dialogs.
+`CodeWF.MindView` intentionally has no AtomUI dependency. This keeps the mind-map editor reusable in a plain Avalonia application, while Zhijian can still use AtomUI for its window, menus, list controls, buttons, text boxes, tooltips, and dialogs.
 
 ## Product Scope
 
-- Split view with outline or Markdown editing on the left and a graphical mind-map editor on the right.
-- Visible splitter for resizing the outline and mind-map panes.
-- Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, and high-frequency structure menus.
+- Blank startup document with one editable center topic.
+- Split view with file/outline tabs or Markdown editing on the left and a graphical mind-map editor on the right.
+- File workflow for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
+- Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, drag/drop structure changes, and high-frequency structure menus.
 - Mind-map editor with inline title editing, note editing, drag/drop structure changes, panning, zooming, mini-map navigation, and center-topic navigation.
 - Title-bar File and About menus implemented with AtomUI `Menu` and `MenuItem`.
-- About and changelog dialogs implemented in AXML with ViewModels.
-- Markdown, OPML, and XMind import/export.
+- About, changelog, thanks, and unsaved-changes dialogs implemented with AtomUI windows and ViewModels.
+- Markdown, OPML, and XMind open/save support.
 
 ## Data Flow
 
 `MainWindowViewModel` owns an `ObservableCollection<MindMapNode> Roots` and a two-way `SelectedNode`. The outline, Markdown text, mind-map editor, and mini-map all observe the same tree model.
 
-Title, note, color, and tree-structure changes trigger layout recalculation, Markdown synchronization, statistics updates, and history snapshots. Because the model is shared, editing in one view immediately updates the other views.
+Title, note, color, and tree-structure changes trigger layout recalculation, Markdown synchronization, statistics updates, history snapshots, and dirty-state tracking. Because the model is shared, editing in one view immediately updates the other views.
 
 ## Platform Scope
 

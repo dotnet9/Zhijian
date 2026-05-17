@@ -20,6 +20,6 @@
         <atom:ToggleSwitch IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
                            VerticalAlignment="Center"
                            AutomationProperties.Name="Toggle dark theme"
-                           ToolTip.Tip="切换深色主题"/>
+                           atom:ToolTip.Tip="切换深色主题"/>
     </StackPanel>
 </UserControl>

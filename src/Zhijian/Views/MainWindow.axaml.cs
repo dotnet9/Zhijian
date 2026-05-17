@@ -10,17 +10,9 @@ namespace Zhijian.Views;
 
 public partial class MainWindow : Window
 {
-    private const double DefaultOutlinePaneWidth = 420;
-    private const double MinOutlinePaneWidth = 320;
-    private const double MaxOutlinePaneWidth = 640;
-    private const double SplitterWidth = 14;
-    private const double MinMindMapPaneWidth = 420;
-
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
     private TitleBarRightAddOn? _titleBarRightAddOn;
-    private bool _isPaneSplitterDragging;
-    private Point _paneSplitterStartPoint;
-    private double _paneSplitterStartWidth;
+    private bool _isCloseConfirmed;
 
     public MainWindow()
     {
@@ -35,10 +27,7 @@ public partial class MainWindow : Window
         AddHandler(PointerPressedEvent, HandleTitleBarDragPressed, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(KeyDownEvent, HandleWindowKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
         DataContextChanged += (_, _) => ApplyTitleBarDataContext();
-        PaneSplitter.PointerPressed += HandlePaneSplitterPointerPressed;
-        PaneSplitter.PointerMoved += HandlePaneSplitterPointerMoved;
-        PaneSplitter.PointerReleased += HandlePaneSplitterPointerReleased;
-        PaneSplitter.PointerCaptureLost += (_, _) => StopPaneSplitterDrag();
+        Closing += HandleWindowClosing;
     }
 
     protected override WindowTitleBar? NotifyCreateTitleBar(WindowTitleBar? oldTitleBar)
@@ -100,6 +89,52 @@ public partial class MainWindow : Window
 
     private void HandleWindowKeyDown(object? sender, KeyEventArgs e)
     {
+        if (DataContext is MainWindowViewModel viewModel
+            && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            if (e.Key == Key.N && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                Execute(viewModel.NewWindowCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.N)
+            {
+                Execute(viewModel.NewDocumentCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.O)
+            {
+                Execute(viewModel.OpenDocumentCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.K)
+            {
+                Execute(viewModel.OpenFolderCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.S && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                Execute(viewModel.SaveAsCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.S)
+            {
+                Execute(viewModel.SaveCommand);
+                e.Handled = true;
+                return;
+            }
+        }
+
         if (e.Key == Key.L && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             CenterRootTopic();
@@ -156,69 +191,27 @@ public partial class MainWindow : Window
         return true;
     }
 
-    private void HandlePaneSplitterPointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        var point = e.GetCurrentPoint(PaneSplitter);
-        if (!point.Properties.IsLeftButtonPressed)
-        {
-            return;
-        }
-
-        _isPaneSplitterDragging = true;
-        _paneSplitterStartPoint = e.GetPosition(PaneGrid);
-        _paneSplitterStartWidth = OutlinePaneHost.Bounds.Width > 0
-            ? OutlinePaneHost.Bounds.Width
-            : DefaultOutlinePaneWidth;
-        e.Pointer.Capture(PaneSplitter);
-        e.Handled = true;
-    }
-
-    private void HandlePaneSplitterPointerMoved(object? sender, PointerEventArgs e)
-    {
-        if (!_isPaneSplitterDragging)
-        {
-            return;
-        }
-
-        var currentPoint = e.GetPosition(PaneGrid);
-        SetOutlinePaneWidth(_paneSplitterStartWidth + currentPoint.X - _paneSplitterStartPoint.X);
-        e.Handled = true;
-    }
-
-    private void HandlePaneSplitterPointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        if (!_isPaneSplitterDragging)
-        {
-            return;
-        }
-
-        StopPaneSplitterDrag();
-        e.Pointer.Capture(null);
-        e.Handled = true;
-    }
-
-    private void StopPaneSplitterDrag()
-    {
-        _isPaneSplitterDragging = false;
-    }
-
-    private void SetOutlinePaneWidth(double width)
-    {
-        var maxWidth = MaxOutlinePaneWidth;
-        var availableWidth = PaneGrid.Bounds.Width - SplitterWidth - MinMindMapPaneWidth;
-        if (availableWidth > 0)
-        {
-            maxWidth = Math.Min(maxWidth, Math.Max(MinOutlinePaneWidth, availableWidth));
-        }
-
-        var targetWidth = Math.Clamp(width, MinOutlinePaneWidth, maxWidth);
-        PaneGrid.ColumnDefinitions[0].Width = new Avalonia.Controls.GridLength(targetWidth, Avalonia.Controls.GridUnitType.Pixel);
-    }
-
     private void CenterRootTopic()
     {
         MindMap.CenterRoot();
         SetStatus("已定位到中心主题");
+    }
+
+    private async void HandleWindowClosing(object? sender, Avalonia.Controls.WindowClosingEventArgs e)
+    {
+        if (_isCloseConfirmed || DataContext is not MainWindowViewModel viewModel)
+        {
+            return;
+        }
+
+        e.Cancel = true;
+        if (!await viewModel.ConfirmCloseAsync())
+        {
+            return;
+        }
+
+        _isCloseConfirmed = true;
+        Close();
     }
 
     private void SetStatus(string status)
@@ -226,6 +219,14 @@ public partial class MainWindow : Window
         if (DataContext is MainWindowViewModel viewModel)
         {
             viewModel.StatusText = status;
+        }
+    }
+
+    private static void Execute(System.Windows.Input.ICommand command)
+    {
+        if (command.CanExecute(null))
+        {
+            command.Execute(null);
         }
     }
 }

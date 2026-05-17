@@ -2,6 +2,11 @@
 
 ## 12.0.3.5（2026-05-17）
 
+- ✨[Add]-Expanded the File menu into a product workflow: New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
+- ✨[Add]-Added folder mode with `Files` and `Outline` tabs so a selected folder can list supported mind-map files before loading one into the editor.
+- ✨[Add]-Added recent-file persistence in the application directory and unsaved-change prompts for Save, Save As, and Close.
+- 🔨[Optimize]-Changed startup to an empty document with one editable center topic instead of preloaded sample content.
+- 🔨[Optimize]-Made level-2 mind-map nodes use stronger generated accent backgrounds and adjusted note text to a gray, slightly larger style for clearer title/note separation.
 - 🔨[Fix]-Fixed title-bar File/About buttons being intercepted by window-drag hit testing.
 - 🔨[Fix]-Fixed mind-map node title and note editing by treating inner TextBox visuals as editor input sources.
 - 🔨[Fix]-Aligned mind-map notes with their node titles and let short-text nodes refocus from the empty hit area.
@@ -10,6 +15,7 @@
 - 🔨[Optimize]-Unified tooltips with a compact dark floating style closer to AtomUI.
 - 🔨[Optimize]-Moved title-bar add-ons, the About window, and the changelog window into AXML plus view models, using AtomUI `Menu/MenuItem` for title-bar menus to reduce C# UI composition.
 - ✨[Add]-Added a title-bar About > Thanks action with an AtomUI thanks window listing Dotnet, Avalonia UI, Semi.Avalonia, Ursa.Avalonia, and AtomUI links.
+- 📝[Docs]-Replaced splitter-focused documentation media with actual workflow media for opening folders, node menus, note sync, mini-map navigation, zoom, and canvas panning.
 - 📝[Docs]-Added the open source thanks list to the README and design documentation.
 - 📝[Docs]-Expanded the repository README and docs with paired English/Chinese versions plus runtime screenshots and GIFs captured from the actual desktop app.
 - 🧪[Test]-Reran the desktop app with screenshots for menus, splitter drag, mind-map title/note input, zoom, canvas scrolling, and maximized layout.

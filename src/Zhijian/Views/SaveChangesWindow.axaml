@@ -1,0 +1,46 @@
+<atom:Window xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:atom="using:AtomUI.Desktop.Controls"
+             xmlns:vm="using:Zhijian.ViewModels"
+             x:Class="Zhijian.Views.SaveChangesWindow"
+             x:DataType="vm:SaveChangesWindowViewModel"
+             WindowStartupLocation="CenterOwner"
+             Title="保存更改"
+             Width="420"
+             Height="190"
+             MinWidth="420"
+             MinHeight="190"
+             CanResize="False">
+
+    <Design.DataContext>
+        <vm:SaveChangesWindowViewModel/>
+    </Design.DataContext>
+
+    <Border Padding="22,20">
+        <Grid RowDefinitions="*,Auto">
+            <StackPanel Spacing="8">
+                <TextBlock Text="保存更改"
+                           FontSize="18"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Message}"
+                           TextWrapping="Wrap"
+                           Foreground="#667085"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="8">
+                <atom:Button MinWidth="76"
+                             Content="取消"
+                             Click="CancelClicked"/>
+                <atom:Button MinWidth="76"
+                             Content="不保存"
+                             Click="DiscardClicked"/>
+                <atom:Button MinWidth="76"
+                             Content="保存"
+                             Click="SaveClicked"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</atom:Window>

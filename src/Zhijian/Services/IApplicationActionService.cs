@@ -6,6 +6,12 @@ public interface IApplicationActionService
 
     void OpenRepository();
 
+    void OpenNewWindow();
+
+    void OpenFileLocation(string filePath);
+
+    void CloseMainWindow();
+
     void ShowChangelog();
 
     void ShowThanks();

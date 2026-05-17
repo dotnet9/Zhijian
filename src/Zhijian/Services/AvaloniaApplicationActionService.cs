@@ -23,6 +23,39 @@ public sealed class AvaloniaApplicationActionService(Window owner) : IApplicatio
         OpenUrl(RepositoryUrl);
     }
 
+    public void OpenNewWindow()
+    {
+        var executable = Environment.ProcessPath;
+        if (string.IsNullOrWhiteSpace(executable))
+        {
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo(executable)
+        {
+            UseShellExecute = true,
+            WorkingDirectory = AppContext.BaseDirectory
+        });
+    }
+
+    public void OpenFileLocation(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+        {
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{filePath}\"")
+        {
+            UseShellExecute = true
+        });
+    }
+
+    public void CloseMainWindow()
+    {
+        owner.Close();
+    }
+
     public void ShowChangelog()
     {
         if (_changelogWindow is { IsVisible: true })

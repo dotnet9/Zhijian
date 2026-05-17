@@ -2,21 +2,25 @@
 
 English version: [architecture.md](architecture.md)
 
-枝见是一个基于 Avalonia 和 AtomUI 的 Markdown-first 脑图编辑器。仓库把可复用脑图能力和桌面应用外壳拆开维护：
+枝见是一个用于编辑 Markdown-first 脑图的 Avalonia + AtomUI 桌面应用。仓库把可复用脑图能力和应用外壳分开：
 
 - `CodeWF.MindView` 包含共享节点模型、脑图编辑控件、小图控件，以及 Markdown/OPML/XMind 编解码。
-- `CodeWF.MindView.Themes` 包含可复用控件默认 Avalonia 资源。
-- `Zhijian` 包含 AtomUI 桌面外壳、标题栏菜单、大纲编辑器、Markdown 面板、对话框、文件服务和应用 ViewModel。
+- `CodeWF.MindView.Themes` 包含可复用控件的默认 Avalonia 资源。
+- `Zhijian` 包含 AtomUI 桌面外壳、标题栏菜单、大纲编辑器、Markdown 面板、对话框、文件服务、最近文件记录和应用 ViewModel。
 
-![实际运行主界面](media/zhijian-main-window.png)
+![运行时架构视图](media/zhijian-main-window.png)
 
-## 运行截图依据
+## 运行证据
 
-`docs/media` 下的截图和 GIF 均来自本轮实际运行枝见桌面程序，并通过模拟用户操作截取。
+`docs/media` 中的截图和 GIF 都来自真实运行的枝见桌面程序，并通过模拟用户操作截取。
 
-![拖动分隔条](media/zhijian-splitter-resize.gif)
+![打开文件夹流程](media/zhijian-open-folder.gif)
 
-![Markdown 与深色主题](media/zhijian-markdown-theme.gif)
+![节点菜单](media/zhijian-node-menus.gif)
+
+![小图导航](media/zhijian-minimap.gif)
+
+![画布拖拽](media/zhijian-canvas-pan.gif)
 
 ## 依赖方向
 
@@ -26,36 +30,37 @@ Zhijian
   |-- 负责桌面外壳、菜单、对话框、文件选择器和 ViewModel
   |
   +--> CodeWF.MindView.Themes
-       |-- 提供 CodeWF.MindView 默认资源
+       |-- 引用 CodeWF.MindView 资源
        |
        +--> CodeWF.MindView
-            |-- 只依赖 Avalonia
+            |-- 只引用 Avalonia
             |-- 负责模型、脑图编辑器、小图和编解码
 ```
 
-`CodeWF.MindView` 不依赖 AtomUI。这样新的 Avalonia 应用可以直接复用脑图控件，而枝见应用仍然可以用 AtomUI 统一窗口、菜单、按钮、文本框、ToolTip 和对话框体验。
+`CodeWF.MindView` 刻意不依赖 AtomUI。这样脑图编辑器可以被普通 Avalonia 应用复用，而枝见应用仍然可以使用 AtomUI 的窗口、菜单、列表、按钮、文本框、ToolTip 和对话框。
 
 ## 产品范围
 
-- 左侧大纲或 Markdown 编辑，右侧图形脑图编辑。
-- 大纲和脑图之间提供可见分隔条，可拖动调整宽度。
-- 大纲编辑支持标题、备注、Enter/Tab/Shift+Tab/Delete 规则和高频结构菜单。
-- 脑图编辑支持标题内联编辑、备注编辑、拖拽调整结构、画布平移、缩放、小图导航和回到中心主题。
-- 标题栏文件和关于菜单使用 AtomUI `Menu` 与 `MenuItem`。
-- 关于窗口和更新日志窗口使用 AXML 与 ViewModel。
-- 支持 Markdown、OPML、XMind 导入导出。
+- 启动为空白文档，只有一个可编辑中心主题。
+- 左侧提供文件/大纲 Tab 或 Markdown 编辑，右侧提供图形脑图编辑器。
+- 文件流程支持新建、新建窗口、打开、打开文件夹、最近文件、保存、另存为、打开文件位置和关闭。
+- 大纲编辑器支持标题、备注、Enter/Tab/Shift+Tab/Delete 规则、拖拽调整结构，以及高频结构菜单。
+- 脑图编辑器支持标题和备注内联编辑、拖拽调整结构、画布拖拽、缩放、小图导航和回到中心主题。
+- 标题栏文件菜单和关于菜单使用 AtomUI `Menu` 与 `MenuItem`。
+- 关于、更新日志、感谢和未保存确认窗口使用 AtomUI 窗口与 ViewModel。
+- 支持 Markdown、OPML、XMind 打开和保存。
 
 ## 数据流
 
-`MainWindowViewModel` 持有 `ObservableCollection<MindMapNode> Roots` 和双向绑定的 `SelectedNode`。大纲、Markdown 文本、脑图编辑器和小图都观察同一棵树。
+`MainWindowViewModel` 持有 `ObservableCollection<MindMapNode> Roots` 和双向 `SelectedNode`。大纲、Markdown 文本、脑图编辑器和小图都观察同一棵树。
 
-标题、备注、颜色和树结构变化时，会触发布局重算、Markdown 同步、统计刷新和历史快照。由于模型只有一份，在任意视图编辑都会立即更新其他视图。
+标题、备注、颜色和树结构变化会触发布局重算、Markdown 同步、统计刷新、历史快照和未保存状态跟踪。因为模型共享，所以任一视图中的编辑都会立即更新其他视图。
 
 ## 平台范围
 
 桌面应用目标框架为 `net10.0`。可复用的 `CodeWF.MindView` 库多目标 `net8.0`、`net9.0` 和 `net10.0`，方便在枝见桌面外壳之外复用。
 
-更深入的实现说明和新应用接入方式见 [source-design.zh-CN.md](source-design.zh-CN.md)。
+更深入的实现说明和复用接入方式见 [source-design.zh-CN.md](source-design.zh-CN.md)。
 
 ## 开源项目感谢
 
