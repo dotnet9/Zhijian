@@ -152,3 +152,13 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
 ```
 
 如果新应用还需要大纲视图、标题栏菜单、文件导入导出或 Markdown 面板，可以参考 `src/Zhijian` 的完整实现。注意这些属于应用外壳代码，而 `CodeWF.MindView` 是可复用的 Avalonia-only 控件库。
+
+## 开源项目感谢
+
+枝见的开发离不开这些优秀开源平台和项目：
+
+- [Dotnet](https://dotnet.microsoft.com/zh-cn/)
+- [Avalonia UI](https://avaloniaui.net/)
+- [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
+- [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
+- [AtomUI](https://github.com/AtomUI/AtomUI)

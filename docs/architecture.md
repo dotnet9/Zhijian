@@ -56,3 +56,13 @@ Title, note, color, and tree-structure changes trigger layout recalculation, Mar
 The desktop application targets `net10.0`. The reusable `CodeWF.MindView` libraries multi-target `net8.0`, `net9.0`, and `net10.0` so the control can be reused outside the Zhijian desktop shell.
 
 See [source-design.md](source-design.md) for deeper implementation notes and reusable-control integration details.
+
+## Open Source Thanks
+
+Zhijian is built on excellent open source platforms and libraries:
+
+- [Dotnet](https://dotnet.microsoft.com/zh-cn/)
+- [Avalonia UI](https://avaloniaui.net/)
+- [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
+- [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
+- [AtomUI](https://github.com/AtomUI/AtomUI)

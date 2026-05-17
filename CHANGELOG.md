@@ -9,6 +9,7 @@
 - 🔨[Optimize]-Unified tooltips with a compact dark floating style closer to AtomUI.
 - 🔨[Optimize]-Moved title-bar add-ons, the About window, and the changelog window into AXML plus view models, using AtomUI `Menu/MenuItem` for title-bar menus to reduce C# UI composition.
 - ✨[Add]-Added a title-bar About > Thanks action with an AtomUI thanks window listing Dotnet, Avalonia UI, Semi.Avalonia, Ursa.Avalonia, and AtomUI links.
+- 📝[Docs]-Added the open source thanks list to the README and design documentation.
 - 📝[Docs]-Expanded the repository README and docs with paired English/Chinese versions plus runtime screenshots and GIFs captured from the actual desktop app.
 - 🧪[Test]-Reran the desktop app with screenshots for menus, splitter drag, mind-map title/note input, zoom, canvas scrolling, and maximized layout.
 

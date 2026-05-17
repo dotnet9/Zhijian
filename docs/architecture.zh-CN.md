@@ -56,3 +56,13 @@ Zhijian
 桌面应用目标框架为 `net10.0`。可复用的 `CodeWF.MindView` 库多目标 `net8.0`、`net9.0` 和 `net10.0`，方便在枝见桌面外壳之外复用。
 
 更深入的实现说明和新应用接入方式见 [source-design.zh-CN.md](source-design.zh-CN.md)。
+
+## 开源项目感谢
+
+枝见的开发离不开这些优秀开源平台和项目：
+
+- [Dotnet](https://dotnet.microsoft.com/zh-cn/)
+- [Avalonia UI](https://avaloniaui.net/)
+- [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
+- [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
+- [AtomUI](https://github.com/AtomUI/AtomUI)

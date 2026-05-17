@@ -90,6 +90,16 @@ Zhijian/
 
 更完整的接入说明见 [docs/source-design.zh-CN.md](docs/source-design.zh-CN.md)。
 
+## 开源项目感谢
+
+枝见的开发离不开这些优秀开源平台和项目：
+
+- [Dotnet](https://dotnet.microsoft.com/zh-cn/)
+- [Avalonia UI](https://avaloniaui.net/)
+- [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
+- [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
+- [AtomUI](https://github.com/AtomUI/AtomUI)
+
 ## 开发
 
 环境要求：

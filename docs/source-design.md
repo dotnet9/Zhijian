@@ -152,3 +152,13 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
 ```
 
 If the new app also needs an outline editor, title-bar menus, file import/export, or Markdown editing, use `src/Zhijian` as the reference implementation. Keep in mind that those pieces are application-shell code, while `CodeWF.MindView` is the reusable Avalonia-only control library.
+
+## Open Source Thanks
+
+Zhijian is built on excellent open source platforms and libraries:
+
+- [Dotnet](https://dotnet.microsoft.com/zh-cn/)
+- [Avalonia UI](https://avaloniaui.net/)
+- [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
+- [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
+- [AtomUI](https://github.com/AtomUI/AtomUI)

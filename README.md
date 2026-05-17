@@ -90,6 +90,16 @@ The host ViewModel provides an `ObservableCollection<MindMapNode>` and implement
 
 See [docs/source-design.md](docs/source-design.md) for the reusable-control integration details.
 
+## Open Source Thanks
+
+Zhijian is built on excellent open source platforms and libraries:
+
+- [Dotnet](https://dotnet.microsoft.com/zh-cn/)
+- [Avalonia UI](https://avaloniaui.net/)
+- [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
+- [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
+- [AtomUI](https://github.com/AtomUI/AtomUI)
+
 ## Development
 
 Requirements:

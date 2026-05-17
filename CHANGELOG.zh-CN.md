@@ -9,6 +9,7 @@
 - 🔨[优化]-统一 ToolTip 为更接近 AtomUI 的紧凑深色浮层样式。
 - 🔨[优化]-将标题栏附加内容、关于窗口和更新日志窗口迁移到 AXML 与 ViewModel，标题栏菜单改用 AtomUI `Menu/MenuItem`，减少 C# 中的界面组装代码。
 - ✨[新增]-在标题栏“关于”菜单中新增“感谢”入口，使用 AtomUI 窗口展示 Dotnet、Avalonia UI、Semi.Avalonia、Ursa.Avalonia 和 AtomUI 链接。
+- 📝[文档]-在 README 和设计文档中补充开源项目感谢列表。
 - 📝[文档]-完善仓库 README 与 docs 文档的中英双版本，并补充来自实际运行桌面程序的截图和 GIF。
 - 🧪[测试]-重新运行桌面程序并截图验证菜单、分隔条、脑图标题/备注输入、缩放、画布滚动和窗口最大化。
 
