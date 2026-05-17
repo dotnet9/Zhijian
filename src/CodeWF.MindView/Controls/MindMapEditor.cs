@@ -52,6 +52,23 @@ public class MindMapEditor : UserControl
     private const double DragStartDistance = 6;
     private const double DropEdgeRatio = 0.28;
     private const double NodeMenuWidth = 224;
+    private const double LayoutRootX = 72;
+    private const double LayoutRootY = 72;
+    private const double LayoutMinNodeY = 24;
+
+    private static readonly string[] DefaultPalette =
+    [
+        "#2563EB",
+        "#16A34A",
+        "#F97316",
+        "#DB2777",
+        "#7C3AED",
+        "#0891B2",
+        "#DC2626",
+        "#CA8A04",
+        "#0D9488",
+        "#4F46E5"
+    ];
 
     private readonly Canvas _canvas = new()
     {
@@ -87,6 +104,7 @@ public class MindMapEditor : UserControl
     private bool _isPanningCanvas;
     private bool _isSpacePressed;
     private MindMapNode? _toolbarNode;
+    private int _nextPaletteIndex = Random.Shared.Next(DefaultPalette.Length);
     private Point _panStartPointer;
     private Vector _panStartOffset;
     private double _zoomScale = 1;
@@ -175,7 +193,595 @@ public class MindMapEditor : UserControl
         private set => SetAndRaise(ViewportBoundsProperty, ref _viewportBounds, value);
     }
 
+    /// <summary>
+    /// 按当前树结构重新计算节点坐标。未提供 Controller 时，控件的内置结构操作会自动调用它。
+    /// </summary>
+    public void ArrangeNodes()
+    {
+        if (Roots is null || Roots.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var root in Roots)
+        {
+            AssignMissingColors(root);
+        }
+
+        var nextTop = LayoutRootY;
+        foreach (var root in Roots)
+        {
+            var columnPositions = CalculateColumnPositions(root);
+            LayoutNode(root, 0, columnPositions, ref nextTop);
+            nextTop += MindMapLayoutMetrics.DefaultVerticalSpacing;
+        }
+    }
+
+    /// <summary>
+    /// 添加子主题。宿主提供 Controller 时委托给宿主，否则使用控件内置树操作。
+    /// </summary>
+    public MindMapNode AddChild(MindMapNode? parent = null, string title = "新主题")
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.AddChild(parent, title);
+        }
+
+        parent = ResolveEditableNode(parent);
+        var child = CreateNode(title);
+        parent.Children.Add(child);
+        SelectedNode = child;
+        ArrangeNodes();
+        return child;
+    }
+
+    /// <summary>
+    /// 添加同级主题；根节点会转为添加子主题，避免产生多个中心主题。
+    /// </summary>
+    public MindMapNode AddSibling(MindMapNode? node = null, string title = "新主题")
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.AddSibling(node, title);
+        }
+
+        node = ResolveEditableNode(node);
+        if (IsRootNode(node))
+        {
+            return AddChild(node, title);
+        }
+
+        var parent = FindParent(node) ?? EnsureRoot();
+        var sibling = CreateNode(title);
+        var index = parent.Children.IndexOf(node);
+        parent.Children.Insert(index + 1, sibling);
+        SelectedNode = sibling;
+        ArrangeNodes();
+        return sibling;
+    }
+
+    public bool CanPromoteNode(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.CanPromoteNode(node);
+        }
+
+        if (node is null || IsRootNode(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        return parent is not null && !IsRootNode(parent) && FindParent(parent) is not null;
+    }
+
+    public bool PromoteNode(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.PromoteNode(node);
+        }
+
+        if (!CanPromoteNode(node) || node is null)
+        {
+            return false;
+        }
+
+        var parent = FindParent(node)!;
+        var grandParent = FindParent(parent)!;
+        parent.Children.Remove(node);
+        var parentIndex = grandParent.Children.IndexOf(parent);
+        grandParent.Children.Insert(parentIndex + 1, node);
+        SelectedNode = node;
+        ArrangeNodes();
+        return true;
+    }
+
+    public bool CanDemoteNode(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.CanDemoteNode(node);
+        }
+
+        if (node is null || IsRootNode(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        return parent is not null && parent.Children.IndexOf(node) > 0;
+    }
+
+    public bool DemoteNode(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.DemoteNode(node);
+        }
+
+        if (!CanDemoteNode(node) || node is null)
+        {
+            return false;
+        }
+
+        var parent = FindParent(node)!;
+        var index = parent.Children.IndexOf(node);
+        var newParent = parent.Children[index - 1];
+        parent.Children.RemoveAt(index);
+        newParent.Children.Add(node);
+        SelectedNode = node;
+        ArrangeNodes();
+        return true;
+    }
+
+    public bool CanMoveNodeUp(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.CanMoveNodeUp(node);
+        }
+
+        if (node is null || IsRootNode(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        return parent is not null && parent.Children.IndexOf(node) > 0;
+    }
+
+    public bool MoveNodeUp(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.MoveNodeUp(node);
+        }
+
+        return MoveNodeWithinSiblings(node, -1);
+    }
+
+    public bool CanMoveNodeDown(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.CanMoveNodeDown(node);
+        }
+
+        if (node is null || IsRootNode(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        if (parent is null)
+        {
+            return false;
+        }
+
+        var index = parent.Children.IndexOf(node);
+        return index >= 0 && index < parent.Children.Count - 1;
+    }
+
+    public bool MoveNodeDown(MindMapNode? node = null)
+    {
+        node ??= SelectedNode;
+        if (ControllerContext is { } controller)
+        {
+            return controller.MoveNodeDown(node);
+        }
+
+        return MoveNodeWithinSiblings(node, 1);
+    }
+
+    public MindMapNode DeleteNode(MindMapNode? node = null)
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.DeleteNode(node);
+        }
+
+        node = ResolveEditableNode(node);
+        if (IsRootNode(node))
+        {
+            SelectedNode = node;
+            return node;
+        }
+
+        var parent = FindParent(node) ?? EnsureRoot();
+        var index = parent.Children.IndexOf(node);
+        var focusTarget = index > 0 ? parent.Children[index - 1] : parent;
+        parent.Children.Remove(node);
+        SelectedNode = focusTarget;
+        ArrangeNodes();
+        return focusTarget;
+    }
+
+    public bool CanMoveNode(MindMapNode? node, MindMapNode? target)
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.CanMoveNode(node, target);
+        }
+
+        return node is not null
+            && target is not null
+            && !IsRootNode(node)
+            && !ReferenceEquals(node, target)
+            && !IsDescendant(node, target);
+    }
+
+    public bool MoveNode(MindMapNode? node, MindMapNode? target, MindMapDropPlacement placement)
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.MoveNode(node, target, placement);
+        }
+
+        if (!CanMoveNode(node, target) || node is null || target is null)
+        {
+            return false;
+        }
+
+        var oldParent = FindParent(node);
+        if (oldParent is null)
+        {
+            return false;
+        }
+
+        if (IsRootNode(target) && placement is MindMapDropPlacement.Before or MindMapDropPlacement.After)
+        {
+            placement = MindMapDropPlacement.Child;
+        }
+
+        var newParent = placement == MindMapDropPlacement.Child
+            ? target
+            : FindParent(target) ?? EnsureRoot();
+        var insertionIndex = placement switch
+        {
+            MindMapDropPlacement.Before => newParent.Children.IndexOf(target),
+            MindMapDropPlacement.After => newParent.Children.IndexOf(target) + 1,
+            _ => newParent.Children.Count
+        };
+
+        var oldIndex = oldParent.Children.IndexOf(node);
+        if (oldIndex < 0)
+        {
+            return false;
+        }
+
+        oldParent.Children.RemoveAt(oldIndex);
+        if (ReferenceEquals(oldParent, newParent) && oldIndex < insertionIndex)
+        {
+            insertionIndex--;
+        }
+
+        insertionIndex = Math.Clamp(insertionIndex, 0, newParent.Children.Count);
+        newParent.Children.Insert(insertionIndex, node);
+        SelectedNode = node;
+        ArrangeNodes();
+        return true;
+    }
+
     private IMindMapEditorController? ControllerContext => Controller ?? DataContext as IMindMapEditorController;
+
+    private MindMapNode ResolveEditableNode(MindMapNode? node)
+    {
+        if (node is not null && ContainsNode(node))
+        {
+            return node;
+        }
+
+        if (SelectedNode is not null && ContainsNode(SelectedNode))
+        {
+            return SelectedNode;
+        }
+
+        return EnsureRoot();
+    }
+
+    private MindMapNode EnsureRoot()
+    {
+        var roots = Roots;
+        if (roots is null)
+        {
+            roots = [];
+            Roots = roots;
+        }
+
+        if (roots.Count == 0)
+        {
+            roots.Add(CreateNode(string.Empty));
+        }
+
+        return roots[0];
+    }
+
+    private MindMapNode CreateNode(string title)
+    {
+        return new MindMapNode(title)
+        {
+            AccentColor = NextColor()
+        };
+    }
+
+    private void AssignMissingColors(MindMapNode node)
+    {
+        if (string.IsNullOrWhiteSpace(node.AccentColor))
+        {
+            node.AccentColor = NextColor();
+        }
+
+        foreach (var child in node.Children)
+        {
+            AssignMissingColors(child);
+        }
+    }
+
+    private string NextColor()
+    {
+        return DefaultPalette[_nextPaletteIndex++ % DefaultPalette.Length];
+    }
+
+    private bool IsRootNode(MindMapNode? node)
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.IsRoot(node);
+        }
+
+        return node is not null && Roots?.Contains(node) == true;
+    }
+
+    private int GetNodeLevel(MindMapNode node)
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.GetLevel(node);
+        }
+
+        return FindLevel(node) ?? 1;
+    }
+
+    private int? FindLevel(MindMapNode node)
+    {
+        if (Roots is null)
+        {
+            return null;
+        }
+
+        foreach (var root in Roots)
+        {
+            var level = FindLevel(root, node, 1);
+            if (level is not null)
+            {
+                return level;
+            }
+        }
+
+        return null;
+    }
+
+    private static int? FindLevel(MindMapNode current, MindMapNode node, int level)
+    {
+        if (ReferenceEquals(current, node))
+        {
+            return level;
+        }
+
+        foreach (var child in current.Children)
+        {
+            var childLevel = FindLevel(child, node, level + 1);
+            if (childLevel is not null)
+            {
+                return childLevel;
+            }
+        }
+
+        return null;
+    }
+
+    private bool ContainsNode(MindMapNode node)
+    {
+        return FindLevel(node) is not null;
+    }
+
+    private MindMapNode? FindParent(MindMapNode node)
+    {
+        if (Roots is null)
+        {
+            return null;
+        }
+
+        foreach (var root in Roots)
+        {
+            var parent = FindParent(root, node);
+            if (parent is not null)
+            {
+                return parent;
+            }
+        }
+
+        return null;
+    }
+
+    private static MindMapNode? FindParent(MindMapNode candidateParent, MindMapNode node)
+    {
+        if (candidateParent.Children.Contains(node))
+        {
+            return candidateParent;
+        }
+
+        foreach (var child in candidateParent.Children)
+        {
+            var parent = FindParent(child, node);
+            if (parent is not null)
+            {
+                return parent;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsDescendant(MindMapNode candidateAncestor, MindMapNode candidateDescendant)
+    {
+        foreach (var child in candidateAncestor.Children)
+        {
+            if (ReferenceEquals(child, candidateDescendant) || IsDescendant(child, candidateDescendant))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private MindMapNode HandleMapEnter(MindMapNode node)
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.HandleMapEnter(node);
+        }
+
+        return IsRootNode(node) ? AddChild(node, string.Empty) : AddSibling(node, string.Empty);
+    }
+
+    private MindMapNode HandleMapTab(MindMapNode node)
+    {
+        if (ControllerContext is { } controller)
+        {
+            return controller.HandleMapTab(node);
+        }
+
+        return AddChild(node, string.Empty);
+    }
+
+    private bool MoveNodeWithinSiblings(MindMapNode? node, int offset)
+    {
+        if (node is null || IsRootNode(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        if (parent is null)
+        {
+            return false;
+        }
+
+        var oldIndex = parent.Children.IndexOf(node);
+        var newIndex = oldIndex + offset;
+        if (oldIndex < 0 || newIndex < 0 || newIndex >= parent.Children.Count)
+        {
+            return false;
+        }
+
+        parent.Children.Move(oldIndex, newIndex);
+        SelectedNode = node;
+        ArrangeNodes();
+        return true;
+    }
+
+    private static double[] CalculateColumnPositions(MindMapNode root)
+    {
+        var columnWidths = new List<double>();
+        CollectColumnWidths(root, 0, columnWidths);
+
+        var columnPositions = new double[columnWidths.Count];
+        var x = LayoutRootX;
+        for (var i = 0; i < columnPositions.Length; i++)
+        {
+            columnPositions[i] = x;
+            x += columnWidths[i] + MindMapLayoutMetrics.DefaultHorizontalSpacing;
+        }
+
+        return columnPositions;
+    }
+
+    private static void CollectColumnWidths(MindMapNode node, int depth, List<double> columnWidths)
+    {
+        var level = depth + 1;
+        var size = MindMapLayoutMetrics.EstimateNodeSize(node, level);
+        while (columnWidths.Count <= depth)
+        {
+            columnWidths.Add(0);
+        }
+
+        columnWidths[depth] = Math.Max(columnWidths[depth], size.Width);
+        foreach (var child in node.Children)
+        {
+            CollectColumnWidths(child, depth + 1, columnWidths);
+        }
+    }
+
+    private static LayoutResult LayoutNode(MindMapNode node, int depth, IReadOnlyList<double> columnPositions, ref double nextTop)
+    {
+        var level = depth + 1;
+        var size = MindMapLayoutMetrics.EstimateNodeSize(node, level);
+        node.X = depth < columnPositions.Count
+            ? columnPositions[depth]
+            : columnPositions[^1] + (depth - columnPositions.Count + 1) * (MindMapLayoutMetrics.LeafMaxWidth + MindMapLayoutMetrics.DefaultHorizontalSpacing);
+
+        if (node.Children.Count == 0)
+        {
+            node.Y = nextTop;
+            nextTop = node.Y + size.Height + MindMapLayoutMetrics.DefaultVerticalSpacing;
+            return new LayoutResult(node.Y + size.Height / 2, node.Y, node.Y + size.Height);
+        }
+
+        var firstCenter = 0d;
+        var lastCenter = 0d;
+        var subtreeTop = double.MaxValue;
+        var subtreeBottom = double.MinValue;
+        for (var i = 0; i < node.Children.Count; i++)
+        {
+            var childLayout = LayoutNode(node.Children[i], depth + 1, columnPositions, ref nextTop);
+            if (i == 0)
+            {
+                firstCenter = childLayout.CenterY;
+            }
+
+            lastCenter = childLayout.CenterY;
+            subtreeTop = Math.Min(subtreeTop, childLayout.Top);
+            subtreeBottom = Math.Max(subtreeBottom, childLayout.Bottom);
+        }
+
+        var nodeCenter = (firstCenter + lastCenter) / 2;
+        node.Y = Math.Max(LayoutMinNodeY, nodeCenter - size.Height / 2);
+        subtreeTop = Math.Min(subtreeTop, node.Y);
+        subtreeBottom = Math.Max(subtreeBottom, node.Y + size.Height);
+        nextTop = Math.Max(nextTop, subtreeBottom + MindMapLayoutMetrics.DefaultVerticalSpacing);
+        return new LayoutResult(node.Y + size.Height / 2, subtreeTop, subtreeBottom);
+    }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
@@ -269,6 +875,7 @@ public class MindMapEditor : UserControl
 
         foreach (var root in Roots)
         {
+            AssignMissingColors(root);
             WatchNode(root);
             AddConnectors(root);
         }
@@ -373,7 +980,7 @@ public class MindMapEditor : UserControl
             }
         };
 
-        var isRoot = ControllerContext?.IsRoot(node) == true;
+        var isRoot = IsRootNode(node);
         var titleBox = new TextBox
         {
             BorderThickness = new Thickness(0),
@@ -669,16 +1276,15 @@ public class MindMapEditor : UserControl
 
     private void ShowNodeMenu(MindMapNode node, Point canvasPoint)
     {
-        var controller = ControllerContext;
         _nodeMenuPanel.Children.Clear();
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加子级", "Tab", true, () => AddChildFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加同级", "Enter", controller?.IsRoot(node) != true, () => AddSiblingFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", "提升为父节点", "Shift+Tab", controller?.CanPromoteNode(node) == true, () => PromoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", "降级为子节点", "Tab", controller?.CanDemoteNode(node) == true, () => DemoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", "上移", "Alt+Up", controller?.CanMoveNodeUp(node) == true, () => MoveNodeUpFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", "下移", "Alt+Down", controller?.CanMoveNodeDown(node) == true, () => MoveNodeDownFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加同级", "Enter", !IsRootNode(node), () => AddSiblingFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", "提升为父节点", "Shift+Tab", CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", "降级为子节点", "Tab", CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", "上移", "Alt+Up", CanMoveNodeUp(node), () => MoveNodeUpFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", "下移", "Alt+Down", CanMoveNodeDown(node), () => MoveNodeDownFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注", null, true, () => ShowNoteEditor(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", "删除", "Delete", controller?.IsRoot(node) != true, () => DeleteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", "删除", "Delete", !IsRootNode(node), () => DeleteNodeFromMenu(node)));
 
         _nodeMenu.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
         _nodeMenu.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
@@ -775,7 +1381,7 @@ public class MindMapEditor : UserControl
 
     private void AddToolbarSiblingNode()
     {
-        if (_toolbarNode is null || ControllerContext?.IsRoot(_toolbarNode) == true)
+        if (_toolbarNode is null || IsRootNode(_toolbarNode))
         {
             return;
         }
@@ -801,32 +1407,26 @@ public class MindMapEditor : UserControl
 
     private void AddChildFromMenu(MindMapNode node)
     {
-        if (ControllerContext is null)
-        {
-            return;
-        }
-
-        var child = ControllerContext.AddChild(node);
+        var child = AddChild(node);
         _toolbarNode = child;
         FocusNode(child);
     }
 
     private void AddSiblingFromMenu(MindMapNode node)
     {
-        var controller = ControllerContext;
-        if (controller is null || controller.IsRoot(node))
+        if (IsRootNode(node))
         {
             return;
         }
 
-        var sibling = controller.AddSibling(node);
+        var sibling = AddSibling(node);
         _toolbarNode = sibling;
         FocusNode(sibling);
     }
 
     private void PromoteNodeFromMenu(MindMapNode node)
     {
-        if (ControllerContext?.PromoteNode(node) == true)
+        if (PromoteNode(node))
         {
             _toolbarNode = node;
             FocusNode(node);
@@ -835,7 +1435,7 @@ public class MindMapEditor : UserControl
 
     private void DemoteNodeFromMenu(MindMapNode node)
     {
-        if (ControllerContext?.DemoteNode(node) == true)
+        if (DemoteNode(node))
         {
             _toolbarNode = node;
             FocusNode(node);
@@ -844,7 +1444,7 @@ public class MindMapEditor : UserControl
 
     private void MoveNodeUpFromMenu(MindMapNode node)
     {
-        if (ControllerContext?.MoveNodeUp(node) == true)
+        if (MoveNodeUp(node))
         {
             _toolbarNode = node;
             FocusNode(node);
@@ -853,7 +1453,7 @@ public class MindMapEditor : UserControl
 
     private void MoveNodeDownFromMenu(MindMapNode node)
     {
-        if (ControllerContext?.MoveNodeDown(node) == true)
+        if (MoveNodeDown(node))
         {
             _toolbarNode = node;
             FocusNode(node);
@@ -862,13 +1462,12 @@ public class MindMapEditor : UserControl
 
     private void DeleteNodeFromMenu(MindMapNode node)
     {
-        var controller = ControllerContext;
-        if (controller is null || controller.IsRoot(node))
+        if (IsRootNode(node))
         {
             return;
         }
 
-        var focusTarget = controller.DeleteNode(node);
+        var focusTarget = DeleteNode(node);
         _toolbarNode = null;
         UpdateToolbarVisibility();
         FocusNode(focusTarget);
@@ -886,15 +1485,9 @@ public class MindMapEditor : UserControl
 
     private void HandleTitleKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
     {
-        var controller = ControllerContext;
-        if (controller is null)
-        {
-            return;
-        }
-
         if (e.Key == Key.Enter)
         {
-            var nextNode = controller.HandleMapEnter(node);
+            var nextNode = HandleMapEnter(node);
             FocusNode(nextNode);
             e.Handled = true;
             return;
@@ -904,11 +1497,11 @@ public class MindMapEditor : UserControl
         {
             var nextNode = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
                 ? node
-                : controller.HandleMapTab(node);
+                : HandleMapTab(node);
 
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                controller.PromoteNode(node);
+                PromoteNode(node);
             }
 
             FocusNode(nextNode);
@@ -918,9 +1511,9 @@ public class MindMapEditor : UserControl
 
         if ((e.Key == Key.Delete || e.Key == Key.Back)
             && string.IsNullOrWhiteSpace(editor?.Text)
-            && !controller.IsRoot(node))
+            && !IsRootNode(node))
         {
-            var focusTarget = controller.DeleteNode(node);
+            var focusTarget = DeleteNode(node);
             FocusNode(focusTarget);
             e.Handled = true;
         }
@@ -943,15 +1536,9 @@ public class MindMapEditor : UserControl
 
     private void HandleFrameKeyDown(MindMapNode node, KeyEventArgs e)
     {
-        var controller = ControllerContext;
-        if (controller is null)
-        {
-            return;
-        }
-
         if (e.Key == Key.Delete || e.Key == Key.Back)
         {
-            var focusTarget = controller.DeleteNode(node);
+            var focusTarget = DeleteNode(node);
             FocusFrame(focusTarget);
             e.Handled = true;
             return;
@@ -959,7 +1546,7 @@ public class MindMapEditor : UserControl
 
         if (e.Key == Key.Enter)
         {
-            var nextNode = controller.HandleMapEnter(node);
+            var nextNode = HandleMapEnter(node);
             FocusNode(nextNode);
             e.Handled = true;
             return;
@@ -969,14 +1556,14 @@ public class MindMapEditor : UserControl
         {
             if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                if (controller.PromoteNode(node))
+                if (PromoteNode(node))
                 {
                     FocusNode(node);
                 }
             }
             else
             {
-                var nextNode = controller.HandleMapTab(node);
+                var nextNode = HandleMapTab(node);
                 FocusNode(nextNode);
             }
 
@@ -986,10 +1573,8 @@ public class MindMapEditor : UserControl
 
     private void HandleNodeDragStarted(MindMapNode node, Control? control, PointerPressedEventArgs e)
     {
-        var controller = ControllerContext;
         if (control is null
-            || controller is null
-            || controller.IsRoot(node)
+            || IsRootNode(node)
             || !IsLeftPointerPressed(e.GetCurrentPoint(control).Properties))
         {
             return;
@@ -1046,7 +1631,7 @@ public class MindMapEditor : UserControl
         e.Pointer.Capture(null);
 
         if (dropTarget is not null
-            && ControllerContext?.MoveNode(dragNode, dropTarget, dropPlacement) == true)
+            && MoveNode(dragNode, dropTarget, dropPlacement))
         {
             FocusNode(dragNode);
         }
@@ -1553,24 +2138,17 @@ public class MindMapEditor : UserControl
         }
 
         var metrics = GetNodeMetrics(node);
-        return MindMapLayoutMetrics.EstimateNodeSize(node, ControllerContext?.GetLevel(node) ?? 1, metrics.Placeholder);
+        return MindMapLayoutMetrics.EstimateNodeSize(node, GetNodeLevel(node), metrics.Placeholder);
     }
 
     private void UpdateDropTarget(MindMapNode dragNode, Point canvasPoint)
     {
-        var controller = ControllerContext;
-        if (controller is null)
-        {
-            ClearDropTarget();
-            return;
-        }
-
         MindMapNode? nextTarget = null;
         var nextPlacement = MindMapDropPlacement.Child;
 
         foreach (var (node, frame) in _nodeFrames)
         {
-            if (!controller.CanMoveNode(dragNode, node))
+            if (!CanMoveNode(dragNode, node))
             {
                 continue;
             }
@@ -1583,7 +2161,7 @@ public class MindMapEditor : UserControl
 
             nextTarget = node;
             nextPlacement = GetDropPlacement(bounds, canvasPoint);
-            if (controller.IsRoot(node) && nextPlacement is MindMapDropPlacement.Before or MindMapDropPlacement.After)
+            if (IsRootNode(node) && nextPlacement is MindMapDropPlacement.Before or MindMapDropPlacement.After)
             {
                 nextPlacement = MindMapDropPlacement.Child;
             }
@@ -1696,7 +2274,7 @@ public class MindMapEditor : UserControl
 
     private NodeMetrics GetNodeMetrics(MindMapNode node)
     {
-        var level = ControllerContext?.GetLevel(node) ?? 1;
+        var level = GetNodeLevel(node);
         if (level <= 1)
         {
             return new NodeMetrics(
@@ -1787,6 +2365,8 @@ public class MindMapEditor : UserControl
         HorizontalAlignment ContentAlignment,
         string Placeholder,
         bool IsTextOnly);
+
+    private readonly record struct LayoutResult(double CenterY, double Top, double Bottom);
 
     private void ApplyTheme()
     {

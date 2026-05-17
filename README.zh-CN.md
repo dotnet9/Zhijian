@@ -1,6 +1,6 @@
 # 枝见 Zhijian
 
-枝见是一个基于 C#、Avalonia 和 AtomUI 的本地 Markdown-first 脑图编辑器。它把大纲、Markdown 文本和图形脑图绑定到同一份文档模型上，适合写文章提纲、梳理功能设计和整理项目结构。
+枝见是一个基于 C# 和 Avalonia 的本地 Markdown-first 脑图编辑器。它把大纲、Markdown 文本和图形脑图绑定到同一份文档模型上，适合写文章提纲、梳理功能设计和整理项目结构。
 
 English documentation: [README.md](README.md)
 
@@ -15,21 +15,21 @@ English documentation: [README.md](README.md)
 - 编辑菜单支持撤销、重做、添加同级、添加子级、提升、降级、上移、下移、删除节点和复制为 Markdown。
 - 主题、语言、帮助和关于菜单集中在标题栏，常用项带有图标和快捷键。
 - 语言切换使用 `Lang.Avalonia.Json` 资源，覆盖中文简体、中文繁体、英语和日语。
-- 首次启动使用 AtomUI Tour 做新手引导，覆盖文件/大纲 Tab、Markdown 切换、拖拽层级、小图和画布操作，并提供“跳过”按钮。
+- 首次启动新手引导会精准高亮标题栏文件菜单、大纲编辑区、Markdown 切换、脑图画布和底部导航，并提供“跳过”按钮。
 - `src/Zhijian/App.config` 集中管理新手引导、默认语言、最近文件数、历史步数和运行状态文件名。
 - 文件夹模式提供“文件 / 大纲”两个 Tab：选择文件夹后列出支持的脑图文件，点击文件自动切换到大纲并加载。
 - 大纲、Markdown 和脑图视图共享同一棵 `MindMapNode` 树。
 - 大纲和脑图都支持标题、备注内联编辑。
 - 大纲和脑图菜单提供添加同级、添加子级、提升、降级、上移、下移、备注和删除等高频操作。
 - 脑图支持画布拖拽、缩放、回到中心主题，以及基于真实节点坐标的小图导航。
-- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并显示 AtomUI 全局消息。
+- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并显示桌面全局消息。
 - 支持 Markdown、OPML、XMind 打开和保存。
-- 应用外壳使用 AtomUI 的窗口、标题栏菜单、对话框、列表控件、ToolTip、Tour、全局消息和深色主题。
-- 可复用的 `CodeWF.MindView` 控件只依赖 Avalonia，不强制依赖 AtomUI。
+- 应用外壳提供标题栏菜单、对话框、列表控件、ToolTip、全局消息和深色主题。
+- 可复用的 `CodeWF.MindView` 控件只依赖 Avalonia，并与桌面应用外壳解耦。
 
 ## 运行预览
 
-下面的截图和 GIF 均来自真实运行的枝见桌面程序，并通过模拟用户操作截取。
+下面的截图和 GIF 已按当前界面和完整示例数据更新，示例脑图包含 4 个二级节点和 10 个以上三级节点，便于观察小图、缩放和画布拖拽效果。
 
 ![文件菜单](docs/media/zhijian-file-menu.png)
 
@@ -87,16 +87,15 @@ English documentation: [README.md](README.md)
 
 ## 复用 CodeWF.MindView
 
-`src/CodeWF.MindView` 独立于 AtomUI。新的 Avalonia 应用可以引用 `CodeWF.MindView` 和 `CodeWF.MindView.Themes`，在 `App.axaml` 注册 `<mindThemes:MindViewThemes />`，然后在页面中使用 `MindMapEditor`：
+`src/CodeWF.MindView` 独立于应用外壳。新的 Avalonia 应用可以引用 `CodeWF.MindView` 和 `CodeWF.MindView.Themes`，在 `App.axaml` 注册 `<mindThemes:MindViewThemes />`，然后在页面中使用 `MindMapEditor`。普通接入只需要绑定节点集合和当前选择：
 
 ```xml
 <mind:MindMapEditor
     Roots="{Binding Roots}"
-    SelectedNode="{Binding SelectedNode, Mode=TwoWay}"
-    Controller="{Binding}" />
+    SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
 ```
 
-宿主 ViewModel 提供 `ObservableCollection<MindMapNode>`，并实现 `IMindMapEditorController`，用于处理层级判断、节点创建、删除、提升、降级和拖拽移动。`src/Zhijian` 是围绕可复用控件构建文件工作流、大纲编辑、Markdown 同步、标题栏菜单和 AtomUI 外壳的完整参考。
+`MindMapEditor` 内置添加子级、添加同级、升降级、同级上下移动、删除、拖拽移动和自动布局。需要接入撤销历史、保存状态或业务规则时，再把 `Controller="{Binding}"` 指向实现 `IMindMapEditorController` 的宿主 ViewModel。`src/Zhijian` 是围绕可复用控件构建文件工作流、大纲编辑、Markdown 同步和桌面外壳的完整参考。
 
 更完整的接入说明见 [docs/source-design.zh-CN.md](docs/source-design.zh-CN.md)。
 
@@ -106,9 +105,9 @@ English documentation: [README.md](README.md)
 Zhijian/
 |-- src/CodeWF.MindView/        可复用脑图控件和文档编解码
 |-- src/CodeWF.MindView.Themes/ CodeWF.MindView 默认资源
-|-- src/Zhijian/                Avalonia + AtomUI 桌面应用
+|-- src/Zhijian/                枝见桌面应用
 |-- docs/                       架构和源码设计文档
-|-- docs/media/                 实际运行截图和 GIF
+|-- docs/media/                 文档截图和 GIF
 |-- CHANGELOG.md                英文更新日志
 |-- CHANGELOG.zh-CN.md          中文更新日志
 `-- Zhijian.slnx                解决方案文件

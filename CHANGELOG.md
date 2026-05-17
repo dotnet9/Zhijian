@@ -2,6 +2,10 @@
 
 ## 12.0.3.6（2026-05-18）
 
+- 🔨[Optimize]-Changed onboarding to precisely highlight the title-bar File menu, outline editor, Markdown switch, mind-map canvas, and bottom navigation instead of using the whole left pane as the file entry.
+- 🔨[Optimize]-Added built-in basic node creation, deletion, promotion, demotion, sibling reordering, drag/drop moves, and auto layout to `MindMapEditor`, so simple hosts can bind only `Roots` / `SelectedNode`.
+- 📝[Docs]-Reduced repeated UI-framework mentions in product docs and focused README, docs, website documentation, and the article on Zhijian features.
+- 📝[Docs]-Regenerated key screenshots/GIFs with 4 second-level branches and more than 10 third-level nodes for clearer mini-map, zoom, canvas panning, and hierarchy demos.
 - ✨[Add]-Expanded onboarding to cover file/outline tabs, Markdown switching, outline shortcuts, mind-map dragging, canvas panning, mini-map preview, zoom, and status-bar navigation, with a Skip button.
 - 🔨[Optimize]-Use `⌘` as the primary command modifier on macOS for title-bar menus, window shortcuts, and mind-map wheel zoom while keeping `Ctrl` on Windows/Linux.
 - 🔨[Optimize]-Left-align mind-map titles and notes inside the same content width, including short text and note editors that need to regain focus.

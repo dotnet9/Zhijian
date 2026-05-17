@@ -2,15 +2,15 @@
 
 English version: [source-design.md](source-design.md)
 
-枝见拆分为可复用 Avalonia 脑图库和 AtomUI 桌面应用。核心设计规则很简单：可复用的文档和画布行为放在 `CodeWF.MindView`，产品化桌面工作流放在 `Zhijian`。
+枝见拆分为可复用 Avalonia 脑图库和产品化桌面应用。核心设计规则很简单：可复用的文档和画布行为放在 `CodeWF.MindView`，桌面工作流放在 `Zhijian`。
 
 ![枝见运行界面](media/zhijian-main-window.png)
 
 ## 设计目标
 
 - **单一模型**：大纲、Markdown、脑图、打开/保存和导出都围绕 `MindMapNode` 工作。
-- **控件可复用**：`CodeWF.MindView` 只引用 Avalonia，不依赖 AtomUI。
-- **体验由应用层负责**：枝见使用 AtomUI 窗口、菜单、列表、文本框、按钮、对话框和 ToolTip。
+- **控件可复用**：`CodeWF.MindView` 只引用 Avalonia，不依赖产品应用外壳。
+- **体验由应用层负责**：枝见的窗口、菜单、列表、文本框、按钮、对话框和 ToolTip 都在应用层组织。
 - **外壳可本地化**：标题栏菜单和新手引导文字使用 `Lang.Avalonia.Json` 资源，覆盖中文、英语和日语用户。
 - **即时同步**：大纲、Markdown 或脑图中的编辑都会通过同一棵树更新其他视图。
 - **布局可预期**：节点标题和备注都会参与宽高估算，减少深层脑图重叠。
@@ -18,7 +18,7 @@ English version: [source-design.md](source-design.md)
 
 ## 真实交互素材
 
-这些素材都来自真实运行的桌面程序，并通过模拟用户操作截取。
+这些素材已按当前界面重新制作，并使用 4 个二级节点、10 个以上三级节点的完整示例数据，方便展示小图、缩放、画布拖拽和层级调整。
 
 ![文件菜单](media/zhijian-file-menu.png)
 
@@ -64,7 +64,7 @@ src/
     Themes/Common.axaml         默认脑图资源
   Zhijian/
     Views/MainWindow.axaml      主桌面布局
-    Views/OutlineEditor.cs      AtomUI 大纲编辑器
+    Views/OutlineEditor.cs      应用层大纲编辑器
     Views/*Window.axaml         对话框、关于、更新日志、感谢窗口
     Services/                  Avalonia 文件和应用动作服务
     ViewModels/MainWindowViewModel.cs
@@ -85,13 +85,13 @@ public MindMapNode? SelectedNode { get; set; }
 
 文件菜单属于应用层工作流。它负责创建空白文档、启动新编辑器进程、打开支持的文件、把文件夹加载到文件 Tab、把最近文件保存到 `recent-files.json`、保存当前文档、另存为其他格式、打开当前文件位置，以及关闭前询问是否保存未保存改动。
 
-编辑、主题、语言、帮助和关于也都属于标题栏菜单。它们提供结构编辑命令、复制为 Markdown、深色/浅色主题切换、中文简体/中文繁体/英语/日语切换、问题反馈、需求提交、PR、仓库、更新日志、感谢和关于窗口。复制为 Markdown 会调用平台剪贴板，并通过 AtomUI `WindowMessageManager` 显示成功提示。
+编辑、主题、语言、帮助和关于也都属于标题栏菜单。它们提供结构编辑命令、复制为 Markdown、深色/浅色主题切换、中文简体/中文繁体/英语/日语切换、问题反馈、需求提交、PR、仓库、更新日志、感谢和关于窗口。复制为 Markdown 会调用平台剪贴板，并显示桌面全局成功提示。
 
-首次启动引导使用 AtomUI Tour 实现，会引导用户认识文件菜单新建脑图、左侧“文件 / 大纲”Tab、大纲快捷键和拖拽层级、Markdown 切换、右侧脑图节点拖拽、`Space + 左键` 画布平移、小图预览、缩放和状态栏导航。引导提供“跳过”按钮，关闭或跳过后会写入程序目录中的 `new-user-tour.seen`。
+首次启动引导会精准命中标题栏文件菜单、左侧大纲编辑区、Markdown 切换按钮、右侧脑图画布、`Space + 左键` 画布平移、小图预览、缩放和状态栏导航。文件菜单步骤不再高亮整块左侧面板，避免新用户把文件入口和大纲区域混在一起。引导提供“跳过”按钮，关闭或跳过后会写入程序目录中的 `new-user-tour.seen`。
 
 `src/Zhijian/App.config` 集中管理必要的应用配置：`ShowNewUserTour` 控制引导是否可显示，`DefaultCultureName` 控制默认语言，`RecentFilesFileName` 和 `TourSeenFileName` 控制运行状态文件名，`MaxRecentFiles` 和 `MaxHistorySteps` 控制最近文件与撤销历史容量。运行时通过 `ApplicationSettings` 读取 .NET 编译后的 `Zhijian.dll.config`，配置损坏时回退到代码默认值，避免阻断应用启动。
 
-文件夹 Tab 使用 AtomUI `ListBox`，因为桌面应用刻意运行在 AtomUI 样式体系上，而不是 Avalonia Fluent 样式体系。
+文件夹 Tab 使用应用层列表控件展示 Markdown、OPML 和 XMind 文件，并在选择文件后自动回到大纲编辑。
 
 ## 脑图控件
 
@@ -105,11 +105,11 @@ public MindMapNode? SelectedNode { get; set; }
 - 给小图使用的视口跟踪
 - 常用结构编辑、备注和删除的浮动节点操作
 
-节点编辑器使用 Avalonia 控件，而不是 AtomUI 控件，所以可复用库保持独立。
+节点编辑器使用 Avalonia 控件，所以可复用库保持独立。
 
 ## 大纲编辑器
 
-`OutlineEditor` 属于应用层代码，因为它使用 AtomUI 文本框、菜单和 AntDesign 图标。节点圆点菜单提供用户常用结构操作：
+`OutlineEditor` 属于应用层代码，负责把大纲输入、圆点菜单和拖拽体验组合成桌面工作流。节点圆点菜单提供用户常用结构操作：
 
 - 添加子级
 - 添加同级
@@ -147,7 +147,7 @@ public MindMapNode? SelectedNode { get; set; }
 </Application>
 ```
 
-在视图中放置编辑器：
+在视图中放置编辑器。基础场景只需要绑定节点集合和当前选中节点：
 
 ```xml
 <UserControl
@@ -155,12 +155,11 @@ public MindMapNode? SelectedNode { get; set; }
     xmlns:mind="https://codewf.com">
     <mind:MindMapEditor
         Roots="{Binding Roots}"
-        SelectedNode="{Binding SelectedNode, Mode=TwoWay}"
-        Controller="{Binding}" />
+        SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
 </UserControl>
 ```
 
-宿主 ViewModel 提供 `ObservableCollection<MindMapNode>`，并实现 `IMindMapEditorController`：
+`MindMapEditor` 内置添加子级、添加同级、升降级、同级上下移动、删除、拖拽移动和自动布局，普通接入者不需要先学习完整宿主接口。需要撤销历史、未保存状态、业务限制或自定义节点创建时，再实现 `IMindMapEditorController` 并绑定 `Controller`：
 
 ```csharp
 public sealed class MindMapPageViewModel : IMindMapEditorController
@@ -174,11 +173,11 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
 
     public int GetLevel(MindMapNode node) => ...;
     public bool IsRoot(MindMapNode? node) => ...;
-    public MindMapNode HandleMapEnter(MindMapNode node) => ...;
-    public MindMapNode HandleMapTab(MindMapNode node) => ...;
     public MindMapNode AddChild(MindMapNode? parent, string title = "New topic") => ...;
     public MindMapNode AddSibling(MindMapNode? node, string title = "New topic") => ...;
+    public bool CanPromoteNode(MindMapNode? node) => ...;
     public bool PromoteNode(MindMapNode? node) => ...;
+    public bool CanDemoteNode(MindMapNode? node) => ...;
     public bool DemoteNode(MindMapNode? node) => ...;
     public MindMapNode DeleteNode(MindMapNode? node) => ...;
     public bool CanMoveNode(MindMapNode? node, MindMapNode? target) => ...;

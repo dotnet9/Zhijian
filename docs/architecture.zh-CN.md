@@ -2,17 +2,17 @@
 
 English version: [architecture.md](architecture.md)
 
-枝见是一个用于编辑 Markdown-first 脑图的 Avalonia + AtomUI 桌面应用。仓库把可复用脑图能力和应用外壳分开：
+枝见是一个用于编辑 Markdown-first 脑图的 Avalonia 桌面应用。仓库把可复用脑图能力和应用外壳分开：
 
 - `CodeWF.MindView` 包含共享节点模型、脑图编辑控件、小图控件，以及 Markdown/OPML/XMind 编解码。
 - `CodeWF.MindView.Themes` 包含可复用控件的默认 Avalonia 资源。
-- `Zhijian` 包含 AtomUI 桌面外壳、标题栏菜单、大纲编辑器、Markdown 面板、对话框、文件服务、最近文件记录和应用 ViewModel。
+- `Zhijian` 包含桌面外壳、标题栏菜单、大纲编辑器、Markdown 面板、对话框、文件服务、最近文件记录和应用 ViewModel。
 
 ![运行时架构视图](media/zhijian-main-window.png)
 
 ## 运行证据
 
-`docs/media` 中的截图和 GIF 都来自真实运行的枝见桌面程序，并通过模拟用户操作截取。
+`docs/media` 中的截图和 GIF 已按当前界面重新制作，并使用 4 个二级节点、10 个以上三级节点的完整示例数据。
 
 ![打开文件夹流程](media/zhijian-open-folder.gif)
 
@@ -36,7 +36,7 @@ English version: [architecture.md](architecture.md)
 
 ```text
 Zhijian
-  |-- 引用 AtomUI、CodeWF.MindView、CodeWF.MindView.Themes
+  |-- 引用桌面 UI 依赖、CodeWF.MindView、CodeWF.MindView.Themes
   |-- 负责桌面外壳、菜单、对话框、文件选择器和 ViewModel
   |
   +--> CodeWF.MindView.Themes
@@ -47,22 +47,21 @@ Zhijian
             |-- 负责模型、脑图编辑器、小图和编解码
 ```
 
-`CodeWF.MindView` 刻意不依赖 AtomUI。这样脑图编辑器可以被普通 Avalonia 应用复用，而枝见应用仍然可以使用 AtomUI 的窗口、菜单、列表、按钮、文本框、ToolTip 和对话框。
+`CodeWF.MindView` 刻意不依赖桌面外壳库。这样脑图编辑器可以被普通 Avalonia 应用复用，而枝见应用仍然可以按自己的产品工作流组织窗口、菜单、列表、按钮、文本框、ToolTip 和对话框。
 
 ## 产品范围
 
 - 启动为空白文档，只有一个可编辑中心主题。
 - 左侧提供文件/大纲 Tab 或 Markdown 编辑，右侧提供图形脑图编辑器。
 - 文件流程支持新建、新建窗口、打开、打开文件夹、最近文件、保存、另存为、打开文件位置和关闭。
-- 编辑、主题、语言、帮助和关于流程都放在 AtomUI 标题栏菜单中。
+- 编辑、主题、语言、帮助和关于流程都放在标题栏菜单中。
 - 使用 `Lang.Avalonia.Json` 提供中文简体、中文繁体、英语和日语资源。
 - 大纲编辑器支持标题、备注、Enter/Tab/Shift+Tab/Delete 规则、拖拽调整结构，以及高频结构菜单。
 - 脑图编辑器支持标题和备注左对齐内联编辑、拖拽调整结构、`Space + 左键` 画布拖拽、缩放、小图导航和回到中心主题。
-- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并通过 AtomUI 全局消息提示成功。
-- 首次启动引导使用 AtomUI Tour，覆盖文件/大纲 Tab、Markdown 切换、脑图拖拽、画布导航和状态栏，并提供“跳过”按钮。
+- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并通过桌面全局消息提示成功。
+- 首次启动引导精准高亮文件菜单、大纲编辑区、Markdown 切换、脑图画布和状态栏，并提供“跳过”按钮。
 - 应用设置集中在 `src/Zhijian/App.config`，包含新手引导开关、默认语言、最近文件数、历史步数和运行状态文件名。
-- 标题栏菜单使用 AtomUI `Menu` 与 `MenuItem`。
-- 关于、更新日志、感谢和未保存确认窗口使用 AtomUI 窗口与 ViewModel。
+- 标题栏菜单、关于、更新日志、感谢和未保存确认窗口都属于应用外壳层。
 - 支持 Markdown、OPML、XMind 打开和保存。
 
 ## 数据流

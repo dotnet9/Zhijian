@@ -2,15 +2,15 @@
 
 Chinese version: [source-design.zh-CN.md](source-design.zh-CN.md)
 
-Zhijian is split into a reusable Avalonia mind-map library and an AtomUI desktop application. The main design rule is simple: keep reusable document and canvas behavior in `CodeWF.MindView`, and keep product-specific desktop workflow in `Zhijian`.
+Zhijian is split into a reusable Avalonia mind-map library and a product desktop application. The main design rule is simple: keep reusable document and canvas behavior in `CodeWF.MindView`, and keep product-specific desktop workflow in `Zhijian`.
 
 ![Zhijian runtime](media/zhijian-main-window.png)
 
 ## Design Goals
 
 - **Single model**: outline, Markdown, mind map, open/save, and export all work with `MindMapNode`.
-- **Reusable controls**: `CodeWF.MindView` references Avalonia only, so it can be used without AtomUI.
-- **Application-owned experience**: Zhijian uses AtomUI windows, menus, list boxes, text boxes, buttons, dialogs, and tooltips.
+- **Reusable controls**: `CodeWF.MindView` references Avalonia only, so it can be used without the product shell.
+- **Application-owned experience**: windows, menus, list boxes, text boxes, buttons, dialogs, and tooltips are composed in the application layer.
 - **Localized shell**: title-bar menus and onboarding text are backed by `Lang.Avalonia.Json` resources for Chinese, English, and Japanese users.
 - **Immediate synchronization**: edits in the outline, Markdown, or mind map update the other views through the same tree.
 - **Predictable layout**: node titles and notes participate in width and height estimation, reducing overlap in deeper maps.
@@ -18,7 +18,7 @@ Zhijian is split into a reusable Avalonia mind-map library and an AtomUI desktop
 
 ## Runtime Interaction Evidence
 
-These assets were captured from a real running desktop session by simulating user operations.
+These assets were refreshed against the current UI with a fuller sample map: 4 second-level branches and more than 10 third-level nodes, so mini-map, zoom, canvas panning, and hierarchy changes are easier to inspect.
 
 ![File menu](media/zhijian-file-menu.png)
 
@@ -64,7 +64,7 @@ src/
     Themes/Common.axaml         default mind-map resources
   Zhijian/
     Views/MainWindow.axaml      main desktop layout
-    Views/OutlineEditor.cs      AtomUI outline editor
+    Views/OutlineEditor.cs      application-layer outline editor
     Views/*Window.axaml         dialogs and about/changelog/thanks windows
     Services/                  Avalonia file and app action services
     ViewModels/MainWindowViewModel.cs
@@ -85,13 +85,13 @@ The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs 
 
 The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing.
 
-Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through AtomUI `WindowMessageManager`.
+Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through a desktop global message.
 
-First-run onboarding is implemented with AtomUI Tour. It highlights File > New, the left Files/Outline tabs, outline shortcuts and drag/drop hierarchy, Markdown switching, right-side mind-map dragging, `Space + left drag` canvas panning, mini-map preview, zoom, and status-bar navigation. The tour includes a Skip button; closing or skipping writes `new-user-tour.seen` in the application directory.
+First-run onboarding now targets the title-bar File menu, the left outline editor, the Markdown switch button, the right mind-map canvas, `Space + left drag` canvas panning, mini-map preview, zoom, and status-bar navigation. The file step no longer highlights the whole left pane, so new users do not confuse file entry points with the outline editor. The tour includes a Skip button; closing or skipping writes `new-user-tour.seen` in the application directory.
 
 `src/Zhijian/App.config` centralizes the necessary application settings: `ShowNewUserTour` controls whether onboarding can appear, `DefaultCultureName` sets the default UI culture, `RecentFilesFileName` and `TourSeenFileName` control runtime state file names, and `MaxRecentFiles` / `MaxHistorySteps` control recent-file and undo-history capacity. Runtime code reads the .NET-generated `Zhijian.dll.config` through `ApplicationSettings` and falls back to code defaults if the config is missing or malformed.
 
-The folder tab uses AtomUI `ListBox` because the app intentionally runs on AtomUI styling rather than Avalonia Fluent styling.
+The folder tab uses an application-layer list to show Markdown, OPML, and XMind files, then switches back to the outline after a file is selected.
 
 ## Mind-Map Control
 
@@ -105,11 +105,11 @@ The folder tab uses AtomUI `ListBox` because the app intentionally runs on AtomU
 - viewport tracking for the mini-map
 - floating node actions for common structure edits, note editing, and deletion
 
-Node editors use Avalonia controls, not AtomUI controls, so the reusable library stays independent.
+Node editors use Avalonia controls, so the reusable library stays independent.
 
 ## Outline Editor
 
-`OutlineEditor` is application-layer code because it uses AtomUI text boxes, menus, and AntDesign icons. It exposes user-friendly structure operations from the node dot menu:
+`OutlineEditor` is application-layer code that combines outline input, the node-dot menu, and drag behavior into the desktop workflow. It exposes user-friendly structure operations from the node dot menu:
 
 - add child
 - add sibling
@@ -147,7 +147,7 @@ Register default resources in `App.axaml`:
 </Application>
 ```
 
-Place the editor in a view:
+Place the editor in a view. Basic integration only binds the node collection and the current selection:
 
 ```xml
 <UserControl
@@ -155,12 +155,11 @@ Place the editor in a view:
     xmlns:mind="https://codewf.com">
     <mind:MindMapEditor
         Roots="{Binding Roots}"
-        SelectedNode="{Binding SelectedNode, Mode=TwoWay}"
-        Controller="{Binding}" />
+        SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
 </UserControl>
 ```
 
-The host ViewModel provides `ObservableCollection<MindMapNode>` and implements `IMindMapEditorController`:
+`MindMapEditor` includes basic child/sibling creation, promotion, demotion, sibling reordering, deletion, drag/drop moves, and automatic layout, so a simple host does not need to learn the full controller contract first. Implement `IMindMapEditorController` and bind `Controller` only when the host needs undo history, dirty-state tracking, business rules, or custom node creation:
 
 ```csharp
 public sealed class MindMapPageViewModel : IMindMapEditorController
@@ -174,11 +173,11 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
 
     public int GetLevel(MindMapNode node) => ...;
     public bool IsRoot(MindMapNode? node) => ...;
-    public MindMapNode HandleMapEnter(MindMapNode node) => ...;
-    public MindMapNode HandleMapTab(MindMapNode node) => ...;
     public MindMapNode AddChild(MindMapNode? parent, string title = "New topic") => ...;
     public MindMapNode AddSibling(MindMapNode? node, string title = "New topic") => ...;
+    public bool CanPromoteNode(MindMapNode? node) => ...;
     public bool PromoteNode(MindMapNode? node) => ...;
+    public bool CanDemoteNode(MindMapNode? node) => ...;
     public bool DemoteNode(MindMapNode? node) => ...;
     public MindMapNode DeleteNode(MindMapNode? node) => ...;
     public bool CanMoveNode(MindMapNode? node, MindMapNode? target) => ...;

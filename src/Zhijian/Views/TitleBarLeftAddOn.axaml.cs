@@ -12,6 +12,8 @@ public partial class TitleBarLeftAddOn : UserControl
 {
     private MainWindowViewModel? _viewModel;
 
+    public Control FileMenuTourTarget => FileMenuItem;
+
     public TitleBarLeftAddOn()
     {
         InitializeComponent();

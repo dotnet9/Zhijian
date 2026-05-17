@@ -43,6 +43,7 @@ public partial class MainWindow : Window
         base.NotifyConfigureTitleBar(titleBar);
         _titleBarLeftAddOn = new TitleBarLeftAddOn();
         _titleBarRightAddOn = new TitleBarRightAddOn();
+        FileMenuTourStep.Target = _titleBarLeftAddOn.FileMenuTourTarget;
         ApplyTitleBarDataContext();
         titleBar.SetValue(WindowTitleBar.TitleProperty, null);
         titleBar.SetCurrentValue(WindowTitleBar.LeftAddOnProperty, _titleBarLeftAddOn);

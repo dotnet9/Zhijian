@@ -781,6 +781,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private void ShowNewUserTour()
     {
         _hasOpenedNewUserTour = true;
+        PrepareNewUserTour();
         if (IsNewUserTourOpen)
         {
             IsNewUserTourOpen = false;
@@ -908,8 +909,15 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             return;
         }
 
+        PrepareNewUserTour();
         _hasOpenedNewUserTour = true;
         IsNewUserTourOpen = true;
+    }
+
+    private void PrepareNewUserTour()
+    {
+        WorkspaceTabIndex = 1;
+        SelectedNode ??= Root;
     }
 
     private static bool ShouldShowNewUserTour()

@@ -35,7 +35,8 @@
 
         <atom:Menu Margin="-6,0,0,0"
                    VerticalAlignment="Center">
-            <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.FileMenu}}"
+            <atom:MenuItem x:Name="FileMenuItem"
+                           Header="{codewf:I18n {x:Static l:ZhijianL.FileMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=FileDoneOutlined}"
                            AutomationProperties.Name="File menu">
                 <atom:MenuItem x:Name="NewDocumentItem"

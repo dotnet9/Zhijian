@@ -2,17 +2,17 @@
 
 Chinese version: [architecture.zh-CN.md](architecture.zh-CN.md)
 
-Zhijian is an Avalonia and AtomUI desktop application for editing Markdown-first mind maps. The repository separates reusable mind-map functionality from the application shell:
+Zhijian is an Avalonia desktop application for editing Markdown-first mind maps. The repository separates reusable mind-map functionality from the application shell:
 
 - `CodeWF.MindView` contains the shared node model, editor control, mini-map control, and Markdown/OPML/XMind codecs.
 - `CodeWF.MindView.Themes` contains default Avalonia resources for the reusable controls.
-- `Zhijian` contains the AtomUI desktop shell, title-bar menus, outline editor, Markdown pane, dialogs, file services, recent-file storage, and application ViewModels.
+- `Zhijian` contains the desktop shell, title-bar menus, outline editor, Markdown pane, dialogs, file services, recent-file storage, and application ViewModels.
 
 ![Runtime architecture view](media/zhijian-main-window.png)
 
 ## Runtime Evidence
 
-The screenshots and GIFs in `docs/media` were captured from a real running Zhijian desktop session with simulated user operations.
+The screenshots and GIFs in `docs/media` were refreshed against the current UI with 4 second-level branches and more than 10 third-level nodes.
 
 ![Open folder workflow](media/zhijian-open-folder.gif)
 
@@ -36,7 +36,7 @@ The screenshots and GIFs in `docs/media` were captured from a real running Zhiji
 
 ```text
 Zhijian
-  |-- references AtomUI, CodeWF.MindView, CodeWF.MindView.Themes
+  |-- references desktop UI dependencies, CodeWF.MindView, CodeWF.MindView.Themes
   |-- owns desktop shell, menus, dialogs, file pickers, and ViewModels
   |
   +--> CodeWF.MindView.Themes
@@ -47,22 +47,21 @@ Zhijian
             |-- owns model, mind-map editor, mini-map, and codecs
 ```
 
-`CodeWF.MindView` intentionally has no AtomUI dependency. This keeps the mind-map editor reusable in a plain Avalonia application, while Zhijian can still use AtomUI for its window, menus, list controls, buttons, text boxes, tooltips, and dialogs.
+`CodeWF.MindView` intentionally has no desktop-shell dependency. This keeps the mind-map editor reusable in a plain Avalonia application, while Zhijian can still compose windows, menus, list controls, buttons, text boxes, tooltips, and dialogs around its product workflow.
 
 ## Product Scope
 
 - Blank startup document with one editable center topic.
 - Split view with file/outline tabs or Markdown editing on the left and a graphical mind-map editor on the right.
 - File workflow for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
-- Edit, Theme, Language, Help, and About workflows exposed from AtomUI title-bar menus.
+- Edit, Theme, Language, Help, and About workflows exposed from title-bar menus.
 - `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, drag/drop structure changes, and high-frequency structure menus.
 - Mind-map editor with left-aligned inline title/note editing, drag/drop structure changes, `Space + left drag` panning, zooming, mini-map navigation, and center-topic navigation.
-- Copy as Markdown writes the current Markdown to the clipboard and reports success with an AtomUI global message.
-- First-run onboarding implemented with AtomUI Tour, covering file/outline tabs, Markdown switching, mind-map dragging, canvas navigation, and the status bar, with a Skip button.
+- Copy as Markdown writes the current Markdown to the clipboard and reports success with a desktop global message.
+- First-run onboarding precisely highlights the File menu, outline editor, Markdown switch, mind-map canvas, and status bar, with a Skip button.
 - Application settings are centralized in `src/Zhijian/App.config`, including onboarding, default culture, recent-file count, history depth, and runtime state file names.
-- Title-bar menus implemented with AtomUI `Menu` and `MenuItem`.
-- About, changelog, thanks, and unsaved-changes dialogs implemented with AtomUI windows and ViewModels.
+- Title-bar menus, about, changelog, thanks, and unsaved-changes dialogs belong to the application shell layer.
 - Markdown, OPML, and XMind open/save support.
 
 ## Data Flow

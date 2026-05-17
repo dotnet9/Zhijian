@@ -76,7 +76,8 @@
                         BorderBrush="{Binding PanelBorderBrush}">
                     <atom:TabControl SelectedIndex="{Binding WorkspaceTabIndex, Mode=TwoWay}"
                                      TabAlignmentCenter="True">
-                        <atom:TabItem Header="{codewf:I18n {x:Static l:ZhijianL.FilesTab}}">
+                        <atom:TabItem x:Name="FilesTabItem"
+                                      Header="{codewf:I18n {x:Static l:ZhijianL.FilesTab}}">
                             <Grid RowDefinitions="Auto,*"
                                   Margin="0,8,0,0">
                                 <TextBlock Text="{Binding FolderSummary}"
@@ -123,8 +124,10 @@
                             </Grid>
                         </atom:TabItem>
 
-                        <atom:TabItem Header="{codewf:I18n {x:Static l:ZhijianL.OutlineTab}}">
-                            <Grid RowDefinitions="*,Auto">
+                        <atom:TabItem x:Name="OutlineTabItem"
+                                      Header="{codewf:I18n {x:Static l:ZhijianL.OutlineTab}}">
+                            <Grid x:Name="OutlineEditorHost"
+                                  RowDefinitions="*,Auto">
                                 <views:OutlineEditor Grid.Row="0"
                                                      IsVisible="{Binding IsOutlineMode}"
                                                      IsDarkTheme="{Binding IsDarkTheme}"
@@ -231,7 +234,8 @@
                                             Grid.Row="1"
                                             IsDarkTheme="{Binding IsDarkTheme}"
                                             Roots="{Binding Roots}"
-                                            SelectedNode="{Binding SelectedNode, Mode=TwoWay}"/>
+                                            SelectedNode="{Binding SelectedNode, Mode=TwoWay}"
+                                            Controller="{Binding}"/>
                     </Grid>
                 </Border>
             </Grid>
@@ -376,7 +380,8 @@
                 </Grid>
             </Border>
         </Grid>
-        <atom:Tour IsOpen="{Binding IsNewUserTourOpen, Mode=TwoWay}">
+        <atom:Tour x:Name="NewUserTour"
+                   IsOpen="{Binding IsNewUserTourOpen, Mode=TwoWay}">
             <atom:Tour.CustomActions>
                 <views:SkipTourActionButton Content="{codewf:I18n {x:Static l:ZhijianL.TourSkip}}"/>
             </atom:Tour.CustomActions>
@@ -385,11 +390,11 @@
             </atom:Tour.Indicator>
             <atom:TourStep Title="{codewf:I18n {x:Static l:ZhijianL.TourWelcomeTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourWelcomeDescription}}"/>
-            <atom:TourStep Target="{Binding ElementName=OutlinePaneHost}"
-                           Placement="Right"
+            <atom:TourStep x:Name="FileMenuTourStep"
+                           Placement="Bottom"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourFilesTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourFilesDescription}}"/>
-            <atom:TourStep Target="{Binding ElementName=OutlinePaneHost}"
+            <atom:TourStep Target="{Binding ElementName=OutlineEditorHost}"
                            Placement="Right"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourOutlineTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourOutlineDescription}}"/>
@@ -401,7 +406,7 @@
                            Placement="Left"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourMindMapTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourMindMapDescription}}"/>
-            <atom:TourStep Target="{Binding ElementName=MindMapPanel}"
+            <atom:TourStep Target="{Binding ElementName=MindMap}"
                            Placement="Left"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourCanvasTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourCanvasDescription}}"/>
