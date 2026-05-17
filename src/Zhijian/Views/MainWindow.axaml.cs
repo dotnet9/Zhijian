@@ -110,14 +110,18 @@ public partial class MainWindow : Window
         };
     }
 
-    private static Button CreateFileMenuButton()
+    private static Avalonia.Controls.Button CreateFileMenuButton()
     {
         var flyout = CreateFileMenuFlyout();
-        var button = new Button
+        var button = new Avalonia.Controls.Button
         {
             Content = "文件",
-            ButtonType = ButtonType.Text,
+            Background = Avalonia.Media.Brushes.Transparent,
+            BorderBrush = Avalonia.Media.Brushes.Transparent,
+            BorderThickness = new Thickness(0),
             Padding = new Thickness(6, 2),
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            VerticalContentAlignment = VerticalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
         button.Click += (_, _) => flyout.ShowAt(button);
@@ -147,14 +151,18 @@ public partial class MainWindow : Window
         return item;
     }
 
-    private Button CreateAboutMenuButton()
+    private Avalonia.Controls.Button CreateAboutMenuButton()
     {
         var flyout = CreateAboutMenuFlyout();
-        var button = new Button
+        var button = new Avalonia.Controls.Button
         {
             Content = "关于",
-            ButtonType = ButtonType.Text,
+            Background = Avalonia.Media.Brushes.Transparent,
+            BorderBrush = Avalonia.Media.Brushes.Transparent,
+            BorderThickness = new Thickness(0),
             Padding = new Thickness(6, 2),
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            VerticalContentAlignment = VerticalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
         button.Click += (_, _) => flyout.ShowAt(button);
