@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:atom="using:AtomUI.Desktop.Controls"
+             xmlns:vm="using:Zhijian.ViewModels"
+             x:Class="Zhijian.Views.TitleBarRightAddOn"
+             x:DataType="vm:MainWindowViewModel">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <StackPanel Orientation="Horizontal"
+                VerticalAlignment="Center"
+                Spacing="8"
+                Margin="0,0,12,0">
+        <TextBlock Text="深色"
+                   FontSize="12"
+                   Foreground="{Binding SecondaryTextBrush}"
+                   VerticalAlignment="Center"/>
+        <atom:ToggleSwitch IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                           VerticalAlignment="Center"
+                           AutomationProperties.Name="Toggle dark theme"
+                           ToolTip.Tip="切换深色主题"/>
+    </StackPanel>
+</UserControl>

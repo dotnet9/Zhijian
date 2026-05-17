@@ -269,7 +269,7 @@
                         <atom:Button Width="32"
                                      Height="28"
                                      Padding="7,4"
-                                     Click="OpenRepositoryClicked"
+                                     Command="{Binding OpenRepositoryCommand}"
                                      ToolTip.Tip="打开 GitHub 仓库">
                             <icons:QuestionCircleOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>

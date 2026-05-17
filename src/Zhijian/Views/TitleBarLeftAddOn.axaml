@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:atom="https://atomui.net"
+             xmlns:vm="using:Zhijian.ViewModels"
+             x:Class="Zhijian.Views.TitleBarLeftAddOn"
+             x:DataType="vm:MainWindowViewModel">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <StackPanel Orientation="Horizontal"
+                VerticalAlignment="Center"
+                Spacing="14">
+        <TextBlock Text="枝见 Zhijian"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Foreground="{Binding PrimaryTextBrush}"
+                   VerticalAlignment="Center"/>
+
+        <atom:Menu Margin="-8,0,0,0"
+                   VerticalAlignment="Center">
+            <atom:MenuItem Header="文件"
+                           AutomationProperties.Name="File menu">
+                <atom:MenuItem Header="导入 Markdown" Command="{Binding ImportMarkdownCommand}"/>
+                <atom:MenuItem Header="导入 OPML" Command="{Binding ImportOpmlCommand}"/>
+                <atom:MenuItem Header="导入 XMind" Command="{Binding ImportXMindCommand}"/>
+                <atom:MenuItem Header="导出 Markdown" Command="{Binding ExportMarkdownCommand}"/>
+                <atom:MenuItem Header="导出 OPML" Command="{Binding ExportOpmlCommand}"/>
+                <atom:MenuItem Header="导出 XMind" Command="{Binding ExportXMindCommand}"/>
+            </atom:MenuItem>
+
+            <atom:MenuItem Header="关于"
+                           AutomationProperties.Name="About menu">
+                <atom:MenuItem Header="打开网站" Command="{Binding OpenWebsiteCommand}"/>
+                <atom:MenuItem Header="更新日志" Command="{Binding ShowChangelogCommand}"/>
+                <atom:MenuItem Header="关于" Command="{Binding ShowAboutCommand}"/>
+            </atom:MenuItem>
+        </atom:Menu>
+    </StackPanel>
+</UserControl>

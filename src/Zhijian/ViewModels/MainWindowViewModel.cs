@@ -32,6 +32,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     ];
 
     private readonly IMindMapFileService _fileService;
+    private readonly IApplicationActionService _applicationActionService;
     private readonly HashSet<MindMapNode> _observedNodes = [];
     private readonly List<HistoryEntry> _history = [];
     private int _nextPaletteIndex;
@@ -56,13 +57,21 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private string _statusText = "就绪";
 
     public MainWindowViewModel()
-        : this(new DisabledMindMapFileService())
+        : this(new DisabledMindMapFileService(), new DisabledApplicationActionService())
     {
     }
 
     public MainWindowViewModel(IMindMapFileService fileService)
+        : this(fileService, new DisabledApplicationActionService())
+    {
+    }
+
+    public MainWindowViewModel(
+        IMindMapFileService fileService,
+        IApplicationActionService applicationActionService)
     {
         _fileService = fileService;
+        _applicationActionService = applicationActionService;
         Roots = new ObservableCollection<MindMapNode>
         {
             CreateNode(
@@ -453,6 +462,34 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         RecordHistoryStep(historyLabel);
         StatusText = statusText;
         return true;
+    }
+
+    [RelayCommand]
+    private void OpenWebsite()
+    {
+        _applicationActionService.OpenWebsite();
+        StatusText = "已打开网站";
+    }
+
+    [RelayCommand]
+    private void ShowChangelog()
+    {
+        _applicationActionService.ShowChangelog();
+        StatusText = "已打开更新日志";
+    }
+
+    [RelayCommand]
+    private void ShowAbout()
+    {
+        _applicationActionService.ShowAbout();
+        StatusText = "已打开关于窗口";
+    }
+
+    [RelayCommand]
+    private void OpenRepository()
+    {
+        _applicationActionService.OpenRepository();
+        StatusText = "已打开 GitHub 仓库";
     }
 
     [RelayCommand]
