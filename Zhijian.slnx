@@ -4,6 +4,11 @@
     <File Path="CHANGELOG.zh-CN.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="pack.bat" />
+    <File Path="Publish.Common.pubxml" />
+    <File Path="publish_all.bat" />
+    <File Path="publish_Zhijian.bat" />
+    <File Path="publishbase.bat" />
     <File Path="README.zh-CN.md" />
     <File Path="docs/architecture.md" />
     <File Path="docs/architecture.zh-CN.md" />
