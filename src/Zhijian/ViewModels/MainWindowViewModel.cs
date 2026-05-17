@@ -10,18 +10,13 @@ using Zhijian.Services;
 
 namespace Zhijian.ViewModels;
 
-public enum MindMapDropPlacement
-{
-    Before,
-    After,
-    Child
-}
-
 public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorController
 {
-    private const double HorizontalSpacing = 160;
-    private const double VerticalSpacing = 66;
+    private const double HorizontalGap = MindMapLayoutMetrics.DefaultHorizontalSpacing;
+    private const double VerticalSpacing = MindMapLayoutMetrics.DefaultVerticalSpacing;
     private const double RootX = 72;
+    private const double RootY = 72;
+    private const double MinNodeY = 24;
     private const int MaxHistorySteps = 80;
 
     private static readonly string[] Palette =
@@ -471,8 +466,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             return;
         }
 
-        var leafIndex = 0;
-        LayoutNode(Root, 0, ref leafIndex);
+        var columnPositions = CalculateColumnPositions(Root);
+        var nextTop = RootY;
+        LayoutNode(Root, 0, columnPositions, ref nextTop);
     }
 
     partial void OnIsMarkdownModeChanged(bool value)
@@ -626,6 +622,12 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         if (e.PropertyName is nameof(MindMapNode.Title) or nameof(MindMapNode.Note))
         {
+            AutoLayout();
+            RefreshTreeSummary();
+        }
+
+        if (e.PropertyName is nameof(MindMapNode.Title) or nameof(MindMapNode.Note))
+        {
             SyncMarkdownFromTree();
             RecordHistoryStep("编辑主题");
         }
@@ -697,32 +699,77 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(SelectedNodeSummary));
     }
 
-    private static double LayoutNode(MindMapNode node, int depth, ref int leafIndex)
+    private static double[] CalculateColumnPositions(MindMapNode root)
     {
-        node.X = RootX + depth * HorizontalSpacing;
+        // 每列先按真实节点宽度估算，避免第 4 级以后长标题与连线挤在一起。
+        var columnWidths = new List<double>();
+        CollectColumnWidths(root, 0, columnWidths);
+
+        var columnPositions = new double[columnWidths.Count];
+        var x = RootX;
+        for (var i = 0; i < columnPositions.Length; i++)
+        {
+            columnPositions[i] = x;
+            x += columnWidths[i] + HorizontalGap;
+        }
+
+        return columnPositions;
+    }
+
+    private static void CollectColumnWidths(MindMapNode node, int depth, List<double> columnWidths)
+    {
+        var level = depth + 1;
+        var size = MindMapLayoutMetrics.EstimateNodeSize(node, level);
+        while (columnWidths.Count <= depth)
+        {
+            columnWidths.Add(0);
+        }
+
+        columnWidths[depth] = Math.Max(columnWidths[depth], size.Width);
+        foreach (var child in node.Children)
+        {
+            CollectColumnWidths(child, depth + 1, columnWidths);
+        }
+    }
+
+    private static LayoutResult LayoutNode(MindMapNode node, int depth, IReadOnlyList<double> columnPositions, ref double nextTop)
+    {
+        var level = depth + 1;
+        var size = MindMapLayoutMetrics.EstimateNodeSize(node, level);
+        node.X = depth < columnPositions.Count
+            ? columnPositions[depth]
+            : columnPositions[^1] + (depth - columnPositions.Count + 1) * (MindMapLayoutMetrics.LeafMaxWidth + HorizontalGap);
 
         if (node.Children.Count == 0)
         {
-            node.Y = 72 + leafIndex * VerticalSpacing;
-            leafIndex++;
-            return node.Y;
+            node.Y = nextTop;
+            nextTop = node.Y + size.Height + VerticalSpacing;
+            return new LayoutResult(node.Y + size.Height / 2, node.Y, node.Y + size.Height);
         }
 
-        var first = 0d;
-        var last = 0d;
+        var firstCenter = 0d;
+        var lastCenter = 0d;
+        var subtreeTop = double.MaxValue;
+        var subtreeBottom = double.MinValue;
         for (var i = 0; i < node.Children.Count; i++)
         {
-            var childY = LayoutNode(node.Children[i], depth + 1, ref leafIndex);
+            var childLayout = LayoutNode(node.Children[i], depth + 1, columnPositions, ref nextTop);
             if (i == 0)
             {
-                first = childY;
+                firstCenter = childLayout.CenterY;
             }
 
-            last = childY;
+            lastCenter = childLayout.CenterY;
+            subtreeTop = Math.Min(subtreeTop, childLayout.Top);
+            subtreeBottom = Math.Max(subtreeBottom, childLayout.Bottom);
         }
 
-        node.Y = (first + last) / 2;
-        return node.Y;
+        var nodeCenter = (firstCenter + lastCenter) / 2;
+        node.Y = Math.Max(MinNodeY, nodeCenter - size.Height / 2);
+        subtreeTop = Math.Min(subtreeTop, node.Y);
+        subtreeBottom = Math.Max(subtreeBottom, node.Y + size.Height);
+        nextTop = Math.Max(nextTop, subtreeBottom + VerticalSpacing);
+        return new LayoutResult(node.Y + size.Height / 2, subtreeTop, subtreeBottom);
     }
 
     private MindMapNode CreateNode(string title, params MindMapNode[] children)
@@ -858,6 +905,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         UndoCommand.NotifyCanExecuteChanged();
         RedoCommand.NotifyCanExecuteChanged();
     }
+
+    private readonly record struct LayoutResult(double CenterY, double Top, double Bottom);
 
     private sealed record HistoryEntry(string Label, string Snapshot);
 }

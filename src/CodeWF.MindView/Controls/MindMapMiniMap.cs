@@ -1,11 +1,11 @@
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
+using CodeWF.MindView;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
-using CodeWF.MindView;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace CodeWF.MindView.Controls;
 
@@ -21,8 +21,6 @@ public class MindMapMiniMap : Control
         AvaloniaProperty.Register<MindMapMiniMap, Rect>(nameof(ViewportBounds));
 
     private const double PreviewPadding = 14;
-    private const double NodeWidth = 54;
-    private const double NodeHeight = 15;
 
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
@@ -98,7 +96,9 @@ public class MindMapMiniMap : Control
             return;
         }
 
+        var nodeLookup = nodes.ToDictionary(node => node.Node);
         var mapBounds = GetMapBounds(nodes);
+        // 小图使用真实节点坐标缩放绘制，始终反映当前脑图全局结构和视口位置。
         var scale = Math.Min(
             Math.Max(0.01, (Bounds.Width - PreviewPadding * 2) / mapBounds.Width),
             Math.Max(0.01, (Bounds.Height - PreviewPadding * 2) / mapBounds.Height));
@@ -116,7 +116,7 @@ public class MindMapMiniMap : Control
         {
             foreach (var root in Roots)
             {
-                DrawConnectors(context, root, ToPreview);
+                DrawConnectors(context, root, nodeLookup, ToPreview);
             }
         }
 
@@ -199,9 +199,9 @@ public class MindMapMiniMap : Control
         InvalidateVisual();
     }
 
-    private List<MindMapNode> FlattenNodes()
+    private List<PreviewNode> FlattenNodes()
     {
-        var nodes = new List<MindMapNode>();
+        var nodes = new List<PreviewNode>();
         if (Roots is null)
         {
             return nodes;
@@ -209,37 +209,51 @@ public class MindMapMiniMap : Control
 
         foreach (var root in Roots)
         {
-            AppendNode(root, nodes);
+            AppendNode(root, 1, nodes);
         }
 
         return nodes;
     }
 
-    private static void AppendNode(MindMapNode node, List<MindMapNode> nodes)
+    private static void AppendNode(MindMapNode node, int level, List<PreviewNode> nodes)
     {
-        nodes.Add(node);
+        nodes.Add(new PreviewNode(node, level, MindMapLayoutMetrics.EstimateNodeSize(node, level)));
         foreach (var child in node.Children)
         {
-            AppendNode(child, nodes);
+            AppendNode(child, level + 1, nodes);
         }
     }
 
-    private static Rect GetMapBounds(IReadOnlyCollection<MindMapNode> nodes)
+    private static Rect GetMapBounds(IReadOnlyCollection<PreviewNode> nodes)
     {
-        var minX = nodes.Min(node => node.X);
-        var minY = nodes.Min(node => node.Y);
-        var maxX = nodes.Max(node => node.X + NodeWidth);
-        var maxY = nodes.Max(node => node.Y + NodeHeight);
+        var minX = nodes.Min(node => node.Node.X);
+        var minY = nodes.Min(node => node.Node.Y);
+        var maxX = nodes.Max(node => node.Node.X + node.Size.Width);
+        var maxY = nodes.Max(node => node.Node.Y + node.Size.Height);
         return new Rect(minX - 40, minY - 32, maxX - minX + 80, maxY - minY + 64);
     }
 
-    private void DrawConnectors(DrawingContext context, MindMapNode parent, Func<Point, Point> toPreview)
+    private void DrawConnectors(
+        DrawingContext context,
+        MindMapNode parent,
+        IReadOnlyDictionary<MindMapNode, PreviewNode> nodes,
+        Func<Point, Point> toPreview)
     {
         var pen = new Pen(GetResourceBrush(MindViewStyleKeys.ConnectorBrushResource, "#148BFF", "#60A5FA"), 1);
+        if (!nodes.TryGetValue(parent, out var parentPreview))
+        {
+            return;
+        }
+
         foreach (var child in parent.Children)
         {
-            var start = toPreview(new Point(parent.X + NodeWidth, parent.Y + NodeHeight / 2));
-            var end = toPreview(new Point(child.X, child.Y + NodeHeight / 2));
+            if (!nodes.TryGetValue(child, out var childPreview))
+            {
+                continue;
+            }
+
+            var start = toPreview(GetConnectorStart(parentPreview));
+            var end = toPreview(GetConnectorEnd(childPreview));
             var geometry = new StreamGeometry();
             using (var stream = geometry.Open())
             {
@@ -253,19 +267,41 @@ public class MindMapMiniMap : Control
             }
 
             context.DrawGeometry(null, pen, geometry);
-            DrawConnectors(context, child, toPreview);
+            DrawConnectors(context, child, nodes, toPreview);
         }
     }
 
-    private void DrawNode(DrawingContext context, MindMapNode node, Func<Point, Point> toPreview)
+    private void DrawNode(DrawingContext context, PreviewNode node, Func<Point, Point> toPreview)
     {
-        var point = toPreview(new Point(node.X, node.Y));
-        var rect = new Rect(point.X, point.Y, NodeWidth, NodeHeight);
-        var fill = Brush.Parse(string.IsNullOrWhiteSpace(node.AccentColor)
-            ? "#148BFF"
-            : node.AccentColor);
-        var opacityBrush = new SolidColorBrush(((ISolidColorBrush)fill).Color, IsDarkTheme ? 0.75 : 0.9);
-        context.DrawRectangle(opacityBrush, null, new RoundedRect(rect, 4));
+        var topLeft = toPreview(new Point(node.Node.X, node.Node.Y));
+        var bottomRight = toPreview(new Point(node.Node.X + node.Size.Width, node.Node.Y + node.Size.Height));
+        var rect = new Rect(topLeft, bottomRight);
+        var kind = MindMapLayoutMetrics.GetVisualKind(node.Level);
+
+        if (kind == MindMapNodeVisualKind.Leaf)
+        {
+            var lineHeight = Math.Clamp(rect.Height * 0.18, 1.2, 3.2);
+            var lineRect = new Rect(rect.X, rect.Center.Y - lineHeight / 2, Math.Max(6, rect.Width), lineHeight);
+            context.DrawRectangle(WithOpacity(GetResourceBrush(MindViewStyleKeys.PrimaryTextBrushResource, "#111827", "#F9FAFB"), 0.72), null, lineRect);
+            return;
+        }
+
+        var fill = kind == MindMapNodeVisualKind.Root
+            ? GetResourceBrush(MindViewStyleKeys.RootBackgroundBrushResource, "#148BFF", "#148BFF")
+            : GetResourceBrush(MindViewStyleKeys.BranchBackgroundBrushResource, "#EEF0F3", "#1F2937");
+        context.DrawRectangle(WithOpacity(fill, IsDarkTheme ? 0.78 : 0.92), null, new RoundedRect(rect, 4));
+    }
+
+    private sealed record PreviewNode(MindMapNode Node, int Level, Size Size);
+
+    private static Point GetConnectorStart(PreviewNode node)
+    {
+        return new Point(node.Node.X + node.Size.Width, node.Node.Y + node.Size.Height / 2);
+    }
+
+    private static Point GetConnectorEnd(PreviewNode node)
+    {
+        return new Point(node.Node.X, node.Node.Y + node.Size.Height / 2);
     }
 
     private IBrush GetResourceBrush(string key, string lightFallback, string darkFallback)
@@ -276,5 +312,12 @@ public class MindMapMiniMap : Control
         }
 
         return Brush.Parse(IsDarkTheme ? darkFallback : lightFallback);
+    }
+
+    private static IBrush WithOpacity(IBrush brush, double opacity)
+    {
+        return brush is ISolidColorBrush solidColorBrush
+            ? new SolidColorBrush(solidColorBrush.Color, opacity)
+            : brush;
     }
 }

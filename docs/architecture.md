@@ -11,6 +11,8 @@ Zhijian is an Avalonia and AtomUI application for editing mind maps stored as Ma
 - `Directory.Packages.props`: centrally managed NuGet package versions.
 - `Directory.Build.props`: shared MSBuild settings.
 
+See `docs/源码设计.md` for the Chinese source-design overview that explains the current dependency boundaries, shared document model, layout pipeline, note editing, drag/drop behavior, and mini-map design.
+
 ## Initial product scope
 
 - Split view with an outline editor on the left and a graphical mind map editor on the right.

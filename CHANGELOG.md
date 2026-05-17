@@ -1,6 +1,17 @@
 # Changelog
 
-## 2026-05-16
+## 12.0.3.2（2026-05-17）
+
+- 🔨[优化]-Removed the visible mind-map node drag line while keeping a transparent drag hit area for non-root nodes.
+- ✨[新增]-Added synchronized note editing in both outline and mind-map views, including empty-note collapse and Backspace/Delete removal behavior.
+- ✨[新增]-Added AtomUI outline node dot menus with note and delete actions, while preserving drag/drop from the same dot.
+- ✨[新增]-Added a floating mind-map node toolbar with note and delete actions.
+- ✨[新增]-Added mind-map drag/drop reparenting and sibling reordering with dashed drop previews.
+- 🔨[优化]-Changed the mini-map to render a true overview from current node coordinates and viewport bounds.
+- 🔨[优化]-Improved auto layout so deeper nodes and notes participate in width/height estimation.
+- 📝[文档]-Added Chinese source-design documentation under `docs/源码设计.md`.
+
+## 12.0.3.1（2026-05-16）
 
 - 🔨[优化]-Extracted the reusable mind-map editor, mini-map, node model, and Markdown/OPML/XMind codecs into `CodeWF.MindView`.
 - 🔨[优化]-Added `CodeWF.MindView.Themes` with default Avalonia resources and wired Zhijian to consume the extracted controls while keeping the outline view in the app.
