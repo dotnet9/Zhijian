@@ -15,6 +15,10 @@ namespace Zhijian.Views;
 public partial class MainWindow : Window
 {
     private const string RepositoryUrl = "https://github.com/dotnet9/Zhijian";
+    private const string WebsiteUrl = "https://codewf.com";
+
+    private ChangelogWindow? _changelogWindow;
+    private AboutWindow? _aboutWindow;
 
     public MainWindow()
     {
@@ -46,7 +50,7 @@ public partial class MainWindow : Window
         titleBar.SetCurrentValue(WindowTitleBar.RightAddOnProperty, CreateTitleBarRightAddOn());
     }
 
-    private static Avalonia.Controls.StackPanel CreateTitleBarLeftAddOn()
+    private Avalonia.Controls.StackPanel CreateTitleBarLeftAddOn()
     {
         var title = new Avalonia.Controls.TextBlock
         {
@@ -65,7 +69,8 @@ public partial class MainWindow : Window
             Children =
             {
                 title,
-                CreateFileMenuButton()
+                CreateFileMenuButton(),
+                CreateAboutMenuButton()
             }
         };
     }
@@ -105,37 +110,30 @@ public partial class MainWindow : Window
         };
     }
 
-    private static DropdownButton CreateFileMenuButton()
+    private static Button CreateFileMenuButton()
     {
-        var button = new DropdownButton
+        var flyout = CreateFileMenuFlyout();
+        var button = new Button
         {
             Content = "文件",
             ButtonType = ButtonType.Text,
-            TriggerType = FlyoutTriggerType.Click,
-            IsArrowVisible = true,
             Padding = new Thickness(6, 2),
-            VerticalAlignment = VerticalAlignment.Center,
-            DropdownFlyout = CreateFileMenuFlyout()
+            VerticalAlignment = VerticalAlignment.Center
         };
+        button.Click += (_, _) => flyout.ShowAt(button);
         AutomationProperties.SetName(button, "File menu");
         return button;
     }
 
     private static MenuFlyout CreateFileMenuFlyout()
     {
-        var import = new MenuItem { Header = "导入" };
-        import.Items.Add(CreateCommandMenuItem("Markdown", "ImportMarkdownCommand"));
-        import.Items.Add(CreateCommandMenuItem("OPML", "ImportOpmlCommand"));
-        import.Items.Add(CreateCommandMenuItem("XMind", "ImportXMindCommand"));
-
-        var export = new MenuItem { Header = "导出" };
-        export.Items.Add(CreateCommandMenuItem("Markdown", "ExportMarkdownCommand"));
-        export.Items.Add(CreateCommandMenuItem("OPML", "ExportOpmlCommand"));
-        export.Items.Add(CreateCommandMenuItem("XMind", "ExportXMindCommand"));
-
         var flyout = new MenuFlyout();
-        flyout.Items.Add(import);
-        flyout.Items.Add(export);
+        flyout.Items.Add(CreateCommandMenuItem("导入 Markdown", "ImportMarkdownCommand"));
+        flyout.Items.Add(CreateCommandMenuItem("导入 OPML", "ImportOpmlCommand"));
+        flyout.Items.Add(CreateCommandMenuItem("导入 XMind", "ImportXMindCommand"));
+        flyout.Items.Add(CreateCommandMenuItem("导出 Markdown", "ExportMarkdownCommand"));
+        flyout.Items.Add(CreateCommandMenuItem("导出 OPML", "ExportOpmlCommand"));
+        flyout.Items.Add(CreateCommandMenuItem("导出 XMind", "ExportXMindCommand"));
         return flyout;
     }
 
@@ -147,6 +145,43 @@ public partial class MainWindow : Window
         };
         item.Bind(MenuItem.CommandProperty, new Binding(commandPath));
         return item;
+    }
+
+    private Button CreateAboutMenuButton()
+    {
+        var flyout = CreateAboutMenuFlyout();
+        var button = new Button
+        {
+            Content = "关于",
+            ButtonType = ButtonType.Text,
+            Padding = new Thickness(6, 2),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        button.Click += (_, _) => flyout.ShowAt(button);
+        AutomationProperties.SetName(button, "About menu");
+        return button;
+    }
+
+    private MenuFlyout CreateAboutMenuFlyout()
+    {
+        var website = new MenuItem { Header = "打开网站" };
+        website.Click += (_, _) =>
+        {
+            OpenUrl(WebsiteUrl);
+            SetStatus("已打开网站");
+        };
+
+        var changelog = new MenuItem { Header = "更新日志" };
+        changelog.Click += (_, _) => ShowChangelogWindow();
+
+        var about = new MenuItem { Header = "关于" };
+        about.Click += (_, _) => ShowAboutWindow();
+
+        var flyout = new MenuFlyout();
+        flyout.Items.Add(website);
+        flyout.Items.Add(changelog);
+        flyout.Items.Add(about);
+        return flyout;
     }
 
     private void ToggleMiniMapClicked(object? sender, RoutedEventArgs e)
@@ -176,11 +211,36 @@ public partial class MainWindow : Window
 
     private void OpenRepositoryClicked(object? sender, RoutedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo(RepositoryUrl)
-        {
-            UseShellExecute = true
-        });
+        OpenUrl(RepositoryUrl);
         SetStatus("已打开 GitHub 仓库");
+    }
+
+    private void ShowChangelogWindow()
+    {
+        if (_changelogWindow is { IsVisible: true })
+        {
+            _changelogWindow.Activate();
+            return;
+        }
+
+        _changelogWindow = new ChangelogWindow();
+        _changelogWindow.Closed += (_, _) => _changelogWindow = null;
+        _changelogWindow.Show(this);
+        SetStatus("已打开更新日志");
+    }
+
+    private void ShowAboutWindow()
+    {
+        if (_aboutWindow is { IsVisible: true })
+        {
+            _aboutWindow.Activate();
+            return;
+        }
+
+        _aboutWindow = new AboutWindow();
+        _aboutWindow.Closed += (_, _) => _aboutWindow = null;
+        _aboutWindow.Show(this);
+        SetStatus("已打开关于窗口");
     }
 
     private void HandleWindowKeyDown(object? sender, KeyEventArgs e)
@@ -246,5 +306,13 @@ public partial class MainWindow : Window
         {
             viewModel.StatusText = status;
         }
+    }
+
+    private static void OpenUrl(string url)
+    {
+        Process.Start(new ProcessStartInfo(url)
+        {
+            UseShellExecute = true
+        });
     }
 }

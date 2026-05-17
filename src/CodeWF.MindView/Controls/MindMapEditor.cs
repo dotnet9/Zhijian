@@ -51,6 +51,7 @@ public class MindMapEditor : UserControl
     private const double ZoomFactor = 1.1;
     private const double DragStartDistance = 6;
     private const double DropEdgeRatio = 0.28;
+    private const double NodeMenuWidth = 156;
 
     private readonly Canvas _canvas = new()
     {
@@ -93,6 +94,11 @@ public class MindMapEditor : UserControl
     private Rect _viewportBounds;
     private TopLevel? _topLevel;
     private readonly Border _nodeToolbar;
+    private readonly StackPanel _nodeMenuPanel = new()
+    {
+        Spacing = 2
+    };
+    private readonly Border _nodeMenu;
 
     public MindMapEditor()
     {
@@ -111,6 +117,8 @@ public class MindMapEditor : UserControl
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto
         };
         _nodeToolbar = CreateNodeToolbar();
+        _nodeMenu = CreateNodeMenu();
+        LostFocus += (_, _) => HideNodeMenu();
 
         var viewport = new Grid();
         viewport.Children.Add(_scrollViewer);
@@ -180,6 +188,7 @@ public class MindMapEditor : UserControl
         else if (change.Property == SelectedNodeProperty)
         {
             CollapseEmptyNoteEditorsExcept(SelectedNode);
+            HideNodeMenu();
             if (!ReferenceEquals(_toolbarNode, SelectedNode))
             {
                 _toolbarNode = null;
@@ -271,7 +280,9 @@ public class MindMapEditor : UserControl
 
         _canvas.Children.Add(_dropPreviewPath);
         _canvas.Children.Add(_nodeToolbar);
+        _canvas.Children.Add(_nodeMenu);
         HideDropPreview();
+        HideNodeMenu();
         UpdateToolbarVisibility();
         UpdateConnectors();
         ApplySelectionState();
@@ -429,19 +440,35 @@ public class MindMapEditor : UserControl
             EnsureCanvasSize();
         };
 
-        root.PointerPressed += (_, e) =>
-        {
-            if (e.Source is TextBox)
+        root.AddHandler(
+            PointerPressedEvent,
+            (_, e) =>
             {
-                return;
-            }
+                var point = e.GetCurrentPoint(root);
+                if (IsRightPointerPressed(point.Properties))
+                {
+                    SelectNode(node);
+                    ShowNodeToolbar(node);
+                    ShowNodeMenu(node, e.GetPosition(_canvas));
+                    e.Handled = true;
+                    return;
+                }
 
-            SelectNode(node);
-            ShowNodeToolbar(node);
-            root.Focus();
-            HandleNodeDragStarted(node, root, e);
-            e.Handled = true;
-        };
+                if (e.Source is TextBox)
+                {
+                    HideNodeMenu();
+                    return;
+                }
+
+                HideNodeMenu();
+                SelectNode(node);
+                ShowNodeToolbar(node);
+                root.Focus();
+                HandleNodeDragStarted(node, root, e);
+                e.Handled = true;
+            },
+            RoutingStrategies.Tunnel,
+            handledEventsToo: true);
         root.PointerMoved += HandleNodeDragged;
         root.PointerReleased += HandleNodeDragCompleted;
         root.KeyDown += (_, e) => HandleFrameKeyDown(node, e);
@@ -529,6 +556,22 @@ public class MindMapEditor : UserControl
             Spacing = 2
         };
         panel.Children.Add(CreateToolbarButton(
+            "添加同级主题",
+            Geometry.Parse("M4 7h6v6H4zM14 7h6v6h-6zM10 10h4M7 13v4h10v-4"),
+            AddToolbarSiblingNode));
+        panel.Children.Add(CreateToolbarButton(
+            "添加子主题",
+            Geometry.Parse("M5 5h7v7H5zM12 8h5v4M17 12h2v7h-7v-7h5"),
+            AddToolbarChildNode));
+        panel.Children.Add(CreateToolbarButton(
+            "提升为父节点",
+            Geometry.Parse("M5 7h14M5 12h9M5 17h5M15 13l4-4-4-4"),
+            PromoteToolbarNode));
+        panel.Children.Add(CreateToolbarButton(
+            "降级为子节点",
+            Geometry.Parse("M5 7h14M10 12h9M14 17h5M9 13l-4-4 4-4"),
+            DemoteToolbarNode));
+        panel.Children.Add(CreateToolbarButton(
             "备注",
             Geometry.Parse("M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"),
             () =>
@@ -545,7 +588,7 @@ public class MindMapEditor : UserControl
 
         return new Border
         {
-            Width = 72,
+            Width = 188,
             Height = 32,
             Padding = new Thickness(4, 3),
             CornerRadius = new CornerRadius(6),
@@ -593,17 +636,207 @@ public class MindMapEditor : UserControl
         return button;
     }
 
-    private void DeleteToolbarNode()
+    private Border CreateNodeMenu()
     {
-        if (_toolbarNode is null || ControllerContext is null || ControllerContext.IsRoot(_toolbarNode))
+        var menu = new Border
+        {
+            Width = NodeMenuWidth,
+            Padding = new Thickness(6),
+            CornerRadius = new CornerRadius(6),
+            Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF"),
+            BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA"),
+            BorderThickness = new Thickness(1),
+            BoxShadow = BoxShadows.Parse("0 8 22 0 #24000000"),
+            Child = _nodeMenuPanel,
+            IsVisible = false
+        };
+        menu.PointerPressed += (_, e) => e.Handled = true;
+        return menu;
+    }
+
+    private void ShowNodeMenu(MindMapNode node, Point canvasPoint)
+    {
+        var controller = ControllerContext;
+        _nodeMenuPanel.Children.Clear();
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("添加子级", true, () => AddChildFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("添加同级", controller?.IsRoot(node) != true, () => AddSiblingFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("提升为父节点", controller?.CanPromoteNode(node) == true, () => PromoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("降级为子节点", controller?.CanDemoteNode(node) == true, () => DemoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("上移", controller?.CanMoveNodeUp(node) == true, () => MoveNodeUpFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("下移", controller?.CanMoveNodeDown(node) == true, () => MoveNodeDownFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注", true, () => ShowNoteEditor(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("删除", controller?.IsRoot(node) != true, () => DeleteNodeFromMenu(node)));
+
+        _nodeMenu.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
+        _nodeMenu.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
+        _nodeMenu.IsVisible = true;
+
+        var x = Math.Clamp(canvasPoint.X, 8, Math.Max(8, _canvas.Width - NodeMenuWidth - 8));
+        var y = Math.Clamp(canvasPoint.Y, 8, Math.Max(8, _canvas.Height - 270));
+        Canvas.SetLeft(_nodeMenu, x);
+        Canvas.SetTop(_nodeMenu, y);
+    }
+
+    private Border CreateNodeMenuItem(string header, bool isEnabled, Action action)
+    {
+        var text = new TextBlock
+        {
+            Text = header,
+            FontSize = 13,
+            Foreground = isEnabled
+                ? GetPrimaryTextBrush()
+                : Brush.Parse(IsDarkTheme ? "#64748B" : "#A0A7B1"),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        var row = new Border
+        {
+            Height = 28,
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(8, 0),
+            Background = Brushes.Transparent,
+            Cursor = isEnabled ? new Cursor(StandardCursorType.Hand) : Cursor.Default,
+            Child = text
+        };
+        if (isEnabled)
+        {
+            row.PointerEntered += (_, _) => row.Background = Brush.Parse(IsDarkTheme ? "#1F2937" : "#F1F5F9");
+            row.PointerExited += (_, _) => row.Background = Brushes.Transparent;
+            row.PointerPressed += (_, e) =>
+            {
+                HideNodeMenu();
+                action();
+                e.Handled = true;
+            };
+        }
+
+        return row;
+    }
+
+    private void HideNodeMenu()
+    {
+        _nodeMenu.IsVisible = false;
+    }
+
+    private void AddToolbarChildNode()
+    {
+        if (_toolbarNode is null)
         {
             return;
         }
 
-        var focusTarget = ControllerContext.DeleteNode(_toolbarNode);
+        AddChildFromMenu(_toolbarNode);
+    }
+
+    private void AddToolbarSiblingNode()
+    {
+        if (_toolbarNode is null || ControllerContext?.IsRoot(_toolbarNode) == true)
+        {
+            return;
+        }
+
+        AddSiblingFromMenu(_toolbarNode);
+    }
+
+    private void PromoteToolbarNode()
+    {
+        if (_toolbarNode is not null)
+        {
+            PromoteNodeFromMenu(_toolbarNode);
+        }
+    }
+
+    private void DemoteToolbarNode()
+    {
+        if (_toolbarNode is not null)
+        {
+            DemoteNodeFromMenu(_toolbarNode);
+        }
+    }
+
+    private void AddChildFromMenu(MindMapNode node)
+    {
+        if (ControllerContext is null)
+        {
+            return;
+        }
+
+        var child = ControllerContext.AddChild(node);
+        _toolbarNode = child;
+        FocusNode(child);
+    }
+
+    private void AddSiblingFromMenu(MindMapNode node)
+    {
+        var controller = ControllerContext;
+        if (controller is null || controller.IsRoot(node))
+        {
+            return;
+        }
+
+        var sibling = controller.AddSibling(node);
+        _toolbarNode = sibling;
+        FocusNode(sibling);
+    }
+
+    private void PromoteNodeFromMenu(MindMapNode node)
+    {
+        if (ControllerContext?.PromoteNode(node) == true)
+        {
+            _toolbarNode = node;
+            FocusNode(node);
+        }
+    }
+
+    private void DemoteNodeFromMenu(MindMapNode node)
+    {
+        if (ControllerContext?.DemoteNode(node) == true)
+        {
+            _toolbarNode = node;
+            FocusNode(node);
+        }
+    }
+
+    private void MoveNodeUpFromMenu(MindMapNode node)
+    {
+        if (ControllerContext?.MoveNodeUp(node) == true)
+        {
+            _toolbarNode = node;
+            FocusNode(node);
+        }
+    }
+
+    private void MoveNodeDownFromMenu(MindMapNode node)
+    {
+        if (ControllerContext?.MoveNodeDown(node) == true)
+        {
+            _toolbarNode = node;
+            FocusNode(node);
+        }
+    }
+
+    private void DeleteNodeFromMenu(MindMapNode node)
+    {
+        var controller = ControllerContext;
+        if (controller is null || controller.IsRoot(node))
+        {
+            return;
+        }
+
+        var focusTarget = controller.DeleteNode(node);
         _toolbarNode = null;
         UpdateToolbarVisibility();
         FocusNode(focusTarget);
+    }
+
+    private void DeleteToolbarNode()
+    {
+        if (_toolbarNode is null)
+        {
+            return;
+        }
+
+        DeleteNodeFromMenu(_toolbarNode);
     }
 
     private void HandleTitleKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
@@ -687,10 +920,21 @@ public class MindMapEditor : UserControl
             return;
         }
 
-        if (e.Key == Key.Tab && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        if (e.Key == Key.Tab)
         {
-            var nextNode = controller.HandleMapTab(node);
-            FocusNode(nextNode);
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                if (controller.PromoteNode(node))
+                {
+                    FocusNode(node);
+                }
+            }
+            else
+            {
+                var nextNode = controller.HandleMapTab(node);
+                FocusNode(nextNode);
+            }
+
             e.Handled = true;
         }
     }
@@ -701,7 +945,7 @@ public class MindMapEditor : UserControl
         if (control is null
             || controller is null
             || controller.IsRoot(node)
-            || !e.GetCurrentPoint(control).Properties.IsLeftButtonPressed)
+            || !IsLeftPointerPressed(e.GetCurrentPoint(control).Properties))
         {
             return;
         }
@@ -1302,6 +1546,18 @@ public class MindMapEditor : UserControl
         }
 
         return MindMapDropPlacement.Child;
+    }
+
+    private static bool IsRightPointerPressed(PointerPointProperties properties)
+    {
+        return properties.IsRightButtonPressed
+            || properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed;
+    }
+
+    private static bool IsLeftPointerPressed(PointerPointProperties properties)
+    {
+        return properties.IsLeftButtonPressed
+            || properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed;
     }
 
     private Rect GetNodeBounds(MindMapNode node, Control frame)

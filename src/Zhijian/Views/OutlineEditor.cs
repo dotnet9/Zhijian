@@ -357,14 +357,14 @@ public class OutlineEditor : UserControl
 
         var point = e.GetCurrentPoint(control);
         SelectNode(node);
-        if (point.Properties.IsRightButtonPressed)
+        if (IsRightPointerPressed(point.Properties))
         {
             ShowNodeMenu(node, control);
             e.Handled = true;
             return;
         }
 
-        if (!point.Properties.IsLeftButtonPressed)
+        if (!IsLeftPointerPressed(point.Properties))
         {
             return;
         }
@@ -475,6 +475,18 @@ public class OutlineEditor : UserControl
         return MindMapDropPlacement.Child;
     }
 
+    private static bool IsRightPointerPressed(PointerPointProperties properties)
+    {
+        return properties.IsRightButtonPressed
+            || properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed;
+    }
+
+    private static bool IsLeftPointerPressed(PointerPointProperties properties)
+    {
+        return properties.IsLeftButtonPressed
+            || properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed;
+    }
+
     private void ShowNodeMenu(MindMapNode node, Control? anchor)
     {
         anchor ??= _rowFrames.TryGetValue(node, out var frame) ? frame : null;
@@ -483,24 +495,109 @@ public class OutlineEditor : UserControl
             return;
         }
 
+        var viewModel = ViewModel;
         var menu = new AtomMenuFlyout();
-        var noteItem = new AtomMenuItem
-        {
-            Header = "备注",
-            Icon = new CommentOutlined { Width = 14, Height = 14 }
-        };
-        noteItem.Click += (_, _) => ShowNoteEditor(node);
-        menu.Items.Add(noteItem);
-
-        var deleteItem = new AtomMenuItem
-        {
-            Header = "删除",
-            Icon = new DeleteOutlined { Width = 14, Height = 14 },
-            IsEnabled = ViewModel?.IsRoot(node) != true
-        };
-        deleteItem.Click += (_, _) => DeleteNodeFromMenu(node);
-        menu.Items.Add(deleteItem);
+        menu.Items.Add(CreateNodeMenuItem(
+            "添加子级",
+            new SubnodeOutlined { Width = 14, Height = 14 },
+            true,
+            () => AddChildFromMenu(node)));
+        menu.Items.Add(CreateNodeMenuItem(
+            "添加同级",
+            new SisternodeOutlined { Width = 14, Height = 14 },
+            viewModel?.IsRoot(node) != true,
+            () => AddSiblingFromMenu(node)));
+        menu.Items.Add(CreateNodeMenuItem(
+            "提升为父节点",
+            new MenuFoldOutlined { Width = 14, Height = 14 },
+            viewModel?.CanPromoteNode(node) == true,
+            () => PromoteNodeFromMenu(node)));
+        menu.Items.Add(CreateNodeMenuItem(
+            "降级为子节点",
+            new MenuUnfoldOutlined { Width = 14, Height = 14 },
+            viewModel?.CanDemoteNode(node) == true,
+            () => DemoteNodeFromMenu(node)));
+        menu.Items.Add(CreateNodeMenuItem(
+            "上移",
+            null,
+            viewModel?.CanMoveNodeUp(node) == true,
+            () => MoveNodeUpFromMenu(node)));
+        menu.Items.Add(CreateNodeMenuItem(
+            "下移",
+            null,
+            viewModel?.CanMoveNodeDown(node) == true,
+            () => MoveNodeDownFromMenu(node)));
+        menu.Items.Add(CreateNodeMenuItem(
+            string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注",
+            new CommentOutlined { Width = 14, Height = 14 },
+            true,
+            () => ShowNoteEditor(node)));
+        menu.Items.Add(CreateNodeMenuItem(
+            "删除",
+            new DeleteOutlined { Width = 14, Height = 14 },
+            viewModel?.IsRoot(node) != true,
+            () => DeleteNodeFromMenu(node)));
         menu.ShowAt(anchor);
+    }
+
+    private static AtomMenuItem CreateNodeMenuItem(string header, PathIcon? icon, bool isEnabled, Action action)
+    {
+        var item = new AtomMenuItem
+        {
+            Header = header,
+            IsEnabled = isEnabled
+        };
+        if (icon is not null)
+        {
+            item.Icon = icon;
+        }
+
+        item.Click += (_, _) => action();
+        return item;
+    }
+
+    private void AddChildFromMenu(MindMapNode node)
+    {
+        var child = ViewModel?.AddChild(node);
+        FocusNode(child);
+    }
+
+    private void AddSiblingFromMenu(MindMapNode node)
+    {
+        var sibling = ViewModel?.AddSibling(node);
+        FocusNode(sibling);
+    }
+
+    private void PromoteNodeFromMenu(MindMapNode node)
+    {
+        if (ViewModel?.PromoteNode(node) == true)
+        {
+            FocusNode(node);
+        }
+    }
+
+    private void DemoteNodeFromMenu(MindMapNode node)
+    {
+        if (ViewModel?.DemoteNode(node) == true)
+        {
+            FocusNode(node);
+        }
+    }
+
+    private void MoveNodeUpFromMenu(MindMapNode node)
+    {
+        if (ViewModel?.MoveNodeUp(node) == true)
+        {
+            FocusNode(node);
+        }
+    }
+
+    private void MoveNodeDownFromMenu(MindMapNode node)
+    {
+        if (ViewModel?.MoveNodeDown(node) == true)
+        {
+            FocusNode(node);
+        }
     }
 
     private void ShowNoteEditor(MindMapNode node)

@@ -1,5 +1,18 @@
 # Changelog
 
+## 12.0.3.4（2026-05-17）
+
+- 🔨[优化]-Removed the chevrons from the title-bar File/About buttons and flattened the File menu into direct import/export actions for a lighter menu surface.
+- 🔨[优化]-Expanded the outline and mind-map menus with the common add-sibling, promote/demote, move-up/move-down actions users expect during structural editing.
+- 🧪[测试]-Reran the 30-minute automated desktop loop against the final UI, covering splitter drag, view switching, theme switching, mini-map, zoom, node create/delete, note editing, and both menus.
+- 📝[文档]-Updated the article, source design, and README with the reusable `CodeWF.MindView` integration story.
+
+## 12.0.3.3（2026-05-17）
+
+- 🔨[优化]-Made the outline/mind-map splitter visible again with a dedicated drag slot and center handle while keeping `GridSplitter` resizing.
+- 🧪[测试]-Added a 30-minute automated desktop run covering splitter drag, Markdown toggles, theme toggles, mini-map, zoom, node create/delete, note add/delete, and mind-map drag operations.
+- 📝[文档]-Expanded the source design and README with guidance for using `CodeWF.MindView`, `MindMapEditor`, `MindMapNode`, and `IMindMapEditorController` from a new Avalonia app.
+
 ## 12.0.3.2（2026-05-17）
 
 - 🔨[优化]-Removed the visible mind-map node drag line while keeping a transparent drag hit area for non-root nodes.

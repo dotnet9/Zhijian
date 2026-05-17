@@ -135,11 +135,13 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             ApplyMarkdownToTree(refreshMarkdownText: false);
             IsMarkdownMode = false;
+            StatusText = "已应用 Markdown 并切换到大纲视图";
             return;
         }
 
         SyncMarkdownFromTree();
         IsMarkdownMode = true;
+        StatusText = "已切换到 Markdown 视图";
     }
 
     [RelayCommand(CanExecute = nameof(CanUndo))]
@@ -219,6 +221,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         AutoLayout();
         SyncMarkdownFromTree();
         RecordHistoryStep("添加子主题");
+        StatusText = "已添加子主题";
         return child;
     }
 
@@ -238,6 +241,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         AutoLayout();
         SyncMarkdownFromTree();
         RecordHistoryStep("添加同级主题");
+        StatusText = "已添加同级主题";
         return sibling;
     }
 
@@ -259,10 +263,78 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         AutoLayout();
         SyncMarkdownFromTree();
         RecordHistoryStep("删除主题");
+        StatusText = "已删除主题";
         return focusTarget;
     }
 
     public bool DemoteNode(MindMapNode? node)
+    {
+        if (!CanDemoteNode(node) || node is null)
+        {
+            return false;
+        }
+
+        var parent = FindParent(node)!;
+        var index = parent.Children.IndexOf(node);
+        var newParent = parent.Children[index - 1];
+        parent.Children.RemoveAt(index);
+        newParent.Children.Add(node);
+        SelectedNode = node;
+        AutoLayout();
+        SyncMarkdownFromTree();
+        RecordHistoryStep("降级主题");
+        StatusText = "已降级为子主题";
+        return true;
+    }
+
+    public bool CanDemoteNode(MindMapNode? node)
+    {
+        if (node is null || IsRoot(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        return parent is not null && parent.Children.IndexOf(node) > 0;
+    }
+
+    public bool PromoteNode(MindMapNode? node)
+    {
+        if (!CanPromoteNode(node) || node is null)
+        {
+            return false;
+        }
+
+        var parent = FindParent(node)!;
+        var grandParent = FindParent(parent)!;
+        parent.Children.Remove(node);
+        var parentIndex = grandParent.Children.IndexOf(parent);
+        grandParent.Children.Insert(parentIndex + 1, node);
+        SelectedNode = node;
+        AutoLayout();
+        SyncMarkdownFromTree();
+        RecordHistoryStep("升级主题");
+        StatusText = "已提升为父级主题";
+        return true;
+    }
+
+    public bool CanMoveNodeUp(MindMapNode? node)
+    {
+        if (node is null || IsRoot(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        return parent is not null && parent.Children.IndexOf(node) > 0;
+    }
+
+    public bool MoveNodeUp(MindMapNode? node)
+    {
+        return MoveNodeWithinSiblings(node, -1, "上移主题", "已上移主题");
+    }
+
+    public bool CanMoveNodeDown(MindMapNode? node)
     {
         if (node is null || IsRoot(node))
         {
@@ -276,22 +348,15 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
 
         var index = parent.Children.IndexOf(node);
-        if (index <= 0)
-        {
-            return false;
-        }
-
-        var newParent = parent.Children[index - 1];
-        parent.Children.RemoveAt(index);
-        newParent.Children.Add(node);
-        SelectedNode = node;
-        AutoLayout();
-        SyncMarkdownFromTree();
-        RecordHistoryStep("降级主题");
-        return true;
+        return index >= 0 && index < parent.Children.Count - 1;
     }
 
-    public bool PromoteNode(MindMapNode? node)
+    public bool MoveNodeDown(MindMapNode? node)
+    {
+        return MoveNodeWithinSiblings(node, 1, "下移主题", "已下移主题");
+    }
+
+    public bool CanPromoteNode(MindMapNode? node)
     {
         if (node is null || IsRoot(node))
         {
@@ -299,25 +364,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
 
         var parent = FindParent(node);
-        if (parent is null || IsRoot(parent))
-        {
-            return false;
-        }
-
-        var grandParent = FindParent(parent);
-        if (grandParent is null)
-        {
-            return false;
-        }
-
-        parent.Children.Remove(node);
-        var parentIndex = grandParent.Children.IndexOf(parent);
-        grandParent.Children.Insert(parentIndex + 1, node);
-        SelectedNode = node;
-        AutoLayout();
-        SyncMarkdownFromTree();
-        RecordHistoryStep("升级主题");
-        return true;
+        return parent is not null && !IsRoot(parent) && FindParent(parent) is not null;
     }
 
     public bool CanMoveNode(MindMapNode? node, MindMapNode? target)
@@ -375,6 +422,36 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         AutoLayout();
         SyncMarkdownFromTree();
         RecordHistoryStep("移动主题");
+        StatusText = "已移动主题";
+        return true;
+    }
+
+    private bool MoveNodeWithinSiblings(MindMapNode? node, int offset, string historyLabel, string statusText)
+    {
+        if (node is null || IsRoot(node))
+        {
+            return false;
+        }
+
+        var parent = FindParent(node);
+        if (parent is null)
+        {
+            return false;
+        }
+
+        var oldIndex = parent.Children.IndexOf(node);
+        var newIndex = oldIndex + offset;
+        if (oldIndex < 0 || newIndex < 0 || newIndex >= parent.Children.Count)
+        {
+            return false;
+        }
+
+        parent.Children.Move(oldIndex, newIndex);
+        SelectedNode = node;
+        AutoLayout();
+        SyncMarkdownFromTree();
+        RecordHistoryStep(historyLabel);
+        StatusText = statusText;
         return true;
     }
 

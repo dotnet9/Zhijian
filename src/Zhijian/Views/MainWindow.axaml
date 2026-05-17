@@ -53,7 +53,7 @@
             <Grid Grid.Row="0" Margin="16,16,16,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="420" MinWidth="320" MaxWidth="640"/>
-                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="14"/>
                     <ColumnDefinition Width="*" MinWidth="420"/>
                 </Grid.ColumnDefinitions>
 
@@ -111,12 +111,40 @@
                     </Grid>
                 </Border>
 
+                <Grid Grid.Column="1"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      IsHitTestVisible="False">
+                    <Border Width="1"
+                            HorizontalAlignment="Center"
+                            Background="{Binding PanelBorderBrush}"/>
+                    <Border Width="8"
+                            Height="54"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Background="{Binding PanelBackground}"
+                            BorderBrush="{Binding PanelBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4">
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="3">
+                            <Border Width="2" Height="4" CornerRadius="1" Background="{Binding SecondaryTextBrush}"/>
+                            <Border Width="2" Height="4" CornerRadius="1" Background="{Binding SecondaryTextBrush}"/>
+                            <Border Width="2" Height="4" CornerRadius="1" Background="{Binding SecondaryTextBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
                 <GridSplitter Grid.Column="1"
-                              Width="8"
+                              Width="14"
                               HorizontalAlignment="Stretch"
-                              Background="#CBD5E1"
+                              VerticalAlignment="Stretch"
+                              Background="#01000000"
+                              Cursor="SizeWestEast"
                               ResizeDirection="Columns"
-                              ShowsPreview="True"
+                              ResizeBehavior="PreviousAndNext"
+                              ShowsPreview="False"
                               ToolTip.Tip="拖拽调整大纲和脑图宽度"/>
 
                 <Border Grid.Column="2"
