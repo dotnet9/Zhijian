@@ -1,47 +1,61 @@
 # Zhijian
 
-Zhijian is a lightweight mind-map editor built with Avalonia and AtomUI. It focuses on a fast dual-pane workflow: edit the outline or Markdown on the left, and keep a live mind-map preview on the right.
+Zhijian is a local, Markdown-first mind-map editor built with C#, Avalonia, and AtomUI. It keeps the outline, Markdown text, and graphical mind map synchronized over the same document model, so users can write structure quickly and still inspect the result visually.
 
-## Features
+Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
-- Dual-pane editing with an outline/Markdown editor and a synchronized mind-map canvas.
-- One-click switch between outline and Markdown views.
-- Markdown-first document model using heading levels:
-  - `#` for the root topic
-  - `##` for second-level nodes
-  - `###` and deeper headings for child nodes
-  - plain text under a heading as that node's note
-- Focused left-pane editing with a simplified outline tree and Markdown editor.
-- Keyboard-first outline editing for adding, moving, promoting, demoting, and deleting nodes.
-- Mind-map node editing with inline titles, synchronized notes, floating note/delete actions, drag/drop reparenting, sibling reordering, and selection sync.
-- Outline node dot menus for adding sibling/child nodes, promoting/demoting, moving up/down, adding notes, or deleting nodes while preserving dot drag/drop behavior.
-- Real mini-map overview rendered from the current mind-map coordinates and viewport.
-- Mind-map canvas panning with `Space + left mouse` on empty canvas space.
-- Unified status bar with node statistics, undo/redo step history, mini-map preview, center-topic navigation, zoom, and help actions.
-- Zoom controls in the status bar plus `Ctrl + mouse wheel` zoom from 10% to 200%.
-- Draggable splitter between the outline and mind-map panes.
-- Plain-text title-bar File/About buttons with arrowless menus and direct Markdown, OPML, and XMind import/export actions.
-- Title-bar theme switch between light and dark modes.
-- Import and export support for Markdown, OPML, and XMind.
+Repository: <https://github.com/dotnet9/Zhijian>
+
+![Zhijian main window](docs/media/zhijian-main-window.png)
+
+## Highlights
+
+- Dual-pane workflow with outline or Markdown editing on the left and a live mind-map canvas on the right.
+- Markdown-first document model: headings become topics, and body text under a heading becomes that node's note.
+- Inline title and note editing in both outline and mind-map views.
+- Resizable outline and mind-map panes with a visible splitter.
+- User-friendly outline and mind-map menus for adding siblings or children, promoting or demoting nodes, moving nodes, editing notes, and deleting nodes.
+- Mind-map panning, zooming, center-topic navigation, and a real mini-map based on current node coordinates.
+- Markdown, OPML, and XMind import/export.
+- AtomUI shell, title-bar menus, dialogs, tooltips, and dark theme.
+- Reusable `CodeWF.MindView` controls that depend only on Avalonia, not AtomUI.
+
+## Runtime Preview
+
+The following screenshots and GIFs were captured from a real running Zhijian desktop session with simulated user operations.
+
+![File menu](docs/media/zhijian-file-menu.png)
+
+![About menu](docs/media/zhijian-about-menu.png)
+
+![Outline menu](docs/media/zhijian-outline-menu.png)
+
+![Mind-map menu](docs/media/zhijian-mind-menu.png)
+
+![Note synchronization](docs/media/zhijian-note-sync.gif)
+
+![Splitter resizing](docs/media/zhijian-splitter-resize.gif)
+
+![Markdown and dark theme](docs/media/zhijian-markdown-theme.gif)
+
+![Mini-map popover](docs/media/zhijian-minimap-popover.png)
 
 ## Editing Workflow
 
-The left pane is the main workspace. Edit directly in the outline tree for structured work, or switch to Markdown when writing and rearranging headings is faster. Notes are written as plain text below a Markdown heading and are previewed on mind-map nodes.
+The left pane is the main writing area. Use outline mode when you want structured editing, or switch to Markdown when text-first editing is faster. The right pane updates immediately from the same `MindMapNode` tree.
 
-Keyboard shortcuts are available when editing a node title:
+Useful keyboard behavior while editing a node title:
 
-- `Enter`: add a sibling node. If the selected outline node has children, it adds a child node.
+- `Enter`: add a sibling node. If the selected outline node has children, Zhijian adds a child node.
 - `Tab`: add or demote to a child node.
 - `Shift + Tab`: promote a node.
-- `Delete` or `Backspace`: delete an empty non-root node. Pressing `Backspace` once clears the last character; pressing it again on the empty title removes the node.
-
-The right pane is the mind-map canvas. Select or edit nodes directly, use the floating node toolbar for notes and deletion, drag non-root nodes onto another node to reparent them, or drag to a node edge to reorder siblings. Hold `Space` and drag empty canvas space with the left mouse button to pan, and use the status bar controls for zoom, real mini-map navigation, and centering the root topic. `Ctrl + L` also returns the canvas to the center topic.
-
-File and about actions are available from the title bar.
+- `Delete` or `Backspace`: delete an empty non-root node.
+- `Ctrl + mouse wheel`: zoom the mind-map canvas.
+- `Ctrl + L`: return to the center topic.
 
 ## File Formats
 
-Zhijian uses Markdown as the default readable storage format and can also exchange data with common mind-map tools:
+Zhijian uses Markdown as the default readable format and can exchange data with common mind-map tools:
 
 - Markdown (`.md`, `.markdown`)
 - OPML (`.opml`, `.xml`)
@@ -53,13 +67,28 @@ Zhijian uses Markdown as the default readable storage format and can also exchan
 Zhijian/
 |-- src/CodeWF.MindView/        reusable mind-map controls and document codecs
 |-- src/CodeWF.MindView.Themes/ default resources for CodeWF.MindView
-|-- src/Zhijian/                Avalonia and AtomUI application
-|-- docs/                     Design notes, source-design documentation, and reference images
-|-- Directory.Build.props     Shared MSBuild settings
-|-- Directory.Packages.props  Central package versions
-|-- global.json               .NET SDK pin
-`-- Zhijian.slnx              Solution file
+|-- src/Zhijian/                Avalonia and AtomUI desktop application
+|-- docs/                       architecture and source-design documentation
+|-- docs/media/                 runtime screenshots and GIFs
+|-- CHANGELOG.md                English changelog
+|-- CHANGELOG.zh-CN.md          Chinese changelog
+`-- Zhijian.slnx                solution file
 ```
+
+## Reusing CodeWF.MindView
+
+`src/CodeWF.MindView` is independent from AtomUI. A new Avalonia app can reference `CodeWF.MindView` and `CodeWF.MindView.Themes`, register `<mindThemes:MindViewThemes />` in `App.axaml`, and place `MindMapEditor` in a view:
+
+```xml
+<mind:MindMapEditor
+    Roots="{Binding Roots}"
+    SelectedNode="{Binding SelectedNode, Mode=TwoWay}"
+    Controller="{Binding}" />
+```
+
+The host ViewModel provides an `ObservableCollection<MindMapNode>` and implements `IMindMapEditorController` for level lookup, node creation, deletion, promotion, and drag/drop moves. The `src/Zhijian` app is the complete AtomUI desktop reference around the reusable control.
+
+See [docs/source-design.md](docs/source-design.md) for the reusable-control integration details.
 
 ## Development
 
@@ -69,23 +98,15 @@ Requirements:
 
 Common commands:
 
-```bash
+```powershell
 dotnet restore Zhijian.slnx
 dotnet build Zhijian.slnx
-dotnet format Zhijian.slnx --verify-no-changes
 dotnet run --project src/Zhijian/Zhijian.csproj
 ```
 
-## Reusing CodeWF.MindView
+## Documentation
 
-`src/CodeWF.MindView` is intentionally independent from AtomUI. A new Avalonia app can reference `CodeWF.MindView` and `CodeWF.MindView.Themes`, register `<mindThemes:MindViewThemes />` in `App.axaml`, and place `<mind:MindMapEditor Roots="{Binding Roots}" SelectedNode="{Binding SelectedNode, Mode=TwoWay}" Controller="{Binding}" />` in a view.
-
-The host ViewModel provides an `ObservableCollection<MindMapNode>` and implements `IMindMapEditorController` for level lookup, node creation, deletion, promotion, and drag/drop moves. The `src/Zhijian` app is a complete reference for wiring the reusable control into an AtomUI desktop shell.
-
-## Verification
-
-Recent verification covered:
-
-- building the solution with zero warnings and zero errors
-- formatting verification with `dotnet format --verify-no-changes`
-- running the app and screenshot-checking title editing, note sync, outline menus, drag/drop previews, mini-map navigation, Markdown view, and dark theme
+- [Architecture](docs/architecture.md)
+- [Architecture Chinese](docs/architecture.zh-CN.md)
+- [Source Design](docs/source-design.md)
+- [Source Design Chinese](docs/source-design.zh-CN.md)

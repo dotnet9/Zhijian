@@ -8,6 +8,7 @@
 - 🔨[Optimize]-Replaced splitter resizing with explicit column-width dragging while keeping the outline pane constrained to 320-640 px.
 - 🔨[Optimize]-Unified tooltips with a compact dark floating style closer to AtomUI.
 - 🔨[Optimize]-Moved title-bar add-ons, the About window, and the changelog window into AXML plus view models, using AtomUI `Menu/MenuItem` for title-bar menus to reduce C# UI composition.
+- 📝[Docs]-Expanded the repository README and docs with paired English/Chinese versions plus runtime screenshots and GIFs captured from the actual desktop app.
 - 🧪[Test]-Reran the desktop app with screenshots for menus, splitter drag, mind-map title/note input, zoom, canvas scrolling, and maximized layout.
 
 ## 12.0.3.4（2026-05-17）

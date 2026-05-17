@@ -4,6 +4,11 @@
     <File Path="CHANGELOG.zh-CN.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="README.zh-CN.md" />
+    <File Path="docs/architecture.md" />
+    <File Path="docs/architecture.zh-CN.md" />
+    <File Path="docs/source-design.md" />
+    <File Path="docs/source-design.zh-CN.md" />
     <File Path="logo.png" />
     <File Path="README.md" />
   </Folder>
