@@ -297,7 +297,7 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="CenterRootClicked"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.CenterRoot}}">
+                                     atom:ToolTip.Tip="{Binding CenterRootToolTip}">
                             <icons:AimOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <Border Width="1"
@@ -340,8 +340,8 @@
                         <atom:Button Width="32"
                                      Height="28"
                                      Padding="7,4"
-                                     Command="{Binding OpenRepositoryCommand}"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.Github}}">
+                                     Command="{Binding ShowNewUserTourCommand}"
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.NewUserGuide}}">
                             <icons:QuestionCircleOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                     </StackPanel>
@@ -377,11 +377,18 @@
             </Border>
         </Grid>
         <atom:Tour IsOpen="{Binding IsNewUserTourOpen, Mode=TwoWay}">
+            <atom:Tour.CustomActions>
+                <views:SkipTourActionButton Content="{c:I18n {x:Static l:ZhijianL.TourSkip}}"/>
+            </atom:Tour.CustomActions>
             <atom:Tour.Indicator>
                 <atom:TextTourIndicator/>
             </atom:Tour.Indicator>
             <atom:TourStep Title="{c:I18n {x:Static l:ZhijianL.TourWelcomeTitle}}"
                            Description="{c:I18n {x:Static l:ZhijianL.TourWelcomeDescription}}"/>
+            <atom:TourStep Target="{Binding ElementName=OutlinePaneHost}"
+                           Placement="Right"
+                           Title="{c:I18n {x:Static l:ZhijianL.TourFilesTitle}}"
+                           Description="{c:I18n {x:Static l:ZhijianL.TourFilesDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=OutlinePaneHost}"
                            Placement="Right"
                            Title="{c:I18n {x:Static l:ZhijianL.TourOutlineTitle}}"
@@ -394,6 +401,10 @@
                            Placement="Left"
                            Title="{c:I18n {x:Static l:ZhijianL.TourMindMapTitle}}"
                            Description="{c:I18n {x:Static l:ZhijianL.TourMindMapDescription}}"/>
+            <atom:TourStep Target="{Binding ElementName=MindMapPanel}"
+                           Placement="Left"
+                           Title="{c:I18n {x:Static l:ZhijianL.TourCanvasTitle}}"
+                           Description="{c:I18n {x:Static l:ZhijianL.TourCanvasDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=StatusBar}"
                            Placement="Top"
                            Title="{c:I18n {x:Static l:ZhijianL.TourStatusTitle}}"

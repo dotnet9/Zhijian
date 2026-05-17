@@ -40,40 +40,33 @@
                            AutomationProperties.Name="File menu">
                 <atom:MenuItem x:Name="NewDocumentItem"
                                Header="{c:I18n {x:Static l:ZhijianL.New}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=FileAddOutlined}"
-                               InputGesture="Ctrl+N"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=FileAddOutlined}"/>
                 <atom:MenuItem x:Name="NewWindowItem"
                                Header="{c:I18n {x:Static l:ZhijianL.NewWindow}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=FolderAddOutlined}"
-                               InputGesture="Ctrl+Shift+N"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=FolderAddOutlined}"/>
                 <atom:MenuItem x:Name="OpenDocumentItem"
                                Header="{c:I18n {x:Static l:ZhijianL.Open}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=FileSearchOutlined}"
-                               InputGesture="Ctrl+O"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=FileSearchOutlined}"/>
                 <atom:MenuItem x:Name="OpenFolderItem"
                                Header="{c:I18n {x:Static l:ZhijianL.OpenFolder}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"
-                               InputGesture="Ctrl+K"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"/>
                 <atom:MenuItem x:Name="RecentFilesMenu"
                                Header="{c:I18n {x:Static l:ZhijianL.RecentFiles}}"
                                Icon="{antdicons:AntDesignIconProvider Kind=BranchesOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="SaveItem"
                                Header="{c:I18n {x:Static l:ZhijianL.Save}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=SaveOutlined}"
-                               InputGesture="Ctrl+S"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=SaveOutlined}"/>
                 <atom:MenuItem x:Name="SaveAsItem"
                                Header="{c:I18n {x:Static l:ZhijianL.SaveAs}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=CopyOutlined}"
-                               InputGesture="Ctrl+Shift+S"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=CopyOutlined}"/>
                 <atom:MenuItem x:Name="OpenFileLocationItem"
                                Header="{c:I18n {x:Static l:ZhijianL.OpenFileLocation}}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="CloseItem"
                                Header="{c:I18n {x:Static l:ZhijianL.Close}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=CloseOutlined}"
-                               InputGesture="Alt+F4"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=CloseOutlined}"/>
             </atom:MenuItem>
 
             <atom:MenuItem Header="{c:I18n {x:Static l:ZhijianL.EditMenu}}"
@@ -81,12 +74,10 @@
                            AutomationProperties.Name="Edit menu">
                 <atom:MenuItem x:Name="UndoItem"
                                Header="{c:I18n {x:Static l:ZhijianL.Undo}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=UndoOutlined}"
-                               InputGesture="Ctrl+Z"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=UndoOutlined}"/>
                 <atom:MenuItem x:Name="RedoItem"
                                Header="{c:I18n {x:Static l:ZhijianL.Redo}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=RedoOutlined}"
-                               InputGesture="Ctrl+Y"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=RedoOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="AddSiblingItem"
                                Header="{c:I18n {x:Static l:ZhijianL.AddSibling}}"
@@ -115,8 +106,7 @@
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="CopyMarkdownItem"
                                Header="{c:I18n {x:Static l:ZhijianL.CopyAsMarkdown}}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"
-                               InputGesture="Ctrl+Shift+C"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"/>
                 <atom:MenuItem x:Name="DeleteNodeItem"
                                Header="{c:I18n {x:Static l:ZhijianL.DeleteNode}}"
                                Icon="{antdicons:AntDesignIconProvider Kind=DeleteOutlined}"

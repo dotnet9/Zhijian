@@ -386,8 +386,8 @@ public class MindMapEditor : UserControl
             PlaceholderText = metrics.Placeholder,
             PlaceholderForeground = isRoot ? Brushes.White : GetSecondaryTextBrush(),
             FocusAdorner = null,
-            TextAlignment = ToTextAlignment(metrics.TextAlignment),
-            HorizontalContentAlignment = metrics.TextAlignment,
+            TextAlignment = ToTextAlignment(metrics.ContentAlignment),
+            HorizontalContentAlignment = metrics.ContentAlignment,
             VerticalContentAlignment = VerticalAlignment.Center,
             MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
             MaxWidth = Math.Max(12, metrics.MaxWidth - metrics.Padding.Left - metrics.Padding.Right),
@@ -531,13 +531,13 @@ public class MindMapEditor : UserControl
             PlaceholderText = "备注",
             PlaceholderForeground = noteForeground,
             FocusAdorner = null,
-            TextAlignment = ToTextAlignment(metrics.TextAlignment),
+            TextAlignment = ToTextAlignment(metrics.ContentAlignment),
             MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
             MaxWidth = Math.Max(12, metrics.MaxWidth - metrics.Padding.Left - metrics.Padding.Right),
             MinHeight = MindMapLayoutMetrics.NoteMinHeight,
             MaxHeight = 96,
             Padding = new Thickness(0, 2, 0, 0),
-            HorizontalContentAlignment = metrics.TextAlignment,
+            HorizontalContentAlignment = metrics.ContentAlignment,
             VerticalContentAlignment = VerticalAlignment.Top
         };
         noteBox.Classes.Add("codewfMindMapTitleEditor");
@@ -1134,7 +1134,7 @@ public class MindMapEditor : UserControl
 
     private void HandlePointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
-        if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        if (!HasZoomModifier(e.KeyModifiers))
         {
             return;
         }
@@ -1147,6 +1147,14 @@ public class MindMapEditor : UserControl
         var factor = e.Delta.Y > 0 ? ZoomFactor : 1 / ZoomFactor;
         SetZoom(_zoomScale * factor);
         e.Handled = true;
+    }
+
+    private static bool HasZoomModifier(KeyModifiers modifiers)
+    {
+        var commandModifier = OperatingSystem.IsMacOS()
+            ? KeyModifiers.Meta
+            : KeyModifiers.Control;
+        return modifiers.HasFlag(commandModifier);
     }
 
     public void ZoomOut()
@@ -1704,7 +1712,7 @@ public class MindMapEditor : UserControl
                 GetResourceBrush(MindViewStyleKeys.RootForegroundBrushResource, "#FFFFFF", "#FFFFFF"),
                 18,
                 FontWeight.SemiBold,
-                HorizontalAlignment.Center,
+                HorizontalAlignment.Stretch,
                 "中心主题",
                 IsTextOnly: false);
         }
@@ -1724,7 +1732,7 @@ public class MindMapEditor : UserControl
                 Brushes.White,
                 17,
                 FontWeight.Medium,
-                HorizontalAlignment.Center,
+                HorizontalAlignment.Stretch,
                 "主题",
                 IsTextOnly: false);
         }
@@ -1742,7 +1750,7 @@ public class MindMapEditor : UserControl
             GetPrimaryTextBrush(),
             16,
             FontWeight.Regular,
-            HorizontalAlignment.Left,
+            HorizontalAlignment.Stretch,
             "主题",
             IsTextOnly: true);
     }
@@ -1776,7 +1784,7 @@ public class MindMapEditor : UserControl
         IBrush Foreground,
         double FontSize,
         FontWeight FontWeight,
-        HorizontalAlignment TextAlignment,
+        HorizontalAlignment ContentAlignment,
         string Placeholder,
         bool IsTextOnly);
 

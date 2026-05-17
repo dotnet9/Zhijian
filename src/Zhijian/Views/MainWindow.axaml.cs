@@ -90,7 +90,7 @@ public partial class MainWindow : Window
     private void HandleWindowKeyDown(object? sender, KeyEventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel
-            && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            && HasCommandModifier(e.KeyModifiers))
         {
             if (e.Key == Key.N && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
@@ -161,9 +161,16 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 return;
             }
+
+            if (e.Key == Key.W)
+            {
+                Execute(viewModel.CloseCommand);
+                e.Handled = true;
+                return;
+            }
         }
 
-        if (e.Key == Key.L && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        if (e.Key == Key.L && HasCommandModifier(e.KeyModifiers))
         {
             CenterRootTopic();
             e.Handled = true;
@@ -177,6 +184,16 @@ public partial class MainWindow : Window
             Execute(vm.DeleteSelectedCommand);
             e.Handled = true;
         }
+    }
+
+    private static bool HasCommandModifier(KeyModifiers modifiers)
+    {
+        if (OperatingSystem.IsMacOS())
+        {
+            return modifiers.HasFlag(KeyModifiers.Meta);
+        }
+
+        return modifiers.HasFlag(KeyModifiers.Control);
     }
 
     private void HandleTitleBarDragPressed(object? sender, PointerPressedEventArgs e)

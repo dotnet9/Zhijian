@@ -1,5 +1,14 @@
 # Changelog
 
+## 12.0.3.6（2026-05-18）
+
+- ✨[Add]-Expanded onboarding to cover file/outline tabs, Markdown switching, outline shortcuts, mind-map dragging, canvas panning, mini-map preview, zoom, and status-bar navigation, with a Skip button.
+- 🔨[Optimize]-Use `⌘` as the primary command modifier on macOS for title-bar menus, window shortcuts, and mind-map wheel zoom while keeping `Ctrl` on Windows/Linux.
+- 🔨[Optimize]-Left-align mind-map titles and notes inside the same content width, including short text and note editors that need to regain focus.
+- 🔨[Optimize]-Centralized onboarding, default culture, recent-file count, history depth, and runtime state file names in `src/Zhijian/App.config` through `ApplicationSettings`.
+- 📝[Docs]-Updated README, architecture, and source-design docs for macOS shortcuts, onboarding, centralized configuration, node creation, node dragging, and mini-map media.
+- 🧪[Test]-Built `Zhijian.slnx` with .NET 10 and ran a ViewModel workflow covering create, add, delete, promote, demote, notes, and Markdown synchronization.
+
 ## 12.0.3.5（2026-05-17）
 
 - ✨[Add]-Expanded the File menu into a product workflow: New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.

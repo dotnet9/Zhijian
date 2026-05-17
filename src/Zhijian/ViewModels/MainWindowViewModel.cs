@@ -3,7 +3,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
-using System.Xml.Linq;
 using AtomUI.Controls;
 using AtomUI.Theme.Language;
 using Avalonia;
@@ -22,11 +21,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private const double RootX = 72;
     private const double RootY = 72;
     private const double MinNodeY = 24;
-    private const int MaxHistorySteps = 80;
-    private const int MaxRecentFiles = 12;
-    private const string RecentFilesName = "recent-files.json";
-    private const string AppConfigName = "App.config";
-    private const string TourSeenName = "new-user-tour.seen";
+    private static readonly int MaxHistorySteps = ApplicationSettings.MaxHistorySteps;
+    private static readonly int MaxRecentFiles = ApplicationSettings.MaxRecentFiles;
+    private static readonly string RecentFilesName = ApplicationSettings.RecentFilesFileName;
+    private static readonly string TourSeenName = ApplicationSettings.TourSeenFileName;
 
     private static readonly string[] Palette =
     [
@@ -53,7 +51,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private bool _isRestoringHistory;
     private bool _isLoadingDocument;
     private bool _hasOpenedNewUserTour;
-    private string _selectedCultureName = "zh-CN";
+    private string _selectedCultureName = ApplicationSettings.DefaultCultureName;
     private MindMapFileFormat _currentFileFormat = MindMapFileFormat.Markdown;
 
     [ObservableProperty]
@@ -109,7 +107,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         WatchTree();
         AssignMissingColors(Root);
         IsDarkTheme = Application.Current?.IsDarkThemeMode() ?? false;
-        _selectedCultureName = I18nManager.Instance.Culture?.Name ?? "zh-CN";
+        _selectedCultureName = I18nManager.Instance.Culture?.Name ?? ApplicationSettings.DefaultCultureName;
         StatusText = T(ZhijianL.Ready);
         SelectedNode = Root;
         AutoLayout();
@@ -133,6 +131,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public string EditorPaneTitle => IsMarkdownMode ? "Markdown" : T(ZhijianL.OutlineTab);
 
     public string ToggleEditorToolTip => IsMarkdownMode ? T(ZhijianL.ToggleToOutline) : T(ZhijianL.ToggleToMarkdown);
+
+    public string CenterRootToolTip => $"{T(ZhijianL.CenterRoot)}  {PrimaryCommandText} + L";
 
     public string SelectedNodeSummary => SelectedNode is null
         ? FormatText(ZhijianL.NodeSummary, NodeCount)
@@ -778,6 +778,19 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     }
 
     [RelayCommand]
+    private void ShowNewUserTour()
+    {
+        _hasOpenedNewUserTour = true;
+        if (IsNewUserTourOpen)
+        {
+            IsNewUserTourOpen = false;
+        }
+
+        IsNewUserTourOpen = true;
+        StatusText = T(ZhijianL.StatusShowNewUserTour);
+    }
+
+    [RelayCommand]
     private async Task ImportMarkdownAsync()
     {
         await RunFileOperationAsync(async () =>
@@ -911,27 +924,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     private static bool IsTourEnabled()
     {
-        var appConfigPath = Path.Combine(AppContext.BaseDirectory, AppConfigName);
-        if (!File.Exists(appConfigPath))
-        {
-            return true;
-        }
-
-        try
-        {
-            var document = XDocument.Load(appConfigPath);
-            var value = document.Root?
-                .Element("appSettings")?
-                .Elements("add")
-                .FirstOrDefault(element => string.Equals((string?)element.Attribute("key"), "ShowNewUserTour", StringComparison.OrdinalIgnoreCase))
-                ?.Attribute("value")?
-                .Value;
-            return !bool.TryParse(value, out var enabled) || enabled;
-        }
-        catch
-        {
-            return true;
-        }
+        return ApplicationSettings.ShowNewUserTour;
     }
 
     private static string GetTourSeenPath()
@@ -971,6 +964,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         OnPropertyChanged(nameof(EditorPaneTitle));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
+        OnPropertyChanged(nameof(CenterRootToolTip));
         OnPropertyChanged(nameof(SelectedNodeSummary));
         OnPropertyChanged(nameof(HistorySummary));
         OnPropertyChanged(nameof(WindowTitle));
@@ -987,6 +981,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         return I18nManager.Instance.GetResource(key) ?? key;
     }
+
+    private static string PrimaryCommandText => OperatingSystem.IsMacOS() ? "⌘" : "Ctrl";
 
     private static string FormatText(string key, params object[] args)
     {
@@ -1010,6 +1006,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(IsOutlineMode));
         OnPropertyChanged(nameof(EditorPaneTitle));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
+        OnPropertyChanged(nameof(CenterRootToolTip));
     }
 
     partial void OnIsDarkThemeChanged(bool value)

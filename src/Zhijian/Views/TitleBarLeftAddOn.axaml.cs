@@ -15,6 +15,7 @@ public partial class TitleBarLeftAddOn : UserControl
     public TitleBarLeftAddOn()
     {
         InitializeComponent();
+        ApplyPlatformInputGestures();
         DataContextChanged += (_, _) => WireViewModel(DataContext as MainWindowViewModel);
         RegisterMenuActions();
     }
@@ -104,6 +105,32 @@ public partial class TitleBarLeftAddOn : UserControl
         RegisterMenuAction(ShowChangelogItem, () => Execute(_viewModel?.ShowChangelogCommand));
         RegisterMenuAction(ShowThanksItem, () => Execute(_viewModel?.ShowThanksCommand));
         RegisterMenuAction(ShowAboutItem, () => Execute(_viewModel?.ShowAboutCommand));
+    }
+
+    private void ApplyPlatformInputGestures()
+    {
+        NewDocumentItem.InputGesture = CreateCommandGesture(Key.N);
+        NewWindowItem.InputGesture = CreateCommandGesture(Key.N, KeyModifiers.Shift);
+        OpenDocumentItem.InputGesture = CreateCommandGesture(Key.O);
+        OpenFolderItem.InputGesture = CreateCommandGesture(Key.K);
+        SaveItem.InputGesture = CreateCommandGesture(Key.S);
+        SaveAsItem.InputGesture = CreateCommandGesture(Key.S, KeyModifiers.Shift);
+        CloseItem.InputGesture = OperatingSystem.IsMacOS()
+            ? CreateCommandGesture(Key.W)
+            : KeyGesture.Parse("Alt+F4");
+        UndoItem.InputGesture = CreateCommandGesture(Key.Z);
+        RedoItem.InputGesture = OperatingSystem.IsMacOS()
+            ? CreateCommandGesture(Key.Z, KeyModifiers.Shift)
+            : CreateCommandGesture(Key.Y);
+        CopyMarkdownItem.InputGesture = CreateCommandGesture(Key.C, KeyModifiers.Shift);
+    }
+
+    private static KeyGesture CreateCommandGesture(Key key, KeyModifiers extraModifiers = KeyModifiers.None)
+    {
+        var commandModifier = OperatingSystem.IsMacOS()
+            ? KeyModifiers.Meta
+            : KeyModifiers.Control;
+        return new KeyGesture(key, commandModifier | extraModifiers);
     }
 
     private static void RegisterMenuAction(AtomMenuItem item, Action action)

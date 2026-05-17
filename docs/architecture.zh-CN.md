@@ -24,6 +24,10 @@ English version: [architecture.md](architecture.md)
 
 ![节点菜单](media/zhijian-node-menus.gif)
 
+![创建节点](media/zhijian-create-node.gif)
+
+![脑图拖拽调整层级](media/zhijian-mind-drag.gif)
+
 ![小图导航](media/zhijian-minimap.gif)
 
 ![画布拖拽](media/zhijian-canvas-pan.gif)
@@ -53,9 +57,10 @@ Zhijian
 - 编辑、主题、语言、帮助和关于流程都放在 AtomUI 标题栏菜单中。
 - 使用 `Lang.Avalonia.Json` 提供中文简体、中文繁体、英语和日语资源。
 - 大纲编辑器支持标题、备注、Enter/Tab/Shift+Tab/Delete 规则、拖拽调整结构，以及高频结构菜单。
-- 脑图编辑器支持标题和备注内联编辑、拖拽调整结构、画布拖拽、缩放、小图导航和回到中心主题。
+- 脑图编辑器支持标题和备注左对齐内联编辑、拖拽调整结构、`Space + 左键` 画布拖拽、缩放、小图导航和回到中心主题。
 - 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并通过 AtomUI 全局消息提示成功。
-- 首次启动引导使用 AtomUI Tour，可通过 `src/Zhijian/App.config` 控制。
+- 首次启动引导使用 AtomUI Tour，覆盖文件/大纲 Tab、Markdown 切换、脑图拖拽、画布导航和状态栏，并提供“跳过”按钮。
+- 应用设置集中在 `src/Zhijian/App.config`，包含新手引导开关、默认语言、最近文件数、历史步数和运行状态文件名。
 - 标题栏菜单使用 AtomUI `Menu` 与 `MenuItem`。
 - 关于、更新日志、感谢和未保存确认窗口使用 AtomUI 窗口与 ViewModel。
 - 支持 Markdown、OPML、XMind 打开和保存。
@@ -68,7 +73,7 @@ Zhijian
 
 ## 平台范围
 
-桌面应用目标框架为 `net10.0`。可复用的 `CodeWF.MindView` 库多目标 `net8.0`、`net9.0` 和 `net10.0`，方便在枝见桌面外壳之外复用。
+桌面应用目标框架为 `net10.0`。可复用的 `CodeWF.MindView` 库多目标 `net8.0`、`net9.0` 和 `net10.0`，方便在枝见桌面外壳之外复用。macOS 下标题栏菜单、窗口快捷键和脑图缩放使用 `⌘` 作为主命令键，Windows/Linux 使用 `Ctrl`。
 
 更深入的实现说明和复用接入方式见 [source-design.zh-CN.md](source-design.zh-CN.md)。
 

@@ -15,7 +15,8 @@ English documentation: [README.md](README.md)
 - 编辑菜单支持撤销、重做、添加同级、添加子级、提升、降级、上移、下移、删除节点和复制为 Markdown。
 - 主题、语言、帮助和关于菜单集中在标题栏，常用项带有图标和快捷键。
 - 语言切换使用 `Lang.Avalonia.Json` 资源，覆盖中文简体、中文繁体、英语和日语。
-- 首次启动使用 AtomUI Tour 做新手引导，可通过 `src/Zhijian/App.config` 控制开关。
+- 首次启动使用 AtomUI Tour 做新手引导，覆盖文件/大纲 Tab、Markdown 切换、拖拽层级、小图和画布操作，并提供“跳过”按钮。
+- `src/Zhijian/App.config` 集中管理新手引导、默认语言、最近文件数、历史步数和运行状态文件名。
 - 文件夹模式提供“文件 / 大纲”两个 Tab：选择文件夹后列出支持的脑图文件，点击文件自动切换到大纲并加载。
 - 大纲、Markdown 和脑图视图共享同一棵 `MindMapNode` 树。
 - 大纲和脑图都支持标题、备注内联编辑。
@@ -44,9 +45,19 @@ English documentation: [README.md](README.md)
 
 ![节点菜单](docs/media/zhijian-node-menus.gif)
 
+![创建节点](docs/media/zhijian-create-node.gif)
+
+![大纲菜单](docs/media/zhijian-outline-menu.gif)
+
 ![备注同步](docs/media/zhijian-note-sync.gif)
 
+![脑图节点工具条](docs/media/zhijian-node-toolbar.png)
+
+![脑图拖拽调整层级](docs/media/zhijian-mind-drag.gif)
+
 ![小图导航](docs/media/zhijian-minimap.gif)
+
+![小图概览](docs/media/zhijian-minimap-overview.png)
 
 ![缩放](docs/media/zhijian-zoom.gif)
 
@@ -62,9 +73,9 @@ English documentation: [README.md](README.md)
 - `Tab`：添加子节点或降级为子节点。
 - `Shift + Tab`：提升节点。
 - `Delete` 或 `Backspace`：删除空的非根节点。
-- `Ctrl + 鼠标滚轮`：缩放脑图。
+- `⌘ + 鼠标滚轮`（macOS）或 `Ctrl + 鼠标滚轮`（Windows/Linux）：缩放脑图。
 - `Space + 左键拖拽`：拖拽脑图画布。
-- `Ctrl + L`：回到中心主题。
+- `⌘ + L`（macOS）或 `Ctrl + L`（Windows/Linux）：回到中心主题。
 
 ## 文件格式
 
@@ -124,7 +135,7 @@ Zhijian/
 ```powershell
 dotnet restore Zhijian.slnx
 dotnet build Zhijian.slnx
-dotnet run --project src/Zhijian/Zhijian.csproj
+dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
 ```
 
 ## 文档

@@ -15,7 +15,8 @@ Repository: <https://github.com/dotnet9/Zhijian>
 - Edit menu for Undo, Redo, Add Sibling, Add Child, Promote, Demote, Move, Delete, and Copy as Markdown.
 - Theme, Language, Help, and About menus are grouped in the title bar with icons and shortcuts where useful.
 - Language switching uses `Lang.Avalonia.Json` resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
-- First-run onboarding uses AtomUI Tour and can be controlled from `src/Zhijian/App.config`.
+- First-run onboarding uses AtomUI Tour, covers file/outline tabs, Markdown switching, drag/drop hierarchy, mini-map, and canvas operations, and includes a Skip button.
+- `src/Zhijian/App.config` centralizes onboarding, default language, recent-file count, history depth, and runtime state file names.
 - Folder mode with `Files` and `Outline` tabs: choose a folder, browse supported mind-map files, then load one into the editor.
 - Outline, Markdown, and mind-map views share the same `MindMapNode` tree.
 - Inline title and note editing in both outline and mind-map views.
@@ -44,9 +45,19 @@ All screenshots and GIFs below were captured from a real running Zhijian desktop
 
 ![Node menus](docs/media/zhijian-node-menus.gif)
 
+![Node creation](docs/media/zhijian-create-node.gif)
+
+![Outline menu](docs/media/zhijian-outline-menu.gif)
+
 ![Note synchronization](docs/media/zhijian-note-sync.gif)
 
+![Mind-map node toolbar](docs/media/zhijian-node-toolbar.png)
+
+![Mind-map drag hierarchy](docs/media/zhijian-mind-drag.gif)
+
 ![Mini-map navigation](docs/media/zhijian-minimap.gif)
+
+![Mini-map overview](docs/media/zhijian-minimap-overview.png)
 
 ![Zoom](docs/media/zhijian-zoom.gif)
 
@@ -62,9 +73,9 @@ Useful keyboard behavior while editing a node title:
 - `Tab`: add or demote to a child node.
 - `Shift + Tab`: promote a node.
 - `Delete` or `Backspace`: delete an empty non-root node.
-- `Ctrl + mouse wheel`: zoom the mind-map canvas.
+- `⌘ + mouse wheel` on macOS or `Ctrl + mouse wheel` on Windows/Linux: zoom the mind-map canvas.
 - `Space + left drag`: pan the mind-map canvas.
-- `Ctrl + L`: return to the center topic.
+- `⌘ + L` on macOS or `Ctrl + L` on Windows/Linux: return to the center topic.
 
 ## File Formats
 
@@ -124,7 +135,7 @@ Common commands:
 ```powershell
 dotnet restore Zhijian.slnx
 dotnet build Zhijian.slnx
-dotnet run --project src/Zhijian/Zhijian.csproj
+dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
 ```
 
 ## Documentation

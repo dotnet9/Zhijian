@@ -34,6 +34,12 @@ These assets were captured from a real running desktop session by simulating use
 
 ![Outline and mind-map menus](media/zhijian-node-menus.gif)
 
+![Node creation](media/zhijian-create-node.gif)
+
+![Outline menu](media/zhijian-outline-menu.gif)
+
+![Mind-map drag hierarchy](media/zhijian-mind-drag.gif)
+
 ![Mini-map](media/zhijian-minimap.gif)
 
 ![Zoom](media/zhijian-zoom.gif)
@@ -81,7 +87,9 @@ The File menu is application-layer workflow. It creates blank documents, launche
 
 Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through AtomUI `WindowMessageManager`.
 
-First-run onboarding is implemented with AtomUI Tour. It highlights the title-bar menu workflow, left input area, Markdown toggle, mind-map canvas, and status-bar navigation. The `ShowNewUserTour` key in `src/Zhijian/App.config` controls whether the tour can appear, and `new-user-tour.seen` in the application directory records that the user has already dismissed it.
+First-run onboarding is implemented with AtomUI Tour. It highlights File > New, the left Files/Outline tabs, outline shortcuts and drag/drop hierarchy, Markdown switching, right-side mind-map dragging, `Space + left drag` canvas panning, mini-map preview, zoom, and status-bar navigation. The tour includes a Skip button; closing or skipping writes `new-user-tour.seen` in the application directory.
+
+`src/Zhijian/App.config` centralizes the necessary application settings: `ShowNewUserTour` controls whether onboarding can appear, `DefaultCultureName` sets the default UI culture, `RecentFilesFileName` and `TourSeenFileName` control runtime state file names, and `MaxRecentFiles` / `MaxHistorySteps` control recent-file and undo-history capacity. Runtime code reads the .NET-generated `Zhijian.dll.config` through `ApplicationSettings` and falls back to code defaults if the config is missing or malformed.
 
 The folder tab uses AtomUI `ListBox` because the app intentionally runs on AtomUI styling rather than Avalonia Fluent styling.
 
@@ -90,6 +98,7 @@ The folder tab uses AtomUI `ListBox` because the app intentionally runs on AtomU
 `MindMapEditor` renders nodes and connectors on a canvas inside a scroll viewer. It handles:
 
 - inline title and note editing
+- title and note editors left-align within the same content width, including short text and notes that need refocus
 - drag/drop reparenting and sibling reordering
 - dashed drop previews
 - zoom and `Space + left drag` canvas panning

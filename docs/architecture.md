@@ -24,6 +24,10 @@ The screenshots and GIFs in `docs/media` were captured from a real running Zhiji
 
 ![Node menus](media/zhijian-node-menus.gif)
 
+![Node creation](media/zhijian-create-node.gif)
+
+![Mind-map drag hierarchy](media/zhijian-mind-drag.gif)
+
 ![Mini-map navigation](media/zhijian-minimap.gif)
 
 ![Canvas panning](media/zhijian-canvas-pan.gif)
@@ -53,9 +57,10 @@ Zhijian
 - Edit, Theme, Language, Help, and About workflows exposed from AtomUI title-bar menus.
 - `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, drag/drop structure changes, and high-frequency structure menus.
-- Mind-map editor with inline title editing, note editing, drag/drop structure changes, panning, zooming, mini-map navigation, and center-topic navigation.
+- Mind-map editor with left-aligned inline title/note editing, drag/drop structure changes, `Space + left drag` panning, zooming, mini-map navigation, and center-topic navigation.
 - Copy as Markdown writes the current Markdown to the clipboard and reports success with an AtomUI global message.
-- First-run onboarding implemented with AtomUI Tour and controlled by `src/Zhijian/App.config`.
+- First-run onboarding implemented with AtomUI Tour, covering file/outline tabs, Markdown switching, mind-map dragging, canvas navigation, and the status bar, with a Skip button.
+- Application settings are centralized in `src/Zhijian/App.config`, including onboarding, default culture, recent-file count, history depth, and runtime state file names.
 - Title-bar menus implemented with AtomUI `Menu` and `MenuItem`.
 - About, changelog, thanks, and unsaved-changes dialogs implemented with AtomUI windows and ViewModels.
 - Markdown, OPML, and XMind open/save support.
@@ -68,7 +73,7 @@ Title, note, color, and tree-structure changes trigger layout recalculation, Mar
 
 ## Platform Scope
 
-The desktop application targets `net10.0`. The reusable `CodeWF.MindView` libraries multi-target `net8.0`, `net9.0`, and `net10.0` so the control can be reused outside the Zhijian desktop shell.
+The desktop application targets `net10.0`. The reusable `CodeWF.MindView` libraries multi-target `net8.0`, `net9.0`, and `net10.0` so the control can be reused outside the Zhijian desktop shell. On macOS, title-bar menus, window shortcuts, and mind-map zoom use `⌘` as the command modifier; Windows/Linux use `Ctrl`.
 
 See [source-design.md](source-design.md) for deeper implementation notes and reusable-control integration details.
 

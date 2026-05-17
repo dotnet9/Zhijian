@@ -34,6 +34,12 @@ English version: [source-design.md](source-design.md)
 
 ![大纲和脑图菜单](media/zhijian-node-menus.gif)
 
+![创建节点](media/zhijian-create-node.gif)
+
+![大纲菜单](media/zhijian-outline-menu.gif)
+
+![脑图拖拽调整层级](media/zhijian-mind-drag.gif)
+
 ![小图](media/zhijian-minimap.gif)
 
 ![缩放](media/zhijian-zoom.gif)
@@ -81,7 +87,9 @@ public MindMapNode? SelectedNode { get; set; }
 
 编辑、主题、语言、帮助和关于也都属于标题栏菜单。它们提供结构编辑命令、复制为 Markdown、深色/浅色主题切换、中文简体/中文繁体/英语/日语切换、问题反馈、需求提交、PR、仓库、更新日志、感谢和关于窗口。复制为 Markdown 会调用平台剪贴板，并通过 AtomUI `WindowMessageManager` 显示成功提示。
 
-首次启动引导使用 AtomUI Tour 实现，会引导用户认识标题栏菜单、左侧输入区、Markdown 切换、脑图画布和状态栏导航。`src/Zhijian/App.config` 中的 `ShowNewUserTour` 控制是否允许显示，程序目录中的 `new-user-tour.seen` 记录用户是否已经关闭过引导。
+首次启动引导使用 AtomUI Tour 实现，会引导用户认识文件菜单新建脑图、左侧“文件 / 大纲”Tab、大纲快捷键和拖拽层级、Markdown 切换、右侧脑图节点拖拽、`Space + 左键` 画布平移、小图预览、缩放和状态栏导航。引导提供“跳过”按钮，关闭或跳过后会写入程序目录中的 `new-user-tour.seen`。
+
+`src/Zhijian/App.config` 集中管理必要的应用配置：`ShowNewUserTour` 控制引导是否可显示，`DefaultCultureName` 控制默认语言，`RecentFilesFileName` 和 `TourSeenFileName` 控制运行状态文件名，`MaxRecentFiles` 和 `MaxHistorySteps` 控制最近文件与撤销历史容量。运行时通过 `ApplicationSettings` 读取 .NET 编译后的 `Zhijian.dll.config`，配置损坏时回退到代码默认值，避免阻断应用启动。
 
 文件夹 Tab 使用 AtomUI `ListBox`，因为桌面应用刻意运行在 AtomUI 样式体系上，而不是 Avalonia Fluent 样式体系。
 
@@ -90,6 +98,7 @@ public MindMapNode? SelectedNode { get; set; }
 `MindMapEditor` 在滚动视图中的 Canvas 上渲染节点和连线。它处理：
 
 - 标题和备注内联编辑
+- 标题和备注在同一内容宽度内左对齐，短文本和备注都能重新获得输入焦点
 - 拖拽重排兄弟节点和调整父子关系
 - 虚线落点预览
 - 缩放和 `Space + 左键拖拽` 画布平移
