@@ -4,7 +4,7 @@
              Name="Zhijian"
              xmlns:local="using:Zhijian"
              xmlns:markdownThemes="using:CodeWF.Markdown.Lite.Themes"
-             xmlns:mindThemes="using:CodeWF.MindView.Themes"
+             xmlns:codewf="https://codewf.com"
              RequestedThemeVariant="Light">
 
     <Application.DataTemplates>
@@ -12,7 +12,7 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <mindThemes:MindViewThemes/>
+		<codewf:MindViewThemes/>
         <markdownThemes:MarkdownThemes/>
     </Application.Styles>
 </Application>

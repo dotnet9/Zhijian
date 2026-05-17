@@ -1,8 +1,7 @@
 <atom:Window xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:atom="using:AtomUI.Desktop.Controls"
-             xmlns:markdown="using:CodeWF.Markdown.Lite.Controls"
-             xmlns:markdownThemes="using:CodeWF.Markdown.Lite.Themes"
+             xmlns:codewf="https://codewf.com"
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.ChangelogWindow"
              x:DataType="vm:ChangelogWindowViewModel"
@@ -38,9 +37,9 @@
             <ScrollViewer Grid.Row="1"
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
-                <markdown:MarkdownViewer Markdown="{Binding Markdown}"
-                                         TypographyTheme="{x:Static markdownThemes:MarkdownTypographyThemes.Simple}"
-                                         TypographySize="{x:Static markdownThemes:MarkdownTypographySizes.Small}" />
+				<codewf:MarkdownViewer Markdown="{Binding Markdown}"
+                                       TypographyTheme="{x:Static codewf:MarkdownTypographyThemes.Simple}"
+                                       TypographySize="{x:Static codewf:MarkdownTypographySizes.Small}" />
             </ScrollViewer>
         </Grid>
     </Border>

@@ -1,7 +1,7 @@
 ﻿<atom:Window xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:atom="using:AtomUI.Desktop.Controls"
-             xmlns:c="https://codewf.com"
+             xmlns:codewf="https://codewf.com"
              xmlns:icons="using:AtomUI.Icons.AntDesign"
              xmlns:l="clr-namespace:Zhijian"
              xmlns:mind="https://codewf.com"
@@ -76,7 +76,7 @@
                         BorderBrush="{Binding PanelBorderBrush}">
                     <atom:TabControl SelectedIndex="{Binding WorkspaceTabIndex, Mode=TwoWay}"
                                      TabAlignmentCenter="True">
-                        <atom:TabItem Header="{c:I18n {x:Static l:ZhijianL.FilesTab}}">
+                        <atom:TabItem Header="{codewf:I18n {x:Static l:ZhijianL.FilesTab}}">
                             <Grid RowDefinitions="Auto,*"
                                   Margin="0,8,0,0">
                                 <TextBlock Text="{Binding FolderSummary}"
@@ -123,7 +123,7 @@
                             </Grid>
                         </atom:TabItem>
 
-                        <atom:TabItem Header="{c:I18n {x:Static l:ZhijianL.OutlineTab}}">
+                        <atom:TabItem Header="{codewf:I18n {x:Static l:ZhijianL.OutlineTab}}">
                             <Grid RowDefinitions="*,Auto">
                                 <views:OutlineEditor Grid.Row="0"
                                                      IsVisible="{Binding IsOutlineMode}"
@@ -140,7 +140,7 @@
                                               FontSize="14"
                                               Margin="12,8,12,0"
                                               Padding="10,8"
-                                              PlaceholderText="{c:I18n {x:Static l:ZhijianL.MarkdownPlaceholder}}"
+                                              PlaceholderText="{codewf:I18n {x:Static l:ZhijianL.MarkdownPlaceholder}}"
                                               Foreground="{Binding PrimaryTextBrush}"
                                               Background="{Binding PanelBackground}"
                                               BorderBrush="{Binding PanelBorderBrush}"
@@ -222,7 +222,7 @@
                         BorderBrush="{Binding PanelBorderBrush}"
                         Padding="14">
                     <Grid RowDefinitions="Auto,*" RowSpacing="10">
-                        <TextBlock Text="{c:I18n {x:Static l:ZhijianL.MindMapTitle}}"
+                        <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.MindMapTitle}}"
                                    Classes="panelTitle"
                                    Foreground="{Binding PrimaryTextBrush}"
                                    VerticalAlignment="Center"/>
@@ -271,14 +271,14 @@
                                      Height="28"
                                      Padding="7,4"
                                      Command="{Binding UndoCommand}"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.Undo}}">
+                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.Undo}}">
                             <icons:UndoOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <atom:Button Width="32"
                                      Height="28"
                                      Padding="7,4"
                                      Command="{Binding RedoCommand}"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.Redo}}">
+                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.Redo}}">
                             <icons:RedoOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <Border Width="1"
@@ -290,7 +290,7 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ToggleMiniMapClicked"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.MiniMap}}">
+                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.MiniMap}}">
                             <icons:PictureOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <atom:Button Width="32"
@@ -308,7 +308,7 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ZoomOutClicked"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.ZoomOut}}">
+                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.ZoomOut}}">
                             <icons:ZoomOutOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <TextBlock Width="48"
@@ -321,14 +321,14 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ZoomInClicked"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.ZoomIn}}">
+                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.ZoomIn}}">
                             <icons:ZoomInOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <atom:Button MinWidth="42"
                                      Height="28"
                                      Padding="8,4"
                                      Click="ResetZoomClicked"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.ResetZoom}}">
+                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.ResetZoom}}">
                             <TextBlock Text="100%"
                                        FontSize="11"
                                        Foreground="{Binding SecondaryTextBrush}"/>
@@ -341,7 +341,7 @@
                                      Height="28"
                                      Padding="7,4"
                                      Command="{Binding ShowNewUserTourCommand}"
-                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.NewUserGuide}}">
+                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.NewUserGuide}}">
                             <icons:QuestionCircleOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                     </StackPanel>
@@ -359,7 +359,7 @@
                                 CornerRadius="8"
                                 BoxShadow="0 8 28 0 #24000000">
                             <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                                <TextBlock Text="{c:I18n {x:Static l:ZhijianL.MiniMap}}"
+                                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.MiniMap}}"
                                            FontSize="12"
                                            Foreground="{Binding SecondaryTextBrush}"
                                            HorizontalAlignment="Center"/>
@@ -378,37 +378,37 @@
         </Grid>
         <atom:Tour IsOpen="{Binding IsNewUserTourOpen, Mode=TwoWay}">
             <atom:Tour.CustomActions>
-                <views:SkipTourActionButton Content="{c:I18n {x:Static l:ZhijianL.TourSkip}}"/>
+                <views:SkipTourActionButton Content="{codewf:I18n {x:Static l:ZhijianL.TourSkip}}"/>
             </atom:Tour.CustomActions>
             <atom:Tour.Indicator>
                 <atom:TextTourIndicator/>
             </atom:Tour.Indicator>
-            <atom:TourStep Title="{c:I18n {x:Static l:ZhijianL.TourWelcomeTitle}}"
-                           Description="{c:I18n {x:Static l:ZhijianL.TourWelcomeDescription}}"/>
+            <atom:TourStep Title="{codewf:I18n {x:Static l:ZhijianL.TourWelcomeTitle}}"
+                           Description="{codewf:I18n {x:Static l:ZhijianL.TourWelcomeDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=OutlinePaneHost}"
                            Placement="Right"
-                           Title="{c:I18n {x:Static l:ZhijianL.TourFilesTitle}}"
-                           Description="{c:I18n {x:Static l:ZhijianL.TourFilesDescription}}"/>
+                           Title="{codewf:I18n {x:Static l:ZhijianL.TourFilesTitle}}"
+                           Description="{codewf:I18n {x:Static l:ZhijianL.TourFilesDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=OutlinePaneHost}"
                            Placement="Right"
-                           Title="{c:I18n {x:Static l:ZhijianL.TourOutlineTitle}}"
-                           Description="{c:I18n {x:Static l:ZhijianL.TourOutlineDescription}}"/>
+                           Title="{codewf:I18n {x:Static l:ZhijianL.TourOutlineTitle}}"
+                           Description="{codewf:I18n {x:Static l:ZhijianL.TourOutlineDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=EditorModeToggleButton}"
                            Placement="Right"
-                           Title="{c:I18n {x:Static l:ZhijianL.TourToggleTitle}}"
-                           Description="{c:I18n {x:Static l:ZhijianL.TourToggleDescription}}"/>
+                           Title="{codewf:I18n {x:Static l:ZhijianL.TourToggleTitle}}"
+                           Description="{codewf:I18n {x:Static l:ZhijianL.TourToggleDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=MindMapPanel}"
                            Placement="Left"
-                           Title="{c:I18n {x:Static l:ZhijianL.TourMindMapTitle}}"
-                           Description="{c:I18n {x:Static l:ZhijianL.TourMindMapDescription}}"/>
+                           Title="{codewf:I18n {x:Static l:ZhijianL.TourMindMapTitle}}"
+                           Description="{codewf:I18n {x:Static l:ZhijianL.TourMindMapDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=MindMapPanel}"
                            Placement="Left"
-                           Title="{c:I18n {x:Static l:ZhijianL.TourCanvasTitle}}"
-                           Description="{c:I18n {x:Static l:ZhijianL.TourCanvasDescription}}"/>
+                           Title="{codewf:I18n {x:Static l:ZhijianL.TourCanvasTitle}}"
+                           Description="{codewf:I18n {x:Static l:ZhijianL.TourCanvasDescription}}"/>
             <atom:TourStep Target="{Binding ElementName=StatusBar}"
                            Placement="Top"
-                           Title="{c:I18n {x:Static l:ZhijianL.TourStatusTitle}}"
-                           Description="{c:I18n {x:Static l:ZhijianL.TourStatusDescription}}"/>
+                           Title="{codewf:I18n {x:Static l:ZhijianL.TourStatusTitle}}"
+                           Description="{codewf:I18n {x:Static l:ZhijianL.TourStatusDescription}}"/>
         </atom:Tour>
     </Grid>
     </primitives:VisualLayerManager>
