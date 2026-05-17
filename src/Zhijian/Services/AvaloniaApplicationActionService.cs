@@ -10,6 +10,7 @@ public sealed class AvaloniaApplicationActionService(Window owner) : IApplicatio
     private const string RepositoryUrl = "https://github.com/dotnet9/Zhijian";
 
     private ChangelogWindow? _changelogWindow;
+    private ThanksWindow? _thanksWindow;
     private AboutWindow? _aboutWindow;
 
     public void OpenWebsite()
@@ -46,6 +47,19 @@ public sealed class AvaloniaApplicationActionService(Window owner) : IApplicatio
         _aboutWindow = new AboutWindow();
         _aboutWindow.Closed += (_, _) => _aboutWindow = null;
         _aboutWindow.Show(owner);
+    }
+
+    public void ShowThanks()
+    {
+        if (_thanksWindow is { IsVisible: true })
+        {
+            _thanksWindow.Activate();
+            return;
+        }
+
+        _thanksWindow = new ThanksWindow();
+        _thanksWindow.Closed += (_, _) => _thanksWindow = null;
+        _thanksWindow.Show(owner);
     }
 
     private static void OpenUrl(string url)

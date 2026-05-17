@@ -486,6 +486,13 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     }
 
     [RelayCommand]
+    private void ShowThanks()
+    {
+        _applicationActionService.ShowThanks();
+        StatusText = "已打开感谢窗口";
+    }
+
+    [RelayCommand]
     private void OpenRepository()
     {
         _applicationActionService.OpenRepository();

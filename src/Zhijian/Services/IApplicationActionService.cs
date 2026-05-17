@@ -8,5 +8,7 @@ public interface IApplicationActionService
 
     void ShowChangelog();
 
+    void ShowThanks();
+
     void ShowAbout();
 }

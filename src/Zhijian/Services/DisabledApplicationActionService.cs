@@ -14,6 +14,10 @@ public sealed class DisabledApplicationActionService : IApplicationActionService
     {
     }
 
+    public void ShowThanks()
+    {
+    }
+
     public void ShowAbout()
     {
     }

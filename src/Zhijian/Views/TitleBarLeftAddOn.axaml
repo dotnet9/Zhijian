@@ -34,6 +34,7 @@
                            AutomationProperties.Name="About menu">
                 <atom:MenuItem Header="打开网站" Command="{Binding OpenWebsiteCommand}"/>
                 <atom:MenuItem Header="更新日志" Command="{Binding ShowChangelogCommand}"/>
+                <atom:MenuItem Header="感谢" Command="{Binding ShowThanksCommand}"/>
                 <atom:MenuItem Header="关于" Command="{Binding ShowAboutCommand}"/>
             </atom:MenuItem>
         </atom:Menu>

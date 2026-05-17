@@ -1,0 +1,67 @@
+<atom:Window xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:atom="using:AtomUI.Desktop.Controls"
+             xmlns:vm="using:Zhijian.ViewModels"
+             x:Class="Zhijian.Views.ThanksWindow"
+             x:DataType="vm:ThanksWindowViewModel"
+             WindowStartupLocation="CenterOwner"
+             Title="感谢"
+             Width="660"
+             Height="580"
+             MinWidth="560"
+             MinHeight="500">
+
+    <Design.DataContext>
+        <vm:ThanksWindowViewModel/>
+    </Design.DataContext>
+
+    <Border Padding="28,24">
+        <Grid RowDefinitions="Auto,*" RowSpacing="18">
+            <StackPanel Spacing="4">
+                <TextBlock Text="{Binding Title}"
+                           FontSize="26"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Description}"
+                           FontSize="14"
+                           TextWrapping="Wrap"
+                           Foreground="#667085"/>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Projects}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:OpenSourceProjectInfo">
+                            <Border Classes="projectItem">
+                                <Grid RowDefinitions="Auto,Auto" RowSpacing="4">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap"/>
+                                    <atom:HyperLinkButton Grid.Row="1"
+                                                          NavigateUri="{Binding Uri}"
+                                                          Padding="0"
+                                                          HorizontalAlignment="Left"
+                                                          HorizontalContentAlignment="Left"
+                                                          VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Url}" TextWrapping="Wrap"/>
+                                    </atom:HyperLinkButton>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+
+    <atom:Window.Styles>
+        <Style Selector="Border.projectItem">
+            <Setter Property="Padding" Value="0,0,0,10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+        </Style>
+    </atom:Window.Styles>
+</atom:Window>
