@@ -462,8 +462,16 @@ public class MindMapEditor : UserControl
                 HideNodeMenu();
                 SelectNode(node);
                 ShowNodeToolbar(node);
-                root.Focus();
-                HandleNodeDragStarted(node, root, e);
+                if (isRoot)
+                {
+                    FocusNode(node);
+                }
+                else
+                {
+                    root.Focus();
+                    HandleNodeDragStarted(node, root, e);
+                }
+
                 e.Handled = true;
             },
             RoutingStrategies.Tunnel,
@@ -524,6 +532,7 @@ public class MindMapEditor : UserControl
             MinHeight = MindMapLayoutMetrics.NoteMinHeight,
             MaxHeight = 96,
             Padding = new Thickness(0, 2, 0, 0),
+            HorizontalContentAlignment = metrics.TextAlignment,
             VerticalContentAlignment = VerticalAlignment.Top
         };
         noteBox.Classes.Add("codewfMindMapTitleEditor");
@@ -990,6 +999,7 @@ public class MindMapEditor : UserControl
         var dragNode = _dragNode;
         var dropTarget = _dropTarget;
         var dropPlacement = _dropPlacement;
+        var wasDragging = _isDraggingNode;
 
         _dragNode = null;
         _dropTarget = null;
@@ -1000,6 +1010,10 @@ public class MindMapEditor : UserControl
 
         if (dropTarget is not null
             && ControllerContext?.MoveNode(dragNode, dropTarget, dropPlacement) == true)
+        {
+            FocusNode(dragNode);
+        }
+        else if (!wasDragging)
         {
             FocusNode(dragNode);
         }

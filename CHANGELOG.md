@@ -4,6 +4,7 @@
 
 - 🔨[Fix]-Fixed title-bar File/About buttons being intercepted by window-drag hit testing.
 - 🔨[Fix]-Fixed mind-map node title and note editing by treating inner TextBox visuals as editor input sources.
+- 🔨[Fix]-Aligned mind-map notes with their node titles and let short-text nodes refocus from the empty hit area.
 - 🔨[Optimize]-Changed outline and mind-map notes to use only smaller text and muted foreground color, without note backgrounds, left borders, or block padding.
 - 🔨[Optimize]-Replaced splitter resizing with explicit column-width dragging while keeping the outline pane constrained to 320-640 px.
 - 🔨[Optimize]-Unified tooltips with a compact dark floating style closer to AtomUI.
