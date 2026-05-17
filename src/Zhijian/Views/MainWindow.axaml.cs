@@ -41,10 +41,10 @@ public partial class MainWindow : Window
     protected override void NotifyConfigureTitleBar(WindowTitleBar titleBar)
     {
         base.NotifyConfigureTitleBar(titleBar);
-        titleBar.SetCurrentValue(WindowTitleBar.TitleProperty, null);
         _titleBarLeftAddOn = new TitleBarLeftAddOn();
         _titleBarRightAddOn = new TitleBarRightAddOn();
         ApplyTitleBarDataContext();
+        titleBar.SetValue(WindowTitleBar.TitleProperty, null);
         titleBar.SetCurrentValue(WindowTitleBar.LeftAddOnProperty, _titleBarLeftAddOn);
         titleBar.SetCurrentValue(WindowTitleBar.RightAddOnProperty, _titleBarRightAddOn);
     }
@@ -133,11 +133,48 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 return;
             }
+
+            if (e.Key == Key.Z && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                Execute(viewModel.RedoCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.Z)
+            {
+                Execute(viewModel.UndoCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.Y)
+            {
+                Execute(viewModel.RedoCommand);
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.C && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                Execute(viewModel.CopyAsMarkdownCommand);
+                e.Handled = true;
+                return;
+            }
         }
 
         if (e.Key == Key.L && e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             CenterRootTopic();
+            e.Handled = true;
+            return;
+        }
+
+        if (DataContext is MainWindowViewModel vm
+            && e.Key == Key.Delete
+            && !IsTextInputSource(e))
+        {
+            Execute(vm.DeleteSelectedCommand);
             e.Handled = true;
         }
     }
@@ -175,7 +212,7 @@ public partial class MainWindow : Window
 
         for (var current = source; current is not null; current = current.GetVisualParent())
         {
-            if (current is TitleBarLeftAddOn or TitleBarRightAddOn
+            if (current is TitleBarLeftAddOn
                 || current is Avalonia.Controls.Button
                 || current is Button or DropdownButton or ToggleSwitch or MenuItem or Avalonia.Controls.MenuItem)
             {
@@ -195,6 +232,24 @@ public partial class MainWindow : Window
     {
         MindMap.CenterRoot();
         SetStatus("已定位到中心主题");
+    }
+
+    private static bool IsTextInputSource(KeyEventArgs e)
+    {
+        if (e.Source is not Visual source)
+        {
+            return false;
+        }
+
+        for (var current = source; current is not null; current = current.GetVisualParent())
+        {
+            if (current is Avalonia.Controls.TextBox)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async void HandleWindowClosing(object? sender, Avalonia.Controls.WindowClosingEventArgs e)

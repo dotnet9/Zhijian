@@ -12,13 +12,18 @@ English documentation: [README.md](README.md)
 
 - 打开后是空白脑图：只有一个等待输入的中心主题。
 - 文件菜单支持新建、新建窗口、打开、打开文件夹、最近文件、保存、另存为、打开文件位置和关闭。
+- 编辑菜单支持撤销、重做、添加同级、添加子级、提升、降级、上移、下移、删除节点和复制为 Markdown。
+- 主题、语言、帮助和关于菜单集中在标题栏，常用项带有图标和快捷键。
+- 语言切换使用 `Lang.Avalonia.Json` 资源，覆盖中文简体、中文繁体、英语和日语。
+- 首次启动使用 AtomUI Tour 做新手引导，可通过 `src/Zhijian/App.config` 控制开关。
 - 文件夹模式提供“文件 / 大纲”两个 Tab：选择文件夹后列出支持的脑图文件，点击文件自动切换到大纲并加载。
 - 大纲、Markdown 和脑图视图共享同一棵 `MindMapNode` 树。
 - 大纲和脑图都支持标题、备注内联编辑。
 - 大纲和脑图菜单提供添加同级、添加子级、提升、降级、上移、下移、备注和删除等高频操作。
 - 脑图支持画布拖拽、缩放、回到中心主题，以及基于真实节点坐标的小图导航。
+- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并显示 AtomUI 全局消息。
 - 支持 Markdown、OPML、XMind 打开和保存。
-- 应用外壳使用 AtomUI 的窗口、标题栏菜单、对话框、列表控件、ToolTip 和深色主题。
+- 应用外壳使用 AtomUI 的窗口、标题栏菜单、对话框、列表控件、ToolTip、Tour、全局消息和深色主题。
 - 可复用的 `CodeWF.MindView` 控件只依赖 Avalonia，不强制依赖 AtomUI。
 
 ## 运行预览
@@ -26,6 +31,14 @@ English documentation: [README.md](README.md)
 下面的截图和 GIF 均来自真实运行的枝见桌面程序，并通过模拟用户操作截取。
 
 ![文件菜单](docs/media/zhijian-file-menu.png)
+
+![标题栏菜单](docs/media/zhijian-title-menus.gif)
+
+![新手引导](docs/media/zhijian-onboarding.gif)
+
+![主题和语言切换](docs/media/zhijian-theme-language.gif)
+
+![复制 Markdown 提示](docs/media/zhijian-copy-markdown.gif)
 
 ![打开文件夹流程](docs/media/zhijian-open-folder.gif)
 

@@ -51,7 +51,7 @@ public class MindMapEditor : UserControl
     private const double ZoomFactor = 1.1;
     private const double DragStartDistance = 6;
     private const double DropEdgeRatio = 0.28;
-    private const double NodeMenuWidth = 156;
+    private const double NodeMenuWidth = 224;
 
     private readonly Canvas _canvas = new()
     {
@@ -671,14 +671,14 @@ public class MindMapEditor : UserControl
     {
         var controller = ControllerContext;
         _nodeMenuPanel.Children.Clear();
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("添加子级", true, () => AddChildFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("添加同级", controller?.IsRoot(node) != true, () => AddSiblingFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("提升为父节点", controller?.CanPromoteNode(node) == true, () => PromoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("降级为子节点", controller?.CanDemoteNode(node) == true, () => DemoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("上移", controller?.CanMoveNodeUp(node) == true, () => MoveNodeUpFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("下移", controller?.CanMoveNodeDown(node) == true, () => MoveNodeDownFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注", true, () => ShowNoteEditor(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("删除", controller?.IsRoot(node) != true, () => DeleteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加子级", "Tab", true, () => AddChildFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加同级", "Enter", controller?.IsRoot(node) != true, () => AddSiblingFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", "提升为父节点", "Shift+Tab", controller?.CanPromoteNode(node) == true, () => PromoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", "降级为子节点", "Tab", controller?.CanDemoteNode(node) == true, () => DemoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", "上移", "Alt+Up", controller?.CanMoveNodeUp(node) == true, () => MoveNodeUpFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", "下移", "Alt+Down", controller?.CanMoveNodeDown(node) == true, () => MoveNodeDownFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注", null, true, () => ShowNoteEditor(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", "删除", "Delete", controller?.IsRoot(node) != true, () => DeleteNodeFromMenu(node)));
 
         _nodeMenu.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
         _nodeMenu.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
@@ -690,26 +690,58 @@ public class MindMapEditor : UserControl
         Canvas.SetTop(_nodeMenu, y);
     }
 
-    private Border CreateNodeMenuItem(string header, bool isEnabled, Action action)
+    private Border CreateNodeMenuItem(string iconText, string header, string? shortcut, bool isEnabled, Action action)
     {
+        var foreground = isEnabled
+            ? GetPrimaryTextBrush()
+            : Brush.Parse(IsDarkTheme ? "#64748B" : "#A0A7B1");
+        var shortcutBrush = isEnabled
+            ? Brush.Parse(IsDarkTheme ? "#94A3B8" : "#667085")
+            : Brush.Parse(IsDarkTheme ? "#475569" : "#A0A7B1");
+        var icon = new TextBlock
+        {
+            Text = iconText,
+            Width = 18,
+            FontSize = 13,
+            FontWeight = FontWeight.SemiBold,
+            Foreground = shortcutBrush,
+            TextAlignment = TextAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
         var text = new TextBlock
         {
             Text = header,
             FontSize = 13,
-            Foreground = isEnabled
-                ? GetPrimaryTextBrush()
-                : Brush.Parse(IsDarkTheme ? "#64748B" : "#A0A7B1"),
+            Foreground = foreground,
             VerticalAlignment = VerticalAlignment.Center
         };
+        var shortcutText = new TextBlock
+        {
+            Text = shortcut ?? string.Empty,
+            FontSize = 12,
+            Foreground = shortcutBrush,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        var content = new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions("22,*,Auto"),
+            ColumnSpacing = 8
+        };
+        Grid.SetColumn(text, 1);
+        Grid.SetColumn(shortcutText, 2);
+        content.Children.Add(icon);
+        content.Children.Add(text);
+        content.Children.Add(shortcutText);
 
         var row = new Border
         {
-            Height = 28,
+            Height = 30,
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(8, 0),
             Background = Brushes.Transparent,
             Cursor = isEnabled ? new Cursor(StandardCursorType.Hand) : Cursor.Default,
-            Child = text
+            Child = content
         };
         if (isEnabled)
         {

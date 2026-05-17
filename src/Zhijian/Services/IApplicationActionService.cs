@@ -6,9 +6,19 @@ public interface IApplicationActionService
 
     void OpenRepository();
 
+    void OpenFeedback();
+
+    void OpenFeatureRequest();
+
+    void OpenPullRequests();
+
     void OpenNewWindow();
 
     void OpenFileLocation(string filePath);
+
+    Task SetClipboardTextAsync(string text);
+
+    void ShowSuccessMessage(string message);
 
     void CloseMainWindow();
 

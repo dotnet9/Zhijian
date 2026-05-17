@@ -1,6 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:atom="https://atomui.net"
+             xmlns:antdicons="https://atomui.net/icons/antdesign"
+             xmlns:c="https://codewf.com"
+             xmlns:l="clr-namespace:Zhijian"
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.TitleBarLeftAddOn"
              x:DataType="vm:MainWindowViewModel">
@@ -23,37 +26,172 @@
 
     <StackPanel Orientation="Horizontal"
                 VerticalAlignment="Center"
-                Spacing="14">
-        <TextBlock Text="枝见 Zhijian"
+                Spacing="12">
+        <TextBlock Text="{c:I18n {x:Static l:ZhijianL.AppName}}"
                    FontSize="13"
                    FontWeight="SemiBold"
                    Foreground="{Binding PrimaryTextBrush}"
                    VerticalAlignment="Center"/>
 
-        <atom:Menu Margin="-8,0,0,0"
+        <atom:Menu Margin="-6,0,0,0"
                    VerticalAlignment="Center">
-            <atom:MenuItem Header="文件"
+            <atom:MenuItem Header="{c:I18n {x:Static l:ZhijianL.FileMenu}}"
+                           Icon="{antdicons:AntDesignIconProvider Kind=FileDoneOutlined}"
                            AutomationProperties.Name="File menu">
-                <atom:MenuItem x:Name="NewDocumentItem" Header="新建" InputGesture="Ctrl+N"/>
-                <atom:MenuItem x:Name="NewWindowItem" Header="新建窗口" InputGesture="Ctrl+Shift+N"/>
-                <atom:MenuItem x:Name="OpenDocumentItem" Header="打开..." InputGesture="Ctrl+O"/>
-                <atom:MenuItem x:Name="OpenFolderItem" Header="打开文件夹..." InputGesture="Ctrl+K"/>
+                <atom:MenuItem x:Name="NewDocumentItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.New}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=FileAddOutlined}"
+                               InputGesture="Ctrl+N"/>
+                <atom:MenuItem x:Name="NewWindowItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.NewWindow}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=FolderAddOutlined}"
+                               InputGesture="Ctrl+Shift+N"/>
+                <atom:MenuItem x:Name="OpenDocumentItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Open}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=FileSearchOutlined}"
+                               InputGesture="Ctrl+O"/>
+                <atom:MenuItem x:Name="OpenFolderItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.OpenFolder}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"
+                               InputGesture="Ctrl+K"/>
                 <atom:MenuItem x:Name="RecentFilesMenu"
-                               Header="打开最近文件"/>
+                               Header="{c:I18n {x:Static l:ZhijianL.RecentFiles}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=BranchesOutlined}"/>
                 <atom:MenuSeparator/>
-                <atom:MenuItem x:Name="SaveItem" Header="保存" InputGesture="Ctrl+S"/>
-                <atom:MenuItem x:Name="SaveAsItem" Header="另存为..." InputGesture="Ctrl+Shift+S"/>
-                <atom:MenuItem x:Name="OpenFileLocationItem" Header="打开文件位置"/>
+                <atom:MenuItem x:Name="SaveItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Save}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=SaveOutlined}"
+                               InputGesture="Ctrl+S"/>
+                <atom:MenuItem x:Name="SaveAsItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.SaveAs}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=CopyOutlined}"
+                               InputGesture="Ctrl+Shift+S"/>
+                <atom:MenuItem x:Name="OpenFileLocationItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.OpenFileLocation}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"/>
                 <atom:MenuSeparator/>
-                <atom:MenuItem x:Name="CloseItem" Header="关闭"/>
+                <atom:MenuItem x:Name="CloseItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Close}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=CloseOutlined}"
+                               InputGesture="Alt+F4"/>
             </atom:MenuItem>
 
-            <atom:MenuItem Header="关于"
+            <atom:MenuItem Header="{c:I18n {x:Static l:ZhijianL.EditMenu}}"
+                           Icon="{antdicons:AntDesignIconProvider Kind=EditOutlined}"
+                           AutomationProperties.Name="Edit menu">
+                <atom:MenuItem x:Name="UndoItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Undo}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=UndoOutlined}"
+                               InputGesture="Ctrl+Z"/>
+                <atom:MenuItem x:Name="RedoItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Redo}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=RedoOutlined}"
+                               InputGesture="Ctrl+Y"/>
+                <atom:MenuSeparator/>
+                <atom:MenuItem x:Name="AddSiblingItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.AddSibling}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=SisternodeOutlined}"
+                               InputGesture="Enter"/>
+                <atom:MenuItem x:Name="AddChildItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.AddChild}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=SubnodeOutlined}"
+                               InputGesture="Tab"/>
+                <atom:MenuItem x:Name="PromoteItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Promote}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=MenuFoldOutlined}"
+                               InputGesture="Shift+Tab"/>
+                <atom:MenuItem x:Name="DemoteItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Demote}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=MenuUnfoldOutlined}"
+                               InputGesture="Tab"/>
+                <atom:MenuItem x:Name="MoveUpItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.MoveUp}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=ArrowUpOutlined}"
+                               InputGesture="Alt+Up"/>
+                <atom:MenuItem x:Name="MoveDownItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.MoveDown}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=ArrowDownOutlined}"
+                               InputGesture="Alt+Down"/>
+                <atom:MenuSeparator/>
+                <atom:MenuItem x:Name="CopyMarkdownItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.CopyAsMarkdown}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"
+                               InputGesture="Ctrl+Shift+C"/>
+                <atom:MenuItem x:Name="DeleteNodeItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.DeleteNode}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=DeleteOutlined}"
+                               InputGesture="Delete"/>
+            </atom:MenuItem>
+
+            <atom:MenuItem Header="{c:I18n {x:Static l:ZhijianL.ThemeMenu}}"
+                           Icon="{antdicons:AntDesignIconProvider Kind=BgColorsOutlined}"
+                           AutomationProperties.Name="Theme menu">
+                <atom:MenuItem x:Name="LightThemeItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.LightTheme}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=SunOutlined}"
+                               ToggleType="Radio"
+                               IsChecked="{Binding IsLightTheme, Mode=OneWay}"/>
+                <atom:MenuItem x:Name="DarkThemeItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.DarkTheme}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=MoonOutlined}"
+                               ToggleType="Radio"
+                               IsChecked="{Binding IsDarkTheme, Mode=OneWay}"/>
+            </atom:MenuItem>
+
+            <atom:MenuItem Header="{c:I18n {x:Static l:ZhijianL.LanguageMenu}}"
+                           Icon="{antdicons:AntDesignIconProvider Kind=TranslationOutlined}"
+                           AutomationProperties.Name="Language menu">
+                <atom:MenuItem x:Name="SimplifiedChineseItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.SimplifiedChinese}}"
+                               ToggleType="Radio"
+                               IsChecked="{Binding IsSimplifiedChinese, Mode=OneWay}"/>
+                <atom:MenuItem x:Name="TraditionalChineseItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.TraditionalChinese}}"
+                               ToggleType="Radio"
+                               IsChecked="{Binding IsTraditionalChinese, Mode=OneWay}"/>
+                <atom:MenuItem x:Name="EnglishItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.English}}"
+                               ToggleType="Radio"
+                               IsChecked="{Binding IsEnglish, Mode=OneWay}"/>
+                <atom:MenuItem x:Name="JapaneseItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Japanese}}"
+                               ToggleType="Radio"
+                               IsChecked="{Binding IsJapanese, Mode=OneWay}"/>
+            </atom:MenuItem>
+
+            <atom:MenuItem Header="{c:I18n {x:Static l:ZhijianL.HelpMenu}}"
+                           Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"
+                           AutomationProperties.Name="Help menu">
+                <atom:MenuItem x:Name="FeedbackItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Feedback}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=BugOutlined}"/>
+                <atom:MenuItem x:Name="FeatureRequestItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.SubmitFeature}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=BulbOutlined}"/>
+                <atom:MenuItem x:Name="PullRequestsItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.SubmitPr}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=PullRequestOutlined}"/>
+                <atom:MenuSeparator/>
+                <atom:MenuItem x:Name="RepositoryItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Github}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=GithubOutlined}"/>
+            </atom:MenuItem>
+
+            <atom:MenuItem Header="{c:I18n {x:Static l:ZhijianL.AboutMenu}}"
+                           Icon="{antdicons:AntDesignIconProvider Kind=GlobalOutlined}"
                            AutomationProperties.Name="About menu">
-                <atom:MenuItem x:Name="OpenWebsiteItem" Header="打开网站"/>
-                <atom:MenuItem x:Name="ShowChangelogItem" Header="更新日志"/>
-                <atom:MenuItem x:Name="ShowThanksItem" Header="感谢"/>
-                <atom:MenuItem x:Name="ShowAboutItem" Header="关于"/>
+                <atom:MenuItem x:Name="OpenWebsiteItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.OpenWebsite}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=GlobalOutlined}"/>
+                <atom:MenuItem x:Name="ShowChangelogItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Changelog}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"/>
+                <atom:MenuItem x:Name="ShowThanksItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.Thanks}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=BulbOutlined}"/>
+                <atom:MenuItem x:Name="ShowAboutItem"
+                               Header="{c:I18n {x:Static l:ZhijianL.About}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"/>
             </atom:MenuItem>
         </atom:Menu>
     </StackPanel>

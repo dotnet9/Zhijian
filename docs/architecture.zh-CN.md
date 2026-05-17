@@ -16,6 +16,12 @@ English version: [architecture.md](architecture.md)
 
 ![打开文件夹流程](media/zhijian-open-folder.gif)
 
+![标题栏菜单流程](media/zhijian-title-menus.gif)
+
+![首次启动引导](media/zhijian-onboarding.gif)
+
+![主题和语言流程](media/zhijian-theme-language.gif)
+
 ![节点菜单](media/zhijian-node-menus.gif)
 
 ![小图导航](media/zhijian-minimap.gif)
@@ -44,9 +50,13 @@ Zhijian
 - 启动为空白文档，只有一个可编辑中心主题。
 - 左侧提供文件/大纲 Tab 或 Markdown 编辑，右侧提供图形脑图编辑器。
 - 文件流程支持新建、新建窗口、打开、打开文件夹、最近文件、保存、另存为、打开文件位置和关闭。
+- 编辑、主题、语言、帮助和关于流程都放在 AtomUI 标题栏菜单中。
+- 使用 `Lang.Avalonia.Json` 提供中文简体、中文繁体、英语和日语资源。
 - 大纲编辑器支持标题、备注、Enter/Tab/Shift+Tab/Delete 规则、拖拽调整结构，以及高频结构菜单。
 - 脑图编辑器支持标题和备注内联编辑、拖拽调整结构、画布拖拽、缩放、小图导航和回到中心主题。
-- 标题栏文件菜单和关于菜单使用 AtomUI `Menu` 与 `MenuItem`。
+- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并通过 AtomUI 全局消息提示成功。
+- 首次启动引导使用 AtomUI Tour，可通过 `src/Zhijian/App.config` 控制。
+- 标题栏菜单使用 AtomUI `Menu` 与 `MenuItem`。
 - 关于、更新日志、感谢和未保存确认窗口使用 AtomUI 窗口与 ViewModel。
 - 支持 Markdown、OPML、XMind 打开和保存。
 

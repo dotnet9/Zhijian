@@ -5,6 +5,9 @@ using AtomUI;
 using AtomUI.Desktop.Controls;
 using AtomUI.Theme;
 using AtomUI.Theme.Language;
+using Lang.Avalonia;
+using Lang.Avalonia.Json;
+using System.Globalization;
 using Zhijian.Services;
 using Zhijian.ViewModels;
 using Zhijian.Views;
@@ -17,6 +20,12 @@ public partial class App : Application
     {
         base.Initialize();
         AvaloniaXamlLoader.Load(this);
+        var langPlugin = new JsonLangPlugin
+        {
+            ResourceFolder = Path.Combine(AppContext.BaseDirectory, "I18n")
+        };
+        I18nManager.Instance.Register(langPlugin, new CultureInfo("zh-CN"), out _);
+
         this.UseAtomUI(builder =>
         {
             builder.WithDefaultLanguageVariant(LanguageVariant.zh_CN);

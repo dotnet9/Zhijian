@@ -10,11 +10,32 @@ public sealed class DisabledApplicationActionService : IApplicationActionService
     {
     }
 
+    public void OpenFeedback()
+    {
+    }
+
+    public void OpenFeatureRequest()
+    {
+    }
+
+    public void OpenPullRequests()
+    {
+    }
+
     public void OpenNewWindow()
     {
     }
 
     public void OpenFileLocation(string filePath)
+    {
+    }
+
+    public Task SetClipboardTextAsync(string text)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void ShowSuccessMessage(string message)
     {
     }
 

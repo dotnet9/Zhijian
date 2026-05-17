@@ -1,8 +1,11 @@
 ﻿<atom:Window xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:atom="using:AtomUI.Desktop.Controls"
+             xmlns:c="https://codewf.com"
              xmlns:icons="using:AtomUI.Icons.AntDesign"
+             xmlns:l="clr-namespace:Zhijian"
              xmlns:mind="https://codewf.com"
+             xmlns:primitives="using:Avalonia.Controls.Primitives"
              xmlns:views="using:Zhijian.Views"
              xmlns:vm="using:Zhijian.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -56,11 +59,12 @@
         </Style>
     </atom:Window.Styles>
 
+    <primitives:VisualLayerManager EnableAdornerLayer="True">
     <Grid Background="{Binding ShellBackground}">
         <Grid RowDefinitions="*,Auto">
             <Grid x:Name="PaneGrid" Grid.Row="0" Margin="16,16,16,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="420" MinWidth="320" MaxWidth="640"/>
+                    <ColumnDefinition Width="360" MinWidth="280" MaxWidth="560"/>
                     <ColumnDefinition Width="14"/>
                     <ColumnDefinition Width="*" MinWidth="420"/>
                 </Grid.ColumnDefinitions>
@@ -72,7 +76,7 @@
                         BorderBrush="{Binding PanelBorderBrush}">
                     <atom:TabControl SelectedIndex="{Binding WorkspaceTabIndex, Mode=TwoWay}"
                                      TabAlignmentCenter="True">
-                        <atom:TabItem Header="文件">
+                        <atom:TabItem Header="{c:I18n {x:Static l:ZhijianL.FilesTab}}">
                             <Grid RowDefinitions="Auto,*"
                                   Margin="0,8,0,0">
                                 <TextBlock Text="{Binding FolderSummary}"
@@ -119,54 +123,54 @@
                             </Grid>
                         </atom:TabItem>
 
-                        <atom:TabItem Header="大纲">
-                            <Grid RowDefinitions="Auto,*">
-                                <Grid Grid.Row="0" Margin="14,12,12,10" ColumnDefinitions="*,Auto">
-                                    <TextBlock Text="{Binding EditorPaneTitle}"
-                                               Classes="panelTitle"
-                                               Foreground="{Binding PrimaryTextBrush}"
-                                               VerticalAlignment="Center"/>
-                                    <atom:Button Grid.Column="1"
-                                                 Width="34"
-                                                 Height="34"
-                                                 Padding="7"
-                                                 Command="{Binding ToggleEditorModeCommand}"
-                                                 AutomationProperties.Name="Toggle outline markdown"
-                                                 atom:ToolTip.Tip="{Binding ToggleEditorToolTip}">
-                                        <Grid Width="18" Height="18">
-                                            <icons:FileMarkdownOutlined Width="18"
-                                                                        Height="18"
-                                                                        Foreground="{Binding SecondaryTextBrush}"
-                                                                        IsVisible="{Binding IsOutlineMode}"/>
-                                            <icons:UnorderedListOutlined Width="18"
-                                                                        Height="18"
-                                                                        Foreground="{Binding SecondaryTextBrush}"
-                                                                        IsVisible="{Binding IsMarkdownMode}"/>
-                                        </Grid>
-                                    </atom:Button>
-                                </Grid>
-
-                                <views:OutlineEditor Grid.Row="1"
+                        <atom:TabItem Header="{c:I18n {x:Static l:ZhijianL.OutlineTab}}">
+                            <Grid RowDefinitions="*,Auto">
+                                <views:OutlineEditor Grid.Row="0"
                                                      IsVisible="{Binding IsOutlineMode}"
                                                      IsDarkTheme="{Binding IsDarkTheme}"
                                                      Roots="{Binding Roots}"
                                                      SelectedNode="{Binding SelectedNode, Mode=TwoWay}"/>
 
-                                <atom:TextBox Grid.Row="1"
+                                <atom:TextBox Grid.Row="0"
                                               IsVisible="{Binding IsMarkdownMode}"
                                               Text="{Binding MarkdownText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               AcceptsReturn="True"
                                               TextWrapping="Wrap"
                                               FontFamily="Consolas, Menlo, monospace"
                                               FontSize="14"
-                                              Margin="14"
+                                              Margin="12,8,12,0"
                                               Padding="10,8"
-                                              PlaceholderText="Markdown"
+                                              PlaceholderText="{c:I18n {x:Static l:ZhijianL.MarkdownPlaceholder}}"
                                               Foreground="{Binding PrimaryTextBrush}"
                                               Background="{Binding PanelBackground}"
                                               BorderBrush="{Binding PanelBorderBrush}"
                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                                               AutomationProperties.Name="Markdown editor"/>
+                                <Grid Grid.Row="1" Margin="10,6,10,10" ColumnDefinitions="*,Auto">
+                                    <TextBlock Text="{Binding EditorPaneTitle}"
+                                               Foreground="{Binding SecondaryTextBrush}"
+                                               FontSize="12"
+                                               VerticalAlignment="Center"/>
+                                    <atom:Button x:Name="EditorModeToggleButton"
+                                                 Grid.Column="1"
+                                                 Width="32"
+                                                 Height="30"
+                                                 Padding="7"
+                                                 Command="{Binding ToggleEditorModeCommand}"
+                                                 AutomationProperties.Name="Toggle outline markdown"
+                                                 atom:ToolTip.Tip="{Binding ToggleEditorToolTip}">
+                                        <Grid Width="16" Height="16">
+                                            <icons:FileMarkdownOutlined Width="16"
+                                                                        Height="16"
+                                                                        Foreground="{Binding SecondaryTextBrush}"
+                                                                        IsVisible="{Binding IsOutlineMode}"/>
+                                            <icons:UnorderedListOutlined Width="16"
+                                                                        Height="16"
+                                                                        Foreground="{Binding SecondaryTextBrush}"
+                                                                        IsVisible="{Binding IsMarkdownMode}"/>
+                                        </Grid>
+                                    </atom:Button>
+                                </Grid>
                             </Grid>
                         </atom:TabItem>
                     </atom:TabControl>
@@ -209,15 +213,16 @@
                               ShowsPreview="False"
                               DragIncrement="1"
                               KeyboardIncrement="16"
-                              atom:ToolTip.Tip="拖拽调整大纲和脑图宽度"/>
+                              atom:ToolTip.Tip="拖拽调整宽度"/>
 
-                <Border Grid.Column="2"
+                <Border x:Name="MindMapPanel"
+                        Grid.Column="2"
                         Classes="panel"
                         Background="{Binding PanelBackground}"
                         BorderBrush="{Binding PanelBorderBrush}"
                         Padding="14">
                     <Grid RowDefinitions="Auto,*" RowSpacing="10">
-                        <TextBlock Text="脑图"
+                        <TextBlock Text="{c:I18n {x:Static l:ZhijianL.MindMapTitle}}"
                                    Classes="panelTitle"
                                    Foreground="{Binding PrimaryTextBrush}"
                                    VerticalAlignment="Center"/>
@@ -231,7 +236,8 @@
                 </Border>
             </Grid>
 
-            <Border Grid.Row="1"
+            <Border x:Name="StatusBar"
+                    Grid.Row="1"
                     Classes="statusBar"
                     Margin="16,0,16,14"
                     Padding="10,6">
@@ -265,14 +271,14 @@
                                      Height="28"
                                      Padding="7,4"
                                      Command="{Binding UndoCommand}"
-                                     atom:ToolTip.Tip="后退一步">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.Undo}}">
                             <icons:UndoOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <atom:Button Width="32"
                                      Height="28"
                                      Padding="7,4"
                                      Command="{Binding RedoCommand}"
-                                     atom:ToolTip.Tip="前进一步">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.Redo}}">
                             <icons:RedoOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <Border Width="1"
@@ -284,14 +290,14 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ToggleMiniMapClicked"
-                                     atom:ToolTip.Tip="小图">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.MiniMap}}">
                             <icons:PictureOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <atom:Button Width="32"
                                      Height="28"
                                      Padding="7,4"
                                      Click="CenterRootClicked"
-                                     atom:ToolTip.Tip="定位到中心主题  Ctrl + L">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.CenterRoot}}">
                             <icons:AimOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <Border Width="1"
@@ -302,7 +308,7 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ZoomOutClicked"
-                                     atom:ToolTip.Tip="缩小">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.ZoomOut}}">
                             <icons:ZoomOutOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <TextBlock Width="48"
@@ -315,14 +321,14 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ZoomInClicked"
-                                     atom:ToolTip.Tip="放大">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.ZoomIn}}">
                             <icons:ZoomInOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <atom:Button MinWidth="42"
                                      Height="28"
                                      Padding="8,4"
                                      Click="ResetZoomClicked"
-                                     atom:ToolTip.Tip="重置缩放">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.ResetZoom}}">
                             <TextBlock Text="100%"
                                        FontSize="11"
                                        Foreground="{Binding SecondaryTextBrush}"/>
@@ -335,7 +341,7 @@
                                      Height="28"
                                      Padding="7,4"
                                      Command="{Binding OpenRepositoryCommand}"
-                                     atom:ToolTip.Tip="打开 GitHub 仓库">
+                                     atom:ToolTip.Tip="{c:I18n {x:Static l:ZhijianL.Github}}">
                             <icons:QuestionCircleOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                     </StackPanel>
@@ -353,7 +359,7 @@
                                 CornerRadius="8"
                                 BoxShadow="0 8 28 0 #24000000">
                             <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                                <TextBlock Text="小图"
+                                <TextBlock Text="{c:I18n {x:Static l:ZhijianL.MiniMap}}"
                                            FontSize="12"
                                            Foreground="{Binding SecondaryTextBrush}"
                                            HorizontalAlignment="Center"/>
@@ -370,5 +376,29 @@
                 </Grid>
             </Border>
         </Grid>
+        <atom:Tour IsOpen="{Binding IsNewUserTourOpen, Mode=TwoWay}">
+            <atom:Tour.Indicator>
+                <atom:TextTourIndicator/>
+            </atom:Tour.Indicator>
+            <atom:TourStep Title="{c:I18n {x:Static l:ZhijianL.TourWelcomeTitle}}"
+                           Description="{c:I18n {x:Static l:ZhijianL.TourWelcomeDescription}}"/>
+            <atom:TourStep Target="{Binding ElementName=OutlinePaneHost}"
+                           Placement="Right"
+                           Title="{c:I18n {x:Static l:ZhijianL.TourOutlineTitle}}"
+                           Description="{c:I18n {x:Static l:ZhijianL.TourOutlineDescription}}"/>
+            <atom:TourStep Target="{Binding ElementName=EditorModeToggleButton}"
+                           Placement="Right"
+                           Title="{c:I18n {x:Static l:ZhijianL.TourToggleTitle}}"
+                           Description="{c:I18n {x:Static l:ZhijianL.TourToggleDescription}}"/>
+            <atom:TourStep Target="{Binding ElementName=MindMapPanel}"
+                           Placement="Left"
+                           Title="{c:I18n {x:Static l:ZhijianL.TourMindMapTitle}}"
+                           Description="{c:I18n {x:Static l:ZhijianL.TourMindMapDescription}}"/>
+            <atom:TourStep Target="{Binding ElementName=StatusBar}"
+                           Placement="Top"
+                           Title="{c:I18n {x:Static l:ZhijianL.TourStatusTitle}}"
+                           Description="{c:I18n {x:Static l:ZhijianL.TourStatusDescription}}"/>
+        </atom:Tour>
     </Grid>
+    </primitives:VisualLayerManager>
 </atom:Window>

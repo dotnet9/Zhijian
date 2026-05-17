@@ -11,15 +11,24 @@ English version: [source-design.md](source-design.md)
 - **单一模型**：大纲、Markdown、脑图、打开/保存和导出都围绕 `MindMapNode` 工作。
 - **控件可复用**：`CodeWF.MindView` 只引用 Avalonia，不依赖 AtomUI。
 - **体验由应用层负责**：枝见使用 AtomUI 窗口、菜单、列表、文本框、按钮、对话框和 ToolTip。
+- **外壳可本地化**：标题栏菜单和新手引导文字使用 `Lang.Avalonia.Json` 资源，覆盖中文、英语和日语用户。
 - **即时同步**：大纲、Markdown 或脑图中的编辑都会通过同一棵树更新其他视图。
 - **布局可预期**：节点标题和备注都会参与宽高估算，减少深层脑图重叠。
-- **操作友好**：文件菜单、节点菜单、快捷键、小图、缩放和画布拖拽都有可见入口。
+- **操作友好**：标题栏菜单、节点菜单、快捷键、新手引导、小图、缩放和画布拖拽都有可见入口。
 
 ## 真实交互素材
 
 这些素材都来自真实运行的桌面程序，并通过模拟用户操作截取。
 
 ![文件菜单](media/zhijian-file-menu.png)
+
+![标题栏菜单](media/zhijian-title-menus.gif)
+
+![首次启动引导](media/zhijian-onboarding.gif)
+
+![主题和语言切换](media/zhijian-theme-language.gif)
+
+![复制 Markdown 提示](media/zhijian-copy-markdown.gif)
 
 ![打开文件夹](media/zhijian-open-folder.gif)
 
@@ -69,6 +78,10 @@ public MindMapNode? SelectedNode { get; set; }
 ## 桌面工作流
 
 文件菜单属于应用层工作流。它负责创建空白文档、启动新编辑器进程、打开支持的文件、把文件夹加载到文件 Tab、把最近文件保存到 `recent-files.json`、保存当前文档、另存为其他格式、打开当前文件位置，以及关闭前询问是否保存未保存改动。
+
+编辑、主题、语言、帮助和关于也都属于标题栏菜单。它们提供结构编辑命令、复制为 Markdown、深色/浅色主题切换、中文简体/中文繁体/英语/日语切换、问题反馈、需求提交、PR、仓库、更新日志、感谢和关于窗口。复制为 Markdown 会调用平台剪贴板，并通过 AtomUI `WindowMessageManager` 显示成功提示。
+
+首次启动引导使用 AtomUI Tour 实现，会引导用户认识标题栏菜单、左侧输入区、Markdown 切换、脑图画布和状态栏导航。`src/Zhijian/App.config` 中的 `ShowNewUserTour` 控制是否允许显示，程序目录中的 `new-user-tour.seen` 记录用户是否已经关闭过引导。
 
 文件夹 Tab 使用 AtomUI `ListBox`，因为桌面应用刻意运行在 AtomUI 样式体系上，而不是 Avalonia Fluent 样式体系。
 

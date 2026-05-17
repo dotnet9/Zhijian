@@ -12,13 +12,18 @@ Repository: <https://github.com/dotnet9/Zhijian>
 
 - Starts with a blank mind map: one center topic waiting for input.
 - File menu for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
+- Edit menu for Undo, Redo, Add Sibling, Add Child, Promote, Demote, Move, Delete, and Copy as Markdown.
+- Theme, Language, Help, and About menus are grouped in the title bar with icons and shortcuts where useful.
+- Language switching uses `Lang.Avalonia.Json` resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
+- First-run onboarding uses AtomUI Tour and can be controlled from `src/Zhijian/App.config`.
 - Folder mode with `Files` and `Outline` tabs: choose a folder, browse supported mind-map files, then load one into the editor.
 - Outline, Markdown, and mind-map views share the same `MindMapNode` tree.
 - Inline title and note editing in both outline and mind-map views.
 - User-friendly outline and mind-map menus for adding siblings or children, promoting or demoting nodes, moving nodes, editing notes, and deleting nodes.
 - Mind-map panning, zooming, center-topic navigation, and a real mini-map based on current node coordinates.
+- Copy as Markdown writes the current document Markdown to the clipboard and shows an AtomUI global message.
 - Markdown, OPML, and XMind open/save support.
-- AtomUI shell, title-bar menus, dialogs, list controls, tooltips, and dark theme.
+- AtomUI shell, title-bar menus, dialogs, list controls, tooltips, Tour, global messages, and dark theme.
 - Reusable `CodeWF.MindView` controls depend only on Avalonia, not AtomUI.
 
 ## Runtime Preview
@@ -26,6 +31,14 @@ Repository: <https://github.com/dotnet9/Zhijian>
 All screenshots and GIFs below were captured from a real running Zhijian desktop session with simulated user operations.
 
 ![File menu](docs/media/zhijian-file-menu.png)
+
+![Title bar menus](docs/media/zhijian-title-menus.gif)
+
+![Onboarding tour](docs/media/zhijian-onboarding.gif)
+
+![Theme and language switching](docs/media/zhijian-theme-language.gif)
+
+![Copy Markdown feedback](docs/media/zhijian-copy-markdown.gif)
 
 ![Open folder workflow](docs/media/zhijian-open-folder.gif)
 

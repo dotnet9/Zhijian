@@ -11,15 +11,24 @@ Zhijian is split into a reusable Avalonia mind-map library and an AtomUI desktop
 - **Single model**: outline, Markdown, mind map, open/save, and export all work with `MindMapNode`.
 - **Reusable controls**: `CodeWF.MindView` references Avalonia only, so it can be used without AtomUI.
 - **Application-owned experience**: Zhijian uses AtomUI windows, menus, list boxes, text boxes, buttons, dialogs, and tooltips.
+- **Localized shell**: title-bar menus and onboarding text are backed by `Lang.Avalonia.Json` resources for Chinese, English, and Japanese users.
 - **Immediate synchronization**: edits in the outline, Markdown, or mind map update the other views through the same tree.
 - **Predictable layout**: node titles and notes participate in width and height estimation, reducing overlap in deeper maps.
-- **Friendly operations**: file menus, outline menus, mind-map menus, keyboard shortcuts, mini-map, zoom, and canvas panning are available from visible controls.
+- **Friendly operations**: title-bar menus, outline menus, mind-map menus, keyboard shortcuts, Tour onboarding, mini-map, zoom, and canvas panning are available from visible controls.
 
 ## Runtime Interaction Evidence
 
 These assets were captured from a real running desktop session by simulating user operations.
 
 ![File menu](media/zhijian-file-menu.png)
+
+![Title-bar menus](media/zhijian-title-menus.gif)
+
+![First-run onboarding](media/zhijian-onboarding.gif)
+
+![Theme and language switching](media/zhijian-theme-language.gif)
+
+![Copy Markdown feedback](media/zhijian-copy-markdown.gif)
 
 ![Open folder](media/zhijian-open-folder.gif)
 
@@ -69,6 +78,10 @@ The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs 
 ## Desktop Workflow
 
 The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing.
+
+Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through AtomUI `WindowMessageManager`.
+
+First-run onboarding is implemented with AtomUI Tour. It highlights the title-bar menu workflow, left input area, Markdown toggle, mind-map canvas, and status-bar navigation. The `ShowNewUserTour` key in `src/Zhijian/App.config` controls whether the tour can appear, and `new-user-tour.seen` in the application directory records that the user has already dismissed it.
 
 The folder tab uses AtomUI `ListBox` because the app intentionally runs on AtomUI styling rather than Avalonia Fluent styling.
 

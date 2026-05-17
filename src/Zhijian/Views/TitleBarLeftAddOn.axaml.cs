@@ -1,6 +1,7 @@
 using System.Collections.Specialized;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Lang.Avalonia;
 using Zhijian.ViewModels;
 using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
 using AtomToolTip = AtomUI.Desktop.Controls.ToolTip;
@@ -46,7 +47,7 @@ public partial class TitleBarLeftAddOn : UserControl
         {
             RecentFilesMenu.Items.Add(new AtomMenuItem
             {
-                Header = "暂无最近文件",
+                Header = I18nManager.Instance.GetResource(ZhijianL.NoRecentFiles) ?? "No recent files",
                 IsEnabled = false
             });
             return;
@@ -79,6 +80,26 @@ public partial class TitleBarLeftAddOn : UserControl
         RegisterMenuAction(SaveAsItem, () => Execute(_viewModel?.SaveAsCommand));
         RegisterMenuAction(OpenFileLocationItem, () => Execute(_viewModel?.OpenFileLocationCommand));
         RegisterMenuAction(CloseItem, () => Execute(_viewModel?.CloseCommand));
+        RegisterMenuAction(UndoItem, () => Execute(_viewModel?.UndoCommand));
+        RegisterMenuAction(RedoItem, () => Execute(_viewModel?.RedoCommand));
+        RegisterMenuAction(AddSiblingItem, () => Execute(_viewModel?.AddSiblingToSelectedCommand));
+        RegisterMenuAction(AddChildItem, () => Execute(_viewModel?.AddChildToSelectedCommand));
+        RegisterMenuAction(PromoteItem, () => Execute(_viewModel?.PromoteSelectedCommand));
+        RegisterMenuAction(DemoteItem, () => Execute(_viewModel?.DemoteSelectedCommand));
+        RegisterMenuAction(MoveUpItem, () => Execute(_viewModel?.MoveSelectedUpCommand));
+        RegisterMenuAction(MoveDownItem, () => Execute(_viewModel?.MoveSelectedDownCommand));
+        RegisterMenuAction(CopyMarkdownItem, () => Execute(_viewModel?.CopyAsMarkdownCommand));
+        RegisterMenuAction(DeleteNodeItem, () => Execute(_viewModel?.DeleteSelectedCommand));
+        RegisterMenuAction(LightThemeItem, () => Execute(_viewModel?.SetLightThemeCommand));
+        RegisterMenuAction(DarkThemeItem, () => Execute(_viewModel?.SetDarkThemeCommand));
+        RegisterMenuAction(SimplifiedChineseItem, () => Execute(_viewModel?.SelectSimplifiedChineseCommand));
+        RegisterMenuAction(TraditionalChineseItem, () => Execute(_viewModel?.SelectTraditionalChineseCommand));
+        RegisterMenuAction(EnglishItem, () => Execute(_viewModel?.SelectEnglishCommand));
+        RegisterMenuAction(JapaneseItem, () => Execute(_viewModel?.SelectJapaneseCommand));
+        RegisterMenuAction(FeedbackItem, () => Execute(_viewModel?.OpenFeedbackCommand));
+        RegisterMenuAction(FeatureRequestItem, () => Execute(_viewModel?.OpenFeatureRequestCommand));
+        RegisterMenuAction(PullRequestsItem, () => Execute(_viewModel?.OpenPullRequestsCommand));
+        RegisterMenuAction(RepositoryItem, () => Execute(_viewModel?.OpenRepositoryCommand));
         RegisterMenuAction(OpenWebsiteItem, () => Execute(_viewModel?.OpenWebsiteCommand));
         RegisterMenuAction(ShowChangelogItem, () => Execute(_viewModel?.ShowChangelogCommand));
         RegisterMenuAction(ShowThanksItem, () => Execute(_viewModel?.ShowThanksCommand));

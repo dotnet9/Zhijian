@@ -1,12 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Globalization;
 using System.Text.Json;
+using System.Xml.Linq;
 using AtomUI.Controls;
+using AtomUI.Theme.Language;
 using Avalonia;
 using CodeWF.MindView;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Lang.Avalonia;
 using Zhijian.Services;
 
 namespace Zhijian.ViewModels;
@@ -21,6 +25,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private const int MaxHistorySteps = 80;
     private const int MaxRecentFiles = 12;
     private const string RecentFilesName = "recent-files.json";
+    private const string AppConfigName = "App.config";
+    private const string TourSeenName = "new-user-tour.seen";
 
     private static readonly string[] Palette =
     [
@@ -46,6 +52,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private bool _isSyncingMarkdownFromTree;
     private bool _isRestoringHistory;
     private bool _isLoadingDocument;
+    private bool _hasOpenedNewUserTour;
+    private string _selectedCultureName = "zh-CN";
     private MindMapFileFormat _currentFileFormat = MindMapFileFormat.Markdown;
 
     [ObservableProperty]
@@ -61,7 +69,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private string _markdownText = string.Empty;
 
     [ObservableProperty]
-    private string _statusText = "就绪";
+    private string _statusText = string.Empty;
 
     [ObservableProperty]
     private string? _currentFilePath;
@@ -74,6 +82,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     [ObservableProperty]
     private MindMapFileItem? _selectedFolderFile;
+
+    [ObservableProperty]
+    private bool _isNewUserTourOpen;
 
     public MainWindowViewModel()
         : this(new DisabledMindMapFileService(), new DisabledApplicationActionService())
@@ -98,12 +109,15 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         WatchTree();
         AssignMissingColors(Root);
         IsDarkTheme = Application.Current?.IsDarkThemeMode() ?? false;
+        _selectedCultureName = I18nManager.Instance.Culture?.Name ?? "zh-CN";
+        StatusText = T(ZhijianL.Ready);
         SelectedNode = Root;
         AutoLayout();
         SyncMarkdownFromTree();
         RecordHistoryStep("空白脑图");
         MarkDocumentClean();
         LoadRecentFiles();
+        InitializeNewUserTour();
     }
 
     public ObservableCollection<MindMapNode> Roots { get; }
@@ -116,13 +130,13 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public bool IsOutlineMode => !IsMarkdownMode;
 
-    public string EditorPaneTitle => IsMarkdownMode ? "Markdown" : "大纲";
+    public string EditorPaneTitle => IsMarkdownMode ? "Markdown" : T(ZhijianL.OutlineTab);
 
-    public string ToggleEditorToolTip => IsMarkdownMode ? "切换到大纲视图" : "切换到 Markdown 视图";
+    public string ToggleEditorToolTip => IsMarkdownMode ? T(ZhijianL.ToggleToOutline) : T(ZhijianL.ToggleToMarkdown);
 
     public string SelectedNodeSummary => SelectedNode is null
-        ? $"{NodeCount} 个节点"
-        : $"{NodeCount} 个节点 · 第 {GetLevel(SelectedNode)} 层 · {SelectedNode.Children.Count} 个子节点";
+        ? FormatText(ZhijianL.NodeSummary, NodeCount)
+        : FormatText(ZhijianL.NodeSummarySelected, NodeCount, GetLevel(SelectedNode), SelectedNode.Children.Count);
 
     public int NodeCount => FlattenNodes().Count;
 
@@ -130,17 +144,33 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public bool CanRedo => _historyIndex >= 0 && _historyIndex < _history.Count - 1;
 
-    public string HistorySummary => _history.Count == 0 ? "步骤 0/0" : $"步骤 {_historyIndex + 1}/{_history.Count}";
+    public string HistorySummary => _history.Count == 0
+        ? FormatText(ZhijianL.HistorySummary, 0, 0)
+        : FormatText(ZhijianL.HistorySummary, _historyIndex + 1, _history.Count);
 
-    public string WindowTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName} - 枝见 Zhijian";
+    public string WindowTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName} - {T(ZhijianL.AppName)}";
+
+    public string DocumentTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName}";
 
     public string CurrentDocumentName => string.IsNullOrWhiteSpace(CurrentFilePath)
-        ? "未命名"
+        ? T(ZhijianL.Untitled)
         : Path.GetFileName(CurrentFilePath);
 
     public bool HasFolderFiles => FolderFiles.Count > 0;
 
-    public string FolderSummary => HasFolderFiles ? $"{FolderFiles.Count} 个脑图文件" : "未打开文件夹";
+    public string FolderSummary => HasFolderFiles
+        ? FormatText(ZhijianL.FolderSummaryOpen, FolderFiles.Count)
+        : T(ZhijianL.FolderSummaryClosed);
+
+    public bool IsLightTheme => !IsDarkTheme;
+
+    public bool IsSimplifiedChinese => string.Equals(_selectedCultureName, "zh-CN", StringComparison.OrdinalIgnoreCase);
+
+    public bool IsTraditionalChinese => string.Equals(_selectedCultureName, "zh-Hant", StringComparison.OrdinalIgnoreCase);
+
+    public bool IsEnglish => string.Equals(_selectedCultureName, "en-US", StringComparison.OrdinalIgnoreCase);
+
+    public bool IsJapanese => string.Equals(_selectedCultureName, "ja-JP", StringComparison.OrdinalIgnoreCase);
 
     public string ShellBackground => IsDarkTheme ? "#111827" : "#F3F6FA";
 
@@ -157,6 +187,16 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public string SecondaryTextBrush => IsDarkTheme ? "#CBD5E1" : "#667085";
 
     public bool HasCurrentFile => !string.IsNullOrWhiteSpace(CurrentFilePath) && File.Exists(CurrentFilePath);
+
+    public bool CanPromoteSelectedNode => CanPromoteNode(SelectedNode);
+
+    public bool CanDemoteSelectedNode => CanDemoteNode(SelectedNode);
+
+    public bool CanMoveSelectedNodeUp => CanMoveNodeUp(SelectedNode);
+
+    public bool CanMoveSelectedNodeDown => CanMoveNodeDown(SelectedNode);
+
+    public bool CanDeleteSelectedNode => SelectedNode is not null && !IsRoot(SelectedNode);
 
     [RelayCommand]
     private async Task NewDocumentAsync()
@@ -263,6 +303,116 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private void Close()
     {
         _applicationActionService.CloseMainWindow();
+    }
+
+    [RelayCommand]
+    private void SetDarkTheme()
+    {
+        SetTheme(isDark: true);
+    }
+
+    [RelayCommand]
+    private void SetLightTheme()
+    {
+        SetTheme(isDark: false);
+    }
+
+    [RelayCommand]
+    private void SelectSimplifiedChinese()
+    {
+        SetLanguage("zh-CN");
+    }
+
+    [RelayCommand]
+    private void SelectTraditionalChinese()
+    {
+        SetLanguage("zh-Hant");
+    }
+
+    [RelayCommand]
+    private void SelectEnglish()
+    {
+        SetLanguage("en-US");
+    }
+
+    [RelayCommand]
+    private void SelectJapanese()
+    {
+        SetLanguage("ja-JP");
+    }
+
+    [RelayCommand]
+    private void AddSiblingToSelected()
+    {
+        AddSibling(SelectedNode);
+    }
+
+    [RelayCommand]
+    private void AddChildToSelected()
+    {
+        AddChild(SelectedNode);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanPromoteSelectedNode))]
+    private void PromoteSelected()
+    {
+        PromoteNode(SelectedNode);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDemoteSelectedNode))]
+    private void DemoteSelected()
+    {
+        DemoteNode(SelectedNode);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanMoveSelectedNodeUp))]
+    private void MoveSelectedUp()
+    {
+        MoveNodeUp(SelectedNode);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanMoveSelectedNodeDown))]
+    private void MoveSelectedDown()
+    {
+        MoveNodeDown(SelectedNode);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDeleteSelectedNode))]
+    private void DeleteSelected()
+    {
+        DeleteNode(SelectedNode);
+    }
+
+    [RelayCommand]
+    private async Task CopyAsMarkdownAsync()
+    {
+        ApplyMarkdownEditsIfNeeded();
+        var content = MindMapDocumentCodec.ToMarkdown(Root);
+        await _applicationActionService.SetClipboardTextAsync(content);
+        var message = T(ZhijianL.StatusCopiedMarkdown);
+        StatusText = message;
+        _applicationActionService.ShowSuccessMessage(message);
+    }
+
+    [RelayCommand]
+    private void OpenFeedback()
+    {
+        _applicationActionService.OpenFeedback();
+        StatusText = T(ZhijianL.Feedback);
+    }
+
+    [RelayCommand]
+    private void OpenFeatureRequest()
+    {
+        _applicationActionService.OpenFeatureRequest();
+        StatusText = T(ZhijianL.SubmitFeature);
+    }
+
+    [RelayCommand]
+    private void OpenPullRequests()
+    {
+        _applicationActionService.OpenPullRequests();
+        StatusText = T(ZhijianL.SubmitPr);
     }
 
     [RelayCommand]
@@ -708,6 +858,141 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         });
     }
 
+    private void SetTheme(bool isDark)
+    {
+        IsDarkTheme = isDark;
+        var themeName = isDark ? T(ZhijianL.DarkTheme) : T(ZhijianL.LightTheme);
+        StatusText = FormatText(ZhijianL.StatusThemeChanged, themeName);
+        _applicationActionService.ShowSuccessMessage(StatusText);
+    }
+
+    private void SetLanguage(string cultureName)
+    {
+        if (string.Equals(_selectedCultureName, cultureName, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var culture = CultureInfo.GetCultureInfo(cultureName);
+        _selectedCultureName = culture.Name;
+        CultureInfo.CurrentCulture = culture;
+        CultureInfo.CurrentUICulture = culture;
+        I18nManager.Instance.Culture = culture;
+        Application.Current?.SetLanguageVariant(
+            culture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase)
+                ? LanguageVariant.zh_CN
+                : LanguageVariant.en_US);
+
+        RefreshLocalizedProperties();
+        StatusText = FormatText(ZhijianL.StatusLanguageChanged, GetLanguageDisplayName(culture.Name));
+        _applicationActionService.ShowSuccessMessage(StatusText);
+    }
+
+    private void InitializeNewUserTour()
+    {
+        if (!ShouldShowNewUserTour())
+        {
+            return;
+        }
+
+        _hasOpenedNewUserTour = true;
+        IsNewUserTourOpen = true;
+    }
+
+    private static bool ShouldShowNewUserTour()
+    {
+        if (!IsTourEnabled())
+        {
+            return false;
+        }
+
+        return !File.Exists(GetTourSeenPath());
+    }
+
+    private static bool IsTourEnabled()
+    {
+        var appConfigPath = Path.Combine(AppContext.BaseDirectory, AppConfigName);
+        if (!File.Exists(appConfigPath))
+        {
+            return true;
+        }
+
+        try
+        {
+            var document = XDocument.Load(appConfigPath);
+            var value = document.Root?
+                .Element("appSettings")?
+                .Elements("add")
+                .FirstOrDefault(element => string.Equals((string?)element.Attribute("key"), "ShowNewUserTour", StringComparison.OrdinalIgnoreCase))
+                ?.Attribute("value")?
+                .Value;
+            return !bool.TryParse(value, out var enabled) || enabled;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    private static string GetTourSeenPath()
+    {
+        return Path.Combine(AppContext.BaseDirectory, TourSeenName);
+    }
+
+    partial void OnIsNewUserTourOpenChanged(bool value)
+    {
+        if (value || !_hasOpenedNewUserTour)
+        {
+            return;
+        }
+
+        try
+        {
+            File.WriteAllText(GetTourSeenPath(), DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture));
+        }
+        catch
+        {
+        }
+    }
+
+    private static string GetLanguageDisplayName(string cultureName)
+    {
+        return cultureName switch
+        {
+            "zh-CN" => T(ZhijianL.SimplifiedChinese),
+            "zh-Hant" => T(ZhijianL.TraditionalChinese),
+            "en-US" => T(ZhijianL.English),
+            "ja-JP" => T(ZhijianL.Japanese),
+            _ => cultureName
+        };
+    }
+
+    private void RefreshLocalizedProperties()
+    {
+        OnPropertyChanged(nameof(EditorPaneTitle));
+        OnPropertyChanged(nameof(ToggleEditorToolTip));
+        OnPropertyChanged(nameof(SelectedNodeSummary));
+        OnPropertyChanged(nameof(HistorySummary));
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(DocumentTitle));
+        OnPropertyChanged(nameof(CurrentDocumentName));
+        OnPropertyChanged(nameof(FolderSummary));
+        OnPropertyChanged(nameof(IsSimplifiedChinese));
+        OnPropertyChanged(nameof(IsTraditionalChinese));
+        OnPropertyChanged(nameof(IsEnglish));
+        OnPropertyChanged(nameof(IsJapanese));
+    }
+
+    private static string T(string key)
+    {
+        return I18nManager.Instance.GetResource(key) ?? key;
+    }
+
+    private static string FormatText(string key, params object[] args)
+    {
+        return string.Format(CultureInfo.CurrentCulture, T(key), args);
+    }
+
     private void AutoLayout()
     {
         if (Roots.Count == 0)
@@ -730,6 +1015,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     partial void OnIsDarkThemeChanged(bool value)
     {
         Application.Current?.SetDarkThemeMode(value);
+        OnPropertyChanged(nameof(IsLightTheme));
         OnPropertyChanged(nameof(ShellBackground));
         OnPropertyChanged(nameof(PanelBackground));
         OnPropertyChanged(nameof(PanelFooterBackground));
@@ -742,12 +1028,14 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     partial void OnSelectedNodeChanged(MindMapNode? value)
     {
         OnPropertyChanged(nameof(SelectedNodeSummary));
+        RefreshSelectedNodeCommands();
     }
 
     partial void OnCurrentFilePathChanged(string? value)
     {
         OnPropertyChanged(nameof(CurrentDocumentName));
         OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(DocumentTitle));
         OnPropertyChanged(nameof(HasCurrentFile));
         OpenFileLocationCommand.NotifyCanExecuteChanged();
     }
@@ -755,6 +1043,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     partial void OnIsDirtyChanged(bool value)
     {
         OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(DocumentTitle));
     }
 
     partial void OnSelectedFolderFileChanged(MindMapFileItem? value)
@@ -1338,6 +1627,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         OnPropertyChanged(nameof(NodeCount));
         OnPropertyChanged(nameof(SelectedNodeSummary));
+        RefreshSelectedNodeCommands();
     }
 
     private static double[] CalculateColumnPositions(MindMapNode root)
@@ -1551,6 +1841,20 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(HistorySummary));
         UndoCommand.NotifyCanExecuteChanged();
         RedoCommand.NotifyCanExecuteChanged();
+    }
+
+    private void RefreshSelectedNodeCommands()
+    {
+        OnPropertyChanged(nameof(CanPromoteSelectedNode));
+        OnPropertyChanged(nameof(CanDemoteSelectedNode));
+        OnPropertyChanged(nameof(CanMoveSelectedNodeUp));
+        OnPropertyChanged(nameof(CanMoveSelectedNodeDown));
+        OnPropertyChanged(nameof(CanDeleteSelectedNode));
+        PromoteSelectedCommand.NotifyCanExecuteChanged();
+        DemoteSelectedCommand.NotifyCanExecuteChanged();
+        MoveSelectedUpCommand.NotifyCanExecuteChanged();
+        MoveSelectedDownCommand.NotifyCanExecuteChanged();
+        DeleteSelectedCommand.NotifyCanExecuteChanged();
     }
 
     private readonly record struct LayoutResult(double CenterY, double Top, double Bottom);

@@ -16,6 +16,12 @@ The screenshots and GIFs in `docs/media` were captured from a real running Zhiji
 
 ![Open folder workflow](media/zhijian-open-folder.gif)
 
+![Title-bar menu workflow](media/zhijian-title-menus.gif)
+
+![First-run onboarding](media/zhijian-onboarding.gif)
+
+![Theme and language workflow](media/zhijian-theme-language.gif)
+
 ![Node menus](media/zhijian-node-menus.gif)
 
 ![Mini-map navigation](media/zhijian-minimap.gif)
@@ -44,9 +50,13 @@ Zhijian
 - Blank startup document with one editable center topic.
 - Split view with file/outline tabs or Markdown editing on the left and a graphical mind-map editor on the right.
 - File workflow for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
+- Edit, Theme, Language, Help, and About workflows exposed from AtomUI title-bar menus.
+- `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, drag/drop structure changes, and high-frequency structure menus.
 - Mind-map editor with inline title editing, note editing, drag/drop structure changes, panning, zooming, mini-map navigation, and center-topic navigation.
-- Title-bar File and About menus implemented with AtomUI `Menu` and `MenuItem`.
+- Copy as Markdown writes the current Markdown to the clipboard and reports success with an AtomUI global message.
+- First-run onboarding implemented with AtomUI Tour and controlled by `src/Zhijian/App.config`.
+- Title-bar menus implemented with AtomUI `Menu` and `MenuItem`.
 - About, changelog, thanks, and unsaved-changes dialogs implemented with AtomUI windows and ViewModels.
 - Markdown, OPML, and XMind open/save support.
 

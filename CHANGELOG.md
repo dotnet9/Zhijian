@@ -15,10 +15,17 @@
 - 🔨[Optimize]-Unified tooltips with a compact dark floating style closer to AtomUI.
 - 🔨[Optimize]-Moved title-bar add-ons, the About window, and the changelog window into AXML plus view models, using AtomUI `Menu/MenuItem` for title-bar menus to reduce C# UI composition.
 - ✨[Add]-Added a title-bar About > Thanks action with an AtomUI thanks window listing Dotnet, Avalonia UI, Semi.Avalonia, Ursa.Avalonia, and AtomUI links.
+- ✨[Add]-Added Edit, Theme, Language, and Help title-bar menus with icons, shortcuts, feedback links, and copy-as-Markdown.
+- ✨[Add]-Added `Lang.Avalonia.Json` localization resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
+- ✨[Add]-Added a first-run AtomUI Tour that introduces title-bar menus, the outline input area, Markdown switching, the mind-map canvas, and status-bar navigation.
+- 🔨[Optimize]-Moved the current document name into the visual center of the title bar instead of placing it directly after the menus.
+- 🔨[Optimize]-Changed important command feedback to AtomUI global messages, including Copy as Markdown and theme/language changes.
 - 📝[Docs]-Replaced splitter-focused documentation media with actual workflow media for opening folders, node menus, note sync, mini-map navigation, zoom, and canvas panning.
+- 📝[Docs]-Added real running-app screenshots and GIFs for title-bar menus, onboarding, theme/language switching, and copy-as-Markdown feedback.
 - 📝[Docs]-Added the open source thanks list to the README and design documentation.
 - 📝[Docs]-Expanded the repository README and docs with paired English/Chinese versions plus runtime screenshots and GIFs captured from the actual desktop app.
 - 🧪[Test]-Reran the desktop app with screenshots for menus, splitter drag, mind-map title/note input, zoom, canvas scrolling, and maximized layout.
+- 🧪[Test]-Verified the centered title, AtomUI menus, global message, Tour onboarding, theme readability, language switching, and splitter drag with real window screenshots.
 
 ## 12.0.3.4（2026-05-17）
 
