@@ -4,6 +4,7 @@
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.AboutWindow"
              x:DataType="vm:AboutWindowViewModel"
+             WindowStartupLocation="CenterOwner"
              Title="关于枝见"
              Width="700"
              Height="520"
