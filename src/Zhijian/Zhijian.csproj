@@ -36,7 +36,7 @@
 
   <ItemGroup>
     <None Update="App.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <Compile Update="I18n\Language.cs">
       <DesignTime>True</DesignTime>
