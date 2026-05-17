@@ -50,14 +50,15 @@
 
     <Grid Background="{Binding ShellBackground}">
         <Grid RowDefinitions="*,Auto">
-            <Grid Grid.Row="0" Margin="16,16,16,10">
+            <Grid x:Name="PaneGrid" Grid.Row="0" Margin="16,16,16,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="420" MinWidth="320" MaxWidth="640"/>
                     <ColumnDefinition Width="14"/>
                     <ColumnDefinition Width="*" MinWidth="420"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0"
+                <Border x:Name="OutlinePaneHost"
+                        Grid.Column="0"
                         Classes="panel"
                         Background="{Binding PanelBackground}"
                         BorderBrush="{Binding PanelBorderBrush}">
@@ -136,16 +137,14 @@
                     </Border>
                 </Grid>
 
-                <GridSplitter Grid.Column="1"
-                              Width="14"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch"
-                              Background="#01000000"
-                              Cursor="SizeWestEast"
-                              ResizeDirection="Columns"
-                              ResizeBehavior="PreviousAndNext"
-                              ShowsPreview="False"
-                              ToolTip.Tip="拖拽调整大纲和脑图宽度"/>
+                <Border x:Name="PaneSplitter"
+                        Grid.Column="1"
+                        Width="14"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Background="#01000000"
+                        Cursor="SizeWestEast"
+                        ToolTip.Tip="拖拽调整大纲和脑图宽度"/>
 
                 <Border Grid.Column="2"
                         Classes="panel"

@@ -16,9 +16,17 @@ public partial class MainWindow : Window
 {
     private const string RepositoryUrl = "https://github.com/dotnet9/Zhijian";
     private const string WebsiteUrl = "https://codewf.com";
+    private const double DefaultOutlinePaneWidth = 420;
+    private const double MinOutlinePaneWidth = 320;
+    private const double MaxOutlinePaneWidth = 640;
+    private const double SplitterWidth = 14;
+    private const double MinMindMapPaneWidth = 420;
 
     private ChangelogWindow? _changelogWindow;
     private AboutWindow? _aboutWindow;
+    private bool _isPaneSplitterDragging;
+    private Point _paneSplitterStartPoint;
+    private double _paneSplitterStartWidth;
 
     public MainWindow()
     {
@@ -32,6 +40,10 @@ public partial class MainWindow : Window
         };
         AddHandler(PointerPressedEvent, HandleTitleBarDragPressed, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(KeyDownEvent, HandleWindowKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
+        PaneSplitter.PointerPressed += HandlePaneSplitterPointerPressed;
+        PaneSplitter.PointerMoved += HandlePaneSplitterPointerMoved;
+        PaneSplitter.PointerReleased += HandlePaneSplitterPointerReleased;
+        PaneSplitter.PointerCaptureLost += (_, _) => StopPaneSplitterDrag();
     }
 
     protected override WindowTitleBar? NotifyCreateTitleBar(WindowTitleBar? oldTitleBar)
@@ -288,7 +300,8 @@ public partial class MainWindow : Window
 
         for (var current = source; current is not null; current = current.GetVisualParent())
         {
-            if (current is Button or DropdownButton or ToggleSwitch or MenuItem)
+            if (current is Avalonia.Controls.Button
+                || current is Button or DropdownButton or ToggleSwitch or MenuItem or Avalonia.Controls.MenuItem)
             {
                 return false;
             }
@@ -300,6 +313,65 @@ public partial class MainWindow : Window
         }
 
         return true;
+    }
+
+    private void HandlePaneSplitterPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var point = e.GetCurrentPoint(PaneSplitter);
+        if (!point.Properties.IsLeftButtonPressed)
+        {
+            return;
+        }
+
+        _isPaneSplitterDragging = true;
+        _paneSplitterStartPoint = e.GetPosition(PaneGrid);
+        _paneSplitterStartWidth = OutlinePaneHost.Bounds.Width > 0
+            ? OutlinePaneHost.Bounds.Width
+            : DefaultOutlinePaneWidth;
+        e.Pointer.Capture(PaneSplitter);
+        e.Handled = true;
+    }
+
+    private void HandlePaneSplitterPointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (!_isPaneSplitterDragging)
+        {
+            return;
+        }
+
+        var currentPoint = e.GetPosition(PaneGrid);
+        SetOutlinePaneWidth(_paneSplitterStartWidth + currentPoint.X - _paneSplitterStartPoint.X);
+        e.Handled = true;
+    }
+
+    private void HandlePaneSplitterPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (!_isPaneSplitterDragging)
+        {
+            return;
+        }
+
+        StopPaneSplitterDrag();
+        e.Pointer.Capture(null);
+        e.Handled = true;
+    }
+
+    private void StopPaneSplitterDrag()
+    {
+        _isPaneSplitterDragging = false;
+    }
+
+    private void SetOutlinePaneWidth(double width)
+    {
+        var maxWidth = MaxOutlinePaneWidth;
+        var availableWidth = PaneGrid.Bounds.Width - SplitterWidth - MinMindMapPaneWidth;
+        if (availableWidth > 0)
+        {
+            maxWidth = Math.Min(maxWidth, Math.Max(MinOutlinePaneWidth, availableWidth));
+        }
+
+        var targetWidth = Math.Clamp(width, MinOutlinePaneWidth, maxWidth);
+        PaneGrid.ColumnDefinitions[0].Width = new Avalonia.Controls.GridLength(targetWidth, Avalonia.Controls.GridUnitType.Pixel);
     }
 
     private void CenterRootTopic()

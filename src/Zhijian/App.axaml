@@ -13,5 +13,14 @@
     <Application.Styles>
         <mindThemes:MindViewThemes/>
         <markdownThemes:MarkdownThemes/>
+        <Style Selector="ToolTip">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
     </Application.Styles>
 </Application>

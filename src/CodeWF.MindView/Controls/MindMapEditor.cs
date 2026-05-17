@@ -416,10 +416,9 @@ public class MindMapEditor : UserControl
         var noteFrame = new Border
         {
             Margin = new Thickness(0, MindMapLayoutMetrics.NoteVerticalSpacing, 0, 0),
-            Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF"),
-            BorderBrush = Brush.Parse(IsDarkTheme ? "#475569" : "#CBD5E1"),
-            BorderThickness = new Thickness(2, 0, 0, 0),
-            CornerRadius = new CornerRadius(3),
+            Background = Brushes.Transparent,
+            BorderBrush = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
             Child = noteBox
         };
 
@@ -454,7 +453,7 @@ public class MindMapEditor : UserControl
                     return;
                 }
 
-                if (e.Source is TextBox)
+                if (HasVisualAncestor<TextBox>(e.Source))
                 {
                     HideNodeMenu();
                     return;
@@ -524,7 +523,7 @@ public class MindMapEditor : UserControl
             MaxWidth = Math.Max(12, metrics.MaxWidth - metrics.Padding.Left - metrics.Padding.Right),
             MinHeight = MindMapLayoutMetrics.NoteMinHeight,
             MaxHeight = 96,
-            Padding = new Thickness(8, 4),
+            Padding = new Thickness(0, 2, 0, 0),
             VerticalContentAlignment = VerticalAlignment.Top
         };
         noteBox.Classes.Add("codewfMindMapTitleEditor");
@@ -1066,7 +1065,7 @@ public class MindMapEditor : UserControl
 
     private void HandleKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Space || e.Source is TextBox)
+        if (e.Key != Key.Space || HasVisualAncestor<TextBox>(e.Source))
         {
             return;
         }
@@ -1224,6 +1223,25 @@ public class MindMapEditor : UserControl
         }
 
         return true;
+    }
+
+    private static bool HasVisualAncestor<T>(object? source)
+        where T : Visual
+    {
+        if (source is not Visual visual)
+        {
+            return false;
+        }
+
+        for (var current = visual; current is not null; current = current.GetVisualParent())
+        {
+            if (current is T)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void UpdateZoomText()

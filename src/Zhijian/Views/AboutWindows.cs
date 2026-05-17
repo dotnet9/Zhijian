@@ -249,6 +249,6 @@ public sealed class AboutWindow : AtomWindow
         var assembly = typeof(AboutWindow).Assembly;
         return assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
                ?? assembly.GetName().Version?.ToString()
-               ?? "12.0.3.4";
+               ?? "12.0.3.5";
     }
 }

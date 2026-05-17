@@ -247,7 +247,7 @@ public class OutlineEditor : UserControl
             TextWrapping = TextWrapping.Wrap,
             MinHeight = 26,
             MaxHeight = 94,
-            Padding = new Thickness(8, 4),
+            Padding = new Thickness(0, 1, 0, 3),
             VerticalContentAlignment = VerticalAlignment.Top
         };
         noteBox.Bind(AtomTextBox.TextProperty, new Binding(nameof(MindMapNode.Note))
@@ -267,8 +267,9 @@ public class OutlineEditor : UserControl
         var noteFrame = new Border
         {
             Margin = new Thickness(0, 0, 4, 4),
-            BorderThickness = new Thickness(2, 0, 0, 0),
-            CornerRadius = new CornerRadius(3),
+            Background = Brushes.Transparent,
+            BorderBrush = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
             Padding = new Thickness(0),
             Child = noteBox
         };
@@ -694,8 +695,8 @@ public class OutlineEditor : UserControl
             if (_noteFrames.TryGetValue(node, out var noteFrame))
             {
                 UpdateNoteVisibility(node);
-                noteFrame.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#F8FAFC");
-                noteFrame.BorderBrush = Brush.Parse(selected ? "#148BFF" : IsDarkTheme ? "#475569" : "#CBD5E1");
+                noteFrame.Background = Brushes.Transparent;
+                noteFrame.BorderBrush = Brushes.Transparent;
             }
         }
 
