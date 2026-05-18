@@ -116,7 +116,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         RecordHistoryStep("空白脑图");
         MarkDocumentClean();
         LoadRecentFiles();
-        LoadStartupDocument(startupFilePath);
+        _ = LoadStartupDocumentAsync(startupFilePath);
         InitializeNewUserTour();
     }
 
@@ -236,7 +236,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            LoadOpenResult(result);
+            await LoadOpenResultAsync(result);
         });
     }
 
@@ -273,7 +273,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            LoadFilePath(filePath);
+            await LoadFilePathAsync(filePath);
         });
     }
 
@@ -804,7 +804,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            ReplaceTree(MindMapDocumentCodec.FromMarkdown(content), "导入 Markdown");
+            var document = await DecodeDocumentAsync(MindMapFileFormat.Markdown, content, null);
+            ReplaceTree(document.Root, "导入 Markdown", document.MarkdownSnapshot);
             StatusText = "已导入 Markdown";
         });
     }
@@ -820,7 +821,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            ReplaceTree(MindMapDocumentCodec.FromOpml(content), "导入 OPML");
+            var document = await DecodeDocumentAsync(MindMapFileFormat.Opml, content, null);
+            ReplaceTree(document.Root, "导入 OPML", document.MarkdownSnapshot);
             StatusText = "已导入 OPML";
         });
     }
@@ -836,7 +838,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            ReplaceTree(MindMapDocumentCodec.FromXMind(content), "导入 XMind");
+            var document = await DecodeDocumentAsync(MindMapFileFormat.XMind, null, content);
+            ReplaceTree(document.Root, "导入 XMind", document.MarkdownSnapshot);
             StatusText = "已导入 XMind";
         });
     }
@@ -1122,7 +1125,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         try
         {
             _isLoadingDocument = true;
-            ReplaceTree(CreateBlankRoot(), "空白脑图");
+            ReplaceTree(CreateBlankRoot(), "空白脑图", recordHistory: false);
             ResetHistory("空白脑图");
             CurrentFilePath = null;
             _currentFileFormat = MindMapFileFormat.Markdown;
@@ -1145,23 +1148,19 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            LoadFilePath(file.FilePath);
+            await LoadFilePathAsync(file.FilePath);
             WorkspaceTabIndex = 1;
         });
     }
 
-    private void LoadOpenResult(MindMapFileOpenResult result)
+    private async Task LoadOpenResultAsync(MindMapFileOpenResult result)
     {
-        var root = result.Format == MindMapFileFormat.XMind
-            ? MindMapDocumentCodec.FromXMind(result.BinaryContent ?? [])
-            : result.Format == MindMapFileFormat.Opml
-                ? MindMapDocumentCodec.FromOpml(result.TextContent ?? string.Empty)
-                : MindMapDocumentCodec.FromMarkdown(result.TextContent ?? string.Empty);
-
-        LoadDocument(root, result.FilePath, result.Format, $"打开 {Path.GetFileName(result.FilePath)}");
+        StatusText = $"正在解析：{Path.GetFileName(result.FilePath)}";
+        var document = await DecodeDocumentAsync(result.Format, result.TextContent, result.BinaryContent);
+        LoadDocument(document, result.FilePath, $"打开 {Path.GetFileName(result.FilePath)}");
     }
 
-    private void LoadStartupDocument(string? filePath)
+    private async Task LoadStartupDocumentAsync(string? filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath)
             || !File.Exists(filePath)
@@ -1172,7 +1171,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         try
         {
-            LoadFilePath(filePath);
+            await LoadFilePathAsync(filePath);
         }
         catch (Exception exception)
         {
@@ -1180,7 +1179,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
     }
 
-    private void LoadFilePath(string filePath)
+    private async Task LoadFilePathAsync(string filePath)
     {
         if (!File.Exists(filePath))
         {
@@ -1190,26 +1189,52 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
 
         var format = GetFormatFromPath(filePath);
-        var root = format switch
-        {
-            MindMapFileFormat.Markdown => MindMapDocumentCodec.FromMarkdown(File.ReadAllText(filePath)),
-            MindMapFileFormat.Opml => MindMapDocumentCodec.FromOpml(File.ReadAllText(filePath)),
-            MindMapFileFormat.XMind => MindMapDocumentCodec.FromXMind(File.ReadAllBytes(filePath)),
-            _ => CreateBlankRoot()
-        };
+        StatusText = $"正在读取：{Path.GetFileName(filePath)}";
+        var document = await ReadDocumentAsync(filePath, format);
 
-        LoadDocument(root, filePath, format, $"打开 {Path.GetFileName(filePath)}");
+        LoadDocument(document, filePath, $"打开 {Path.GetFileName(filePath)}");
     }
 
-    private void LoadDocument(MindMapNode root, string filePath, MindMapFileFormat format, string historyLabel)
+    private static async Task<LoadedMindMapDocument> ReadDocumentAsync(string filePath, MindMapFileFormat format)
+    {
+        if (format == MindMapFileFormat.XMind)
+        {
+            var binaryContent = await File.ReadAllBytesAsync(filePath).ConfigureAwait(false);
+            return await DecodeDocumentAsync(format, null, binaryContent).ConfigureAwait(false);
+        }
+
+        var textContent = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
+        return await DecodeDocumentAsync(format, textContent, null).ConfigureAwait(false);
+    }
+
+    private static Task<LoadedMindMapDocument> DecodeDocumentAsync(
+        MindMapFileFormat format,
+        string? textContent,
+        byte[]? binaryContent)
+    {
+        return Task.Run(() =>
+        {
+            var root = format switch
+            {
+                MindMapFileFormat.Markdown => MindMapDocumentCodec.FromMarkdown(textContent ?? string.Empty),
+                MindMapFileFormat.Opml => MindMapDocumentCodec.FromOpml(textContent ?? string.Empty),
+                MindMapFileFormat.XMind => MindMapDocumentCodec.FromXMind(binaryContent ?? []),
+                _ => new MindMapNode("中心主题")
+            };
+
+            return new LoadedMindMapDocument(root, format, MindMapDocumentCodec.ToMarkdown(root));
+        });
+    }
+
+    private void LoadDocument(LoadedMindMapDocument document, string filePath, string historyLabel)
     {
         try
         {
             _isLoadingDocument = true;
-            _currentFileFormat = format;
+            _currentFileFormat = document.Format;
             CurrentFilePath = filePath;
-            ReplaceTree(root, historyLabel);
-            ResetHistory(historyLabel);
+            ReplaceTree(document.Root, historyLabel, document.MarkdownSnapshot, recordHistory: false);
+            ResetHistory(historyLabel, document.MarkdownSnapshot);
             MarkDocumentClean();
             AddRecentFile(filePath);
             AddFileToFileList(filePath);
@@ -1468,11 +1493,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         IsDirty = false;
     }
 
-    private void ResetHistory(string label)
+    private void ResetHistory(string label, string? snapshot = null)
     {
         _history.Clear();
         _historyIndex = -1;
-        RecordHistoryStep(label);
+        RecordHistoryStep(label, snapshot);
         RefreshHistoryState();
     }
 
@@ -1484,7 +1509,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
     }
 
-    private void ReplaceTree(MindMapNode root, string historyLabel)
+    private void ReplaceTree(
+        MindMapNode root,
+        string historyLabel,
+        string? markdownSnapshot = null,
+        bool recordHistory = true)
     {
         try
         {
@@ -1495,14 +1524,24 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             SelectedNode = root;
             AutoLayout();
             RefreshTreeSummary();
+            if (markdownSnapshot is not null)
+            {
+                MarkdownText = markdownSnapshot;
+            }
         }
         finally
         {
             _isApplyingMarkdown = false;
-            SyncMarkdownFromTree();
+            if (markdownSnapshot is null)
+            {
+                SyncMarkdownFromTree();
+            }
         }
 
-        RecordHistoryStep(historyLabel);
+        if (recordHistory)
+        {
+            RecordHistoryStep(historyLabel, markdownSnapshot);
+        }
     }
 
     private static void AppendFlattened(MindMapNode node, List<MindMapNode> nodes)
@@ -1807,14 +1846,14 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         RecordHistoryStep("编辑 Markdown");
     }
 
-    private void RecordHistoryStep(string label)
+    private void RecordHistoryStep(string label, string? snapshot = null)
     {
         if (_isRestoringHistory || Roots.Count == 0)
         {
             return;
         }
 
-        var snapshot = MindMapDocumentCodec.ToMarkdown(Root);
+        snapshot ??= MindMapDocumentCodec.ToMarkdown(Root);
         if (_historyIndex >= 0 && _history[_historyIndex].Snapshot == snapshot)
         {
             return;
@@ -1884,6 +1923,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     }
 
     private readonly record struct LayoutResult(double CenterY, double Top, double Bottom);
+
+    private sealed record LoadedMindMapDocument(
+        MindMapNode Root,
+        MindMapFileFormat Format,
+        string MarkdownSnapshot);
 
     private sealed record HistoryEntry(string Label, string Snapshot);
 }
