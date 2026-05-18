@@ -40,7 +40,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            await LoadOpenResultAsync(result);
+            await LoadOpenResultAsync(result, ZhijianL.HistoryOpen);
         });
     }
 
@@ -60,7 +60,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            await LoadOpenResultAsync(result);
+            await LoadOpenResultAsync(result, ZhijianL.HistoryImport);
             StatusText = FormatText(
                 ZhijianL.StatusImported,
                 MindMapFileFormatRegistry.GetDisplayName(result.Format));
@@ -291,14 +291,14 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         });
     }
 
-    private async Task LoadOpenResultAsync(MindMapFileOpenResult result)
+    private async Task LoadOpenResultAsync(MindMapFileOpenResult result, string historyKey)
     {
         var fileName = Path.GetFileName(result.FilePath);
         using var busy = await ShowDocumentBusyAsync(FormatText(ZhijianL.LoadingDocument, fileName));
 
         StatusText = FormatText(ZhijianL.StatusParsing, fileName);
         var document = await DecodeDocumentAsync(result.Format, result.TextContent, result.BinaryContent, result.FilePath);
-        await LoadDocumentAsync(document, result.FilePath, FormatText(ZhijianL.HistoryOpen, fileName));
+        await LoadDocumentAsync(document, result.FilePath, FormatText(historyKey, fileName));
     }
 
     private async Task LoadStartupDocumentAsync(string? filePath)

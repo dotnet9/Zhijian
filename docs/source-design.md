@@ -91,7 +91,7 @@ First-run onboarding now targets the title-bar File menu, the left outline edito
 
 `src/Zhijian/App.config` centralizes the necessary application settings: `ShowNewUserTour` controls whether onboarding can appear, `DefaultCultureName` sets the default UI culture, `RecentFilesFileName` and `TourSeenFileName` control runtime state file names, and `MaxRecentFiles` / `MaxHistorySteps` control recent-file and undo-history capacity. Runtime code reads the .NET-generated `Zhijian.dll.config` through `ApplicationSettings` and falls back to code defaults if the config is missing or malformed.
 
-The file tab uses an application-layer list to show the current opened or imported file, or supported files from an opened folder, then switches back to the outline after a file is selected. Open is scoped to editable Markdown, OPML, and XMind-style formats; Import is broader and read-only by product contract; Save As only exposes formats the app can reliably write.
+The file tab uses an application-layer list to show the current opened or imported file, or supported files from an opened folder, then switches back to the outline after a file is selected. Its empty state exposes Open Editable File, Import, Open Folder, and Open User Manual so users do not need to discover the title-bar menu first. Open is scoped to editable Markdown, OPML, and XMind-style formats; Import is broader and read-only by product contract; Save As only exposes formats the app can reliably write.
 
 ## Mind-Map Control
 

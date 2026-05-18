@@ -17,7 +17,7 @@ Repository: <https://github.com/dotnet9/Zhijian>
 - Language switching uses `Lang.Avalonia.Json` resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - First-run onboarding precisely highlights the title-bar File menu, outline editor, Markdown switch, mind-map canvas, and bottom navigation, and includes a Skip button.
 - `src/Zhijian/App.config` centralizes onboarding, default language, recent-file count, history depth, and runtime state file names.
-- `Files` and `Outline` tabs on the left: individually opened or imported files appear in the file list, and opening a folder lists every supported file in that folder.
+- `Files` and `Outline` tabs on the left: the empty file pane offers Open Editable File, Import, Open Folder, and Open User Manual; individually opened or imported files appear in the file list, and opening a folder lists every supported file in that folder.
 - Outline, Markdown, and mind-map views share the same `MindMapNode` tree.
 - Inline title and note editing in both outline and mind-map views.
 - User-friendly outline and mind-map menus for adding siblings or children, promoting or demoting nodes, moving nodes, editing notes, and deleting nodes.

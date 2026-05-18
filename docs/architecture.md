@@ -53,7 +53,7 @@ Zhijian
 
 - Startup creates a blank editable center topic; the bundled `使用手册.md` can be opened manually from the file workflow.
 - Split view with file/outline tabs or Markdown editing on the left and a graphical mind-map editor on the right.
-- The file tab lists an individually opened or imported file, or every supported file when a folder is opened.
+- The file tab offers direct empty-state actions for Open Editable File, Import, Open Folder, and Open User Manual; it lists an individually opened or imported file, or every supported file when a folder is opened.
 - File workflow for New, New Window, Open Editable File, Import, Open Folder, Recent Files, Save, Save As Editable Format, Open File Location, and Close.
 - Edit, Theme, Language, Help, and About workflows exposed from title-bar menus.
 - `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.

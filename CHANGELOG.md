@@ -1,5 +1,12 @@
 # Changelog
 
+## 12.0.3.10（2026-05-18）
+
+- 🔨[Optimize]-Added Open Editable File, Import, Open Folder, and Open User Manual actions to the empty Files pane so users do not need to discover the title-bar File menu first.
+- 🔨[Optimize]-Changed Files pane summary and empty-state wording from mind-map/folder-specific copy to file-oriented copy, matching the fact that importable reference files also appear in the list.
+- 🔨[Optimize]-Changed import history labels to "Import {0}" so imported files are not mixed with editable-file open actions.
+- 🧪[Test]-Built `src\Zhijian\Zhijian.csproj` and checked the File menu and empty Files pane with UI Automation.
+
 ## 12.0.3.9（2026-05-18）
 
 - 🔨[Optimize]-Split the product meaning of Open Editable File and Import: Open now shows only reliably writable Markdown, OPML, and XMind files, while Import keeps the broader read-only conversion formats.

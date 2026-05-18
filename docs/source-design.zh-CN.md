@@ -91,7 +91,7 @@ public MindMapNode? SelectedNode { get; set; }
 
 `src/Zhijian/App.config` 集中管理必要的应用配置：`ShowNewUserTour` 控制引导是否可显示，`DefaultCultureName` 控制默认语言，`RecentFilesFileName` 和 `TourSeenFileName` 控制运行状态文件名，`MaxRecentFiles` 和 `MaxHistorySteps` 控制最近文件与撤销历史容量。运行时通过 `ApplicationSettings` 读取 .NET 编译后的 `Zhijian.dll.config`，配置损坏时回退到代码默认值，避免阻断应用启动。
 
-文件 Tab 使用应用层列表控件展示当前打开或导入的单个文件，或打开文件夹后的支持文件，并在选择文件后自动回到大纲编辑。“打开”只筛选 Markdown、OPML 和 XMind 等可编辑格式；“导入”筛选更宽的只读转换格式；“另存为”只提供可可靠写出的可编辑格式。
+文件 Tab 使用应用层列表控件展示当前打开或导入的单个文件，或打开文件夹后的支持文件，并在选择文件后自动回到大纲编辑。空状态直接提供打开可编辑文件、导入、打开文件夹和打开使用手册入口，用户不必先发现标题栏菜单。“打开”只筛选 Markdown、OPML 和 XMind 等可编辑格式；“导入”筛选更宽的只读转换格式；“另存为”只提供可可靠写出的可编辑格式。
 
 ## 脑图控件
 

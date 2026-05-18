@@ -126,7 +126,7 @@
                                                 Spacing="14"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center">
-                                        <icons:FolderOpenOutlined Width="28"
+                                        <icons:FileSearchOutlined Width="28"
                                                                   Height="28"
                                                                   HorizontalAlignment="Center"
                                                                   Foreground="{Binding SecondaryTextBrush}"/>
@@ -140,8 +140,34 @@
                                                    Foreground="{Binding SecondaryTextBrush}"
                                                    TextAlignment="Center"
                                                    TextWrapping="Wrap"/>
+                                        <atom:Button Command="{Binding OpenDocumentAsync}"
+                                                     HorizontalAlignment="Stretch"
+                                                     Padding="12,7"
+                                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Open}}">
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="6">
+                                                <icons:FileSearchOutlined Width="14"
+                                                                          Height="14"
+                                                                          Foreground="{Binding PrimaryTextBrush}"/>
+                                                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.Open}}"
+                                                           Foreground="{Binding PrimaryTextBrush}"/>
+                                            </StackPanel>
+                                        </atom:Button>
+                                        <atom:Button Command="{Binding ImportDocumentAsync}"
+                                                     HorizontalAlignment="Stretch"
+                                                     Padding="12,7"
+                                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Import}}">
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="6">
+                                                <icons:ImportOutlined Width="14"
+                                                                      Height="14"
+                                                                      Foreground="{Binding PrimaryTextBrush}"/>
+                                                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.Import}}"
+                                                           Foreground="{Binding PrimaryTextBrush}"/>
+                                            </StackPanel>
+                                        </atom:Button>
                                         <atom:Button Command="{Binding OpenFolderAsync}"
-                                                     HorizontalAlignment="Center"
+                                                     HorizontalAlignment="Stretch"
                                                      Padding="12,7"
                                                      AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}">
                                             <StackPanel Orientation="Horizontal"
@@ -154,7 +180,7 @@
                                             </StackPanel>
                                         </atom:Button>
                                         <atom:Button Command="{Binding OpenUserManualAsync}"
-                                                     HorizontalAlignment="Center"
+                                                     HorizontalAlignment="Stretch"
                                                      Padding="12,7"
                                                      AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}">
                                             <StackPanel Orientation="Horizontal"

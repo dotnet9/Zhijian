@@ -120,6 +120,7 @@ namespace Zhijian
         public static readonly string HistoryEditTopic = "Zhijian.ZhijianL.HistoryEditTopic";
         public static readonly string HistoryEditMarkdown = "Zhijian.ZhijianL.HistoryEditMarkdown";
         public static readonly string HistoryOpen = "Zhijian.ZhijianL.HistoryOpen";
+        public static readonly string HistoryImport = "Zhijian.ZhijianL.HistoryImport";
         public static readonly string SuggestedUntitledMindMap = "Zhijian.ZhijianL.SuggestedUntitledMindMap";
         public static readonly string XMindPreviewFallback = "Zhijian.ZhijianL.XMindPreviewFallback";
         public static readonly string PreviewUnavailable = "Zhijian.ZhijianL.PreviewUnavailable";
