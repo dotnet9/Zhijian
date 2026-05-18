@@ -1,12 +1,5 @@
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Globalization;
-using System.Text;
-using AtomUI.Theme.Language;
-using Avalonia;
 using CodeWF.MindView;
-using Lang.Avalonia;
-using Zhijian.Services;
+using System.Text;
 
 namespace Zhijian.ViewModels;
 

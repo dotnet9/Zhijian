@@ -1,5 +1,3 @@
-using Avalonia;
-
 namespace CodeWF.MindView;
 
 /// <summary>

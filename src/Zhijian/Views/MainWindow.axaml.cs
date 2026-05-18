@@ -1,9 +1,8 @@
+using AtomUI.Desktop.Controls;
 using Avalonia;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
-using AtomUI.Desktop.Controls;
 using Zhijian.ViewModels;
 
 namespace Zhijian.Views;

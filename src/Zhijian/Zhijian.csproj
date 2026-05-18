@@ -16,10 +16,6 @@
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
-    <PackageReference Include="AvaloniaUI.DiagnosticsSupport">
-      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
-      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="CodeWF.Markdown.Lite.Themes" />
     <PackageReference Include="Lang.Avalonia.Json" />
     <PackageReference Include="ReactiveUI.Avalonia" />

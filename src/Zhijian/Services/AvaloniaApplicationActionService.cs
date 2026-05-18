@@ -1,10 +1,8 @@
-using System.Diagnostics;
-using Avalonia;
+using AtomUI.Desktop.Controls;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
-using AtomUI.Controls;
-using AtomUI.Desktop.Controls;
+using System.Diagnostics;
 using Zhijian.Views;
 
 namespace Zhijian.Services;

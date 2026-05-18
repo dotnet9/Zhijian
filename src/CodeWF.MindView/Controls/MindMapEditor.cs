@@ -1,20 +1,13 @@
-using CodeWF.MindView;
 using Avalonia;
-using Avalonia.Animation;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 
 namespace CodeWF.MindView.Controls;
 

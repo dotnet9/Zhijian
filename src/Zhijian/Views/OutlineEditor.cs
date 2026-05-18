@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Data;
@@ -9,12 +6,11 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Threading;
 using CodeWF.MindView;
-using AtomUI.Icons.AntDesign;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using Zhijian.ViewModels;
-using AtomMenuFlyout = AtomUI.Desktop.Controls.MenuFlyout;
-using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
 using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
 using AtomToolTip = AtomUI.Desktop.Controls.ToolTip;
 
