@@ -65,7 +65,7 @@
       "NewUserGuide": "显示新手引导",
       "Ready": "就绪",
       "EmptyMindMap": "空白脑图",
-      "FolderSummaryClosed": "未打开文件夹",
+      "FolderSummaryClosed": "暂无脑图文件",
       "FolderSummaryOpen": "{0} 个脑图文件",
       "NodeSummary": "{0} 个节点",
       "NodeSummarySelected": "{0} 个节点 · 第 {1} 层 · {2} 个子节点",

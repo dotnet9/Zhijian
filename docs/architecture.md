@@ -12,9 +12,9 @@ Zhijian is an Avalonia desktop application for editing Markdown-first mind maps.
 
 ## Runtime Evidence
 
-The screenshots and GIFs in `docs/media` were refreshed against the current UI with 4 second-level branches and more than 10 third-level nodes.
+The screenshots and GIFs in `docs/media` were refreshed against the current UI with the bundled manual loaded by default.
 
-![Open folder workflow](media/zhijian-open-folder.gif)
+![File list workflow](media/zhijian-open-folder.gif)
 
 ![Title-bar menu workflow](media/zhijian-title-menus.gif)
 
@@ -51,8 +51,9 @@ Zhijian
 
 ## Product Scope
 
-- Blank startup document with one editable center topic.
+- Startup document loaded from the bundled `使用手册.md`, with New still creating a blank editable center topic.
 - Split view with file/outline tabs or Markdown editing on the left and a graphical mind-map editor on the right.
+- The file tab lists an individually opened file, or every supported mind-map file when a folder is opened.
 - File workflow for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
 - Edit, Theme, Language, Help, and About workflows exposed from title-bar menus.
 - `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.

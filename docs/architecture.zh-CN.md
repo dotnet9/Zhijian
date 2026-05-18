@@ -12,9 +12,9 @@ English version: [architecture.md](architecture.md)
 
 ## 运行证据
 
-`docs/media` 中的截图和 GIF 已按当前界面重新制作，并使用 4 个二级节点、10 个以上三级节点的完整示例数据。
+`docs/media` 中的截图和 GIF 已按当前界面重新制作，并使用默认加载的使用手册。
 
-![打开文件夹流程](media/zhijian-open-folder.gif)
+![文件列表流程](media/zhijian-open-folder.gif)
 
 ![标题栏菜单流程](media/zhijian-title-menus.gif)
 
@@ -51,7 +51,8 @@ Zhijian
 
 ## 产品范围
 
-- 启动为空白文档，只有一个可编辑中心主题。
+- 启动时加载随程序输出的 `使用手册.md`；“新建”仍会创建只有中心主题的空白文档。
+- 左侧文件 Tab 会显示单独打开的文件；打开文件夹时则列出该目录下所有支持的脑图文件。
 - 左侧提供文件/大纲 Tab 或 Markdown 编辑，右侧提供图形脑图编辑器。
 - 文件流程支持新建、新建窗口、打开、打开文件夹、最近文件、保存、另存为、打开文件位置和关闭。
 - 编辑、主题、语言、帮助和关于流程都放在标题栏菜单中。

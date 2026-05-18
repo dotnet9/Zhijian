@@ -18,7 +18,7 @@ Zhijian is split into a reusable Avalonia mind-map library and a product desktop
 
 ## Runtime Interaction Evidence
 
-These assets were refreshed against the current UI with a fuller sample map: 4 second-level branches and more than 10 third-level nodes, so mini-map, zoom, canvas panning, and hierarchy changes are easier to inspect.
+These assets were refreshed against the current UI with the bundled manual loaded by default, so the file list, mini-map, zoom, canvas panning, and hierarchy changes are easier to inspect.
 
 ![File menu](media/zhijian-file-menu.png)
 
@@ -30,7 +30,7 @@ These assets were refreshed against the current UI with a fuller sample map: 4 s
 
 ![Copy Markdown feedback](media/zhijian-copy-markdown.gif)
 
-![Open folder](media/zhijian-open-folder.gif)
+![File list](media/zhijian-open-folder.gif)
 
 ![Outline and mind-map menus](media/zhijian-node-menus.gif)
 
@@ -83,7 +83,7 @@ The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs 
 
 ## Desktop Workflow
 
-The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing.
+The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing. The app starts by loading the bundled `使用手册.md`, and any individually opened file is also inserted into the left file list for quick switching.
 
 Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through a desktop global message.
 
@@ -91,7 +91,7 @@ First-run onboarding now targets the title-bar File menu, the left outline edito
 
 `src/Zhijian/App.config` centralizes the necessary application settings: `ShowNewUserTour` controls whether onboarding can appear, `DefaultCultureName` sets the default UI culture, `RecentFilesFileName` and `TourSeenFileName` control runtime state file names, and `MaxRecentFiles` / `MaxHistorySteps` control recent-file and undo-history capacity. Runtime code reads the .NET-generated `Zhijian.dll.config` through `ApplicationSettings` and falls back to code defaults if the config is missing or malformed.
 
-The folder tab uses an application-layer list to show Markdown, OPML, and XMind files, then switches back to the outline after a file is selected.
+The file tab uses an application-layer list to show the current opened file, or Markdown, OPML, and XMind files from an opened folder, then switches back to the outline after a file is selected.
 
 ## Mind-Map Control
 

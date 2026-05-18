@@ -65,7 +65,7 @@
       "NewUserGuide": "Show onboarding tour",
       "Ready": "Ready",
       "EmptyMindMap": "Blank mind map",
-      "FolderSummaryClosed": "No folder opened",
+      "FolderSummaryClosed": "No mind-map files",
       "FolderSummaryOpen": "{0} mind-map files",
       "NodeSummary": "{0} nodes",
       "NodeSummarySelected": "{0} nodes · level {1} · {2} children",

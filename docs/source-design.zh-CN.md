@@ -18,7 +18,7 @@ English version: [source-design.md](source-design.md)
 
 ## 真实交互素材
 
-这些素材已按当前界面重新制作，并使用 4 个二级节点、10 个以上三级节点的完整示例数据，方便展示小图、缩放、画布拖拽和层级调整。
+这些素材已按当前界面重新制作，并使用默认加载的使用手册，方便展示文件列表、小图、缩放、画布拖拽和层级调整。
 
 ![文件菜单](media/zhijian-file-menu.png)
 
@@ -30,7 +30,7 @@ English version: [source-design.md](source-design.md)
 
 ![复制 Markdown 提示](media/zhijian-copy-markdown.gif)
 
-![打开文件夹](media/zhijian-open-folder.gif)
+![文件列表](media/zhijian-open-folder.gif)
 
 ![大纲和脑图菜单](media/zhijian-node-menus.gif)
 
@@ -83,7 +83,7 @@ public MindMapNode? SelectedNode { get; set; }
 
 ## 桌面工作流
 
-文件菜单属于应用层工作流。它负责创建空白文档、启动新编辑器进程、打开支持的文件、把文件夹加载到文件 Tab、把最近文件保存到 `recent-files.json`、保存当前文档、另存为其他格式、打开当前文件位置，以及关闭前询问是否保存未保存改动。
+文件菜单属于应用层工作流。它负责创建空白文档、启动新编辑器进程、打开支持的文件、把文件夹加载到文件 Tab、把最近文件保存到 `recent-files.json`、保存当前文档、另存为其他格式、打开当前文件位置，以及关闭前询问是否保存未保存改动。应用启动时会加载随程序输出的 `使用手册.md`，单独打开的文件也会插入左侧文件列表，便于后续切换。
 
 编辑、主题、语言、帮助和关于也都属于标题栏菜单。它们提供结构编辑命令、复制为 Markdown、深色/浅色主题切换、中文简体/中文繁体/英语/日语切换、问题反馈、需求提交、PR、仓库、更新日志、感谢和关于窗口。复制为 Markdown 会调用平台剪贴板，并显示桌面全局成功提示。
 
@@ -91,7 +91,7 @@ public MindMapNode? SelectedNode { get; set; }
 
 `src/Zhijian/App.config` 集中管理必要的应用配置：`ShowNewUserTour` 控制引导是否可显示，`DefaultCultureName` 控制默认语言，`RecentFilesFileName` 和 `TourSeenFileName` 控制运行状态文件名，`MaxRecentFiles` 和 `MaxHistorySteps` 控制最近文件与撤销历史容量。运行时通过 `ApplicationSettings` 读取 .NET 编译后的 `Zhijian.dll.config`，配置损坏时回退到代码默认值，避免阻断应用启动。
 
-文件夹 Tab 使用应用层列表控件展示 Markdown、OPML 和 XMind 文件，并在选择文件后自动回到大纲编辑。
+文件 Tab 使用应用层列表控件展示当前打开的单个文件，或打开文件夹后的 Markdown、OPML 和 XMind 文件，并在选择文件后自动回到大纲编辑。
 
 ## 脑图控件
 

@@ -10,14 +10,14 @@ Repository: <https://github.com/dotnet9/Zhijian>
 
 ## Highlights
 
-- Starts with a blank mind map: one center topic waiting for input.
+- Starts with the bundled `使用手册.md`, so the first screen demonstrates a real multi-level mind map.
 - File menu for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
 - Edit menu for Undo, Redo, Add Sibling, Add Child, Promote, Demote, Move, Delete, and Copy as Markdown.
 - Theme, Language, Help, and About menus are grouped in the title bar with icons and shortcuts where useful.
 - Language switching uses `Lang.Avalonia.Json` resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - First-run onboarding precisely highlights the title-bar File menu, outline editor, Markdown switch, mind-map canvas, and bottom navigation, and includes a Skip button.
 - `src/Zhijian/App.config` centralizes onboarding, default language, recent-file count, history depth, and runtime state file names.
-- Folder mode with `Files` and `Outline` tabs: choose a folder, browse supported mind-map files, then load one into the editor.
+- `Files` and `Outline` tabs on the left: individually opened files appear in the file list, and opening a folder lists every supported mind-map file in that folder.
 - Outline, Markdown, and mind-map views share the same `MindMapNode` tree.
 - Inline title and note editing in both outline and mind-map views.
 - User-friendly outline and mind-map menus for adding siblings or children, promoting or demoting nodes, moving nodes, editing notes, and deleting nodes.
@@ -29,7 +29,7 @@ Repository: <https://github.com/dotnet9/Zhijian>
 
 ## Runtime Preview
 
-The screenshots and GIFs below were refreshed against the current UI with a fuller demo map: 4 second-level branches and more than 10 third-level nodes, so mini-map, zoom, and canvas-panning behavior are easier to inspect.
+The screenshots and GIFs below were refreshed against the current UI with the bundled manual loaded by default, so the file list, mini-map, zoom, and canvas-panning behavior are easier to inspect.
 
 ![File menu](docs/media/zhijian-file-menu.png)
 
@@ -41,7 +41,7 @@ The screenshots and GIFs below were refreshed against the current UI with a full
 
 ![Copy Markdown feedback](docs/media/zhijian-copy-markdown.gif)
 
-![Open folder workflow](docs/media/zhijian-open-folder.gif)
+![File list workflow](docs/media/zhijian-open-folder.gif)
 
 ![Node menus](docs/media/zhijian-node-menus.gif)
 

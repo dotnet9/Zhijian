@@ -10,14 +10,14 @@ English documentation: [README.md](README.md)
 
 ## 功能亮点
 
-- 打开后是空白脑图：只有一个等待输入的中心主题。
+- 启动后默认加载随程序输出的 `使用手册.md`，首屏就是一份真实的多层级脑图。
 - 文件菜单支持新建、新建窗口、打开、打开文件夹、最近文件、保存、另存为、打开文件位置和关闭。
 - 编辑菜单支持撤销、重做、添加同级、添加子级、提升、降级、上移、下移、删除节点和复制为 Markdown。
 - 主题、语言、帮助和关于菜单集中在标题栏，常用项带有图标和快捷键。
 - 语言切换使用 `Lang.Avalonia.Json` 资源，覆盖中文简体、中文繁体、英语和日语。
 - 首次启动新手引导会精准高亮标题栏文件菜单、大纲编辑区、Markdown 切换、脑图画布和底部导航，并提供“跳过”按钮。
 - `src/Zhijian/App.config` 集中管理新手引导、默认语言、最近文件数、历史步数和运行状态文件名。
-- 文件夹模式提供“文件 / 大纲”两个 Tab：选择文件夹后列出支持的脑图文件，点击文件自动切换到大纲并加载。
+- 左侧提供“文件 / 大纲”两个 Tab：单独打开的文件会出现在文件列表中；打开文件夹时会列出该目录下所有支持的脑图文件。
 - 大纲、Markdown 和脑图视图共享同一棵 `MindMapNode` 树。
 - 大纲和脑图都支持标题、备注内联编辑。
 - 大纲和脑图菜单提供添加同级、添加子级、提升、降级、上移、下移、备注和删除等高频操作。
@@ -29,7 +29,7 @@ English documentation: [README.md](README.md)
 
 ## 运行预览
 
-下面的截图和 GIF 已按当前界面和完整示例数据更新，示例脑图包含 4 个二级节点和 10 个以上三级节点，便于观察小图、缩放和画布拖拽效果。
+下面的截图和 GIF 已按当前界面重新制作，并使用默认加载的使用手册，便于观察文件列表、小图、缩放和画布拖拽效果。
 
 ![文件菜单](docs/media/zhijian-file-menu.png)
 
@@ -41,7 +41,7 @@ English documentation: [README.md](README.md)
 
 ![复制 Markdown 提示](docs/media/zhijian-copy-markdown.gif)
 
-![打开文件夹流程](docs/media/zhijian-open-folder.gif)
+![文件列表流程](docs/media/zhijian-open-folder.gif)
 
 ![节点菜单](docs/media/zhijian-node-menus.gif)
 

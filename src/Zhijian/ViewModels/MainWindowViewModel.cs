@@ -1212,7 +1212,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             ResetHistory(historyLabel);
             MarkDocumentClean();
             AddRecentFile(filePath);
-            SelectFolderFile(filePath);
+            AddFileToFileList(filePath);
             WorkspaceTabIndex = 1;
             StatusText = $"已打开：{Path.GetFileName(filePath)}";
         }
@@ -1244,7 +1244,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         _currentFileFormat = targetFormat;
         CurrentFilePath = targetPath;
         AddRecentFile(targetPath);
-        RefreshFolderFile(targetPath);
+        AddFileToFileList(targetPath);
         MarkDocumentClean();
         StatusText = $"已保存：{Path.GetFileName(targetPath)}";
     }
@@ -1304,7 +1304,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(FolderSummary));
     }
 
-    private void RefreshFolderFile(string filePath)
+    private void AddFileToFileList(string filePath)
     {
         var existing = FolderFiles.FirstOrDefault(item => item.FilePath == filePath);
         if (existing is not null)
@@ -1315,7 +1315,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             return;
         }
 
-        if (FolderFiles.Count > 0 && IsSupportedFile(filePath))
+        if (IsSupportedFile(filePath))
         {
             FolderFiles.Insert(0, CreateFileItem(filePath));
             SelectFolderFile(filePath);

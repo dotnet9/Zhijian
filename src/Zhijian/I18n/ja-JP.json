@@ -65,7 +65,7 @@
       "NewUserGuide": "オンボーディングを表示",
       "Ready": "準備完了",
       "EmptyMindMap": "空のマインドマップ",
-      "FolderSummaryClosed": "フォルダー未選択",
+      "FolderSummaryClosed": "マインドマップなし",
       "FolderSummaryOpen": "{0} 件のマインドマップ",
       "NodeSummary": "{0} ノード",
       "NodeSummarySelected": "{0} ノード · レベル {1} · 子 {2} 件",
