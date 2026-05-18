@@ -8,7 +8,7 @@ English version: [architecture.md](architecture.md)
 - `CodeWF.MindView.Themes` 包含可复用控件的默认 Avalonia 资源。
 - `Zhijian` 包含桌面外壳、标题栏菜单、大纲编辑器、Markdown 面板、对话框、文件服务、最近文件记录和应用 ViewModel。
 
-![运行时架构视图](media/zhijian-main-window.png)
+![运行时架构视图](media/zhijian-main-window.gif)
 
 ## 运行证据
 

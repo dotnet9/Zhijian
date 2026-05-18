@@ -4,7 +4,7 @@ English version: [source-design.md](source-design.md)
 
 枝见拆分为可复用 Avalonia 脑图库和产品化桌面应用。核心设计规则很简单：可复用的文档和画布行为放在 `CodeWF.MindView`，桌面工作流放在 `Zhijian`。
 
-![枝见运行界面](media/zhijian-main-window.png)
+![枝见运行界面](media/zhijian-main-window.gif)
 
 ## 设计目标
 

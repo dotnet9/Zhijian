@@ -8,7 +8,7 @@ Zhijian is an Avalonia desktop application for editing Markdown-first mind maps.
 - `CodeWF.MindView.Themes` contains default Avalonia resources for the reusable controls.
 - `Zhijian` contains the desktop shell, title-bar menus, outline editor, Markdown pane, dialogs, file services, recent-file storage, and application ViewModels.
 
-![Runtime architecture view](media/zhijian-main-window.png)
+![Runtime architecture view](media/zhijian-main-window.gif)
 
 ## Runtime Evidence
 

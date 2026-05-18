@@ -6,7 +6,7 @@ Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
 Repository: <https://github.com/dotnet9/Zhijian>
 
-![Zhijian main window](docs/media/zhijian-main-window.png)
+![Zhijian main window](docs/media/zhijian-main-window.gif)
 
 ## Highlights
 

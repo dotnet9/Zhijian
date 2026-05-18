@@ -6,7 +6,7 @@ English documentation: [README.md](README.md)
 
 仓库地址：<https://github.com/dotnet9/Zhijian>
 
-![枝见主窗口](docs/media/zhijian-main-window.png)
+![枝见主窗口](docs/media/zhijian-main-window.gif)
 
 ## 功能亮点
 

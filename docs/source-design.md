@@ -4,7 +4,7 @@ Chinese version: [source-design.zh-CN.md](source-design.zh-CN.md)
 
 Zhijian is split into a reusable Avalonia mind-map library and a product desktop application. The main design rule is simple: keep reusable document and canvas behavior in `CodeWF.MindView`, and keep product-specific desktop workflow in `Zhijian`.
 
-![Zhijian runtime](media/zhijian-main-window.png)
+![Zhijian runtime](media/zhijian-main-window.gif)
 
 ## Design Goals
 

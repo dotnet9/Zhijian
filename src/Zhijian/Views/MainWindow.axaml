@@ -11,7 +11,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1240" d:DesignHeight="820"
              x:Class="Zhijian.Views.MainWindow"
-             WindowStartupLocation="CenterOwner"
+             WindowStartupLocation="CenterScreen"
              x:DataType="vm:MainWindowViewModel"
              Icon="/Assets/logo.png"
              Width="1240"
