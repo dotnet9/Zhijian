@@ -15,7 +15,7 @@ public static partial class MindMapDocumentCodec
     public static string ToMarkdown(MindMapNode root)
     {
         var lines = new List<string>();
-        WriteMarkdownNode(root, 1, lines);
+        WriteMarkdownRoot(root, lines);
         return string.Join(Environment.NewLine, lines);
     }
 
@@ -25,6 +25,8 @@ public static partial class MindMapDocumentCodec
         MindMapNode? lastNode = null;
         var rootLevel = 1;
         var stack = new Dictionary<int, MindMapNode>();
+        var listStack = new Dictionary<int, MindMapNode>();
+        MindMapNode? listBaseNode = null;
         var leadingNotes = new List<string>();
 
         foreach (var rawLine in SplitLines(markdown))
@@ -43,6 +45,8 @@ public static partial class MindMapDocumentCodec
                     rootLevel = level;
                     stack[level] = root;
                     lastNode = root;
+                    listBaseNode = root;
+                    listStack.Clear();
                     continue;
                 }
 
@@ -50,12 +54,41 @@ public static partial class MindMapDocumentCodec
                 FindMarkdownParent(level, rootLevel, root, stack).Children.Add(node);
                 stack[level] = node;
                 lastNode = node;
+                listBaseNode = node;
+                listStack.Clear();
 
                 foreach (var staleLevel in stack.Keys.Where(key => key > level).ToList())
                 {
                     stack.Remove(staleLevel);
                 }
 
+                continue;
+            }
+
+            if (TryParseMarkdownListItem(line, out var indent, out title))
+            {
+                if (root is null)
+                {
+                    root = new MindMapNode(title);
+                    rootLevel = 0;
+                    stack[rootLevel] = root;
+                    listStack[indent] = root;
+                    listBaseNode = root;
+                    lastNode = root;
+                    continue;
+                }
+
+                var node = new MindMapNode(title);
+                var parent = FindMarkdownListParent(indent, listBaseNode ?? lastNode ?? root, listStack);
+                parent.Children.Add(node);
+                lastNode = node;
+
+                foreach (var staleIndent in listStack.Keys.Where(key => key >= indent).ToList())
+                {
+                    listStack.Remove(staleIndent);
+                }
+
+                listStack[indent] = node;
                 continue;
             }
 
@@ -222,25 +255,40 @@ public static partial class MindMapDocumentCodec
         return string.IsNullOrWhiteSpace(normalized) ? fallback : normalized;
     }
 
-    private static void WriteMarkdownNode(MindMapNode node, int level, List<string> lines)
+    private static void WriteMarkdownRoot(MindMapNode node, List<string> lines)
     {
-        var headingLevel = Math.Max(1, level);
-        lines.Add($"{new string('#', headingLevel)} {GetTitle(node)}");
-
-        if (!string.IsNullOrWhiteSpace(node.Note))
-        {
-            foreach (var noteLine in SplitLines(node.Note))
-            {
-                if (!string.IsNullOrWhiteSpace(noteLine))
-                {
-                    lines.Add(noteLine.TrimEnd());
-                }
-            }
-        }
+        lines.Add($"# {GetTitle(node)}");
+        WriteMarkdownNote(node.Note, string.Empty, lines);
 
         foreach (var child in node.Children)
         {
-            WriteMarkdownNode(child, headingLevel + 1, lines);
+            WriteMarkdownListNode(child, 0, lines);
+        }
+    }
+
+    private static void WriteMarkdownListNode(MindMapNode node, int level, List<string> lines)
+    {
+        var indent = new string(' ', Math.Max(0, level) * 2);
+        lines.Add($"{indent}- {GetTitle(node)}");
+        WriteMarkdownNote(node.Note, $"{indent}  ", lines);
+
+        foreach (var child in node.Children)
+        {
+            WriteMarkdownListNode(child, level + 1, lines);
+        }
+    }
+
+    private static void WriteMarkdownNote(string note, string indent, List<string> lines)
+    {
+        if (!string.IsNullOrWhiteSpace(note))
+        {
+            foreach (var noteLine in SplitLines(note))
+            {
+                if (!string.IsNullOrWhiteSpace(noteLine))
+                {
+                    lines.Add($"{indent}{noteLine.TrimEnd()}");
+                }
+            }
         }
     }
 
@@ -262,6 +310,57 @@ public static partial class MindMapDocumentCodec
         }
 
         return stack.TryGetValue(parentLevel, out var parent) ? parent : root;
+    }
+
+    private static MindMapNode FindMarkdownListParent(
+        int indent,
+        MindMapNode fallback,
+        IReadOnlyDictionary<int, MindMapNode> listStack)
+    {
+        MindMapNode? parent = null;
+        var parentIndent = int.MinValue;
+        foreach (var (candidateIndent, candidateNode) in listStack)
+        {
+            if (candidateIndent < indent && candidateIndent > parentIndent)
+            {
+                parentIndent = candidateIndent;
+                parent = candidateNode;
+            }
+        }
+
+        return parent ?? fallback;
+    }
+
+    private static bool TryParseMarkdownListItem(string line, out int indent, out string title)
+    {
+        indent = 0;
+        title = string.Empty;
+
+        var index = 0;
+        while (index < line.Length && char.IsWhiteSpace(line[index]) && line[index] != '\r' && line[index] != '\n')
+        {
+            indent += line[index] == '\t' ? 4 : 1;
+            index++;
+        }
+
+        if (index >= line.Length)
+        {
+            return false;
+        }
+
+        var match = Regex.Match(line[index..], @"^(?:[-*+]|\d+[.)])\s+(.*)$");
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        title = Regex.Replace(match.Groups[1].Value.Trim(), @"^\[[ xX]\]\s+", string.Empty);
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            title = UntitledTopic;
+        }
+
+        return true;
     }
 
     private static bool TryParseHeading(string line, out int level, out string title)
