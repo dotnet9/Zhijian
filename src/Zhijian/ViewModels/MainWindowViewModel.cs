@@ -39,6 +39,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private bool _isSyncingMarkdownFromTree;
     private bool _isRestoringHistory;
     private bool _isLoadingDocument;
+    private bool _isDocumentBusy;
+    private int _documentBusyDepth;
     private bool _hasOpenedNewUserTour;
     private string _selectedCultureName = ApplicationSettings.DefaultCultureName;
     private MindMapFileFormat _currentFileFormat = MindMapFileFormat.Markdown;
@@ -48,6 +50,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private bool _isDarkTheme;
     private string _markdownText = string.Empty;
     private string _statusText = string.Empty;
+    private string _documentBusyText = string.Empty;
     private string? _currentFilePath;
     private bool _isDirty;
     private int _workspaceTabIndex = 1;
@@ -84,7 +87,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = Root;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("空白脑图");
+        RecordHistoryStep(T(ZhijianL.EmptyMindMap));
         MarkDocumentClean();
         _ = LoadRecentFilesAsync();
         _ = LoadStartupDocumentAsync(startupFilePath);
@@ -149,6 +152,18 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         get => _statusText;
         set => SetProperty(ref _statusText, value);
+    }
+
+    public bool IsDocumentBusy
+    {
+        get => _isDocumentBusy;
+        private set => SetProperty(ref _isDocumentBusy, value);
+    }
+
+    public string DocumentBusyText
+    {
+        get => _documentBusyText;
+        private set => SetProperty(ref _documentBusyText, value);
     }
 
     public string? CurrentFilePath

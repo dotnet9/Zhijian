@@ -86,6 +86,8 @@ public partial class MindMapEditor
 
     private void Rebuild()
     {
+        var version = ++_rebuildVersion;
+        _isRebuildingVisuals = false;
         DetachTreeSubscriptions();
 
         _canvas.Children.Clear();
@@ -103,21 +105,74 @@ public partial class MindMapEditor
         Roots.CollectionChanged += HandleTreeStructureChanged;
         _observedCollections.Add(Roots);
 
+        var connectorWork = new List<ConnectorWorkItem>();
+        var nodeWork = new List<MindMapNode>();
         foreach (var root in Roots)
         {
             AssignMissingColors(root);
             WatchNode(root);
-            AddConnectors(root);
+            CollectVisualWork(root, nodeWork, connectorWork);
         }
 
-        foreach (var root in Roots)
+        _isRebuildingVisuals = true;
+        RenderRebuildBatch(version, connectorWork, nodeWork, connectorIndex: 0, nodeIndex: 0);
+    }
+
+    private void CollectVisualWork(
+        MindMapNode node,
+        ICollection<MindMapNode> nodeWork,
+        ICollection<ConnectorWorkItem> connectorWork)
+    {
+        nodeWork.Add(node);
+        foreach (var child in node.Children)
         {
-            AddNodeVisuals(root);
+            connectorWork.Add(new ConnectorWorkItem(node, child));
+            CollectVisualWork(child, nodeWork, connectorWork);
+        }
+    }
+
+    private void RenderRebuildBatch(
+        int version,
+        IReadOnlyList<ConnectorWorkItem> connectorWork,
+        IReadOnlyList<MindMapNode> nodeWork,
+        int connectorIndex,
+        int nodeIndex)
+    {
+        if (version != _rebuildVersion)
+        {
+            return;
+        }
+
+        var connectorLimit = Math.Min(connectorWork.Count, connectorIndex + RebuildConnectorBatchSize);
+        for (var i = connectorIndex; i < connectorLimit; i++)
+        {
+            AddConnector(connectorWork[i].Parent, connectorWork[i].Child);
+        }
+
+        connectorIndex = connectorLimit;
+        if (connectorIndex >= connectorWork.Count)
+        {
+            var nodeLimit = Math.Min(nodeWork.Count, nodeIndex + RebuildNodeBatchSize);
+            for (var i = nodeIndex; i < nodeLimit; i++)
+            {
+                AddNodeVisual(nodeWork[i]);
+            }
+
+            nodeIndex = nodeLimit;
+        }
+
+        if (connectorIndex < connectorWork.Count || nodeIndex < nodeWork.Count)
+        {
+            Dispatcher.UIThread.Post(
+                () => RenderRebuildBatch(version, connectorWork, nodeWork, connectorIndex, nodeIndex),
+                DispatcherPriority.Background);
+            return;
         }
 
         _canvas.Children.Add(_dropPreviewPath);
         _canvas.Children.Add(_nodeToolbar);
         _canvas.Children.Add(_nodeMenu);
+        _isRebuildingVisuals = false;
         HideDropPreview();
         HideNodeMenu();
         UpdateToolbarVisibility();
@@ -160,30 +215,40 @@ public partial class MindMapEditor
     {
         foreach (var child in parent.Children)
         {
-            var path = new Avalonia.Controls.Shapes.Path
-            {
-                Stroke = GetConnectorBrush(),
-                StrokeThickness = 2,
-                IsHitTestVisible = false
-            };
-
-            _canvas.Children.Add(path);
-            _connectors.Add(new Connector(parent, child, path));
+            AddConnector(parent, child);
             AddConnectors(child);
         }
     }
 
+    private void AddConnector(MindMapNode parent, MindMapNode child)
+    {
+        var path = new Avalonia.Controls.Shapes.Path
+        {
+            Stroke = GetConnectorBrush(),
+            StrokeThickness = 2,
+            IsHitTestVisible = false
+        };
+
+        _canvas.Children.Add(path);
+        _connectors.Add(new Connector(parent, child, path));
+    }
+
     private void AddNodeVisuals(MindMapNode node)
     {
-        var nodeVisual = CreateNodeVisual(node);
-        _nodeFrames[node] = nodeVisual;
-        _canvas.Children.Add(nodeVisual);
-        UpdateNodePosition(node);
+        AddNodeVisual(node);
 
         foreach (var child in node.Children)
         {
             AddNodeVisuals(child);
         }
+    }
+
+    private void AddNodeVisual(MindMapNode node)
+    {
+        var nodeVisual = CreateNodeVisual(node);
+        _nodeFrames[node] = nodeVisual;
+        _canvas.Children.Add(nodeVisual);
+        UpdateNodePosition(node);
     }
 
     private Border CreateNodeVisual(MindMapNode node)
@@ -276,6 +341,11 @@ public partial class MindMapEditor
 
         root.SizeChanged += (_, _) =>
         {
+            if (_isRebuildingVisuals)
+            {
+                return;
+            }
+
             UpdateConnectors();
             EnsureCanvasSize();
         };

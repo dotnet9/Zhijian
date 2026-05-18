@@ -182,11 +182,14 @@ public partial class MindMapEditor
 
     private void HandleCanvasPanStarted(object? sender, PointerPressedEventArgs e)
     {
+        var point = e.GetCurrentPoint(_scrollViewer);
+        var isLeftSpaceDrag = _isSpacePressed && IsLeftPointerPressed(point.Properties);
+        var isMiddleDrag = IsMiddlePointerPressed(point.Properties);
+
         if (_isPanningCanvas
             || _dragNode is not null
-            || !_isSpacePressed
             || !IsCanvasPanSource(e.Source)
-            || !e.GetCurrentPoint(_scrollViewer).Properties.IsLeftButtonPressed)
+            || (!isLeftSpaceDrag && !isMiddleDrag))
         {
             return;
         }
@@ -255,18 +258,38 @@ public partial class MindMapEditor
 
     private void HandlePointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
-        if (!HasZoomModifier(e.KeyModifiers))
+        if (!IsCanvasWheelSource(e.Source))
         {
             return;
         }
 
-        if (Math.Abs(e.Delta.Y) < double.Epsilon)
+        if (HasZoomModifier(e.KeyModifiers))
+        {
+            ZoomAtPointer(e.Delta.Y, e.GetPosition(_scrollViewer));
+            e.Handled = true;
+            return;
+        }
+
+        if (TryPanWithWheel(e))
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void HandleTouchPadMagnify(object? sender, PointerDeltaEventArgs e)
+    {
+        if (!IsCanvasWheelSource(e.Source))
         {
             return;
         }
 
-        var factor = e.Delta.Y > 0 ? ZoomFactor : 1 / ZoomFactor;
-        SetZoom(_zoomScale * factor);
+        var zoomFactor = ToTouchPadZoomFactor(e.Delta);
+        if (Math.Abs(zoomFactor - 1) < double.Epsilon)
+        {
+            return;
+        }
+
+        SetZoom(_zoomScale * zoomFactor, e.GetPosition(_scrollViewer));
         e.Handled = true;
     }
 
@@ -280,17 +303,17 @@ public partial class MindMapEditor
 
     public void ZoomOut()
     {
-        SetZoom(_zoomScale / ZoomFactor);
+        SetZoom(_zoomScale / ZoomFactor, GetViewportCenter());
     }
 
     public void ZoomIn()
     {
-        SetZoom(_zoomScale * ZoomFactor);
+        SetZoom(_zoomScale * ZoomFactor, GetViewportCenter());
     }
 
     public void ResetZoom()
     {
-        SetZoom(1);
+        SetZoom(1, GetViewportCenter());
     }
 
     public void CenterRoot()
@@ -313,18 +336,91 @@ public partial class MindMapEditor
         UpdateViewportBounds();
     }
 
-    private void SetZoom(double zoom)
+    private bool TryPanWithWheel(PointerWheelEventArgs e)
     {
-        var center = new Point(
-            (_scrollViewer.Offset.X + _scrollViewer.Viewport.Width / 2) / _zoomScale,
-            (_scrollViewer.Offset.Y + _scrollViewer.Viewport.Height / 2) / _zoomScale);
+        if (!IsCanvasWheelSource(e.Source))
+        {
+            return false;
+        }
+
+        var panX = e.Delta.X;
+        var panY = e.Delta.Y;
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift) && Math.Abs(panX) < double.Epsilon)
+        {
+            panX = panY;
+            panY = 0;
+        }
+
+        if (Math.Abs(panX) < double.Epsilon && Math.Abs(panY) < double.Epsilon)
+        {
+            return false;
+        }
+
+        _scrollViewer.Offset = ClampScrollOffset(new Vector(
+            _scrollViewer.Offset.X - ToWheelPanDistance(panX),
+            _scrollViewer.Offset.Y - ToWheelPanDistance(panY)));
+        UpdateViewportBounds();
+        return true;
+    }
+
+    private static double ToWheelPanDistance(double delta)
+    {
+        if (Math.Abs(delta) <= 3)
+        {
+            return delta * WheelPanStep;
+        }
+
+        return delta;
+    }
+
+    private static double ToTouchPadZoomFactor(Vector delta)
+    {
+        var value = Math.Abs(delta.Y) >= Math.Abs(delta.X)
+            ? delta.Y
+            : delta.X;
+        if (Math.Abs(value) < double.Epsilon)
+        {
+            return 1;
+        }
+
+        return Math.Clamp(1 + value, 0.2, 5);
+    }
+
+    private void ZoomAtPointer(double wheelDelta, Point viewportAnchor)
+    {
+        if (Math.Abs(wheelDelta) < double.Epsilon)
+        {
+            return;
+        }
+
+        SetZoom(_zoomScale * Math.Pow(ZoomFactor, wheelDelta), viewportAnchor);
+    }
+
+    private Point GetViewportCenter()
+    {
+        return new Point(_scrollViewer.Viewport.Width / 2, _scrollViewer.Viewport.Height / 2);
+    }
+
+    private void SetZoom(double zoom, Point viewportAnchor)
+    {
+        if (_scrollViewer.Viewport.Width <= 0 || _scrollViewer.Viewport.Height <= 0)
+        {
+            viewportAnchor = GetViewportCenter();
+        }
+
+        var anchor = new Point(
+            (_scrollViewer.Offset.X + viewportAnchor.X) / _zoomScale,
+            (_scrollViewer.Offset.Y + viewportAnchor.Y) / _zoomScale);
 
         _zoomScale = Math.Clamp(zoom, MinZoom, MaxZoom);
         _zoomHost.LayoutTransform = CreateZoomTransform(_zoomScale);
         EnsureCanvasSize();
         _zoomHost.InvalidateMeasure();
         UpdateZoomText();
-        CenterViewportAt(center);
+        _scrollViewer.Offset = ClampScrollOffset(new Vector(
+            anchor.X * _zoomScale - viewportAnchor.X,
+            anchor.Y * _zoomScale - viewportAnchor.Y));
+        UpdateViewportBounds();
     }
 
     private static ScaleTransform CreateZoomTransform(double zoom)
@@ -398,6 +494,35 @@ public partial class MindMapEditor
             }
 
             if (ReferenceEquals(current, _nodeToolbar))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(current, _scrollViewer))
+            {
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    private bool IsCanvasWheelSource(object? source)
+    {
+        if (source is not Visual visual)
+        {
+            return false;
+        }
+
+        for (var current = visual; current is not null; current = current.GetVisualParent())
+        {
+            if (current is TextBox or Button or ScrollBar or Thumb)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(current, _nodeToolbar)
+                || ReferenceEquals(current, _nodeMenu))
             {
                 return false;
             }
@@ -508,6 +633,12 @@ public partial class MindMapEditor
     {
         return properties.IsLeftButtonPressed
             || properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed;
+    }
+
+    private static bool IsMiddlePointerPressed(PointerPointProperties properties)
+    {
+        return properties.IsMiddleButtonPressed
+            || properties.PointerUpdateKind == PointerUpdateKind.MiddleButtonPressed;
     }
 
     private Rect GetNodeBounds(MindMapNode node, Control frame)

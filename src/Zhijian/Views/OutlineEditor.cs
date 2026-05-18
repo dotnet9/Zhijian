@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 using CodeWF.MindView;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -32,6 +33,7 @@ public partial class OutlineEditor : UserControl
     private const double IndentSize = 24;
     private const double DropEdgeRatio = 0.28;
     private const double DragStartDistance = 6;
+    private const int RebuildRowBatchSize = 80;
 
     private readonly StackPanel _itemsPanel = new()
     {
@@ -48,6 +50,7 @@ public partial class OutlineEditor : UserControl
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
 
+    private int _rebuildVersion;
     private MindMapNode? _dragNode;
     private MindMapNode? _dropTarget;
     private Control? _dragAnchor;
@@ -88,6 +91,8 @@ public partial class OutlineEditor : UserControl
 
     private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
 
+    private sealed record OutlineRowWorkItem(MindMapNode Node, int Level);
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -109,6 +114,7 @@ public partial class OutlineEditor : UserControl
 
     private void Rebuild()
     {
+        var version = ++_rebuildVersion;
         DetachSubscriptions();
         _itemsPanel.Children.Clear();
         _rowFrames.Clear();
@@ -125,10 +131,44 @@ public partial class OutlineEditor : UserControl
         Roots.CollectionChanged += HandleTreeChanged;
         _observedCollections.Add(Roots);
 
+        var rowWork = new List<OutlineRowWorkItem>();
         foreach (var root in Roots)
         {
             WatchNode(root);
-            AddNodeRow(root, 1);
+            CollectRowWork(root, 1, rowWork);
+        }
+
+        RenderRowBatch(version, rowWork, rowIndex: 0);
+    }
+
+    private static void CollectRowWork(MindMapNode node, int level, ICollection<OutlineRowWorkItem> rowWork)
+    {
+        rowWork.Add(new OutlineRowWorkItem(node, level));
+        foreach (var child in node.Children)
+        {
+            CollectRowWork(child, level + 1, rowWork);
+        }
+    }
+
+    private void RenderRowBatch(int version, IReadOnlyList<OutlineRowWorkItem> rowWork, int rowIndex)
+    {
+        if (version != _rebuildVersion)
+        {
+            return;
+        }
+
+        var rowLimit = Math.Min(rowWork.Count, rowIndex + RebuildRowBatchSize);
+        for (var i = rowIndex; i < rowLimit; i++)
+        {
+            AddNodeRow(rowWork[i].Node, rowWork[i].Level);
+        }
+
+        if (rowLimit < rowWork.Count)
+        {
+            Dispatcher.UIThread.Post(
+                () => RenderRowBatch(version, rowWork, rowLimit),
+                DispatcherPriority.Background);
+            return;
         }
 
         ApplySelectionState();
@@ -300,11 +340,6 @@ public partial class OutlineEditor : UserControl
         _noteFrames[node] = noteFrame;
         _dragDots[node] = dot;
         _itemsPanel.Children.Add(frame);
-
-        foreach (var child in node.Children)
-        {
-            AddNodeRow(child, level + 1);
-        }
     }
 
     private IBrush GetPrimaryTextBrush()

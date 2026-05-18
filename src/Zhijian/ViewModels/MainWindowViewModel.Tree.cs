@@ -50,13 +50,13 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             ApplyMarkdownToTree(refreshMarkdownText: false);
             IsMarkdownMode = false;
-            StatusText = "已应用 Markdown 并切换到大纲视图";
+            StatusText = T(ZhijianL.StatusSwitchToOutline);
             return;
         }
 
         SyncMarkdownFromTree();
         IsMarkdownMode = true;
-        StatusText = "已切换到 Markdown 视图";
+        StatusText = T(ZhijianL.StatusSwitchToMarkdown);
     }
 
     public void Undo()
@@ -68,7 +68,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         _historyIndex--;
         RestoreHistoryEntry(_history[_historyIndex]);
-        StatusText = $"已后退：{_history[_historyIndex].Label}";
+        StatusText = FormatText(ZhijianL.StatusUndo, _history[_historyIndex].Label);
     }
 
     public void Redo()
@@ -80,7 +80,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         _historyIndex++;
         RestoreHistoryEntry(_history[_historyIndex]);
-        StatusText = $"已前进：{_history[_historyIndex].Label}";
+        StatusText = FormatText(ZhijianL.StatusRedo, _history[_historyIndex].Label);
     }
 
     public bool IsRoot(MindMapNode? node)
@@ -133,8 +133,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = child;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("添加子主题");
-        StatusText = "已添加子主题";
+        RecordHistoryStep(T(ZhijianL.AddChild));
+        StatusText = T(ZhijianL.StatusAddChild);
         return child;
     }
 
@@ -153,8 +153,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = sibling;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("添加同级主题");
-        StatusText = "已添加同级主题";
+        RecordHistoryStep(T(ZhijianL.AddSibling));
+        StatusText = T(ZhijianL.StatusAddSibling);
         return sibling;
     }
 
@@ -175,8 +175,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = focusTarget;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("删除主题");
-        StatusText = "已删除主题";
+        RecordHistoryStep(T(ZhijianL.DeleteNode));
+        StatusText = T(ZhijianL.StatusDeleteNode);
         return focusTarget;
     }
 
@@ -195,8 +195,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = node;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("降级主题");
-        StatusText = "已降级为子主题";
+        RecordHistoryStep(T(ZhijianL.Demote));
+        StatusText = T(ZhijianL.StatusDemoteNode);
         return true;
     }
 
@@ -226,8 +226,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = node;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("升级主题");
-        StatusText = "已提升为父级主题";
+        RecordHistoryStep(T(ZhijianL.Promote));
+        StatusText = T(ZhijianL.StatusPromoteNode);
         return true;
     }
 
@@ -244,7 +244,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public bool MoveNodeUp(MindMapNode? node)
     {
-        return MoveNodeWithinSiblings(node, -1, "上移主题", "已上移主题");
+        return MoveNodeWithinSiblings(node, -1, T(ZhijianL.MoveUp), T(ZhijianL.StatusMoveUpNode));
     }
 
     public bool CanMoveNodeDown(MindMapNode? node)
@@ -266,7 +266,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public bool MoveNodeDown(MindMapNode? node)
     {
-        return MoveNodeWithinSiblings(node, 1, "下移主题", "已下移主题");
+        return MoveNodeWithinSiblings(node, 1, T(ZhijianL.MoveDown), T(ZhijianL.StatusMoveDownNode));
     }
 
     public bool CanPromoteNode(MindMapNode? node)
@@ -334,8 +334,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SelectedNode = node;
         AutoLayout();
         SyncMarkdownFromTree();
-        RecordHistoryStep("移动主题");
-        StatusText = "已移动主题";
+        RecordHistoryStep(T(ZhijianL.StatusMoveNode));
+        StatusText = T(ZhijianL.StatusMoveNode);
         return true;
     }
 

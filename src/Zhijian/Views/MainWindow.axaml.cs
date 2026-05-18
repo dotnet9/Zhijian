@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Lang.Avalonia;
 using Zhijian.ViewModels;
 
 namespace Zhijian.Views;
@@ -20,7 +21,7 @@ public partial class MainWindow : Window
         {
             MiniMapPopup.IsOpen = false;
             MindMap.CenterViewportAt(point);
-            SetStatus("已定位到小图位置");
+            SetStatus(T(ZhijianL.StatusCenteredMiniMap));
         };
         AddHandler(PointerPressedEvent, HandleTitleBarDragPressed, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(KeyDownEvent, HandleWindowKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
@@ -241,7 +242,7 @@ public partial class MainWindow : Window
     private void CenterRootTopic()
     {
         MindMap.CenterRoot();
-        SetStatus("已定位到中心主题");
+        SetStatus(T(ZhijianL.StatusCenteredRoot));
     }
 
     private static bool IsTextInputSource(KeyEventArgs e)
@@ -285,6 +286,11 @@ public partial class MainWindow : Window
         {
             viewModel.StatusText = status;
         }
+    }
+
+    private static string T(string key)
+    {
+        return I18nManager.Instance.GetResource(key) ?? key;
     }
 
 }

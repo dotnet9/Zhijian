@@ -38,7 +38,7 @@
             <atom:MenuItem x:Name="FileMenuItem"
                            Header="{codewf:I18n {x:Static l:ZhijianL.FileMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=FileDoneOutlined}"
-                           AutomationProperties.Name="File menu">
+                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.FileMenu}}">
                 <atom:MenuItem x:Name="NewDocumentItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.New}}"
                                Command="{Binding NewDocumentAsync}"
@@ -81,7 +81,7 @@
 
             <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.EditMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=EditOutlined}"
-                           AutomationProperties.Name="Edit menu">
+                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.EditMenu}}">
                 <atom:MenuItem x:Name="UndoItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Undo}}"
                                Command="{Binding Undo}"
@@ -142,7 +142,7 @@
 
             <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=BgColorsOutlined}"
-                           AutomationProperties.Name="Theme menu">
+                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}">
                 <atom:MenuItem x:Name="LightThemeItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.LightTheme}}"
                                Command="{Binding SetLightTheme}"
@@ -159,7 +159,7 @@
 
             <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.LanguageMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=TranslationOutlined}"
-                           AutomationProperties.Name="Language menu">
+                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.LanguageMenu}}">
                 <atom:MenuItem x:Name="SimplifiedChineseItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.SimplifiedChinese}}"
                                Command="{Binding SelectSimplifiedChinese}"
@@ -184,7 +184,12 @@
 
             <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.HelpMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"
-                           AutomationProperties.Name="Help menu">
+                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.HelpMenu}}">
+                <atom:MenuItem x:Name="OpenUserManualItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"
+                               Command="{Binding OpenUserManualAsync}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=ReadOutlined}"/>
+                <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="FeedbackItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Feedback}}"
                                Command="{Binding OpenFeedback}"
@@ -206,7 +211,7 @@
 
             <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.AboutMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=GlobalOutlined}"
-                           AutomationProperties.Name="About menu">
+                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.AboutMenu}}">
                 <atom:MenuItem x:Name="OpenWebsiteItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenWebsite}}"
                                Command="{Binding OpenWebsite}"

@@ -44,6 +44,9 @@ public partial class MindMapEditor : UserControl
     private const double MinZoom = 0.1;
     private const double MaxZoom = 2.0;
     private const double ZoomFactor = 1.1;
+    private const double WheelPanStep = 72;
+    private const int RebuildConnectorBatchSize = 160;
+    private const int RebuildNodeBatchSize = 48;
     private const double DragStartDistance = 6;
     private const double DropEdgeRatio = 0.28;
     private const double NodeMenuWidth = 224;
@@ -87,6 +90,8 @@ public partial class MindMapEditor : UserControl
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
 
+    private int _rebuildVersion;
+    private bool _isRebuildingVisuals;
     private MindMapNode? _dragNode;
     private Point _dragStartPointer;
     private bool _isDraggingNode;
@@ -146,6 +151,7 @@ public partial class MindMapEditor : UserControl
         AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerWheelChangedEvent, HandlePointerWheelChanged, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(PointerTouchPadGestureMagnifyEvent, HandleTouchPadMagnify, RoutingStrategies.Tunnel, handledEventsToo: true);
     }
 
     public ObservableCollection<MindMapNode>? Roots

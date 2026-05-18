@@ -73,8 +73,10 @@ Useful keyboard behavior while editing a node title:
 - `Tab`: add or demote to a child node.
 - `Shift + Tab`: promote a node.
 - `Delete` or `Backspace`: delete an empty non-root node.
-- `⌘ + mouse wheel` on macOS or `Ctrl + mouse wheel` on Windows/Linux: zoom the mind-map canvas.
-- `Space + left drag`: pan the mind-map canvas.
+- `Two-finger touchpad scroll` or `mouse wheel`: pan the mind-map canvas.
+- `⌘ + mouse wheel/touchpad scroll` on macOS or `Ctrl + mouse wheel/touchpad scroll` on Windows/Linux: zoom the mind-map canvas around the pointer.
+- `Shift + mouse wheel`: pan the mind-map canvas horizontally.
+- `Space + left drag` or `middle-button drag`: pan the mind-map canvas.
 - `⌘ + L` on macOS or `Ctrl + L` on Windows/Linux: return to the center topic.
 
 ## File Formats

@@ -90,7 +90,7 @@
                                                   Background="Transparent"
                                                   BorderThickness="0"
                                                   Margin="0,0,0,8"
-                                                  AutomationProperties.Name="Folder file list">
+                                                  AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.FilesTab}}">
                                         <atom:ListBox.ItemTemplate>
                                             <DataTemplate x:DataType="vm:MindMapFileItem">
                                                 <Border Padding="12,10"
@@ -153,6 +153,19 @@
                                                            Foreground="{Binding PrimaryTextBrush}"/>
                                             </StackPanel>
                                         </atom:Button>
+                                        <atom:Button Command="{Binding OpenUserManualAsync}"
+                                                     HorizontalAlignment="Center"
+                                                     Padding="12,7"
+                                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}">
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="6">
+                                                <icons:FileMarkdownOutlined Width="14"
+                                                                            Height="14"
+                                                                            Foreground="{Binding PrimaryTextBrush}"/>
+                                                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"
+                                                           Foreground="{Binding PrimaryTextBrush}"/>
+                                            </StackPanel>
+                                        </atom:Button>
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -182,7 +195,7 @@
                                               Background="{Binding PanelBackground}"
                                               BorderBrush="{Binding PanelBorderBrush}"
                                               ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                              AutomationProperties.Name="Markdown editor"/>
+                                              AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.MarkdownPlaceholder}}"/>
                                 <Grid Grid.Row="1" Margin="10,6,10,10" ColumnDefinitions="*,Auto">
                                     <TextBlock Text="{Binding EditorPaneTitle}"
                                                Foreground="{Binding SecondaryTextBrush}"
@@ -424,6 +437,36 @@
                 </Grid>
             </Border>
         </Grid>
+
+        <Border x:Name="DocumentLoadingOverlay"
+                IsVisible="{Binding IsDocumentBusy}"
+                Background="#66000000">
+            <Border Width="320"
+                    MinHeight="132"
+                    Padding="24,22"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="{Binding PanelBackground}"
+                    BorderBrush="{Binding PanelBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    BoxShadow="0 14 42 0 #3A000000">
+                <StackPanel Spacing="14"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <atom:SpinIndicator SizeType="Large"
+                                        HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding DocumentBusyText}"
+                               MaxWidth="260"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{Binding PrimaryTextBrush}"
+                               TextAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Border>
+        </Border>
+
         <atom:Tour x:Name="NewUserTour"
                    IsOpen="{Binding IsNewUserTourOpen, Mode=TwoWay}">
             <atom:Tour.CustomActions>

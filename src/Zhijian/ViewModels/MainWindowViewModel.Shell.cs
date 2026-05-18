@@ -22,7 +22,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public void NewWindow()
     {
         _applicationActionService.OpenNewWindow();
-        StatusText = "已打开新窗口";
+        StatusText = T(ZhijianL.StatusNewWindow);
     }
 
     public void Close()
@@ -81,31 +81,31 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public void OpenWebsite()
     {
         _applicationActionService.OpenWebsite();
-        StatusText = "已打开网站";
+        StatusText = T(ZhijianL.StatusOpenWebsite);
     }
 
     public void ShowChangelog()
     {
         _applicationActionService.ShowChangelog();
-        StatusText = "已打开更新日志";
+        StatusText = T(ZhijianL.StatusShowChangelog);
     }
 
     public void ShowAbout()
     {
         _applicationActionService.ShowAbout();
-        StatusText = "已打开关于窗口";
+        StatusText = T(ZhijianL.StatusShowAbout);
     }
 
     public void ShowThanks()
     {
         _applicationActionService.ShowThanks();
-        StatusText = "已打开感谢窗口";
+        StatusText = T(ZhijianL.StatusShowThanks);
     }
 
     public void OpenRepository()
     {
         _applicationActionService.OpenRepository();
-        StatusText = "已打开 GitHub 仓库";
+        StatusText = T(ZhijianL.StatusOpenRepository);
     }
 
     public void ShowNewUserTour()

@@ -1,5 +1,14 @@
 # Changelog
 
+## 12.0.3.8（2026-05-18）
+
+- ✨[Add]-Added an "Open User Manual" entry to the empty file pane and title-bar Help menu for loading the bundled `使用手册.md`.
+- ✨[Add]-Added an AtomUI centered loading overlay for large mind-map files and batched outline/mind-map rebuilding to reduce frozen-window feedback while reading, parsing, and rendering.
+- 🔨[Optimize]-Adapted canvas navigation for laptop touchpads with two-finger/wheel panning, `Ctrl/⌘ + scroll` pointer-centered zoom, `Shift + wheel` horizontal panning, and middle-button drag panning.
+- 🔨[Optimize]-Completed localized strings for opening, importing, exporting, history, node actions, and loading states across Simplified Chinese, Traditional Chinese, English, and Japanese.
+- 📝[Docs]-Updated README, the user manual, architecture docs, and source-design docs with the new canvas pan/zoom behavior.
+- 🧪[Test]-Built `src\Zhijian\Zhijian.csproj` and smoke-started the desktop app to verify the main window appears.
+
 ## 12.0.3.7（2026-05-18）
 
 - ✨[Add]-Added application icon metadata from `logo.ico` and NuGet package icon metadata from `logo.png`, with author and project website information.

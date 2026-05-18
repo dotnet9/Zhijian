@@ -170,6 +170,8 @@ public partial class MindMapEditor
 
     private sealed record Connector(MindMapNode Parent, MindMapNode Child, Avalonia.Controls.Shapes.Path Path);
 
+    private sealed record ConnectorWorkItem(MindMapNode Parent, MindMapNode Child);
+
     private sealed record NodeMetrics(
         double MinWidth,
         double MaxWidth,

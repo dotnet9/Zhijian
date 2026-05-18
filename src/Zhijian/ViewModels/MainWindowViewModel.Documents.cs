@@ -1,10 +1,13 @@
 using CodeWF.MindView;
+using Avalonia.Threading;
 using System.Text;
 
 namespace Zhijian.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorController
 {
+    private const string BundledUserManualFileName = "使用手册.md";
+
     public async Task<bool> ConfirmCloseAsync()
     {
         return await EnsureCanChangeDocumentAsync();
@@ -18,7 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
 
         SetBlankDocument();
-        StatusText = "已新建空白脑图";
+        StatusText = T(ZhijianL.StatusNewDocument);
     }
 
     public async Task OpenDocumentAsync()
@@ -30,7 +33,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 return;
             }
 
-            StatusText = "正在打开脑图文件...";
+            StatusText = T(ZhijianL.StatusOpening);
             var result = await _fileService.OpenAsync();
             if (result is null)
             {
@@ -45,7 +48,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         await RunFileOperationAsync(async () =>
         {
-            StatusText = "正在打开文件夹...";
+            StatusText = T(ZhijianL.StatusOpeningFolder);
             var folderPath = await _fileService.PickFolderAsync();
             if (string.IsNullOrWhiteSpace(folderPath))
             {
@@ -54,7 +57,28 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
             await LoadFolderFilesAsync(folderPath);
             WorkspaceTabIndex = 0;
-            StatusText = $"已打开文件夹：{folderPath}";
+            StatusText = FormatText(ZhijianL.StatusOpenFolder, folderPath);
+        });
+    }
+
+    public async Task OpenUserManualAsync()
+    {
+        await RunFileOperationAsync(async () =>
+        {
+            if (!await EnsureCanChangeDocumentAsync())
+            {
+                return;
+            }
+
+            var manualPath = FindBundledUserManualPath();
+            if (manualPath is null)
+            {
+                StatusText = T(ZhijianL.StatusUserManualMissing);
+                return;
+            }
+
+            await LoadFilePathAsync(manualPath);
+            StatusText = FormatText(ZhijianL.StatusOpenUserManual, Path.GetFileName(manualPath));
         });
     }
 
@@ -94,7 +118,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
 
         _applicationActionService.OpenFileLocation(CurrentFilePath);
-        StatusText = "已打开文件位置";
+        StatusText = T(ZhijianL.StatusOpenFileLocation);
     }
 
     public async Task CopyAsMarkdownAsync()
@@ -118,8 +142,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             }
 
             var document = await DecodeDocumentAsync(MindMapFileFormat.Markdown, content, null);
-            ReplaceTree(document.Root, "导入 Markdown", document.MarkdownSnapshot);
-            StatusText = "已导入 Markdown";
+            var formatName = MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.Markdown);
+            ReplaceTree(document.Root, FormatText(ZhijianL.StatusImported, formatName), document.MarkdownSnapshot);
+            StatusText = FormatText(ZhijianL.StatusImported, formatName);
         });
     }
 
@@ -134,8 +159,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             }
 
             var document = await DecodeDocumentAsync(MindMapFileFormat.Opml, content, null);
-            ReplaceTree(document.Root, "导入 OPML", document.MarkdownSnapshot);
-            StatusText = "已导入 OPML";
+            var formatName = MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.Opml);
+            ReplaceTree(document.Root, FormatText(ZhijianL.StatusImported, formatName), document.MarkdownSnapshot);
+            StatusText = FormatText(ZhijianL.StatusImported, formatName);
         });
     }
 
@@ -150,8 +176,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             }
 
             var document = await DecodeDocumentAsync(MindMapFileFormat.XMind, null, content);
-            ReplaceTree(document.Root, "导入 XMind", document.MarkdownSnapshot);
-            StatusText = "已导入 XMind";
+            var formatName = MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.XMind);
+            ReplaceTree(document.Root, FormatText(ZhijianL.StatusImported, formatName), document.MarkdownSnapshot);
+            StatusText = FormatText(ZhijianL.StatusImported, formatName);
         });
     }
 
@@ -161,7 +188,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             var content = IsMarkdownMode ? MarkdownText : MindMapDocumentCodec.ToMarkdown(Root);
             await _fileService.SaveTextAsync(MindMapFileFormat.Markdown, content);
-            StatusText = "已导出 Markdown";
+            StatusText = FormatText(ZhijianL.StatusExported, MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.Markdown));
         });
     }
 
@@ -171,7 +198,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             ApplyMarkdownEditsIfNeeded();
             await _fileService.SaveTextAsync(MindMapFileFormat.Opml, MindMapDocumentCodec.ToOpml(Root));
-            StatusText = "已导出 OPML";
+            StatusText = FormatText(ZhijianL.StatusExported, MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.Opml));
         });
     }
 
@@ -181,7 +208,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             ApplyMarkdownEditsIfNeeded();
             await _fileService.SaveBinaryAsync(MindMapFileFormat.XMind, MindMapDocumentCodec.ToXMind(Root));
-            StatusText = "已导出 XMind";
+            StatusText = FormatText(ZhijianL.StatusExported, MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.XMind));
         });
     }
 
@@ -212,8 +239,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         try
         {
             _isLoadingDocument = true;
-            ReplaceTree(CreateBlankRoot(), "空白脑图", recordHistory: false);
-            ResetHistory("空白脑图");
+            var label = T(ZhijianL.EmptyMindMap);
+            ReplaceTree(CreateBlankRoot(), label, recordHistory: false);
+            ResetHistory(label);
             CurrentFilePath = null;
             _currentFileFormat = MindMapFileFormat.Markdown;
             WorkspaceTabIndex = 1;
@@ -242,9 +270,12 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     private async Task LoadOpenResultAsync(MindMapFileOpenResult result)
     {
-        StatusText = $"正在解析：{Path.GetFileName(result.FilePath)}";
+        var fileName = Path.GetFileName(result.FilePath);
+        using var busy = await ShowDocumentBusyAsync(FormatText(ZhijianL.LoadingDocument, fileName));
+
+        StatusText = FormatText(ZhijianL.StatusParsing, fileName);
         var document = await DecodeDocumentAsync(result.Format, result.TextContent, result.BinaryContent, result.FilePath);
-        await LoadDocumentAsync(document, result.FilePath, $"打开 {Path.GetFileName(result.FilePath)}");
+        await LoadDocumentAsync(document, result.FilePath, FormatText(ZhijianL.HistoryOpen, fileName));
     }
 
     private async Task LoadStartupDocumentAsync(string? filePath)
@@ -262,7 +293,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
         catch (Exception exception)
         {
-            StatusText = $"默认文件加载失败：{exception.Message}";
+            StatusText = FormatText(ZhijianL.StatusStartupLoadFailed, exception.Message);
         }
     }
 
@@ -271,15 +302,18 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         if (!await FileExistsAsync(filePath))
         {
             await RemoveRecentFileAsync(filePath);
-            StatusText = "文件不存在，已从最近文件中移除";
+            StatusText = T(ZhijianL.StatusRecentFileMissing);
             return;
         }
 
         var format = MindMapFileFormatRegistry.GetFormatFromPath(filePath);
-        StatusText = $"正在读取：{Path.GetFileName(filePath)}";
+        var fileName = Path.GetFileName(filePath);
+        using var busy = await ShowDocumentBusyAsync(FormatText(ZhijianL.LoadingDocument, fileName));
+
+        StatusText = FormatText(ZhijianL.StatusReading, fileName);
         var document = await ReadDocumentAsync(filePath, format);
 
-        await LoadDocumentAsync(document, filePath, $"打开 {Path.GetFileName(filePath)}");
+        await LoadDocumentAsync(document, filePath, FormatText(ZhijianL.HistoryOpen, fileName));
     }
 
     private static async Task<LoadedMindMapDocument> ReadDocumentAsync(string filePath, MindMapFileFormat format)
@@ -326,7 +360,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             await AddRecentFileAsync(filePath);
             await AddFileToFileListAsync(filePath);
             WorkspaceTabIndex = 1;
-            StatusText = $"已打开：{Path.GetFileName(filePath)}";
+            StatusText = FormatText(ZhijianL.StatusOpened, Path.GetFileName(filePath));
         }
         finally
         {
@@ -362,7 +396,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         await AddRecentFileAsync(targetPath);
         await AddFileToFileListAsync(targetPath);
         MarkDocumentClean();
-        StatusText = $"已保存：{Path.GetFileName(targetPath)}";
+        StatusText = FormatText(ZhijianL.StatusSaved, Path.GetFileName(targetPath));
     }
 
     private async Task WriteDocumentAsync(string filePath, MindMapFileFormat format)
@@ -397,7 +431,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             return $"{Path.GetFileNameWithoutExtension(CurrentFilePath)}.{MindMapFileFormatRegistry.GetDefaultExtension(format)}";
         }
 
-        var title = string.IsNullOrWhiteSpace(Root.Title) ? "未命名脑图" : Root.Title.Trim();
+        var title = string.IsNullOrWhiteSpace(Root.Title) ? T(ZhijianL.SuggestedUntitledMindMap) : Root.Title.Trim();
         foreach (var invalid in Path.GetInvalidFileNameChars())
         {
             title = title.Replace(invalid, '-');
@@ -484,7 +518,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             {
                 var bytes = await File.ReadAllBytesAsync(filePath);
                 var root = await Task.Run(() => MindMapDocumentCodec.FromXMind(bytes));
-                return string.IsNullOrWhiteSpace(root.Title) ? "XMind 脑图" : root.Title.Trim();
+                return string.IsNullOrWhiteSpace(root.Title) ? T(ZhijianL.XMindPreviewFallback) : root.Title.Trim();
             }
 
             if (!MindMapFileFormatRegistry.IsTextFormat(format))
@@ -506,8 +540,19 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
         catch
         {
-            return "无法预览";
+            return T(ZhijianL.PreviewUnavailable);
         }
+    }
+
+    private static string? FindBundledUserManualPath()
+    {
+        var candidates = new[]
+        {
+            Path.Combine(AppContext.BaseDirectory, BundledUserManualFileName),
+            Path.Combine(Directory.GetCurrentDirectory(), BundledUserManualFileName)
+        };
+
+        return candidates.FirstOrDefault(File.Exists);
     }
 
     private async Task LoadRecentFilesAsync()
@@ -559,6 +604,48 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private static async Task<bool> FileExistsAsync(string filePath)
     {
         return await Task.Run(() => File.Exists(filePath));
+    }
+
+    private async Task<IDisposable> ShowDocumentBusyAsync(string message)
+    {
+        _documentBusyDepth++;
+        DocumentBusyText = message;
+        IsDocumentBusy = true;
+        await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Render);
+        await Task.Delay(50);
+        return new DocumentBusyScope(this);
+    }
+
+    private void HideDocumentBusy()
+    {
+        if (_documentBusyDepth > 0)
+        {
+            _documentBusyDepth--;
+        }
+
+        if (_documentBusyDepth != 0)
+        {
+            return;
+        }
+
+        IsDocumentBusy = false;
+        DocumentBusyText = string.Empty;
+    }
+
+    private sealed class DocumentBusyScope(MainWindowViewModel viewModel) : IDisposable
+    {
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            viewModel.HideDocumentBusy();
+        }
     }
 
     private static async Task<string> ReadTextPrefixAsync(string filePath, int maxChars = 4096)

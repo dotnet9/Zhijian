@@ -46,11 +46,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         try
         {
             _isApplyingMarkdown = true;
+            PrepareRootForDisplay(root);
             Roots.Clear();
             Roots.Add(root);
-            AssignMissingColors(root);
             SelectedNode = root;
-            AutoLayout();
             RefreshTreeSummary();
             if (markdownSnapshot is not null)
             {
@@ -152,7 +151,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         if (e.PropertyName is nameof(MindMapNode.Title) or nameof(MindMapNode.Note))
         {
             SyncMarkdownFromTree();
-            RecordHistoryStep("编辑主题");
+            RecordHistoryStep(T(ZhijianL.HistoryEditTopic));
         }
     }
 
@@ -281,12 +280,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             _isApplyingMarkdown = true;
             var root = MindMapDocumentCodec.FromMarkdown(MarkdownText);
+            PrepareRootForDisplay(root);
 
             Roots.Clear();
             Roots.Add(root);
-            AssignMissingColors(root);
             SelectedNode = root;
-            AutoLayout();
             RefreshTreeSummary();
         }
         finally
@@ -298,7 +296,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             }
         }
 
-        RecordHistoryStep("编辑 Markdown");
+        RecordHistoryStep(T(ZhijianL.HistoryEditMarkdown));
     }
 
     private void RecordHistoryStep(string label, string? snapshot = null)
@@ -337,12 +335,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             _isRestoringHistory = true;
             _isApplyingMarkdown = true;
             var root = MindMapDocumentCodec.FromMarkdown(entry.Snapshot);
+            PrepareRootForDisplay(root);
 
             Roots.Clear();
             Roots.Add(root);
-            AssignMissingColors(root);
             SelectedNode = root;
-            AutoLayout();
             RefreshTreeSummary();
         }
         finally
@@ -359,6 +356,12 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(CanUndo));
         OnPropertyChanged(nameof(CanRedo));
         OnPropertyChanged(nameof(HistorySummary));
+    }
+
+    private void PrepareRootForDisplay(MindMapNode root)
+    {
+        AssignMissingColors(root);
+        MindMapTreeLayout.Arrange(new[] { root });
     }
 
     private void RefreshSelectedNodeCommands()
