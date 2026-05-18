@@ -250,6 +250,7 @@ public partial class MindMapEditor
             (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
             RoutingStrategies.Tunnel,
             handledEventsToo: true);
+        _titleEditors[node] = titleBox;
 
         var titleHost = CreateTitleHost(node, titleBox, isRoot);
         var noteBox = CreateNoteEditor(node, metrics);
@@ -419,12 +420,29 @@ public partial class MindMapEditor
         {
             Rebuild();
         }
+        else if (e.PropertyName == nameof(MindMapNode.Title))
+        {
+            UpdateEditorText(_titleEditors, node, node.Title);
+            UpdateConnectors();
+            EnsureCanvasSize();
+            PositionNodeToolbar();
+        }
         else if (e.PropertyName == nameof(MindMapNode.Note))
         {
+            UpdateEditorText(_noteEditors, node, node.Note);
             UpdateNoteEditorVisibility(node);
             UpdateConnectors();
             EnsureCanvasSize();
             PositionNodeToolbar();
+        }
+    }
+
+    private static void UpdateEditorText(Dictionary<MindMapNode, TextBox> editors, MindMapNode node, string text)
+    {
+        if (editors.TryGetValue(node, out var editor)
+            && !string.Equals(editor.Text, text, StringComparison.Ordinal))
+        {
+            editor.Text = text;
         }
     }
 

@@ -324,19 +324,35 @@ public partial class OutlineEditor : UserControl
 
     private void HandleNodePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (sender is MindMapNode node && e.PropertyName == nameof(MindMapNode.AccentColor))
+        if (sender is not MindMapNode node)
+        {
+            return;
+        }
+
+        if (e.PropertyName == nameof(MindMapNode.AccentColor))
         {
             Rebuild();
             FocusNode(node);
             return;
         }
 
-        if (e.PropertyName == nameof(MindMapNode.Note))
+        if (e.PropertyName == nameof(MindMapNode.Title))
         {
-            if (sender is MindMapNode noteNode)
-            {
-                UpdateNoteVisibility(noteNode);
-            }
+            UpdateEditorText(_titleEditors, node, node.Title);
+        }
+        else if (e.PropertyName == nameof(MindMapNode.Note))
+        {
+            UpdateEditorText(_noteEditors, node, node.Note);
+            UpdateNoteVisibility(node);
+        }
+    }
+
+    private static void UpdateEditorText(Dictionary<MindMapNode, AtomTextBox> editors, MindMapNode node, string text)
+    {
+        if (editors.TryGetValue(node, out var editor)
+            && !string.Equals(editor.Text, text, StringComparison.Ordinal))
+        {
+            editor.Text = text;
         }
     }
 
