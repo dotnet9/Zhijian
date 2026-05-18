@@ -16,6 +16,7 @@
     <File Path="docs/source-design.zh-CN.md" />
     <File Path="logo.png" />
     <File Path="README.md" />
+    <File Path="使用手册.md" />
   </Folder>
   <Project Path="src/CodeWF.MindView/CodeWF.MindView.csproj" />
   <Project Path="src/CodeWF.MindView.Themes/CodeWF.MindView.Themes.csproj" />

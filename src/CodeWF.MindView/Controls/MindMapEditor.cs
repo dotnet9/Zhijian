@@ -46,6 +46,8 @@ public class MindMapEditor : UserControl
 
     private const double MinCanvasWidth = 920;
     private const double MinCanvasHeight = 620;
+    private const double MinCanvasHorizontalPadding = 240;
+    private const double MinCanvasVerticalPadding = 180;
     private const double MinZoom = 0.1;
     private const double MaxZoom = 2.0;
     private const double ZoomFactor = 1.1;
@@ -1785,6 +1787,7 @@ public class MindMapEditor : UserControl
 
         _zoomScale = Math.Clamp(zoom, MinZoom, MaxZoom);
         _zoomHost.LayoutTransform = CreateZoomTransform(_zoomScale);
+        EnsureCanvasSize();
         _zoomHost.InvalidateMeasure();
         UpdateZoomText();
         CenterViewportAt(center);
@@ -1813,6 +1816,11 @@ public class MindMapEditor : UserControl
 
     private void HandleScrollViewerPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
+        if (e.Property == ScrollViewer.ViewportProperty)
+        {
+            EnsureCanvasSize();
+        }
+
         if (e.Property == ScrollViewer.OffsetProperty
             || e.Property == ScrollViewer.ViewportProperty
             || e.Property == ScrollViewer.ExtentProperty)
@@ -2117,15 +2125,39 @@ public class MindMapEditor : UserControl
     private void EnsureCanvasSize()
     {
         var nodes = _nodeFrames.Keys.ToList();
+        var horizontalPadding = GetCanvasHorizontalPadding();
+        var verticalPadding = GetCanvasVerticalPadding();
         var width = nodes.Count == 0
-            ? MinCanvasWidth
-            : nodes.Max(node => node.X + GetRenderedNodeSize(node).Width + 120);
+            ? MinCanvasWidth + horizontalPadding
+            : nodes.Max(node => node.X + GetRenderedNodeSize(node).Width + horizontalPadding);
         var height = nodes.Count == 0
-            ? MinCanvasHeight
-            : nodes.Max(node => node.Y + GetRenderedNodeSize(node).Height + 120);
+            ? MinCanvasHeight + verticalPadding
+            : nodes.Max(node => node.Y + GetRenderedNodeSize(node).Height + verticalPadding);
 
-        _canvas.Width = Math.Max(MinCanvasWidth, width);
-        _canvas.Height = Math.Max(MinCanvasHeight, height);
+        _canvas.Width = Math.Max(MinCanvasWidth + horizontalPadding, width);
+        _canvas.Height = Math.Max(MinCanvasHeight + verticalPadding, height);
+    }
+
+    private double GetCanvasHorizontalPadding()
+    {
+        var viewportWidth = _scrollViewer.Viewport.Width;
+        if (viewportWidth <= 0 || _zoomScale <= 0)
+        {
+            return MinCanvasHorizontalPadding;
+        }
+
+        return Math.Max(MinCanvasHorizontalPadding, viewportWidth / _zoomScale);
+    }
+
+    private double GetCanvasVerticalPadding()
+    {
+        var viewportHeight = _scrollViewer.Viewport.Height;
+        if (viewportHeight <= 0 || _zoomScale <= 0)
+        {
+            return MinCanvasVerticalPadding;
+        }
+
+        return Math.Max(MinCanvasVerticalPadding, viewportHeight / _zoomScale);
     }
 
     private Size GetRenderedNodeSize(MindMapNode node)

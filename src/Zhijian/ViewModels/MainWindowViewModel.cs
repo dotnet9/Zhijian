@@ -96,7 +96,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public MainWindowViewModel(
         IMindMapFileService fileService,
-        IApplicationActionService applicationActionService)
+        IApplicationActionService applicationActionService,
+        string? startupFilePath = null)
     {
         _fileService = fileService;
         _applicationActionService = applicationActionService;
@@ -115,6 +116,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         RecordHistoryStep("空白脑图");
         MarkDocumentClean();
         LoadRecentFiles();
+        LoadStartupDocument(startupFilePath);
         InitializeNewUserTour();
     }
 
@@ -1157,6 +1159,25 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 : MindMapDocumentCodec.FromMarkdown(result.TextContent ?? string.Empty);
 
         LoadDocument(root, result.FilePath, result.Format, $"打开 {Path.GetFileName(result.FilePath)}");
+    }
+
+    private void LoadStartupDocument(string? filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath)
+            || !File.Exists(filePath)
+            || !IsSupportedFile(filePath))
+        {
+            return;
+        }
+
+        try
+        {
+            LoadFilePath(filePath);
+        }
+        catch (Exception exception)
+        {
+            StatusText = $"默认文件加载失败：{exception.Message}";
+        }
     }
 
     private void LoadFilePath(string filePath)

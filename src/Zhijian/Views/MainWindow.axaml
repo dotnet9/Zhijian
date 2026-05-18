@@ -5,7 +5,6 @@
              xmlns:icons="using:AtomUI.Icons.AntDesign"
              xmlns:l="clr-namespace:Zhijian"
              xmlns:mind="https://codewf.com"
-             xmlns:primitives="using:Avalonia.Controls.Primitives"
              xmlns:views="using:Zhijian.Views"
              xmlns:vm="using:Zhijian.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -59,7 +58,6 @@
         </Style>
     </atom:Window.Styles>
 
-    <primitives:VisualLayerManager EnableAdornerLayer="True">
     <Grid Background="{Binding ShellBackground}">
         <Grid RowDefinitions="*,Auto">
             <Grid x:Name="PaneGrid" Grid.Row="0" Margin="16,16,16,10">
@@ -416,5 +414,4 @@
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourStatusDescription}}"/>
         </atom:Tour>
     </Grid>
-    </primitives:VisualLayerManager>
 </atom:Window>

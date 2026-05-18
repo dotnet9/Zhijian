@@ -140,10 +140,17 @@ public partial class App : Application
             var mainWindow = new MainWindow();
             mainWindow.DataContext = new MainWindowViewModel(
                 new AvaloniaMindMapFileService(mainWindow),
-                new AvaloniaApplicationActionService(mainWindow));
+                new AvaloniaApplicationActionService(mainWindow),
+                GetStartupDocumentPath());
             desktop.MainWindow = mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static string? GetStartupDocumentPath()
+    {
+        var manualPath = Path.Combine(AppContext.BaseDirectory, "使用手册.md");
+        return File.Exists(manualPath) ? manualPath : null;
     }
 }
