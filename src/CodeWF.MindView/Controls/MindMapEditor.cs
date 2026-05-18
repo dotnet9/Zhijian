@@ -133,8 +133,8 @@ public partial class MindMapEditor : UserControl
         {
             Content = _zoomHost,
             Background = _canvas.Background,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden
         };
         _nodeToolbar = CreateNodeToolbar();
         _nodeMenu = CreateNodeMenu();

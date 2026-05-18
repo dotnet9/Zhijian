@@ -1,5 +1,10 @@
 # Changelog
 
+## 12.0.3.12（2026-05-18）
+
+- 🔨[Optimize]-Hid the mind-map canvas scrollbars while keeping wheel, touchpad, mini-map, and drag navigation active, reducing visual noise on laptop-sized windows.
+- 🧪[Test]-Ran the desktop app and checked light/dark theme screenshots at 1366×768, 1100×720, and the minimum window size.
+
 ## 12.0.3.11（2026-05-18）
 
 - 🔨[Fix]-Added Avalonia `PinchGestureRecognizer` handling to the mind-map canvas and strengthened native touchpad magnify handling so laptop touchpad two-finger pinch can zoom the canvas.
