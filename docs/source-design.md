@@ -18,7 +18,7 @@ Zhijian is split into a reusable Avalonia mind-map library and a product desktop
 
 ## Runtime Interaction Evidence
 
-These assets were refreshed against the current UI with the bundled manual loaded by default, so the file list, mini-map, zoom, canvas panning, and hierarchy changes are easier to inspect.
+These assets were refreshed against the current UI. The app now starts with a blank mind map; the bundled `使用手册.md` can still be opened manually when the file list, mini-map, zoom, canvas panning, and hierarchy changes need a complex sample.
 
 ![File menu](media/zhijian-file-menu.png)
 
@@ -83,7 +83,7 @@ The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs 
 
 ## Desktop Workflow
 
-The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing. The app starts by loading the bundled `使用手册.md`, and any individually opened file is also inserted into the left file list for quick switching.
+The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing. The app starts with a blank document; the bundled `使用手册.md` remains available as a manually opened help document and complex mind-map sample. Any individually opened file is also inserted into the left file list for quick switching.
 
 Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through a desktop global message.
 
