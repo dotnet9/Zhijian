@@ -83,42 +83,78 @@
                                            Foreground="{Binding SecondaryTextBrush}"
                                            FontSize="12"/>
 
-                                <atom:ListBox Grid.Row="1"
-                                              ItemsSource="{Binding FolderFiles}"
-                                              SelectedItem="{Binding SelectedFolderFile, Mode=TwoWay}"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              Margin="0,0,0,8"
-                                              AutomationProperties.Name="Folder file list">
-                                    <atom:ListBox.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:MindMapFileItem">
-                                            <Border Padding="12,10"
-                                                    MinHeight="72"
-                                                    BorderBrush="{Binding $parent[Window].DataContext.PanelBorderBrush}"
-                                                    BorderThickness="0,0,0,1">
-                                                <StackPanel Spacing="4">
-                                                    <StackPanel Orientation="Horizontal"
-                                                                Spacing="2">
-                                                        <TextBlock Text="{Binding DisplayName}"
-                                                                   FontSize="13"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{Binding $parent[Window].DataContext.PrimaryTextBrush}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding ExtensionText}"
+                                <Grid Grid.Row="1">
+                                    <atom:ListBox ItemsSource="{Binding FolderFiles}"
+                                                  SelectedItem="{Binding SelectedFolderFile, Mode=TwoWay}"
+                                                  IsVisible="{Binding HasFolderFiles}"
+                                                  Background="Transparent"
+                                                  BorderThickness="0"
+                                                  Margin="0,0,0,8"
+                                                  AutomationProperties.Name="Folder file list">
+                                        <atom:ListBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:MindMapFileItem">
+                                                <Border Padding="12,10"
+                                                        MinHeight="72"
+                                                        BorderBrush="{Binding $parent[Window].DataContext.PanelBorderBrush}"
+                                                        BorderThickness="0,0,0,1">
+                                                    <StackPanel Spacing="4">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    Spacing="2">
+                                                            <TextBlock Text="{Binding DisplayName}"
+                                                                       FontSize="13"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{Binding $parent[Window].DataContext.PrimaryTextBrush}"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding ExtensionText}"
+                                                                       FontSize="12"
+                                                                       Foreground="{Binding $parent[Window].DataContext.SecondaryTextBrush}"
+                                                                       VerticalAlignment="Bottom"/>
+                                                        </StackPanel>
+                                                        <TextBlock Text="{Binding Preview}"
                                                                    FontSize="12"
                                                                    Foreground="{Binding $parent[Window].DataContext.SecondaryTextBrush}"
-                                                                   VerticalAlignment="Bottom"/>
+                                                                   TextWrapping="Wrap"
+                                                                   MaxHeight="36"/>
                                                     </StackPanel>
-                                                    <TextBlock Text="{Binding Preview}"
-                                                               FontSize="12"
-                                                               Foreground="{Binding $parent[Window].DataContext.SecondaryTextBrush}"
-                                                               TextWrapping="Wrap"
-                                                               MaxHeight="36"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </atom:ListBox.ItemTemplate>
-                                </atom:ListBox>
+                                                </Border>
+                                            </DataTemplate>
+                                        </atom:ListBox.ItemTemplate>
+                                    </atom:ListBox>
+
+                                    <StackPanel IsVisible="{Binding IsFolderEmpty}"
+                                                Width="240"
+                                                Spacing="14"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                        <icons:FolderOpenOutlined Width="28"
+                                                                  Height="28"
+                                                                  HorizontalAlignment="Center"
+                                                                  Foreground="{Binding SecondaryTextBrush}"/>
+                                        <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.FilesEmptyTitle}}"
+                                                   FontSize="15"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{Binding PrimaryTextBrush}"
+                                                   TextAlignment="Center"/>
+                                        <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.FilesEmptyDescription}}"
+                                                   FontSize="12"
+                                                   Foreground="{Binding SecondaryTextBrush}"
+                                                   TextAlignment="Center"
+                                                   TextWrapping="Wrap"/>
+                                        <atom:Button Command="{Binding OpenFolderAsync}"
+                                                     HorizontalAlignment="Center"
+                                                     Padding="12,7"
+                                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}">
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="6">
+                                                <icons:FolderOpenOutlined Width="14"
+                                                                          Height="14"
+                                                                          Foreground="{Binding PrimaryTextBrush}"/>
+                                                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}"
+                                                           Foreground="{Binding PrimaryTextBrush}"/>
+                                            </StackPanel>
+                                        </atom:Button>
+                                    </StackPanel>
+                                </Grid>
                             </Grid>
                         </atom:TabItem>
 

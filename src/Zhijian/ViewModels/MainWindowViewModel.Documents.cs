@@ -428,6 +428,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         SelectFolderFile(CurrentFilePath);
         OnPropertyChanged(nameof(HasFolderFiles));
+        OnPropertyChanged(nameof(IsFolderEmpty));
         OnPropertyChanged(nameof(FolderSummary));
     }
 
@@ -452,6 +453,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         FolderFiles.Insert(0, fileItem);
         SelectFolderFile(filePath);
         OnPropertyChanged(nameof(HasFolderFiles));
+        OnPropertyChanged(nameof(IsFolderEmpty));
         OnPropertyChanged(nameof(FolderSummary));
     }
 

@@ -8,6 +8,7 @@ public static class ApplicationSettings
     private const string DefaultCultureNameKey = "DefaultCultureName";
     private const string RecentFilesFileNameKey = "RecentFilesFileName";
     private const string TourSeenFileNameKey = "TourSeenFileName";
+    private const string UserDataDirectoryKey = "UserDataDirectory";
     private const string MaxRecentFilesKey = "MaxRecentFiles";
     private const string MaxHistoryStepsKey = "MaxHistorySteps";
     private static readonly Dictionary<string, string> Settings = new(StringComparer.OrdinalIgnoreCase);
@@ -22,9 +23,16 @@ public static class ApplicationSettings
 
     public static string TourSeenFileName => GetString(TourSeenFileNameKey, "new-user-tour.seen");
 
+    public static string UserDataDirectory => GetString(UserDataDirectoryKey, GetDefaultUserDataDirectory());
+
     public static int MaxRecentFiles => GetInt32(MaxRecentFilesKey, defaultValue: 12, minValue: 1);
 
     public static int MaxHistorySteps => GetInt32(MaxHistoryStepsKey, defaultValue: 80, minValue: 1);
+
+    public static string GetUserDataPath(string fileName)
+    {
+        return Path.Combine(UserDataDirectory, fileName);
+    }
 
     private static string GetString(string key, string defaultValue)
     {
@@ -129,5 +137,16 @@ public static class ApplicationSettings
             yield return Path.Combine(AppContext.BaseDirectory, $"{appName}.dll.config");
             yield return Path.Combine(AppContext.BaseDirectory, $"{appName}.exe.config");
         }
+    }
+
+    private static string GetDefaultUserDataDirectory()
+    {
+        var baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        if (string.IsNullOrWhiteSpace(baseDirectory))
+        {
+            baseDirectory = AppContext.BaseDirectory;
+        }
+
+        return Path.Combine(baseDirectory, "Zhijian");
     }
 }

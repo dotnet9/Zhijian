@@ -178,7 +178,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     private static string GetTourSeenPath()
     {
-        return Path.Combine(AppContext.BaseDirectory, TourSeenName);
+        return ApplicationSettings.GetUserDataPath(TourSeenName);
     }
 
     private void OnIsNewUserTourOpenChanged(bool value)
@@ -228,6 +228,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(DocumentTitle));
         OnPropertyChanged(nameof(CurrentDocumentName));
         OnPropertyChanged(nameof(FolderSummary));
+        OnPropertyChanged(nameof(IsFolderEmpty));
         OnPropertyChanged(nameof(IsSimplifiedChinese));
         OnPropertyChanged(nameof(IsTraditionalChinese));
         OnPropertyChanged(nameof(IsEnglish));

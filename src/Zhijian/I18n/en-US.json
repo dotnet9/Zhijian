@@ -67,6 +67,8 @@
       "EmptyMindMap": "Blank mind map",
       "FolderSummaryClosed": "No mind-map files",
       "FolderSummaryOpen": "{0} mind-map files",
+      "FilesEmptyTitle": "No folder opened",
+      "FilesEmptyDescription": "Choose a folder with Markdown, OPML, or XMind files.",
       "NodeSummary": "{0} nodes",
       "NodeSummarySelected": "{0} nodes · level {1} · {2} children",
       "HistorySummary": "Step {0}/{1}",

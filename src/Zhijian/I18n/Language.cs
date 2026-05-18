@@ -73,6 +73,8 @@ namespace Zhijian
         public static readonly string EmptyMindMap = "Zhijian.ZhijianL.EmptyMindMap";
         public static readonly string FolderSummaryClosed = "Zhijian.ZhijianL.FolderSummaryClosed";
         public static readonly string FolderSummaryOpen = "Zhijian.ZhijianL.FolderSummaryOpen";
+        public static readonly string FilesEmptyTitle = "Zhijian.ZhijianL.FilesEmptyTitle";
+        public static readonly string FilesEmptyDescription = "Zhijian.ZhijianL.FilesEmptyDescription";
         public static readonly string NodeSummary = "Zhijian.ZhijianL.NodeSummary";
         public static readonly string NodeSummarySelected = "Zhijian.ZhijianL.NodeSummarySelected";
         public static readonly string HistorySummary = "Zhijian.ZhijianL.HistorySummary";

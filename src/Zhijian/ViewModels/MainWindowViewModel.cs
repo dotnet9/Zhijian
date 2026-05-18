@@ -71,7 +71,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         _fileService = fileService;
         _applicationActionService = applicationActionService;
-        _recentFileStore = new RecentFileStore(Path.Combine(AppContext.BaseDirectory, RecentFilesName), MaxRecentFiles);
+        _recentFileStore = new RecentFileStore(ApplicationSettings.GetUserDataPath(RecentFilesName), MaxRecentFiles);
         Roots = new ObservableCollection<MindMapNode> { CreateBlankRoot() };
         FolderFiles = [];
         RecentFiles = [];
@@ -196,7 +196,13 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public bool IsNewUserTourOpen
     {
         get => _isNewUserTourOpen;
-        set => SetProperty(ref _isNewUserTourOpen, value);
+        set
+        {
+            if (SetProperty(ref _isNewUserTourOpen, value))
+            {
+                OnIsNewUserTourOpenChanged(value);
+            }
+        }
     }
 
     public MindMapNode Root => Roots[0];
@@ -232,6 +238,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         : Path.GetFileName(CurrentFilePath);
 
     public bool HasFolderFiles => FolderFiles.Count > 0;
+
+    public bool IsFolderEmpty => !HasFolderFiles;
 
     public string FolderSummary => HasFolderFiles
         ? FormatText(ZhijianL.FolderSummaryOpen, FolderFiles.Count)

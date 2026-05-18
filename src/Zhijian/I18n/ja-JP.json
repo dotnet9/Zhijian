@@ -67,6 +67,8 @@
       "EmptyMindMap": "空のマインドマップ",
       "FolderSummaryClosed": "マインドマップなし",
       "FolderSummaryOpen": "{0} 件のマインドマップ",
+      "FilesEmptyTitle": "フォルダーが未選択です",
+      "FilesEmptyDescription": "Markdown、OPML、XMind ファイルを含むフォルダーを選択してください。",
       "NodeSummary": "{0} ノード",
       "NodeSummarySelected": "{0} ノード · レベル {1} · 子 {2} 件",
       "HistorySummary": "ステップ {0}/{1}",
