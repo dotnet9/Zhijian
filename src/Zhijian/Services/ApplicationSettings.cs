@@ -53,7 +53,7 @@ public static class ApplicationSettings
             return;
         }
 
-        await LoadLock.WaitAsync(cancellationToken);
+        await LoadLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (_isLoaded)
@@ -63,7 +63,7 @@ public static class ApplicationSettings
 
             foreach (var configPath in GetCompiledConfigPaths().Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                if (!await FileExistsAsync(configPath, cancellationToken))
+                if (!await FileExistsAsync(configPath, cancellationToken).ConfigureAwait(false))
                 {
                     continue;
                 }
@@ -77,7 +77,7 @@ public static class ApplicationSettings
                         FileShare.ReadWrite,
                         bufferSize: 4096,
                         FileOptions.Asynchronous | FileOptions.SequentialScan);
-                    var document = await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken);
+                    var document = await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken).ConfigureAwait(false);
                     foreach (var element in document.Root?
                                  .Element("appSettings")?
                                  .Elements("add")
@@ -112,7 +112,7 @@ public static class ApplicationSettings
 
     private static async Task<bool> FileExistsAsync(string filePath, CancellationToken cancellationToken)
     {
-        return await Task.Run(() => File.Exists(filePath), cancellationToken);
+        return await Task.Run(() => File.Exists(filePath), cancellationToken).ConfigureAwait(false);
     }
 
     private static IEnumerable<string> GetCompiledConfigPaths()

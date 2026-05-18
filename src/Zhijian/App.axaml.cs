@@ -37,9 +37,9 @@ public partial class App : Application
         });
     }
 
-    public override async void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
-        await ApplicationSettings.InitializeAsync();
+        ApplicationSettings.InitializeAsync().GetAwaiter().GetResult();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

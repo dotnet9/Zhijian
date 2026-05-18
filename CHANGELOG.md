@@ -11,6 +11,7 @@
 - 🔨[Optimize]-Centralized file-format metadata in `MindMapFileFormatRegistry` and document import strategies in a registry-style codec pipeline.
 - 🔨[Optimize]-Simplified Native AOT trimming setup and added a focused AtomUI enum-array compatibility guard so the win-x64 Native AOT build starts correctly.
 - 🔨[Fix]-Improved mind-map canvas padding and note-height layout so zooming, panning, and long node notes no longer squeeze content into unusable overlap.
+- 🔨[Fix]-Kept Avalonia desktop startup synchronous while using non-capturing async configuration reads, restoring the main window for `dotnet run` and published builds.
 - 🔨[Fix]-Removed duplicate title-bar filename rendering so the current document name appears only after the title-bar menus.
 - 🧪[Test]-Built `Zhijian.slnx`, published win-x64 Native AOT, and verified the published `Zhijian.exe` stays running after startup.
 
