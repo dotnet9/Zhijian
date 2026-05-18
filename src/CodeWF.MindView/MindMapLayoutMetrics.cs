@@ -33,6 +33,7 @@ public static class MindMapLayoutMetrics
     public const double NoteFontSize = 13;
     public const double NoteVerticalSpacing = 4;
     public const double NoteMinHeight = 28;
+    public const double NoteMaxHeight = 96;
 
     public static MindMapNodeVisualKind GetVisualKind(int level)
     {
@@ -77,23 +78,55 @@ public static class MindMapLayoutMetrics
         var paddingHeight = metrics.Padding.Top + metrics.Padding.Bottom;
         var minContentWidth = Math.Max(12, metrics.MinWidth - paddingWidth);
         var maxContentWidth = Math.Max(minContentWidth, metrics.MaxWidth - paddingWidth);
-        var textWidth = Math.Max(minContentWidth, EstimateTextWidth(text, metrics.FontSize));
+        var textWidth = Math.Max(minContentWidth, EstimateMaxLineWidth(text, metrics.FontSize));
         var contentWidth = Math.Clamp(textWidth, minContentWidth, maxContentWidth);
-        var lineCount = Math.Max(1, (int)Math.Ceiling(textWidth / maxContentWidth));
+        var lineCount = EstimateWrappedLineCount(text, metrics.FontSize, maxContentWidth);
         var lineHeight = Math.Ceiling(metrics.FontSize * 1.35);
         var height = Math.Max(metrics.MinHeight, lineCount * lineHeight + paddingHeight);
 
         if (!string.IsNullOrWhiteSpace(node.Note))
         {
-            // 备注参与布局估算，保证大纲和脑图同步显示备注后连线不会穿过节点。
-            var noteWidth = Math.Max(minContentWidth, EstimateTextWidth(node.Note.Trim(), NoteFontSize));
-            var noteLines = Math.Max(1, (int)Math.Ceiling(noteWidth / maxContentWidth));
-            var noteHeight = Math.Max(NoteMinHeight, noteLines * Math.Ceiling(NoteFontSize * 1.45));
+            var noteText = node.Note.Trim();
+            // 备注参与布局估算，按显式换行逐段计算，避免多行备注压到后续兄弟节点。
+            var noteWidth = Math.Max(minContentWidth, EstimateMaxLineWidth(noteText, NoteFontSize));
+            var noteLines = EstimateWrappedLineCount(noteText, NoteFontSize, maxContentWidth);
+            var noteHeight = Math.Clamp(
+                noteLines * Math.Ceiling(NoteFontSize * 1.45),
+                NoteMinHeight,
+                NoteMaxHeight);
             height += NoteVerticalSpacing + noteHeight;
             contentWidth = Math.Max(contentWidth, Math.Clamp(noteWidth, minContentWidth, maxContentWidth));
         }
 
         return new Size(contentWidth + paddingWidth, height);
+    }
+
+    private static int EstimateWrappedLineCount(string text, double fontSize, double maxLineWidth)
+    {
+        var lines = 0;
+        foreach (var paragraph in SplitLines(text))
+        {
+            var width = EstimateTextWidth(paragraph, fontSize);
+            lines += Math.Max(1, (int)Math.Ceiling(width / maxLineWidth));
+        }
+
+        return Math.Max(1, lines);
+    }
+
+    private static double EstimateMaxLineWidth(string text, double fontSize)
+    {
+        var width = 0d;
+        foreach (var line in SplitLines(text))
+        {
+            width = Math.Max(width, EstimateTextWidth(line, fontSize));
+        }
+
+        return Math.Max(fontSize, width);
+    }
+
+    private static IEnumerable<string> SplitLines(string text)
+    {
+        return text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
     }
 
     private static double EstimateTextWidth(string text, double fontSize)

@@ -1144,7 +1144,7 @@ public class MindMapEditor : UserControl
             MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
             MaxWidth = Math.Max(12, metrics.MaxWidth - metrics.Padding.Left - metrics.Padding.Right),
             MinHeight = MindMapLayoutMetrics.NoteMinHeight,
-            MaxHeight = 96,
+            MaxHeight = MindMapLayoutMetrics.NoteMaxHeight,
             Padding = new Thickness(0, 2, 0, 0),
             HorizontalContentAlignment = metrics.ContentAlignment,
             VerticalContentAlignment = VerticalAlignment.Top
