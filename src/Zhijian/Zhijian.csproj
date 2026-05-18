@@ -21,8 +21,8 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CodeWF.Markdown.Lite.Themes" />
-    <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Lang.Avalonia.Json" />
+    <PackageReference Include="ReactiveUI.Avalonia" />
     <PackageReference Include="VC-LTL" />
     <PackageReference Include="YY-Thunks" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
   </ItemGroup>
@@ -60,4 +60,11 @@
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
+
+  <Target Name="RemoveDebugSymbolsFromPublish" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <PublishDebugSymbol Include="$(PublishDir)**\*.pdb" />
+    </ItemGroup>
+    <Delete Files="@(PublishDebugSymbol)" TreatErrorsAsWarnings="true" />
+  </Target>
 </Project>

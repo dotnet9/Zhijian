@@ -41,15 +41,19 @@
                            AutomationProperties.Name="File menu">
                 <atom:MenuItem x:Name="NewDocumentItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.New}}"
+                               Command="{Binding NewDocumentAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FileAddOutlined}"/>
                 <atom:MenuItem x:Name="NewWindowItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.NewWindow}}"
+                               Command="{Binding NewWindow}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FolderAddOutlined}"/>
                 <atom:MenuItem x:Name="OpenDocumentItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Open}}"
+                               Command="{Binding OpenDocumentAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FileSearchOutlined}"/>
                 <atom:MenuItem x:Name="OpenFolderItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}"
+                               Command="{Binding OpenFolderAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"/>
                 <atom:MenuItem x:Name="RecentFilesMenu"
                                Header="{codewf:I18n {x:Static l:ZhijianL.RecentFiles}}"
@@ -57,16 +61,21 @@
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="SaveItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Save}}"
+                               Command="{Binding SaveAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=SaveOutlined}"/>
                 <atom:MenuItem x:Name="SaveAsItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.SaveAs}}"
+                               Command="{Binding SaveAsAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=CopyOutlined}"/>
                 <atom:MenuItem x:Name="OpenFileLocationItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenFileLocation}}"
+                               Command="{Binding OpenFileLocation}"
+                               IsEnabled="{Binding HasCurrentFile}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="CloseItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Close}}"
+                               Command="{Binding Close}"
                                Icon="{antdicons:AntDesignIconProvider Kind=CloseOutlined}"/>
             </atom:MenuItem>
 
@@ -75,41 +84,58 @@
                            AutomationProperties.Name="Edit menu">
                 <atom:MenuItem x:Name="UndoItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Undo}}"
+                               Command="{Binding Undo}"
+                               IsEnabled="{Binding CanUndo}"
                                Icon="{antdicons:AntDesignIconProvider Kind=UndoOutlined}"/>
                 <atom:MenuItem x:Name="RedoItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Redo}}"
+                               Command="{Binding Redo}"
+                               IsEnabled="{Binding CanRedo}"
                                Icon="{antdicons:AntDesignIconProvider Kind=RedoOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="AddSiblingItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.AddSibling}}"
+                               Command="{Binding AddSiblingToSelected}"
                                Icon="{antdicons:AntDesignIconProvider Kind=SisternodeOutlined}"
                                InputGesture="Enter"/>
                 <atom:MenuItem x:Name="AddChildItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.AddChild}}"
+                               Command="{Binding AddChildToSelected}"
                                Icon="{antdicons:AntDesignIconProvider Kind=SubnodeOutlined}"
                                InputGesture="Tab"/>
                 <atom:MenuItem x:Name="PromoteItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Promote}}"
+                               Command="{Binding PromoteSelected}"
+                               IsEnabled="{Binding CanPromoteSelectedNode}"
                                Icon="{antdicons:AntDesignIconProvider Kind=MenuFoldOutlined}"
                                InputGesture="Shift+Tab"/>
                 <atom:MenuItem x:Name="DemoteItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Demote}}"
+                               Command="{Binding DemoteSelected}"
+                               IsEnabled="{Binding CanDemoteSelectedNode}"
                                Icon="{antdicons:AntDesignIconProvider Kind=MenuUnfoldOutlined}"
                                InputGesture="Tab"/>
                 <atom:MenuItem x:Name="MoveUpItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.MoveUp}}"
+                               Command="{Binding MoveSelectedUp}"
+                               IsEnabled="{Binding CanMoveSelectedNodeUp}"
                                Icon="{antdicons:AntDesignIconProvider Kind=ArrowUpOutlined}"
                                InputGesture="Alt+Up"/>
                 <atom:MenuItem x:Name="MoveDownItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.MoveDown}}"
+                               Command="{Binding MoveSelectedDown}"
+                               IsEnabled="{Binding CanMoveSelectedNodeDown}"
                                Icon="{antdicons:AntDesignIconProvider Kind=ArrowDownOutlined}"
                                InputGesture="Alt+Down"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="CopyMarkdownItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.CopyAsMarkdown}}"
+                               Command="{Binding CopyAsMarkdownAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"/>
                 <atom:MenuItem x:Name="DeleteNodeItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.DeleteNode}}"
+                               Command="{Binding DeleteSelected}"
+                               IsEnabled="{Binding CanDeleteSelectedNode}"
                                Icon="{antdicons:AntDesignIconProvider Kind=DeleteOutlined}"
                                InputGesture="Delete"/>
             </atom:MenuItem>
@@ -119,11 +145,13 @@
                            AutomationProperties.Name="Theme menu">
                 <atom:MenuItem x:Name="LightThemeItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.LightTheme}}"
+                               Command="{Binding SetLightTheme}"
                                Icon="{antdicons:AntDesignIconProvider Kind=SunOutlined}"
                                ToggleType="Radio"
                                IsChecked="{Binding IsLightTheme, Mode=OneWay}"/>
                 <atom:MenuItem x:Name="DarkThemeItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.DarkTheme}}"
+                               Command="{Binding SetDarkTheme}"
                                Icon="{antdicons:AntDesignIconProvider Kind=MoonOutlined}"
                                ToggleType="Radio"
                                IsChecked="{Binding IsDarkTheme, Mode=OneWay}"/>
@@ -134,18 +162,22 @@
                            AutomationProperties.Name="Language menu">
                 <atom:MenuItem x:Name="SimplifiedChineseItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.SimplifiedChinese}}"
+                               Command="{Binding SelectSimplifiedChinese}"
                                ToggleType="Radio"
                                IsChecked="{Binding IsSimplifiedChinese, Mode=OneWay}"/>
                 <atom:MenuItem x:Name="TraditionalChineseItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.TraditionalChinese}}"
+                               Command="{Binding SelectTraditionalChinese}"
                                ToggleType="Radio"
                                IsChecked="{Binding IsTraditionalChinese, Mode=OneWay}"/>
                 <atom:MenuItem x:Name="EnglishItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.English}}"
+                               Command="{Binding SelectEnglish}"
                                ToggleType="Radio"
                                IsChecked="{Binding IsEnglish, Mode=OneWay}"/>
                 <atom:MenuItem x:Name="JapaneseItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Japanese}}"
+                               Command="{Binding SelectJapanese}"
                                ToggleType="Radio"
                                IsChecked="{Binding IsJapanese, Mode=OneWay}"/>
             </atom:MenuItem>
@@ -155,16 +187,20 @@
                            AutomationProperties.Name="Help menu">
                 <atom:MenuItem x:Name="FeedbackItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Feedback}}"
+                               Command="{Binding OpenFeedback}"
                                Icon="{antdicons:AntDesignIconProvider Kind=BugOutlined}"/>
                 <atom:MenuItem x:Name="FeatureRequestItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.SubmitFeature}}"
+                               Command="{Binding OpenFeatureRequest}"
                                Icon="{antdicons:AntDesignIconProvider Kind=BulbOutlined}"/>
                 <atom:MenuItem x:Name="PullRequestsItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.SubmitPr}}"
+                               Command="{Binding OpenPullRequests}"
                                Icon="{antdicons:AntDesignIconProvider Kind=PullRequestOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="RepositoryItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Github}}"
+                               Command="{Binding OpenRepository}"
                                Icon="{antdicons:AntDesignIconProvider Kind=GithubOutlined}"/>
             </atom:MenuItem>
 
@@ -173,15 +209,19 @@
                            AutomationProperties.Name="About menu">
                 <atom:MenuItem x:Name="OpenWebsiteItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenWebsite}}"
+                               Command="{Binding OpenWebsite}"
                                Icon="{antdicons:AntDesignIconProvider Kind=GlobalOutlined}"/>
                 <atom:MenuItem x:Name="ShowChangelogItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Changelog}}"
+                               Command="{Binding ShowChangelog}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"/>
                 <atom:MenuItem x:Name="ShowThanksItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Thanks}}"
+                               Command="{Binding ShowThanks}"
                                Icon="{antdicons:AntDesignIconProvider Kind=BulbOutlined}"/>
                 <atom:MenuItem x:Name="ShowAboutItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.About}}"
+                               Command="{Binding ShowAbout}"
                                Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"/>
             </atom:MenuItem>
         </atom:Menu>

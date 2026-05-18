@@ -81,85 +81,85 @@ public partial class MainWindow : Window
         MindMap.ResetZoom();
     }
 
-    private void HandleWindowKeyDown(object? sender, KeyEventArgs e)
+    private async void HandleWindowKeyDown(object? sender, KeyEventArgs e)
     {
         if (DataContext is MainWindowViewModel viewModel
             && HasCommandModifier(e.KeyModifiers))
         {
             if (e.Key == Key.N && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                Execute(viewModel.NewWindowCommand);
                 e.Handled = true;
+                viewModel.NewWindow();
                 return;
             }
 
             if (e.Key == Key.N)
             {
-                Execute(viewModel.NewDocumentCommand);
                 e.Handled = true;
+                await viewModel.NewDocumentAsync();
                 return;
             }
 
             if (e.Key == Key.O)
             {
-                Execute(viewModel.OpenDocumentCommand);
                 e.Handled = true;
+                await viewModel.OpenDocumentAsync();
                 return;
             }
 
             if (e.Key == Key.K)
             {
-                Execute(viewModel.OpenFolderCommand);
                 e.Handled = true;
+                await viewModel.OpenFolderAsync();
                 return;
             }
 
             if (e.Key == Key.S && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                Execute(viewModel.SaveAsCommand);
                 e.Handled = true;
+                await viewModel.SaveAsAsync();
                 return;
             }
 
             if (e.Key == Key.S)
             {
-                Execute(viewModel.SaveCommand);
                 e.Handled = true;
+                await viewModel.SaveAsync();
                 return;
             }
 
             if (e.Key == Key.Z && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                Execute(viewModel.RedoCommand);
                 e.Handled = true;
+                viewModel.Redo();
                 return;
             }
 
             if (e.Key == Key.Z)
             {
-                Execute(viewModel.UndoCommand);
                 e.Handled = true;
+                viewModel.Undo();
                 return;
             }
 
             if (e.Key == Key.Y)
             {
-                Execute(viewModel.RedoCommand);
                 e.Handled = true;
+                viewModel.Redo();
                 return;
             }
 
             if (e.Key == Key.C && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                Execute(viewModel.CopyAsMarkdownCommand);
                 e.Handled = true;
+                await viewModel.CopyAsMarkdownAsync();
                 return;
             }
 
             if (e.Key == Key.W)
             {
-                Execute(viewModel.CloseCommand);
                 e.Handled = true;
+                viewModel.Close();
                 return;
             }
         }
@@ -175,7 +175,7 @@ public partial class MainWindow : Window
             && e.Key == Key.Delete
             && !IsTextInputSource(e))
         {
-            Execute(vm.DeleteSelectedCommand);
+            vm.DeleteSelected();
             e.Handled = true;
         }
     }
@@ -288,11 +288,4 @@ public partial class MainWindow : Window
         }
     }
 
-    private static void Execute(System.Windows.Input.ICommand command)
-    {
-        if (command.CanExecute(null))
-        {
-            command.Execute(null);
-        }
-    }
 }

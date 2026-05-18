@@ -1,43 +1,44 @@
 using System.Text;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 
 namespace Zhijian.ViewModels;
 
-public partial class ChangelogWindowViewModel : ViewModelBase
+public sealed class ChangelogWindowViewModel : ViewModelBase
 {
     private const string ChineseChangelogFileName = "CHANGELOG.zh-CN.md";
     private const string EnglishChangelogFileName = "CHANGELOG.md";
 
-    [ObservableProperty]
     private string _markdown = string.Empty;
 
     public ChangelogWindowViewModel()
     {
-        LoadChangelog(ChineseChangelogFileName);
+        _ = LoadChangelogAsync(ChineseChangelogFileName);
     }
 
-    [RelayCommand]
-    private void LoadChinese()
+    public string Markdown
     {
-        LoadChangelog(ChineseChangelogFileName);
+        get => _markdown;
+        private set => SetProperty(ref _markdown, value);
     }
 
-    [RelayCommand]
-    private void LoadEnglish()
+    public async Task LoadChineseAsync()
     {
-        LoadChangelog(EnglishChangelogFileName);
+        await LoadChangelogAsync(ChineseChangelogFileName);
     }
 
-    private void LoadChangelog(string fileName)
+    public async Task LoadEnglishAsync()
     {
-        var path = FindBundledFile(fileName);
+        await LoadChangelogAsync(EnglishChangelogFileName);
+    }
+
+    private async Task LoadChangelogAsync(string fileName)
+    {
+        var path = await FindBundledFileAsync(fileName);
         Markdown = path is null
             ? $"# 更新日志\n\n未找到随程序复制的 `{fileName}` 文件。"
-            : File.ReadAllText(path, Encoding.UTF8);
+            : await File.ReadAllTextAsync(path, Encoding.UTF8);
     }
 
-    private static string? FindBundledFile(string fileName)
+    private static async Task<string?> FindBundledFileAsync(string fileName)
     {
         var candidates = new[]
         {
@@ -47,6 +48,14 @@ public partial class ChangelogWindowViewModel : ViewModelBase
             Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", fileName))
         };
 
-        return candidates.FirstOrDefault(File.Exists);
+        foreach (var candidate in candidates)
+        {
+            if (await Task.Run(() => File.Exists(candidate)))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 }

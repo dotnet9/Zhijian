@@ -18,5 +18,53 @@ public enum MindMapFileFormat
     /// <summary>
     /// 常见脑图工具使用的 XMind 文件包。
     /// </summary>
-    XMind
+    XMind,
+
+    Xml,
+
+    FreeMind,
+
+    MindManager,
+
+    MindNode,
+
+    MindMaster,
+
+    BaiduMindMap,
+
+    MindNow,
+
+    Image,
+
+    Svg,
+
+    WebP,
+
+    Pdf,
+
+    Word,
+
+    Excel,
+
+    PowerPoint,
+
+    PlainText,
+
+    TextBundle,
+
+    Html,
+
+    Json,
+
+    Yaml,
+
+    Csv,
+
+    DrawIo,
+
+    Visio,
+
+    Gliffy,
+
+    Lucid
 }

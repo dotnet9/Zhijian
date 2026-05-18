@@ -19,13 +19,18 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         }
 
         var filePath = GetLocalPath(file);
-        var format = GetFormatFromPath(filePath);
-        if (format == MindMapFileFormat.XMind)
+        var format = MindMapFileFormatRegistry.GetFormatFromPath(filePath);
+        if (MindMapFileFormatRegistry.RequiresBinaryContent(format))
         {
             await using var stream = await file.OpenReadAsync();
             using var memory = new MemoryStream();
             await stream.CopyToAsync(memory, cancellationToken);
             return new MindMapFileOpenResult(filePath, format, null, memory.ToArray());
+        }
+
+        if (!MindMapFileFormatRegistry.IsTextFormat(format))
+        {
+            return new MindMapFileOpenResult(filePath, format, null, null);
         }
 
         await using var textStream = await file.OpenReadAsync();
@@ -84,12 +89,15 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         string suggestedFileName,
         CancellationToken cancellationToken = default)
     {
-        var fileType = GetFileType(suggestedFormat);
+        var writableFormat = MindMapFileFormatRegistry.CanWriteFormat(suggestedFormat)
+            ? suggestedFormat
+            : MindMapFileFormat.Markdown;
+        var fileType = GetFileType(writableFormat);
         var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = "保存脑图",
-            DefaultExtension = GetDefaultExtension(suggestedFormat),
-            FileTypeChoices = GetAllFileTypes(),
+            DefaultExtension = MindMapFileFormatRegistry.GetDefaultExtension(writableFormat),
+            FileTypeChoices = GetWritableFileTypes(),
             SuggestedFileType = fileType,
             SuggestedFileName = suggestedFileName,
             ShowOverwritePrompt = true
@@ -101,7 +109,14 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         }
 
         var filePath = GetLocalPath(file);
-        return new MindMapFileSaveTarget(filePath, GetFormatFromPath(filePath, suggestedFormat));
+        var targetFormat = MindMapFileFormatRegistry.GetFormatFromPath(filePath, writableFormat);
+        if (!MindMapFileFormatRegistry.CanWriteFormat(targetFormat))
+        {
+            targetFormat = writableFormat;
+            filePath = Path.ChangeExtension(filePath, MindMapFileFormatRegistry.GetDefaultExtension(targetFormat));
+        }
+
+        return new MindMapFileSaveTarget(filePath, targetFormat);
     }
 
     public async Task SaveTextAsync(
@@ -148,7 +163,7 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         var fileType = GetFileType(format);
         var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = $"导入 {GetDisplayName(format)}",
+            Title = $"导入 {MindMapFileFormatRegistry.GetDisplayName(format)}",
             AllowMultiple = false,
             FileTypeFilter = [fileType],
             SuggestedFileType = fileType
@@ -174,36 +189,28 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         var fileType = GetFileType(format);
         return await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = $"导出 {GetDisplayName(format)}",
-            DefaultExtension = GetDefaultExtension(format),
+            Title = $"导出 {MindMapFileFormatRegistry.GetDisplayName(format)}",
+            DefaultExtension = MindMapFileFormatRegistry.GetDefaultExtension(format),
             FileTypeChoices = [fileType],
             SuggestedFileType = fileType,
-            SuggestedFileName = $"枝见.{GetDefaultExtension(format)}",
+            SuggestedFileName = $"枝见.{MindMapFileFormatRegistry.GetDefaultExtension(format)}",
             ShowOverwritePrompt = true
         });
     }
 
     private static FilePickerFileType GetFileType(MindMapFileFormat format)
     {
-        return format switch
+        var descriptor = MindMapFileFormatRegistry.GetDescriptor(format);
+        var fileType = new FilePickerFileType(descriptor.DisplayName)
         {
-            MindMapFileFormat.Markdown => new FilePickerFileType("Markdown")
-            {
-                Patterns = ["*.md", "*.markdown"],
-                MimeTypes = ["text/markdown", "text/plain"]
-            },
-            MindMapFileFormat.Opml => new FilePickerFileType("OPML")
-            {
-                Patterns = ["*.opml", "*.xml"],
-                MimeTypes = ["text/x-opml", "application/xml", "text/xml"]
-            },
-            MindMapFileFormat.XMind => new FilePickerFileType("XMind")
-            {
-                Patterns = ["*.xmind"],
-                MimeTypes = ["application/octet-stream"]
-            },
-            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
+            Patterns = descriptor.Patterns
         };
+        if (descriptor.MimeTypes.Count > 0)
+        {
+            fileType.MimeTypes = descriptor.MimeTypes;
+        }
+
+        return fileType;
     }
 
     private static IReadOnlyList<FilePickerFileType> GetAllFileTypes()
@@ -212,43 +219,18 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         [
             new FilePickerFileType("支持的脑图文件")
             {
-                Patterns = ["*.md", "*.markdown", "*.opml", "*.xml", "*.xmind"],
-                MimeTypes =
-                [
-                    "text/markdown",
-                    "text/plain",
-                    "text/x-opml",
-                    "application/xml",
-                    "text/xml",
-                    "application/octet-stream"
-                ]
+                Patterns = MindMapFileFormatRegistry.ReadablePatterns,
+                MimeTypes = MindMapFileFormatRegistry.ReadableMimeTypes
             },
-            GetFileType(MindMapFileFormat.Markdown),
-            GetFileType(MindMapFileFormat.Opml),
-            GetFileType(MindMapFileFormat.XMind)
+            ..MindMapFileFormatRegistry.ReadableFormats.Select(descriptor => GetFileType(descriptor.Format))
         ];
     }
 
-    private static string GetDefaultExtension(MindMapFileFormat format)
+    private static IReadOnlyList<FilePickerFileType> GetWritableFileTypes()
     {
-        return format switch
-        {
-            MindMapFileFormat.Markdown => "md",
-            MindMapFileFormat.Opml => "opml",
-            MindMapFileFormat.XMind => "xmind",
-            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
-        };
-    }
-
-    private static string GetDisplayName(MindMapFileFormat format)
-    {
-        return format switch
-        {
-            MindMapFileFormat.Markdown => "Markdown",
-            MindMapFileFormat.Opml => "OPML",
-            MindMapFileFormat.XMind => "XMind",
-            _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
-        };
+        return MindMapFileFormatRegistry.WritableFormats
+            .Select(descriptor => GetFileType(descriptor.Format))
+            .ToArray();
     }
 
     private static string GetLocalPath(IStorageItem item)
@@ -256,16 +238,4 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         return item.Path.LocalPath;
     }
 
-    private static MindMapFileFormat GetFormatFromPath(
-        string filePath,
-        MindMapFileFormat fallback = MindMapFileFormat.Markdown)
-    {
-        return Path.GetExtension(filePath).ToLowerInvariant() switch
-        {
-            ".md" or ".markdown" => MindMapFileFormat.Markdown,
-            ".opml" or ".xml" => MindMapFileFormat.Opml,
-            ".xmind" => MindMapFileFormat.XMind,
-            _ => fallback
-        };
-    }
 }

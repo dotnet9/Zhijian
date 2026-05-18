@@ -1,53 +1,20 @@
 <linker>
+  <!-- XAML, localization and AtomUI theme resources still use reflection/resource lookup under Native AOT. -->
   <assembly fullname="Zhijian" preserve="all" />
   <assembly fullname="CodeWF.MindView" preserve="all" />
   <assembly fullname="CodeWF.MindView.Themes" preserve="all" />
-  <assembly fullname="CodeWF.Markdown.Lite" preserve="all" />
-  <assembly fullname="CodeWF.Markdown.Lite.Themes" preserve="all" />
-  <assembly fullname="CommunityToolkit.Mvvm" preserve="all" />
+
+  <assembly fullname="AtomUI.Controls" preserve="all" />
+  <assembly fullname="AtomUI.Desktop.Controls" preserve="all" />
+  <assembly fullname="AtomUI.Icons.AntDesign" preserve="all" />
+  <assembly fullname="AtomUI.Fonts.AlibabaSans" preserve="all" />
 
   <assembly fullname="Lang.Avalonia" preserve="all" />
   <assembly fullname="Lang.Avalonia.Json" preserve="all" />
 
-  <assembly fullname="AtomUI.Core" preserve="all" />
-  <assembly fullname="AtomUI.Controls" preserve="all">
-    <type fullname="AtomUI.Controls.Localization.CommonLangResourceKind" preserve="all" />
-    <type fullname="AtomUI.Controls.Localization.CommonLangResourceKind[]" preserve="all" />
-  </assembly>
-  <assembly fullname="AtomUI.Controls.Shared" preserve="all" />
-  <assembly fullname="AtomUI.Desktop.Controls" preserve="all" />
-  <assembly fullname="AtomUI.Fonts.AlibabaSans" preserve="all" />
-  <assembly fullname="AtomUI.Icons.AntDesign" preserve="all" />
-  <assembly fullname="AtomUI.Native" preserve="all" />
+  <assembly fullname="CodeWF.Markdown.Lite" preserve="all" />
+  <assembly fullname="CodeWF.Markdown.Lite.Themes" preserve="all" />
 
-  <assembly fullname="Avalonia.Base" preserve="all" />
-  <assembly fullname="Avalonia.Controls" preserve="all" />
-  <assembly fullname="Avalonia.Desktop" preserve="all" />
-  <assembly fullname="Avalonia.Fonts.Inter" preserve="all" />
-  <assembly fullname="Avalonia.HarfBuzz" preserve="all" />
-  <assembly fullname="Avalonia.Markup" preserve="all" />
-  <assembly fullname="Avalonia.Markup.Xaml" preserve="all" />
-  <assembly fullname="Avalonia.Native" preserve="all" />
-  <assembly fullname="Avalonia.Remote.Protocol" preserve="all" />
-  <assembly fullname="Avalonia.Skia" preserve="all" />
-  <assembly fullname="Avalonia.Win32" preserve="all" />
-  <assembly fullname="Avalonia.Win32.Automation" preserve="all" />
-
-  <assembly fullname="DynamicData" preserve="all" />
-  <assembly fullname="Markdig" preserve="all" />
   <assembly fullname="ReactiveUI" preserve="all" />
   <assembly fullname="ReactiveUI.Avalonia" preserve="all" />
-  <assembly fullname="Splat" preserve="all" />
-  <assembly fullname="Splat.Builder" preserve="all" />
-  <assembly fullname="Splat.Core" preserve="all" />
-  <assembly fullname="Splat.Logging" preserve="all" />
-  <assembly fullname="System.Reactive" preserve="all" />
-
-  <assembly fullname="ShimSkiaSharp" preserve="all" />
-  <assembly fullname="SkiaSharp" preserve="all" />
-  <assembly fullname="SkiaSharp.QrCode" preserve="all" />
-  <assembly fullname="Svg.Controls.Avalonia" preserve="all" />
-  <assembly fullname="Svg.Custom" preserve="all" />
-  <assembly fullname="Svg.Model" preserve="all" />
-  <assembly fullname="Svg.SceneGraph" preserve="all" />
 </linker>

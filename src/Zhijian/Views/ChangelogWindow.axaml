@@ -26,12 +26,12 @@
                              MinWidth="74"
                              Height="30"
                              Padding="10,4"
-                             Command="{Binding LoadChineseCommand}" />
+                             Command="{Binding LoadChineseAsync}" />
                 <atom:Button Content="English"
                              MinWidth="74"
                              Height="30"
                              Padding="10,4"
-                             Command="{Binding LoadEnglishCommand}" />
+                             Command="{Binding LoadEnglishAsync}" />
             </StackPanel>
 
             <ScrollViewer Grid.Row="1"

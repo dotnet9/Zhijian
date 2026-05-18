@@ -1,11 +1,13 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
+using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace CodeWF.MindView;
 
-public static class MindMapDocumentCodec
+public static partial class MindMapDocumentCodec
 {
     private const string UntitledTopic = "未命名主题";
     private const string DefaultRootTitle = "中心主题";
@@ -148,6 +150,76 @@ public static class MindMapDocumentCodec
         }
 
         throw new InvalidDataException("未找到可识别的 XMind 内容。");
+    }
+
+    private static MindMapNode CreateMetadataNode(MindMapFileFormat format, string? filePath, string? detail = null)
+    {
+        var title = GetFileTitle(filePath, GetFormatName(format));
+        var node = new MindMapNode(title)
+        {
+            Note = CreateMetadataNote(format, filePath, detail)
+        };
+        return node;
+    }
+
+    private static string CreateMetadataNote(MindMapFileFormat format, string? filePath, string? detail)
+    {
+        var lines = new List<string>
+        {
+            $"格式：{GetFormatName(format)}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(filePath))
+        {
+            lines.Add($"路径：{filePath}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(detail))
+        {
+            lines.Add(detail);
+        }
+
+        return string.Join(Environment.NewLine, lines);
+    }
+
+    private static string GetFormatName(MindMapFileFormat format)
+    {
+        return MindMapFileFormatRegistry.GetDisplayName(format);
+    }
+
+    private static string GetFileTitle(string? filePath, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(filePath)
+            ? fallback
+            : Path.GetFileNameWithoutExtension(filePath);
+    }
+
+    private static bool LooksLikeZip(byte[] bytes)
+    {
+        return bytes.Length >= 4 && bytes[0] == 'P' && bytes[1] == 'K';
+    }
+
+    private static string DecodeUtf8(byte[]? bytes)
+    {
+        return bytes is null || bytes.Length == 0 ? string.Empty : Encoding.UTF8.GetString(bytes);
+    }
+
+    private static string StripHtml(string value)
+    {
+        return CleanText(value);
+    }
+
+    private static string CleanText(string? value, string fallback = "")
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return fallback;
+        }
+
+        var decoded = WebUtility.HtmlDecode(value);
+        var withoutTags = Regex.Replace(decoded, "<.*?>", " ");
+        var normalized = Regex.Replace(withoutTags, @"\s+", " ").Trim();
+        return string.IsNullOrWhiteSpace(normalized) ? fallback : normalized;
     }
 
     private static void WriteMarkdownNode(MindMapNode node, int level, List<string> lines)

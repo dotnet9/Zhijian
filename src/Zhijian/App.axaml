@@ -2,14 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Zhijian.App"
              Name="Zhijian"
-             xmlns:local="using:Zhijian"
              xmlns:markdownThemes="using:CodeWF.Markdown.Lite.Themes"
              xmlns:codewf="https://codewf.com"
              RequestedThemeVariant="Light">
-
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
 
     <Application.Styles>
 		<codewf:MindViewThemes/>

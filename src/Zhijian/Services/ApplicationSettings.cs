@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Xml.Linq;
 
 namespace Zhijian.Services;
@@ -11,6 +10,9 @@ public static class ApplicationSettings
     private const string TourSeenFileNameKey = "TourSeenFileName";
     private const string MaxRecentFilesKey = "MaxRecentFiles";
     private const string MaxHistoryStepsKey = "MaxHistorySteps";
+    private static readonly Dictionary<string, string> Settings = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly SemaphoreSlim LoadLock = new(1, 1);
+    private static bool _isLoaded;
 
     public static bool ShowNewUserTour => GetBoolean(ShowNewUserTourKey, defaultValue: true);
 
@@ -44,54 +46,88 @@ public static class ApplicationSettings
             : defaultValue;
     }
 
-    private static string? GetAppSetting(string key)
+    public static async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        foreach (var configPath in GetCompiledConfigPaths().Distinct(StringComparer.OrdinalIgnoreCase))
+        if (_isLoaded)
         {
-            if (!File.Exists(configPath))
-            {
-                continue;
-            }
-
-            try
-            {
-                var document = XDocument.Load(configPath);
-                var value = document.Root?
-                    .Element("appSettings")?
-                    .Elements("add")
-                    .FirstOrDefault(element => string.Equals(
-                        (string?)element.Attribute("key"),
-                        key,
-                        StringComparison.OrdinalIgnoreCase))
-                    ?.Attribute("value")
-                    ?.Value;
-                if (value is not null)
-                {
-                    return value;
-                }
-            }
-            catch
-            {
-                // 配置文件损坏不应影响应用启动，读取失败时统一回退到代码中的默认值。
-            }
+            return;
         }
 
-        return null;
+        await LoadLock.WaitAsync(cancellationToken);
+        try
+        {
+            if (_isLoaded)
+            {
+                return;
+            }
+
+            foreach (var configPath in GetCompiledConfigPaths().Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                if (!await FileExistsAsync(configPath, cancellationToken))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await using var stream = new FileStream(
+                        configPath,
+                        FileMode.Open,
+                        FileAccess.Read,
+                        FileShare.ReadWrite,
+                        bufferSize: 4096,
+                        FileOptions.Asynchronous | FileOptions.SequentialScan);
+                    var document = await XDocument.LoadAsync(stream, LoadOptions.None, cancellationToken);
+                    foreach (var element in document.Root?
+                                 .Element("appSettings")?
+                                 .Elements("add")
+                             ?? [])
+                    {
+                        var key = (string?)element.Attribute("key");
+                        var value = (string?)element.Attribute("value");
+                        if (!string.IsNullOrWhiteSpace(key) && value is not null)
+                        {
+                            Settings[key] = value;
+                        }
+                    }
+                }
+                catch
+                {
+                    // 配置文件损坏不应影响应用启动，读取失败时统一回退到代码中的默认值。
+                }
+            }
+
+            _isLoaded = true;
+        }
+        finally
+        {
+            LoadLock.Release();
+        }
+    }
+
+    private static string? GetAppSetting(string key)
+    {
+        return Settings.GetValueOrDefault(key);
+    }
+
+    private static async Task<bool> FileExistsAsync(string filePath, CancellationToken cancellationToken)
+    {
+        return await Task.Run(() => File.Exists(filePath), cancellationToken);
     }
 
     private static IEnumerable<string> GetCompiledConfigPaths()
     {
-        var entryAssemblyPath = Assembly.GetEntryAssembly()?.Location;
-        if (!string.IsNullOrWhiteSpace(entryAssemblyPath))
-        {
-            // .NET SDK 会把 App.config 编译为 <入口程序集>.dll.config，
-            // 运行时读取的是输出目录中的编译产物，而不是源文件 App.config。
-            yield return $"{entryAssemblyPath}.config";
-        }
-
         if (!string.IsNullOrWhiteSpace(Environment.ProcessPath))
         {
             yield return $"{Environment.ProcessPath}.config";
+        }
+
+        var appName = Path.GetFileNameWithoutExtension(Environment.ProcessPath) ?? "Zhijian";
+        if (!string.IsNullOrWhiteSpace(appName))
+        {
+            // 单文件/AOT 下 Assembly.Location 为空，配置文件路径统一按应用目录推导。
+            yield return Path.Combine(AppContext.BaseDirectory, $"{appName}.dll.config");
+            yield return Path.Combine(AppContext.BaseDirectory, $"{appName}.exe.config");
         }
     }
 }

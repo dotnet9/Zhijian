@@ -1,5 +1,19 @@
 # Changelog
 
+## 12.0.3.7（2026-05-18）
+
+- ✨[Add]-Added application icon metadata from `logo.ico` and NuGet package icon metadata from `logo.png`, with author and project website information.
+- ✨[Add]-Expanded readable import coverage across mainstream mind-map, draw.io, image, office, document, and data formats while keeping native Markdown, OPML, and XMind export paths explicit.
+- 🔨[Optimize]-Changed startup back to an empty document while keeping the bundled `使用手册.md` available as a richer help/manual file.
+- 🔨[Optimize]-Moved document loading, saving, recent files, folder scanning, and import decoding onto async paths to reduce visible pauses on large documents.
+- 🔨[Optimize]-Replaced CommunityToolkit.Mvvm with ReactiveUI/Avalonia-compatible view models and direct async public-method command binding.
+- 🔨[Optimize]-Refactored the main view model, mind-map editor, outline editor, document codec, file-format metadata, recent-file storage, and tree layout into clearer responsibility-focused components.
+- 🔨[Optimize]-Centralized file-format metadata in `MindMapFileFormatRegistry` and document import strategies in a registry-style codec pipeline.
+- 🔨[Optimize]-Simplified Native AOT trimming setup and added a focused AtomUI enum-array compatibility guard so the win-x64 Native AOT build starts correctly.
+- 🔨[Fix]-Improved mind-map canvas padding and note-height layout so zooming, panning, and long node notes no longer squeeze content into unusable overlap.
+- 🔨[Fix]-Removed duplicate title-bar filename rendering so the current document name appears only after the title-bar menus.
+- 🧪[Test]-Built `Zhijian.slnx`, published win-x64 Native AOT, and verified the published `Zhijian.exe` stays running after startup.
+
 ## 12.0.3.6（2026-05-18）
 
 - 🔨[Optimize]-Changed onboarding to precisely highlight the title-bar File menu, outline editor, Markdown switch, mind-map canvas, and bottom navigation instead of using the whole left pane as the file entry.

@@ -1,0 +1,596 @@
+using CodeWF.MindView;
+using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Collections;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+
+namespace CodeWF.MindView.Controls;
+
+public partial class MindMapEditor
+{
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == RootsProperty)
+        {
+            Rebuild();
+        }
+        else if (change.Property == SelectedNodeProperty)
+        {
+            CollapseEmptyNoteEditorsExcept(SelectedNode);
+            HideNodeMenu();
+            if (!ReferenceEquals(_toolbarNode, SelectedNode))
+            {
+                _toolbarNode = null;
+            }
+
+            ApplySelectionState();
+            UpdateToolbarVisibility();
+        }
+        else if (change.Property == IsDarkThemeProperty)
+        {
+            ApplyTheme();
+            Rebuild();
+        }
+        else if (change.Property == ControllerProperty)
+        {
+            Rebuild();
+        }
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        AttachTopLevelKeyTracking();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        DetachTopLevelKeyTracking();
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    private void AttachTopLevelKeyTracking()
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (ReferenceEquals(_topLevel, topLevel))
+        {
+            return;
+        }
+
+        DetachTopLevelKeyTracking();
+        _topLevel = topLevel;
+        _topLevel?.AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
+        _topLevel?.AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Tunnel, handledEventsToo: true);
+    }
+
+    private void DetachTopLevelKeyTracking()
+    {
+        if (_topLevel is null)
+        {
+            return;
+        }
+
+        _topLevel.RemoveHandler(KeyDownEvent, HandleKeyDown);
+        _topLevel.RemoveHandler(KeyUpEvent, HandleKeyUp);
+        _topLevel = null;
+        _isSpacePressed = false;
+        StopCanvasPan();
+    }
+
+    private void Rebuild()
+    {
+        DetachTreeSubscriptions();
+
+        _canvas.Children.Clear();
+        _nodeFrames.Clear();
+        _titleEditors.Clear();
+        _noteEditors.Clear();
+        _noteFrames.Clear();
+        _connectors.Clear();
+
+        if (Roots is null)
+        {
+            return;
+        }
+
+        Roots.CollectionChanged += HandleTreeStructureChanged;
+        _observedCollections.Add(Roots);
+
+        foreach (var root in Roots)
+        {
+            AssignMissingColors(root);
+            WatchNode(root);
+            AddConnectors(root);
+        }
+
+        foreach (var root in Roots)
+        {
+            AddNodeVisuals(root);
+        }
+
+        _canvas.Children.Add(_dropPreviewPath);
+        _canvas.Children.Add(_nodeToolbar);
+        _canvas.Children.Add(_nodeMenu);
+        HideDropPreview();
+        HideNodeMenu();
+        UpdateToolbarVisibility();
+        UpdateConnectors();
+        ApplySelectionState();
+        EnsureCanvasSize();
+        UpdateViewportBounds();
+    }
+
+    private void DetachTreeSubscriptions()
+    {
+        foreach (var node in _observedNodes)
+        {
+            node.PropertyChanged -= HandleNodePropertyChanged;
+        }
+
+        foreach (var collection in _observedCollections)
+        {
+            collection.CollectionChanged -= HandleTreeStructureChanged;
+        }
+
+        _observedNodes.Clear();
+        _observedCollections.Clear();
+    }
+
+    private void WatchNode(MindMapNode node)
+    {
+        _observedNodes.Add(node);
+        node.PropertyChanged += HandleNodePropertyChanged;
+        node.Children.CollectionChanged += HandleTreeStructureChanged;
+        _observedCollections.Add(node.Children);
+
+        foreach (var child in node.Children)
+        {
+            WatchNode(child);
+        }
+    }
+
+    private void AddConnectors(MindMapNode parent)
+    {
+        foreach (var child in parent.Children)
+        {
+            var path = new Avalonia.Controls.Shapes.Path
+            {
+                Stroke = GetConnectorBrush(),
+                StrokeThickness = 2,
+                IsHitTestVisible = false
+            };
+
+            _canvas.Children.Add(path);
+            _connectors.Add(new Connector(parent, child, path));
+            AddConnectors(child);
+        }
+    }
+
+    private void AddNodeVisuals(MindMapNode node)
+    {
+        var nodeVisual = CreateNodeVisual(node);
+        _nodeFrames[node] = nodeVisual;
+        _canvas.Children.Add(nodeVisual);
+        UpdateNodePosition(node);
+
+        foreach (var child in node.Children)
+        {
+            AddNodeVisuals(child);
+        }
+    }
+
+    private Border CreateNodeVisual(MindMapNode node)
+    {
+        var metrics = GetNodeMetrics(node);
+        var root = new Border
+        {
+            MinWidth = metrics.MinWidth,
+            MaxWidth = metrics.MaxWidth,
+            MinHeight = metrics.MinHeight,
+            CornerRadius = metrics.CornerRadius,
+            Background = metrics.Background,
+            BorderBrush = metrics.BorderBrush,
+            BorderThickness = metrics.BorderThickness,
+            Padding = metrics.Padding,
+            BoxShadow = metrics.BoxShadow,
+            DataContext = node,
+            Focusable = true,
+            Transitions = new Transitions
+            {
+                new BrushTransition { Property = Border.BorderBrushProperty, Duration = TimeSpan.FromMilliseconds(160) },
+                new ThicknessTransition { Property = Border.BorderThicknessProperty, Duration = TimeSpan.FromMilliseconds(120) },
+                new BoxShadowsTransition { Property = Border.BoxShadowProperty, Duration = TimeSpan.FromMilliseconds(180) }
+            }
+        };
+
+        var isRoot = IsRootNode(node);
+        var titleBox = new TextBox
+        {
+            BorderThickness = new Thickness(0),
+            Background = Brushes.Transparent,
+            Foreground = metrics.Foreground,
+            FontSize = metrics.FontSize,
+            FontWeight = metrics.FontWeight,
+            TextWrapping = TextWrapping.Wrap,
+            AcceptsReturn = false,
+            PlaceholderText = metrics.Placeholder,
+            PlaceholderForeground = isRoot ? Brushes.White : GetSecondaryTextBrush(),
+            FocusAdorner = null,
+            TextAlignment = ToTextAlignment(metrics.ContentAlignment),
+            HorizontalContentAlignment = metrics.ContentAlignment,
+            VerticalContentAlignment = VerticalAlignment.Center,
+            MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
+            MaxWidth = Math.Max(12, metrics.MaxWidth - metrics.Padding.Left - metrics.Padding.Right),
+            MinHeight = metrics.MinHeight - metrics.Padding.Top - metrics.Padding.Bottom,
+            Padding = new Thickness(0)
+        };
+        titleBox.Classes.Add("codewfMindMapTitleEditor");
+        titleBox.Text = node.Title;
+        titleBox.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == TextBox.TextProperty && !string.Equals(node.Title, titleBox.Text, StringComparison.Ordinal))
+            {
+                node.Title = titleBox.Text ?? string.Empty;
+            }
+        };
+        titleBox.GotFocus += (_, _) =>
+        {
+            SelectNode(node);
+            ShowNodeToolbar(node);
+        };
+        titleBox.AddHandler(
+            KeyDownEvent,
+            (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
+            RoutingStrategies.Tunnel,
+            handledEventsToo: true);
+
+        var titleHost = CreateTitleHost(node, titleBox, isRoot);
+        var noteBox = CreateNoteEditor(node, metrics);
+        var noteFrame = new Border
+        {
+            Margin = new Thickness(0, MindMapLayoutMetrics.NoteVerticalSpacing, 0, 0),
+            Background = Brushes.Transparent,
+            BorderBrush = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
+            Child = noteBox
+        };
+
+        var content = new StackPanel
+        {
+            Spacing = 0
+        };
+        content.Children.Add(titleHost);
+        content.Children.Add(noteFrame);
+        root.Child = content;
+        _noteEditors[node] = noteBox;
+        _noteFrames[node] = noteFrame;
+        UpdateNoteEditorVisibility(node);
+
+        root.SizeChanged += (_, _) =>
+        {
+            UpdateConnectors();
+            EnsureCanvasSize();
+        };
+
+        root.AddHandler(
+            PointerPressedEvent,
+            (_, e) =>
+            {
+                var point = e.GetCurrentPoint(root);
+                if (IsRightPointerPressed(point.Properties))
+                {
+                    SelectNode(node);
+                    ShowNodeToolbar(node);
+                    ShowNodeMenu(node, e.GetPosition(_canvas));
+                    e.Handled = true;
+                    return;
+                }
+
+                if (HasVisualAncestor<TextBox>(e.Source))
+                {
+                    HideNodeMenu();
+                    return;
+                }
+
+                HideNodeMenu();
+                SelectNode(node);
+                ShowNodeToolbar(node);
+                if (isRoot)
+                {
+                    FocusNode(node);
+                }
+                else
+                {
+                    root.Focus();
+                    HandleNodeDragStarted(node, root, e);
+                }
+
+                e.Handled = true;
+            },
+            RoutingStrategies.Tunnel,
+            handledEventsToo: true);
+        root.PointerMoved += HandleNodeDragged;
+        root.PointerReleased += HandleNodeDragCompleted;
+        root.KeyDown += (_, e) => HandleFrameKeyDown(node, e);
+
+        return root;
+    }
+
+    private Control CreateTitleHost(MindMapNode node, TextBox titleBox, bool isRoot)
+    {
+        if (isRoot)
+        {
+            return titleBox;
+        }
+
+        var titleHost = new Grid();
+        titleHost.Children.Add(titleBox);
+        titleHost.Children.Add(CreateDragHandle(node));
+        return titleHost;
+    }
+
+    private Control CreateDragHandle(MindMapNode node)
+    {
+        // 只保留透明命中区，不画竖线，避免拖拽入口干扰脑图视觉样式。
+        var handle = new Border
+        {
+            Width = MindMapLayoutMetrics.DragHandleHitWidth,
+            Background = Brushes.Transparent,
+            Cursor = new Cursor(StandardCursorType.SizeAll),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Stretch
+        };
+        ToolTip.SetTip(handle, "拖到节点中部成为子节点，拖到上下边缘调整同级顺序");
+        handle.PointerPressed += (sender, e) => HandleNodeDragStarted(node, sender as Control, e);
+        handle.PointerMoved += HandleNodeDragged;
+        handle.PointerReleased += HandleNodeDragCompleted;
+        return handle;
+    }
+
+    private TextBox CreateNoteEditor(MindMapNode node, NodeMetrics metrics)
+    {
+        var noteForeground = metrics.IsTextOnly
+            ? GetSecondaryTextBrush()
+            : Brush.Parse(IsDarkTheme ? "#CBD5E1" : "#D1D5DB");
+        var noteBox = new TextBox
+        {
+            BorderThickness = new Thickness(0),
+            Background = Brushes.Transparent,
+            Foreground = noteForeground,
+            FontSize = MindMapLayoutMetrics.NoteFontSize,
+            TextWrapping = TextWrapping.Wrap,
+            AcceptsReturn = true,
+            PlaceholderText = "备注",
+            PlaceholderForeground = noteForeground,
+            FocusAdorner = null,
+            TextAlignment = ToTextAlignment(metrics.ContentAlignment),
+            MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
+            MaxWidth = Math.Max(12, metrics.MaxWidth - metrics.Padding.Left - metrics.Padding.Right),
+            MinHeight = MindMapLayoutMetrics.NoteMinHeight,
+            MaxHeight = MindMapLayoutMetrics.NoteMaxHeight,
+            Padding = new Thickness(0, 2, 0, 0),
+            HorizontalContentAlignment = metrics.ContentAlignment,
+            VerticalContentAlignment = VerticalAlignment.Top
+        };
+        noteBox.Classes.Add("codewfMindMapTitleEditor");
+        noteBox.Text = node.Note;
+        noteBox.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == TextBox.TextProperty && !string.Equals(node.Note, noteBox.Text, StringComparison.Ordinal))
+            {
+                node.Note = noteBox.Text ?? string.Empty;
+            }
+        };
+        noteBox.GotFocus += (_, _) =>
+        {
+            SelectNode(node);
+            ShowNodeToolbar(node);
+        };
+        noteBox.LostFocus += (_, _) => CollapseEmptyNoteEditor(node);
+        noteBox.AddHandler(
+            KeyDownEvent,
+            (sender, e) => HandleNoteKeyDown(node, sender as TextBox, e),
+            RoutingStrategies.Tunnel,
+            handledEventsToo: true);
+        return noteBox;
+    }
+
+    private void HandleNodePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender is not MindMapNode node)
+        {
+            return;
+        }
+
+        if (e.PropertyName is nameof(MindMapNode.X) or nameof(MindMapNode.Y))
+        {
+            UpdateNodePosition(node);
+            UpdateConnectors();
+            EnsureCanvasSize();
+        }
+        else if (e.PropertyName == nameof(MindMapNode.AccentColor))
+        {
+            Rebuild();
+        }
+        else if (e.PropertyName == nameof(MindMapNode.Note))
+        {
+            UpdateNoteEditorVisibility(node);
+            UpdateConnectors();
+            EnsureCanvasSize();
+            PositionNodeToolbar();
+        }
+    }
+
+    private void HandleTreeStructureChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        Rebuild();
+    }
+
+    private void SelectNode(MindMapNode node)
+    {
+        SetCurrentValue(SelectedNodeProperty, node);
+        ApplySelectionState();
+    }
+
+    private void ShowNoteEditor(MindMapNode node)
+    {
+        // 备注输入框只有在用户显式添加或已有内容时显示，空备注失焦后会回收。
+        _editingNoteNodes.Add(node);
+        SelectNode(node);
+        UpdateNoteEditorVisibility(node);
+        PositionNodeToolbar();
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_noteEditors.TryGetValue(node, out var editor))
+            {
+                editor.Focus();
+                editor.CaretIndex = editor.Text?.Length ?? 0;
+            }
+        });
+    }
+
+    private void CollapseEmptyNoteEditor(MindMapNode node)
+    {
+        if (!string.IsNullOrWhiteSpace(node.Note))
+        {
+            return;
+        }
+
+        _editingNoteNodes.Remove(node);
+        UpdateNoteEditorVisibility(node);
+        UpdateConnectors();
+        EnsureCanvasSize();
+    }
+
+    private void CollapseEmptyNoteEditorsExcept(MindMapNode? nodeToKeep)
+    {
+        foreach (var node in _editingNoteNodes.ToList())
+        {
+            if (!ReferenceEquals(node, nodeToKeep) && string.IsNullOrWhiteSpace(node.Note))
+            {
+                _editingNoteNodes.Remove(node);
+                UpdateNoteEditorVisibility(node);
+            }
+        }
+    }
+
+    private void UpdateNoteEditorVisibility(MindMapNode node)
+    {
+        if (!_noteFrames.TryGetValue(node, out var frame))
+        {
+            return;
+        }
+
+        var visible = _editingNoteNodes.Contains(node) || !string.IsNullOrWhiteSpace(node.Note);
+        frame.IsVisible = visible;
+    }
+
+    private void ShowNodeToolbar(MindMapNode node)
+    {
+        _toolbarNode = node;
+        UpdateToolbarVisibility();
+    }
+
+    private void UpdateToolbarVisibility()
+    {
+        if (_toolbarNode is null || !_nodeFrames.ContainsKey(_toolbarNode))
+        {
+            _nodeToolbar.IsVisible = false;
+            return;
+        }
+
+        _nodeToolbar.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
+        _nodeToolbar.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
+        _nodeToolbar.IsVisible = true;
+        PositionNodeToolbar();
+    }
+
+    private void PositionNodeToolbar()
+    {
+        if (_toolbarNode is null || !_nodeFrames.TryGetValue(_toolbarNode, out _))
+        {
+            return;
+        }
+
+        var size = GetRenderedNodeSize(_toolbarNode);
+        var x = _toolbarNode.X + size.Width / 2 - _nodeToolbar.Width / 2;
+        var y = _toolbarNode.Y - _nodeToolbar.Height - 8;
+        if (y < 8)
+        {
+            y = _toolbarNode.Y + size.Height + 8;
+        }
+
+        Canvas.SetLeft(_nodeToolbar, Math.Max(8, x));
+        Canvas.SetTop(_nodeToolbar, Math.Max(8, y));
+    }
+
+    private void FocusNode(MindMapNode? node)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        SetCurrentValue(SelectedNodeProperty, node);
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_titleEditors.TryGetValue(node, out var editor))
+            {
+                editor.Focus();
+                editor.CaretIndex = editor.Text?.Length ?? 0;
+            }
+        });
+    }
+
+    private void FocusFrame(MindMapNode? node)
+    {
+        if (node is null)
+        {
+            return;
+        }
+
+        SetCurrentValue(SelectedNodeProperty, node);
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_nodeFrames.TryGetValue(node, out var frame))
+            {
+                frame.Focus();
+            }
+        });
+    }
+
+    private void ApplySelectionState()
+    {
+        foreach (var (node, frame) in _nodeFrames)
+        {
+            var metrics = GetNodeMetrics(node);
+            var selected = ReferenceEquals(node, SelectedNode);
+            var dragging = _isDraggingNode && ReferenceEquals(node, _dragNode);
+            frame.BorderBrush = selected ? GetSelectionBrush() : metrics.BorderBrush;
+            frame.BorderThickness = selected
+                ? new Thickness(metrics.IsTextOnly ? 0 : 2)
+                : metrics.BorderThickness;
+            frame.BoxShadow = selected && !metrics.IsTextOnly
+                ? BoxShadows.Parse("0 6 18 0 #18000000")
+                : metrics.BoxShadow;
+            frame.Opacity = dragging ? 0.55 : 1;
+            UpdateNoteEditorVisibility(node);
+        }
+
+        PositionNodeToolbar();
+    }
+
+}

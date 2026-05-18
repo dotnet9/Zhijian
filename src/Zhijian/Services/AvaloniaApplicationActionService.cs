@@ -76,7 +76,7 @@ public sealed class AvaloniaApplicationActionService : IApplicationActionService
 
     public void OpenFileLocation(string filePath)
     {
-        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+        if (string.IsNullOrWhiteSpace(filePath))
         {
             return;
         }

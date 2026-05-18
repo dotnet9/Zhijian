@@ -1,6 +1,7 @@
 using System.Collections.Specialized;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Lang.Avalonia;
 using Zhijian.ViewModels;
 using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
@@ -19,7 +20,6 @@ public partial class TitleBarLeftAddOn : UserControl
         InitializeComponent();
         ApplyPlatformInputGestures();
         DataContextChanged += (_, _) => WireViewModel(DataContext as MainWindowViewModel);
-        RegisterMenuActions();
     }
 
     private void WireViewModel(MainWindowViewModel? viewModel)
@@ -63,50 +63,10 @@ public partial class TitleBarLeftAddOn : UserControl
                 Header = file.DisplayName,
                 DataContext = file
             };
-            item.AddHandler(
-                PointerReleasedEvent,
-                RecentFilePointerReleased,
-                Avalonia.Interactivity.RoutingStrategies.Bubble,
-                handledEventsToo: true);
+            item.Click += RecentFileClicked;
             AtomToolTip.SetTip(item, file.FilePath);
             RecentFilesMenu.Items.Add(item);
         }
-    }
-
-    private void RegisterMenuActions()
-    {
-        RegisterMenuAction(NewDocumentItem, () => Execute(_viewModel?.NewDocumentCommand));
-        RegisterMenuAction(NewWindowItem, () => Execute(_viewModel?.NewWindowCommand));
-        RegisterMenuAction(OpenDocumentItem, () => Execute(_viewModel?.OpenDocumentCommand));
-        RegisterMenuAction(OpenFolderItem, () => Execute(_viewModel?.OpenFolderCommand));
-        RegisterMenuAction(SaveItem, () => Execute(_viewModel?.SaveCommand));
-        RegisterMenuAction(SaveAsItem, () => Execute(_viewModel?.SaveAsCommand));
-        RegisterMenuAction(OpenFileLocationItem, () => Execute(_viewModel?.OpenFileLocationCommand));
-        RegisterMenuAction(CloseItem, () => Execute(_viewModel?.CloseCommand));
-        RegisterMenuAction(UndoItem, () => Execute(_viewModel?.UndoCommand));
-        RegisterMenuAction(RedoItem, () => Execute(_viewModel?.RedoCommand));
-        RegisterMenuAction(AddSiblingItem, () => Execute(_viewModel?.AddSiblingToSelectedCommand));
-        RegisterMenuAction(AddChildItem, () => Execute(_viewModel?.AddChildToSelectedCommand));
-        RegisterMenuAction(PromoteItem, () => Execute(_viewModel?.PromoteSelectedCommand));
-        RegisterMenuAction(DemoteItem, () => Execute(_viewModel?.DemoteSelectedCommand));
-        RegisterMenuAction(MoveUpItem, () => Execute(_viewModel?.MoveSelectedUpCommand));
-        RegisterMenuAction(MoveDownItem, () => Execute(_viewModel?.MoveSelectedDownCommand));
-        RegisterMenuAction(CopyMarkdownItem, () => Execute(_viewModel?.CopyAsMarkdownCommand));
-        RegisterMenuAction(DeleteNodeItem, () => Execute(_viewModel?.DeleteSelectedCommand));
-        RegisterMenuAction(LightThemeItem, () => Execute(_viewModel?.SetLightThemeCommand));
-        RegisterMenuAction(DarkThemeItem, () => Execute(_viewModel?.SetDarkThemeCommand));
-        RegisterMenuAction(SimplifiedChineseItem, () => Execute(_viewModel?.SelectSimplifiedChineseCommand));
-        RegisterMenuAction(TraditionalChineseItem, () => Execute(_viewModel?.SelectTraditionalChineseCommand));
-        RegisterMenuAction(EnglishItem, () => Execute(_viewModel?.SelectEnglishCommand));
-        RegisterMenuAction(JapaneseItem, () => Execute(_viewModel?.SelectJapaneseCommand));
-        RegisterMenuAction(FeedbackItem, () => Execute(_viewModel?.OpenFeedbackCommand));
-        RegisterMenuAction(FeatureRequestItem, () => Execute(_viewModel?.OpenFeatureRequestCommand));
-        RegisterMenuAction(PullRequestsItem, () => Execute(_viewModel?.OpenPullRequestsCommand));
-        RegisterMenuAction(RepositoryItem, () => Execute(_viewModel?.OpenRepositoryCommand));
-        RegisterMenuAction(OpenWebsiteItem, () => Execute(_viewModel?.OpenWebsiteCommand));
-        RegisterMenuAction(ShowChangelogItem, () => Execute(_viewModel?.ShowChangelogCommand));
-        RegisterMenuAction(ShowThanksItem, () => Execute(_viewModel?.ShowThanksCommand));
-        RegisterMenuAction(ShowAboutItem, () => Execute(_viewModel?.ShowAboutCommand));
     }
 
     private void ApplyPlatformInputGestures()
@@ -135,44 +95,15 @@ public partial class TitleBarLeftAddOn : UserControl
         return new KeyGesture(key, commandModifier | extraModifiers);
     }
 
-    private static void RegisterMenuAction(AtomMenuItem item, Action action)
+    private async void RecentFileClicked(object? sender, RoutedEventArgs e)
     {
-        item.AddHandler(
-            PointerReleasedEvent,
-            (_, e) =>
-            {
-                if (e.GetCurrentPoint(item).Properties.PointerUpdateKind is not PointerUpdateKind.LeftButtonReleased)
-                {
-                    return;
-                }
-
-                action();
-                e.Handled = true;
-            },
-            Avalonia.Interactivity.RoutingStrategies.Bubble,
-            handledEventsToo: true);
-    }
-
-    private void RecentFilePointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        if (e.GetCurrentPoint(sender as Control).Properties.PointerUpdateKind is not PointerUpdateKind.LeftButtonReleased)
+        if (sender is not AtomMenuItem { DataContext: RecentFileItem recentFile }
+            || _viewModel is null)
         {
             return;
         }
 
-        if (sender is AtomMenuItem { DataContext: RecentFileItem recentFile }
-            && _viewModel?.OpenRecentFileCommand.CanExecute(recentFile.FilePath) == true)
-        {
-            _viewModel.OpenRecentFileCommand.Execute(recentFile.FilePath);
-            e.Handled = true;
-        }
-    }
-
-    private static void Execute(System.Windows.Input.ICommand? command)
-    {
-        if (command?.CanExecute(null) == true)
-        {
-            command.Execute(null);
-        }
+        await _viewModel.OpenRecentFileAsync(recentFile.FilePath);
+        e.Handled = true;
     }
 }
