@@ -150,7 +150,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         ? FormatText(ZhijianL.HistorySummary, 0, 0)
         : FormatText(ZhijianL.HistorySummary, _historyIndex + 1, _history.Count);
 
-    public string WindowTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName} - {T(ZhijianL.AppName)}";
+    public string WindowTitle => T(ZhijianL.AppName);
 
     public string DocumentTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName}";
 

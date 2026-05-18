@@ -185,5 +185,14 @@
                                Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"/>
             </atom:MenuItem>
         </atom:Menu>
+
+        <TextBlock Text="{Binding DocumentTitle}"
+                   MaxWidth="360"
+                   FontSize="12"
+                   FontWeight="SemiBold"
+                   Foreground="{Binding PrimaryTextBrush}"
+                   TextTrimming="CharacterEllipsis"
+                   IsHitTestVisible="False"
+                   VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>

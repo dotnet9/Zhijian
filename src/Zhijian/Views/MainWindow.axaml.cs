@@ -11,7 +11,6 @@ namespace Zhijian.Views;
 public partial class MainWindow : Window
 {
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
-    private TitleBarRightAddOn? _titleBarRightAddOn;
     private bool _isCloseConfirmed;
 
     public MainWindow()
@@ -42,12 +41,11 @@ public partial class MainWindow : Window
     {
         base.NotifyConfigureTitleBar(titleBar);
         _titleBarLeftAddOn = new TitleBarLeftAddOn();
-        _titleBarRightAddOn = new TitleBarRightAddOn();
         FileMenuTourStep.Target = _titleBarLeftAddOn.FileMenuTourTarget;
         ApplyTitleBarDataContext();
-        titleBar.SetValue(WindowTitleBar.TitleProperty, null);
+        titleBar.SetCurrentValue(WindowTitleBar.TitleProperty, string.Empty);
         titleBar.SetCurrentValue(WindowTitleBar.LeftAddOnProperty, _titleBarLeftAddOn);
-        titleBar.SetCurrentValue(WindowTitleBar.RightAddOnProperty, _titleBarRightAddOn);
+        titleBar.SetCurrentValue(WindowTitleBar.RightAddOnProperty, null);
     }
 
     private void ApplyTitleBarDataContext()
@@ -55,11 +53,6 @@ public partial class MainWindow : Window
         if (_titleBarLeftAddOn is not null)
         {
             _titleBarLeftAddOn.DataContext = DataContext;
-        }
-
-        if (_titleBarRightAddOn is not null)
-        {
-            _titleBarRightAddOn.DataContext = DataContext;
         }
     }
 
