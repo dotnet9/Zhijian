@@ -44,6 +44,8 @@ public partial class MindMapEditor : UserControl
     private const double MinZoom = 0.1;
     private const double MaxZoom = 2.0;
     private const double ZoomFactor = 1.1;
+    private const double TouchPadMagnifySensitivity = 16;
+    private const double TouchPadMagnifyMaxSteps = 4;
     private const double WheelPanStep = 72;
     private const int RebuildConnectorBatchSize = 160;
     private const int RebuildNodeBatchSize = 48;
@@ -99,6 +101,10 @@ public partial class MindMapEditor : UserControl
     private MindMapDropPlacement _dropPlacement = MindMapDropPlacement.Child;
     private bool _isPanningCanvas;
     private bool _isSpacePressed;
+    private bool _isPinching;
+    private double _pinchStartZoom = 1;
+    private RoutedEventArgs? _lastHandledTouchPadMagnifyEvent;
+    private RoutedEventArgs? _lastHandledPinchEvent;
     private MindMapNode? _toolbarNode;
     private int _nextPaletteIndex = Random.Shared.Next(DefaultPalette.Length);
     private Point _panStartPointer;
@@ -148,10 +154,15 @@ public partial class MindMapEditor : UserControl
         _scrollViewer.AddHandler(PointerMovedEvent, HandleCanvasPanned, RoutingStrategies.Tunnel, handledEventsToo: true);
         _scrollViewer.AddHandler(PointerReleasedEvent, HandleCanvasPanCompleted, RoutingStrategies.Tunnel, handledEventsToo: true);
         _scrollViewer.PointerCaptureLost += (_, _) => StopCanvasPan();
+        _scrollViewer.GestureRecognizers.Add(new PinchGestureRecognizer());
         AddHandler(KeyDownEvent, HandleKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(KeyUpEvent, HandleKeyUp, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerWheelChangedEvent, HandlePointerWheelChanged, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerTouchPadGestureMagnifyEvent, HandleTouchPadMagnify, RoutingStrategies.Tunnel, handledEventsToo: true);
+        _scrollViewer.AddHandler(PointerTouchPadGestureMagnifyEvent, HandleTouchPadMagnify, RoutingStrategies.Direct | RoutingStrategies.Tunnel | RoutingStrategies.Bubble, handledEventsToo: true);
+        _canvas.AddHandler(PointerTouchPadGestureMagnifyEvent, HandleTouchPadMagnify, RoutingStrategies.Direct | RoutingStrategies.Tunnel | RoutingStrategies.Bubble, handledEventsToo: true);
+        _scrollViewer.AddHandler(PinchEvent, HandlePinch, RoutingStrategies.Direct | RoutingStrategies.Tunnel | RoutingStrategies.Bubble, handledEventsToo: true);
+        _scrollViewer.AddHandler(PinchEndedEvent, HandlePinchEnded, RoutingStrategies.Direct | RoutingStrategies.Tunnel | RoutingStrategies.Bubble, handledEventsToo: true);
     }
 
     public ObservableCollection<MindMapNode>? Roots

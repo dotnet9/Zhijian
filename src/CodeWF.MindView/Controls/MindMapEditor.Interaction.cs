@@ -278,7 +278,12 @@ public partial class MindMapEditor
 
     private void HandleTouchPadMagnify(object? sender, PointerDeltaEventArgs e)
     {
-        if (!IsCanvasWheelSource(e.Source))
+        if (ReferenceEquals(_lastHandledTouchPadMagnifyEvent, e))
+        {
+            return;
+        }
+
+        if (!IsCanvasGestureSource(e.Source))
         {
             return;
         }
@@ -290,6 +295,44 @@ public partial class MindMapEditor
         }
 
         SetZoom(_zoomScale * zoomFactor, e.GetPosition(_scrollViewer));
+        _lastHandledTouchPadMagnifyEvent = e;
+        e.Handled = true;
+    }
+
+    private void HandlePinch(object? sender, PinchEventArgs e)
+    {
+        if (ReferenceEquals(_lastHandledPinchEvent, e))
+        {
+            return;
+        }
+
+        if (!IsCanvasGestureSource(e.Source))
+        {
+            return;
+        }
+
+        if (!_isPinching)
+        {
+            _isPinching = true;
+            _pinchStartZoom = _zoomScale;
+        }
+
+        var zoomFactor = NormalizePinchScale(e.Scale);
+        if (Math.Abs(zoomFactor - 1) < double.Epsilon)
+        {
+            return;
+        }
+
+        SetZoom(_pinchStartZoom * zoomFactor, GetPinchAnchor(e));
+        _lastHandledPinchEvent = e;
+        e.Handled = true;
+    }
+
+    private void HandlePinchEnded(object? sender, RoutedEventArgs e)
+    {
+        _isPinching = false;
+        _pinchStartZoom = _zoomScale;
+        _lastHandledPinchEvent = null;
         e.Handled = true;
     }
 
@@ -383,7 +426,33 @@ public partial class MindMapEditor
             return 1;
         }
 
-        return Math.Clamp(1 + value, 0.2, 5);
+        var steps = Math.Abs(value) <= 0.2
+            ? value * TouchPadMagnifySensitivity
+            : value;
+        steps = Math.Clamp(steps, -TouchPadMagnifyMaxSteps, TouchPadMagnifyMaxSteps);
+        return Math.Pow(ZoomFactor, steps);
+    }
+
+    private static double NormalizePinchScale(double scale)
+    {
+        if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0)
+        {
+            return 1;
+        }
+
+        return Math.Clamp(scale, 0.25, 4);
+    }
+
+    private Point GetPinchAnchor(PinchEventArgs e)
+    {
+        if (e.Source is Visual source
+            && !ReferenceEquals(source, _scrollViewer)
+            && source.TranslatePoint(e.ScaleOrigin, _scrollViewer) is { } point)
+        {
+            return point;
+        }
+
+        return e.ScaleOrigin;
     }
 
     private void ZoomAtPointer(double wheelDelta, Point viewportAnchor)
@@ -534,6 +603,11 @@ public partial class MindMapEditor
         }
 
         return true;
+    }
+
+    private bool IsCanvasGestureSource(object? source)
+    {
+        return source is not Visual || IsCanvasWheelSource(source);
     }
 
     private static bool HasVisualAncestor<T>(object? source)

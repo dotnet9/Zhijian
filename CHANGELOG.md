@@ -1,5 +1,11 @@
 # Changelog
 
+## 12.0.3.11（2026-05-18）
+
+- 🔨[Fix]-Added Avalonia `PinchGestureRecognizer` handling to the mind-map canvas and strengthened native touchpad magnify handling so laptop touchpad two-finger pinch can zoom the canvas.
+- 🔨[Optimize]-Touchpad pinch zoom keeps the gesture position anchored while preserving `Ctrl/⌘ + wheel`, two-finger panning, and middle/`Space + left` canvas drag.
+- 📝[Docs]-Updated README, the user manual, onboarding copy, and design docs for touchpad pinch zoom.
+
 ## 12.0.3.10（2026-05-18）
 
 - 🔨[Optimize]-Added Open Editable File, Import, Open Folder, and Open User Manual actions to the empty Files pane so users do not need to discover the title-bar File menu first.

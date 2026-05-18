@@ -73,8 +73,9 @@ English documentation: [README.md](README.md)
 - `Tab`：添加子节点或降级为子节点。
 - `Shift + Tab`：提升节点。
 - `Delete` 或 `Backspace`：删除空的非根节点。
+- `触控板双指捏合`：围绕指针位置缩放脑图。
 - `触控板双指滑动` 或 `鼠标滚轮`：平移脑图画布。
-- `⌘ + 鼠标滚轮/触控板滑动`（macOS）或 `Ctrl + 鼠标滚轮/触控板滑动`（Windows/Linux）：围绕指针位置缩放脑图。
+- `⌘ + 鼠标滚轮`（macOS）或 `Ctrl + 鼠标滚轮`（Windows/Linux）：围绕指针位置缩放脑图。
 - `Shift + 鼠标滚轮`：横向平移脑图画布。
 - `Space + 左键拖拽` 或 `鼠标中键拖拽`：拖拽脑图画布。
 - `⌘ + L`（macOS）或 `Ctrl + L`（Windows/Linux）：回到中心主题。

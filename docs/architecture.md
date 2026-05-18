@@ -58,7 +58,7 @@ Zhijian
 - Edit, Theme, Language, Help, and About workflows exposed from title-bar menus.
 - `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, drag/drop structure changes, and high-frequency structure menus.
-- Mind-map editor with left-aligned inline title/note editing, drag/drop structure changes, two-finger/wheel panning, pointer-centered zooming, `Space + left drag` or middle-button panning, mini-map navigation, and center-topic navigation.
+- Mind-map editor with left-aligned inline title/note editing, drag/drop structure changes, touchpad pinch zoom, two-finger/wheel panning, pointer-centered zooming, `Space + left drag` or middle-button panning, mini-map navigation, and center-topic navigation.
 - Copy as Markdown writes the current Markdown to the clipboard and reports success with a desktop global message.
 - First-run onboarding precisely highlights the File menu, outline editor, Markdown switch, mind-map canvas, and status bar, with a Skip button.
 - Application settings are centralized in `src/Zhijian/App.config`, including onboarding, default culture, recent-file count, history depth, and runtime state file names.

@@ -87,7 +87,7 @@ The File menu is application-layer workflow. It creates blank documents, launche
 
 Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through a desktop global message.
 
-First-run onboarding now targets the title-bar File menu, the left outline editor, the Markdown switch button, the right mind-map canvas, two-finger/wheel panning, pointer-centered zoom, mini-map preview, zoom, and status-bar navigation. The file step no longer highlights the whole left pane, so new users do not confuse file entry points with the outline editor. The tour includes a Skip button; closing or skipping writes `new-user-tour.seen` in the application directory.
+First-run onboarding now targets the title-bar File menu, the left outline editor, the Markdown switch button, the right mind-map canvas, touchpad pinch zoom, two-finger/wheel panning, pointer-centered zoom, mini-map preview, zoom, and status-bar navigation. The file step no longer highlights the whole left pane, so new users do not confuse file entry points with the outline editor. The tour includes a Skip button; closing or skipping writes `new-user-tour.seen` in the application directory.
 
 `src/Zhijian/App.config` centralizes the necessary application settings: `ShowNewUserTour` controls whether onboarding can appear, `DefaultCultureName` sets the default UI culture, `RecentFilesFileName` and `TourSeenFileName` control runtime state file names, and `MaxRecentFiles` / `MaxHistorySteps` control recent-file and undo-history capacity. Runtime code reads the .NET-generated `Zhijian.dll.config` through `ApplicationSettings` and falls back to code defaults if the config is missing or malformed.
 
@@ -101,7 +101,7 @@ The file tab uses an application-layer list to show the current opened or import
 - title and note editors left-align within the same content width, including short text and notes that need refocus
 - drag/drop reparenting and sibling reordering
 - dashed drop previews
-- pointer-centered zoom, two-finger/wheel panning, and `Space + left drag` or middle-button canvas panning
+- touchpad pinch zoom, pointer-centered zoom, two-finger/wheel panning, and `Space + left drag` or middle-button canvas panning
 - viewport tracking for the mini-map
 - floating node actions for common structure edits, note editing, and deletion
 

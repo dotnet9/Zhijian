@@ -134,7 +134,7 @@
       "TourMindMapTitle": "右侧实时查看和编辑脑图",
       "TourMindMapDescription": "脑图节点可直接输入标题和备注，也支持右键菜单、悬浮工具栏和拖拽调整父子层级；控件本身也提供基础节点操作。",
       "TourCanvasTitle": "移动和缩放画布",
-      "TourCanvasDescription": "触控板双指滑动或滚轮可平移画布；按 Ctrl/⌘ 配合滚轮或触控板可在指针位置缩放，也可用 Space+左键或中键拖动画布。",
+      "TourCanvasDescription": "触控板双指捏合可缩放，双指滑动或滚轮可平移画布；按 Ctrl/⌘ 配合滚轮也可在指针位置缩放，Space+左键或中键可拖动画布。",
       "TourStatusTitle": "状态栏提供导航和帮助",
       "TourStatusDescription": "这里可以撤销/重做、打开小图预览、定位中心主题、缩放脑图。右下角问号可随时重新打开本引导。"
     }
