@@ -9,6 +9,11 @@ public sealed class DisabledMindMapFileService : IMindMapFileService
         return Task.FromResult<MindMapFileOpenResult?>(null);
     }
 
+    public Task<MindMapFileOpenResult?> ImportAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult<MindMapFileOpenResult?>(null);
+    }
+
     public Task<string?> OpenTextAsync(MindMapFileFormat format, CancellationToken cancellationToken = default)
     {
         return Task.FromResult<string?>(null);

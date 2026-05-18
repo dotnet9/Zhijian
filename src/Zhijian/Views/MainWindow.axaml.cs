@@ -107,6 +107,13 @@ public partial class MainWindow : Window
                 return;
             }
 
+            if (e.Key == Key.I && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                e.Handled = true;
+                await viewModel.ImportDocumentAsync();
+                return;
+            }
+
             if (e.Key == Key.K)
             {
                 e.Handled = true;

@@ -1,5 +1,12 @@
 # Changelog
 
+## 12.0.3.9（2026-05-18）
+
+- 🔨[Optimize]-Split the product meaning of Open Editable File and Import: Open now shows only reliably writable Markdown, OPML, and XMind files, while Import keeps the broader read-only conversion formats.
+- 🔨[Optimize]-Renamed Save As to Save As Editable Format so readable import formats do not imply original-format write-back support.
+- 📝[Docs]-Updated README, the user manual, architecture docs, and source-design docs for the Open, Import, and Save As behavior.
+- 🧪[Test]-Built `src\Zhijian\Zhijian.csproj` successfully.
+
 ## 12.0.3.8（2026-05-18）
 
 - ✨[Add]-Added an "Open User Manual" entry to the empty file pane and title-bar Help menu for loading the bundled `使用手册.md`.

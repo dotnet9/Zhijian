@@ -16,6 +16,7 @@ namespace Zhijian
         public static readonly string New = "Zhijian.ZhijianL.New";
         public static readonly string NewWindow = "Zhijian.ZhijianL.NewWindow";
         public static readonly string Open = "Zhijian.ZhijianL.Open";
+        public static readonly string Import = "Zhijian.ZhijianL.Import";
         public static readonly string OpenFolder = "Zhijian.ZhijianL.OpenFolder";
         public static readonly string OpenUserManual = "Zhijian.ZhijianL.OpenUserManual";
         public static readonly string RecentFiles = "Zhijian.ZhijianL.RecentFiles";
@@ -82,6 +83,7 @@ namespace Zhijian
         public static readonly string StatusNewDocument = "Zhijian.ZhijianL.StatusNewDocument";
         public static readonly string StatusNewWindow = "Zhijian.ZhijianL.StatusNewWindow";
         public static readonly string StatusOpening = "Zhijian.ZhijianL.StatusOpening";
+        public static readonly string StatusImporting = "Zhijian.ZhijianL.StatusImporting";
         public static readonly string StatusOpeningFolder = "Zhijian.ZhijianL.StatusOpeningFolder";
         public static readonly string StatusOpenFolder = "Zhijian.ZhijianL.StatusOpenFolder";
         public static readonly string StatusOpenFileLocation = "Zhijian.ZhijianL.StatusOpenFileLocation";

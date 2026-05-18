@@ -55,6 +55,12 @@ public static class MindMapFileFormatRegistry
     public static IReadOnlyList<string> ReadableMimeTypes { get; } =
         Descriptors.SelectMany(descriptor => descriptor.MimeTypes).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 
+    public static IReadOnlyList<string> WritablePatterns { get; } =
+        WritableFormats.SelectMany(descriptor => descriptor.Patterns).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+
+    public static IReadOnlyList<string> WritableMimeTypes { get; } =
+        WritableFormats.SelectMany(descriptor => descriptor.MimeTypes).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+
     public static MindMapFileFormatDescriptor GetDescriptor(MindMapFileFormat format)
     {
         return DescriptorsByFormat.TryGetValue(format, out var descriptor)

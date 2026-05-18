@@ -53,8 +53,8 @@ Zhijian
 
 - Startup creates a blank editable center topic; the bundled `使用手册.md` can be opened manually from the file workflow.
 - Split view with file/outline tabs or Markdown editing on the left and a graphical mind-map editor on the right.
-- The file tab lists an individually opened file, or every supported mind-map file when a folder is opened.
-- File workflow for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
+- The file tab lists an individually opened or imported file, or every supported file when a folder is opened.
+- File workflow for New, New Window, Open Editable File, Import, Open Folder, Recent Files, Save, Save As Editable Format, Open File Location, and Close.
 - Edit, Theme, Language, Help, and About workflows exposed from title-bar menus.
 - `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, drag/drop structure changes, and high-frequency structure menus.
@@ -63,7 +63,7 @@ Zhijian
 - First-run onboarding precisely highlights the File menu, outline editor, Markdown switch, mind-map canvas, and status bar, with a Skip button.
 - Application settings are centralized in `src/Zhijian/App.config`, including onboarding, default culture, recent-file count, history depth, and runtime state file names.
 - Title-bar menus, about, changelog, thanks, and unsaved-changes dialogs belong to the application shell layer.
-- Markdown, OPML, and XMind open/save support.
+- Markdown, OPML, and XMind open/save support, with broader external formats handled as read-only imports and Save As limited to reliable editable formats.
 
 ## Data Flow
 

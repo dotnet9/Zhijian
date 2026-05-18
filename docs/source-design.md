@@ -83,7 +83,7 @@ The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs 
 
 ## Desktop Workflow
 
-The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens supported files, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as another format, opens the current file location, and asks whether to save unsaved changes before closing. The app starts with a blank document; the bundled `使用手册.md` remains available as a manually opened help document and complex mind-map sample. Any individually opened file is also inserted into the left file list for quick switching.
+The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens editable files, imports other formats, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as an editable format, opens the current file location, and asks whether to save unsaved changes before closing. The app starts with a blank document; the bundled `使用手册.md` remains available from the Help menu as a manual and complex mind-map sample. Any individually opened or imported file is also inserted into the left file list for quick switching.
 
 Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through a desktop global message.
 
@@ -91,7 +91,7 @@ First-run onboarding now targets the title-bar File menu, the left outline edito
 
 `src/Zhijian/App.config` centralizes the necessary application settings: `ShowNewUserTour` controls whether onboarding can appear, `DefaultCultureName` sets the default UI culture, `RecentFilesFileName` and `TourSeenFileName` control runtime state file names, and `MaxRecentFiles` / `MaxHistorySteps` control recent-file and undo-history capacity. Runtime code reads the .NET-generated `Zhijian.dll.config` through `ApplicationSettings` and falls back to code defaults if the config is missing or malformed.
 
-The file tab uses an application-layer list to show the current opened file, or Markdown, OPML, and XMind files from an opened folder, then switches back to the outline after a file is selected.
+The file tab uses an application-layer list to show the current opened or imported file, or supported files from an opened folder, then switches back to the outline after a file is selected. Open is scoped to editable Markdown, OPML, and XMind-style formats; Import is broader and read-only by product contract; Save As only exposes formats the app can reliably write.
 
 ## Mind-Map Control
 

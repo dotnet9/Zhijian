@@ -10,20 +10,20 @@ Repository: <https://github.com/dotnet9/Zhijian>
 
 ## Highlights
 
-- Starts with a blank mind map. The bundled `使用手册.md` can be opened from File -> Open as a richer multi-level sample and help manual.
-- File menu for New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
+- Starts with a blank mind map. The bundled `使用手册.md` can be opened from Help -> Open User Manual as a richer multi-level sample and help manual.
+- File menu for New, New Window, Open Editable File, Import, Open Folder, Recent Files, Save, Save As Editable Format, Open File Location, and Close.
 - Edit menu for Undo, Redo, Add Sibling, Add Child, Promote, Demote, Move, Delete, and Copy as Markdown.
 - Theme, Language, Help, and About menus are grouped in the title bar with icons and shortcuts where useful.
 - Language switching uses `Lang.Avalonia.Json` resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
 - First-run onboarding precisely highlights the title-bar File menu, outline editor, Markdown switch, mind-map canvas, and bottom navigation, and includes a Skip button.
 - `src/Zhijian/App.config` centralizes onboarding, default language, recent-file count, history depth, and runtime state file names.
-- `Files` and `Outline` tabs on the left: individually opened files appear in the file list, and opening a folder lists every supported mind-map file in that folder.
+- `Files` and `Outline` tabs on the left: individually opened or imported files appear in the file list, and opening a folder lists every supported file in that folder.
 - Outline, Markdown, and mind-map views share the same `MindMapNode` tree.
 - Inline title and note editing in both outline and mind-map views.
 - User-friendly outline and mind-map menus for adding siblings or children, promoting or demoting nodes, moving nodes, editing notes, and deleting nodes.
 - Mind-map panning, zooming, center-topic navigation, and a real mini-map based on current node coordinates.
 - Copy as Markdown writes the current document Markdown to the clipboard and shows a desktop global message.
-- Markdown, OPML, and XMind open/save support.
+- Open Editable File and Save As Editable Format focus on editable Markdown, OPML, and XMind files; Import covers broader read-only conversion formats without implying original-format save support.
 - Desktop shell with title-bar menus, dialogs, list controls, tooltips, global messages, and dark theme.
 - Reusable `CodeWF.MindView` controls depend only on Avalonia and stay separate from the desktop shell.
 
@@ -81,11 +81,13 @@ Useful keyboard behavior while editing a node title:
 
 ## File Formats
 
-Zhijian uses Markdown as the default readable format and can exchange data with common mind-map tools:
+Zhijian uses Markdown as the default readable format. To avoid data loss, Save As only exposes stable editable formats:
 
 - Markdown (`.md`, `.markdown`)
-- OPML (`.opml`, `.xml`)
+- OPML (`.opml`)
 - XMind (`.xmind`)
+
+Other mind-map, draw.io, image, Office, document, and data files can be converted through Import, then saved as one of the editable formats above.
 
 ## Reusing CodeWF.MindView
 

@@ -74,6 +74,7 @@ public partial class TitleBarLeftAddOn : UserControl
         NewDocumentItem.InputGesture = CreateCommandGesture(Key.N);
         NewWindowItem.InputGesture = CreateCommandGesture(Key.N, KeyModifiers.Shift);
         OpenDocumentItem.InputGesture = CreateCommandGesture(Key.O);
+        ImportDocumentItem.InputGesture = CreateCommandGesture(Key.I, KeyModifiers.Shift);
         OpenFolderItem.InputGesture = CreateCommandGesture(Key.K);
         SaveItem.InputGesture = CreateCommandGesture(Key.S);
         SaveAsItem.InputGesture = CreateCommandGesture(Key.S, KeyModifiers.Shift);

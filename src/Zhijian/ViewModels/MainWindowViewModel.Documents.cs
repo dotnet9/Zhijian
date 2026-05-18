@@ -44,6 +44,29 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         });
     }
 
+    public async Task ImportDocumentAsync()
+    {
+        await RunFileOperationAsync(async () =>
+        {
+            if (!await EnsureCanChangeDocumentAsync())
+            {
+                return;
+            }
+
+            StatusText = T(ZhijianL.StatusImporting);
+            var result = await _fileService.ImportAsync();
+            if (result is null)
+            {
+                return;
+            }
+
+            await LoadOpenResultAsync(result);
+            StatusText = FormatText(
+                ZhijianL.StatusImported,
+                MindMapFileFormatRegistry.GetDisplayName(result.Format));
+        });
+    }
+
     public async Task OpenFolderAsync()
     {
         await RunFileOperationAsync(async () =>

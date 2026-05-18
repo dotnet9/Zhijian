@@ -12,7 +12,20 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
 
     public async Task<MindMapFileOpenResult?> OpenAsync(CancellationToken cancellationToken = default)
     {
-        var file = await OpenFileAsync();
+        var file = await OpenFileAsync("打开可编辑脑图文件", GetEditableFileTypes());
+        return await ReadOpenResultAsync(file, cancellationToken);
+    }
+
+    public async Task<MindMapFileOpenResult?> ImportAsync(CancellationToken cancellationToken = default)
+    {
+        var file = await OpenFileAsync("导入文件", GetImportFileTypes());
+        return await ReadOpenResultAsync(file, cancellationToken);
+    }
+
+    private static async Task<MindMapFileOpenResult?> ReadOpenResultAsync(
+        IStorageFile? file,
+        CancellationToken cancellationToken)
+    {
         if (file is null)
         {
             return null;
@@ -95,7 +108,7 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         var fileType = GetFileType(writableFormat);
         var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "保存脑图",
+            Title = "另存为可编辑脑图",
             DefaultExtension = MindMapFileFormatRegistry.GetDefaultExtension(writableFormat),
             FileTypeChoices = GetWritableFileTypes(),
             SuggestedFileType = fileType,
@@ -172,13 +185,13 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         return files.Count == 0 ? null : files[0];
     }
 
-    private async Task<IStorageFile?> OpenFileAsync()
+    private async Task<IStorageFile?> OpenFileAsync(string title, IReadOnlyList<FilePickerFileType> fileTypeFilter)
     {
         var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "打开脑图文件",
+            Title = title,
             AllowMultiple = false,
-            FileTypeFilter = GetAllFileTypes()
+            FileTypeFilter = fileTypeFilter
         });
 
         return files.Count == 0 ? null : files[0];
@@ -213,16 +226,29 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         return fileType;
     }
 
-    private static IReadOnlyList<FilePickerFileType> GetAllFileTypes()
+    private static IReadOnlyList<FilePickerFileType> GetImportFileTypes()
     {
         return
         [
-            new FilePickerFileType("支持的脑图文件")
+            new FilePickerFileType("支持的导入格式")
             {
                 Patterns = MindMapFileFormatRegistry.ReadablePatterns,
                 MimeTypes = MindMapFileFormatRegistry.ReadableMimeTypes
             },
             ..MindMapFileFormatRegistry.ReadableFormats.Select(descriptor => GetFileType(descriptor.Format))
+        ];
+    }
+
+    private static IReadOnlyList<FilePickerFileType> GetEditableFileTypes()
+    {
+        return
+        [
+            new FilePickerFileType("可编辑脑图文件")
+            {
+                Patterns = MindMapFileFormatRegistry.WritablePatterns,
+                MimeTypes = MindMapFileFormatRegistry.WritableMimeTypes
+            },
+            ..MindMapFileFormatRegistry.WritableFormats.Select(descriptor => GetFileType(descriptor.Format))
         ];
     }
 

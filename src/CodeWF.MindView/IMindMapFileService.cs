@@ -4,6 +4,8 @@ public interface IMindMapFileService
 {
     Task<MindMapFileOpenResult?> OpenAsync(CancellationToken cancellationToken = default);
 
+    Task<MindMapFileOpenResult?> ImportAsync(CancellationToken cancellationToken = default);
+
     Task<string?> OpenTextAsync(MindMapFileFormat format, CancellationToken cancellationToken = default);
 
     Task<byte[]?> OpenBinaryAsync(MindMapFileFormat format, CancellationToken cancellationToken = default);

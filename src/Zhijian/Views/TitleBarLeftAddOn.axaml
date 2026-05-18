@@ -51,6 +51,10 @@
                                Header="{codewf:I18n {x:Static l:ZhijianL.Open}}"
                                Command="{Binding OpenDocumentAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FileSearchOutlined}"/>
+                <atom:MenuItem x:Name="ImportDocumentItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.Import}}"
+                               Command="{Binding ImportDocumentAsync}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=ImportOutlined}"/>
                 <atom:MenuItem x:Name="OpenFolderItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}"
                                Command="{Binding OpenFolderAsync}"
