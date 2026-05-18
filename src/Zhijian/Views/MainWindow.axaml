@@ -13,7 +13,7 @@
              x:Class="Zhijian.Views.MainWindow"
              WindowStartupLocation="CenterScreen"
              x:DataType="vm:MainWindowViewModel"
-             Icon="/Assets/logo.png"
+             Icon="/Assets/logo.ico"
              Width="1240"
              Height="820"
              MinWidth="980"

@@ -2,12 +2,14 @@
 	<PropertyGroup>
 		<Version>12.0.3.6</Version>
 		<Authors>沙漠尽头的狼</Authors>
+		<Company>沙漠尽头的狼</Company>
+		<Product>Zhijian</Product>
 		<RepositoryUrl>https://github.com/dotnet9/Zhijian</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/dotnet9/Zhijian</PackageProjectUrl>
+		<PackageProjectUrl>https://codewf.com</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<RepositoryType>git</RepositoryType>
-		<Copyright>https://codewf.com</Copyright>
+		<Copyright>Copyright © 沙漠尽头的狼. https://codewf.com</Copyright>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
