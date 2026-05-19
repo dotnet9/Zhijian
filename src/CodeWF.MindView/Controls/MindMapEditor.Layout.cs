@@ -118,22 +118,31 @@ public partial class MindMapEditor
 
         if (level == 2)
         {
+            var accent = GetNodeAccentColor(node, "#2563EB");
             return new NodeMetrics(
                 MindMapLayoutMetrics.BranchMinWidth,
                 MindMapLayoutMetrics.BranchMaxWidth,
                 MindMapLayoutMetrics.BranchMinHeight,
                 new CornerRadius(8),
-                GetNodeAccentBrush(node, "#2563EB"),
-                Brushes.Transparent,
-                new Thickness(0),
+                CreateBranchBackgroundBrush(accent),
+                CreateAccentBrush(accent, IsDarkTheme ? 0.5 : 0.34),
+                new Thickness(1),
                 new Thickness(12, 5),
-                BoxShadows.Parse(IsDarkTheme ? "0 4 14 0 #2A000000" : "0 5 16 0 #18000000"),
-                Brushes.White,
+                BoxShadows.Parse(IsDarkTheme ? "0 4 12 0 #30000000" : "0 3 10 0 #10000000"),
+                GetPrimaryTextBrush(),
                 17,
-                FontWeight.Medium,
+                FontWeight.SemiBold,
                 HorizontalAlignment.Stretch,
                 TopicPlaceholder,
-                IsTextOnly: false);
+                IsTextOnly: false,
+                HoverBackground: CreateBranchBackgroundBrush(accent, isHover: true),
+                HoverBorderBrush: CreateAccentBrush(accent, IsDarkTheme ? 0.72 : 0.48),
+                HoverBoxShadow: BoxShadows.Parse(IsDarkTheme ? "0 7 18 0 #42000000" : "0 7 18 0 #16000000"),
+                SelectedBackground: CreateBranchBackgroundBrush(accent, isSelected: true),
+                SelectedBorderBrush: CreateAccentBrush(accent, IsDarkTheme ? 0.95 : 0.72),
+                SelectedBorderThickness: new Thickness(1),
+                SelectedBoxShadow: BoxShadows.Parse(IsDarkTheme ? "0 8 22 0 #4A000000" : "0 8 22 0 #1C000000"),
+                DragBoxShadow: BoxShadows.Parse(IsDarkTheme ? "0 12 28 0 #58000000" : "0 12 28 0 #22000000"));
         }
 
         return new NodeMetrics(
@@ -151,7 +160,9 @@ public partial class MindMapEditor
             FontWeight.Regular,
             HorizontalAlignment.Stretch,
             TopicPlaceholder,
-            IsTextOnly: true);
+            IsTextOnly: true,
+            HoverBackground: Brush.Parse(IsDarkTheme ? "#162235" : "#EEF6FF"),
+            SelectedBackground: Brush.Parse(IsDarkTheme ? "#1E2F46" : "#E6F2FF"));
     }
 
     private static Geometry CreateConnectorGeometry(Point start, Point end)
@@ -187,7 +198,15 @@ public partial class MindMapEditor
         FontWeight FontWeight,
         HorizontalAlignment ContentAlignment,
         string Placeholder,
-        bool IsTextOnly);
+        bool IsTextOnly,
+        IBrush? HoverBackground = null,
+        IBrush? HoverBorderBrush = null,
+        BoxShadows? HoverBoxShadow = null,
+        IBrush? SelectedBackground = null,
+        IBrush? SelectedBorderBrush = null,
+        Thickness? SelectedBorderThickness = null,
+        BoxShadows? SelectedBoxShadow = null,
+        BoxShadows? DragBoxShadow = null);
 
     private void ApplyTheme()
     {
@@ -231,16 +250,46 @@ public partial class MindMapEditor
         return GetResourceBrush(MindViewStyleKeys.SecondaryTextBrushResource, "#6B7280", "#9CA3AF");
     }
 
-    private static IBrush GetNodeAccentBrush(MindMapNode node, string fallback)
+    private IBrush CreateBranchBackgroundBrush(Color accent, bool isHover = false, bool isSelected = false)
+    {
+        var target = Color.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
+        var targetWeight = IsDarkTheme
+            ? isSelected ? 0.66 : isHover ? 0.7 : 0.76
+            : isSelected ? 0.82 : isHover ? 0.86 : 0.91;
+        return new SolidColorBrush(MixColor(accent, target, targetWeight));
+    }
+
+    private static IBrush CreateAccentBrush(Color accent, double opacity)
+    {
+        return new SolidColorBrush(accent, opacity);
+    }
+
+    private static Color GetNodeAccentColor(MindMapNode node, string fallback)
     {
         try
         {
-            return Brush.Parse(string.IsNullOrWhiteSpace(node.AccentColor) ? fallback : node.AccentColor);
+            return Color.Parse(string.IsNullOrWhiteSpace(node.AccentColor) ? fallback : node.AccentColor);
         }
         catch (FormatException)
         {
-            return Brush.Parse(fallback);
+            return Color.Parse(fallback);
         }
+    }
+
+    private static Color MixColor(Color source, Color target, double targetWeight)
+    {
+        targetWeight = Math.Clamp(targetWeight, 0, 1);
+        var sourceWeight = 1 - targetWeight;
+        return Color.FromArgb(
+            MixByte(source.A, target.A, sourceWeight, targetWeight),
+            MixByte(source.R, target.R, sourceWeight, targetWeight),
+            MixByte(source.G, target.G, sourceWeight, targetWeight),
+            MixByte(source.B, target.B, sourceWeight, targetWeight));
+    }
+
+    private static byte MixByte(byte source, byte target, double sourceWeight, double targetWeight)
+    {
+        return (byte)Math.Round(source * sourceWeight + target * targetWeight);
     }
 
     private static TextAlignment ToTextAlignment(HorizontalAlignment alignment)

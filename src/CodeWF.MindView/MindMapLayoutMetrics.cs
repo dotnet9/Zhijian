@@ -18,7 +18,7 @@ public readonly record struct MindMapNodeSizeMetrics(
 
 public static class MindMapLayoutMetrics
 {
-    public const double DefaultHorizontalSpacing = 130;
+    public const double DefaultHorizontalSpacing = 104;
     public const double DefaultVerticalSpacing = 34;
     public const double RootMinWidth = 88;
     public const double RootMaxWidth = 260;

@@ -50,7 +50,7 @@ public static partial class MindMapDocumentCodec
         var title = element.Attribute("TEXT")?.Value
             ?? element.Attribute("text")?.Value
             ?? element.Elements().FirstOrDefault(child => child.Name.LocalName == "richcontent")?.Value;
-        var node = new MindMapNode(CleanText(title, UntitledTopic))
+        var node = new MindMapNode(CleanText(title))
         {
             Note = CleanText(element
                 .Elements()

@@ -5,9 +5,13 @@
 - ✨[Add]-Added an immersive mind-map mode with a left-pane hide/show toggle near the outline/mind-map boundary and a `Ctrl/⌘ + B` shortcut.
 - 🔨[Optimize]-Added visible outline quick actions for adding child nodes, adding sibling nodes, copying Markdown, and switching between outline and Markdown editing.
 - 🔨[Optimize]-When users open a folder or start the onboarding tour, the left pane is restored automatically so file navigation and guided targets remain visible.
-- 🔨[Optimize]-Moved `CodeWF.MindView` editor defaults, import fallback text, and selected format names into its own `Lang.Avalonia.Json` resources with T4-generated keys.
+- 🔨[Optimize]-Moved `CodeWF.MindView` editor chrome, placeholders, messages, and selected format names into its own `Lang.Avalonia.Json` resources with T4-generated keys.
+- 🔨[Optimize]-Kept blank and fallback node titles empty through Markdown, OPML, XMind, JSON, XML, HTML, CSV, and text import paths, so localized placeholders do not become user content.
+- 🔨[Optimize]-Softened second-level mind-map branch nodes with tinted backgrounds, accent borders, dark readable text, and matching mini-map previews.
+- 🔨[Optimize]-Added lightweight hover, selected, and drag motion feedback for mind-map nodes using brush and shadow transitions without changing node layout.
+- 🔨[Optimize]-Tightened horizontal mind-map spacing so common four-level maps fit better in a normal desktop window.
 - 🔨[Optimize]-Localized outline editor text and wired startup file arguments into the main window flow.
-- 🧪[Test]-Built `Zhijian.slnx`, ran the desktop app, and verified visible, immersive, and restored pane states with screenshots.
+- 🧪[Test]-Built `Zhijian.slnx`, ran the desktop app, and verified visible, immersive, restored pane, multi-level node color, and hover states with screenshots.
 
 ## 12.0.3.12（2026-05-18）
 

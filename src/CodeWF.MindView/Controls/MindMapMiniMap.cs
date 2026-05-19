@@ -288,7 +288,7 @@ public class MindMapMiniMap : Control
 
         var fill = kind == MindMapNodeVisualKind.Root
             ? GetResourceBrush(MindViewStyleKeys.RootBackgroundBrushResource, "#148BFF", "#148BFF")
-            : GetNodeAccentBrush(node.Node, "#2563EB");
+            : CreateBranchPreviewBrush(GetNodeAccentColor(node.Node, "#2563EB"));
         context.DrawRectangle(WithOpacity(fill, IsDarkTheme ? 0.78 : 0.92), null, new RoundedRect(rect, 4));
     }
 
@@ -321,15 +321,38 @@ public class MindMapMiniMap : Control
             : brush;
     }
 
-    private static IBrush GetNodeAccentBrush(MindMapNode node, string fallback)
+    private IBrush CreateBranchPreviewBrush(Color accent)
+    {
+        var target = Color.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
+        var targetWeight = IsDarkTheme ? 0.7 : 0.88;
+        return new SolidColorBrush(MixColor(accent, target, targetWeight));
+    }
+
+    private static Color GetNodeAccentColor(MindMapNode node, string fallback)
     {
         try
         {
-            return Brush.Parse(string.IsNullOrWhiteSpace(node.AccentColor) ? fallback : node.AccentColor);
+            return Color.Parse(string.IsNullOrWhiteSpace(node.AccentColor) ? fallback : node.AccentColor);
         }
         catch (FormatException)
         {
-            return Brush.Parse(fallback);
+            return Color.Parse(fallback);
         }
+    }
+
+    private static Color MixColor(Color source, Color target, double targetWeight)
+    {
+        targetWeight = Math.Clamp(targetWeight, 0, 1);
+        var sourceWeight = 1 - targetWeight;
+        return Color.FromArgb(
+            MixByte(source.A, target.A, sourceWeight, targetWeight),
+            MixByte(source.R, target.R, sourceWeight, targetWeight),
+            MixByte(source.G, target.G, sourceWeight, targetWeight),
+            MixByte(source.B, target.B, sourceWeight, targetWeight));
+    }
+
+    private static byte MixByte(byte source, byte target, double sourceWeight, double targetWeight)
+    {
+        return (byte)Math.Round(source * sourceWeight + target * targetWeight);
     }
 }

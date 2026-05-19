@@ -50,7 +50,7 @@ public static partial class MindMapDocumentCodec
 
         foreach (var child in EnumerateJsonChildren(element).Take(200))
         {
-            node.Children.Add(FromJsonElement(child, GetResource(MindViewL.JsonChildTitle, "Topic")));
+            node.Children.Add(FromJsonElement(child, string.Empty));
         }
 
         if (node.Children.Count == 0 && element.ValueKind == JsonValueKind.Object)
@@ -67,7 +67,7 @@ public static partial class MindMapDocumentCodec
         {
             foreach (var child in element.EnumerateArray().Take(200))
             {
-                node.Children.Add(FromJsonElement(child, GetResource(MindViewL.JsonItemTitle, "Item")));
+                node.Children.Add(FromJsonElement(child, string.Empty));
             }
         }
 
@@ -78,7 +78,7 @@ public static partial class MindMapDocumentCodec
     {
         if (element.ValueKind == JsonValueKind.String)
         {
-            return CleanText(element.GetString(), UntitledTopic);
+            return CleanText(element.GetString());
         }
 
         if (element.ValueKind != JsonValueKind.Object)
@@ -90,7 +90,7 @@ public static partial class MindMapDocumentCodec
         {
             if (element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String)
             {
-                return CleanText(value.GetString(), UntitledTopic);
+                return CleanText(value.GetString());
             }
         }
 
@@ -198,7 +198,7 @@ public static partial class MindMapDocumentCodec
             }
 
             var indent = rawLine.TakeWhile(char.IsWhiteSpace).Sum(ch => ch == '\t' ? 4 : 1);
-            var title = CleanText(Regex.Replace(trimmed, @"^[-*+]\s+|^\d+[.)]\s+", string.Empty), UntitledTopic);
+            var title = CleanText(Regex.Replace(trimmed, @"^[-*+]\s+|^\d+[.)]\s+", string.Empty));
             while (stack.Count > 0 && stack.Peek().Indent >= indent)
             {
                 stack.Pop();
@@ -241,7 +241,7 @@ public static partial class MindMapDocumentCodec
         foreach (var row in rows.Skip(1).Take(200))
         {
             var title = row.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))
-                ?? GetResource(MindViewL.CsvRecordTitle, "Record");
+                ?? string.Empty;
             var node = new MindMapNode(CleanText(title));
             node.Note = string.Join(
                 Environment.NewLine,
@@ -306,7 +306,7 @@ public static partial class MindMapDocumentCodec
         foreach (Match match in matches)
         {
             var level = int.Parse(match.Groups[1].Value);
-            var node = new MindMapNode(CleanText(match.Groups[2].Value, UntitledTopic));
+            var node = new MindMapNode(CleanText(match.Groups[2].Value));
             var parentLevel = level - 1;
             while (parentLevel > 0 && !stack.ContainsKey(parentLevel))
             {

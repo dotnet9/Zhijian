@@ -177,6 +177,7 @@ public partial class MindMapEditor : UserControl
     private double _pinchStartZoom = 1;
     private RoutedEventArgs? _lastHandledTouchPadMagnifyEvent;
     private RoutedEventArgs? _lastHandledPinchEvent;
+    private MindMapNode? _hoverNode;
     private MindMapNode? _toolbarNode;
     private int _nextPaletteIndex = Random.Shared.Next(DefaultPalette.Length);
     private Point _panStartPointer;

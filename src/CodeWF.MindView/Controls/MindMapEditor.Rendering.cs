@@ -107,6 +107,7 @@ public partial class MindMapEditor
         _noteEditors.Clear();
         _noteFrames.Clear();
         _connectors.Clear();
+        _hoverNode = null;
 
         if (Roots is null)
         {
@@ -280,6 +281,7 @@ public partial class MindMapEditor
             Focusable = true,
             Transitions = new Transitions
             {
+                new BrushTransition { Property = Border.BackgroundProperty, Duration = TimeSpan.FromMilliseconds(160) },
                 new BrushTransition { Property = Border.BorderBrushProperty, Duration = TimeSpan.FromMilliseconds(160) },
                 new ThicknessTransition { Property = Border.BorderThicknessProperty, Duration = TimeSpan.FromMilliseconds(120) },
                 new BoxShadowsTransition { Property = Border.BoxShadowProperty, Duration = TimeSpan.FromMilliseconds(180) }
@@ -400,6 +402,14 @@ public partial class MindMapEditor
             handledEventsToo: true);
         root.PointerMoved += HandleNodeDragged;
         root.PointerReleased += HandleNodeDragCompleted;
+        root.PointerEntered += (_, _) => SetHoveredNode(node);
+        root.PointerExited += (_, _) =>
+        {
+            if (ReferenceEquals(_hoverNode, node))
+            {
+                SetHoveredNode(null);
+            }
+        };
         root.KeyDown += (_, e) => HandleFrameKeyDown(node, e);
 
         return root;
@@ -440,7 +450,9 @@ public partial class MindMapEditor
     {
         var noteForeground = metrics.IsTextOnly
             ? GetSecondaryTextBrush()
-            : Brush.Parse(IsDarkTheme ? "#CBD5E1" : "#D1D5DB");
+            : IsRootNode(node)
+                ? Brush.Parse(IsDarkTheme ? "#DBEAFE" : "#D1D5DB")
+                : GetSecondaryTextBrush();
         var noteBox = new TextBox
         {
             BorderThickness = new Thickness(0),
@@ -535,6 +547,17 @@ public partial class MindMapEditor
     private void SelectNode(MindMapNode node)
     {
         SetCurrentValue(SelectedNodeProperty, node);
+        ApplySelectionState();
+    }
+
+    private void SetHoveredNode(MindMapNode? node)
+    {
+        if (ReferenceEquals(_hoverNode, node))
+        {
+            return;
+        }
+
+        _hoverNode = node;
         ApplySelectionState();
     }
 
@@ -671,15 +694,30 @@ public partial class MindMapEditor
         {
             var metrics = GetNodeMetrics(node);
             var selected = ReferenceEquals(node, SelectedNode);
+            var hovered = ReferenceEquals(node, _hoverNode);
             var dragging = _isDraggingNode && ReferenceEquals(node, _dragNode);
-            frame.BorderBrush = selected ? GetSelectionBrush() : metrics.BorderBrush;
+
+            frame.Background = selected
+                ? metrics.SelectedBackground ?? metrics.HoverBackground ?? metrics.Background
+                : hovered
+                    ? metrics.HoverBackground ?? metrics.Background
+                    : metrics.Background;
+            frame.BorderBrush = selected
+                ? metrics.SelectedBorderBrush ?? GetSelectionBrush()
+                : hovered
+                    ? metrics.HoverBorderBrush ?? metrics.BorderBrush
+                    : metrics.BorderBrush;
             frame.BorderThickness = selected
-                ? new Thickness(metrics.IsTextOnly ? 0 : 2)
+                ? metrics.SelectedBorderThickness ?? metrics.BorderThickness
                 : metrics.BorderThickness;
-            frame.BoxShadow = selected && !metrics.IsTextOnly
-                ? BoxShadows.Parse("0 6 18 0 #18000000")
-                : metrics.BoxShadow;
-            frame.Opacity = dragging ? 0.55 : 1;
+            frame.BoxShadow = dragging
+                ? metrics.DragBoxShadow ?? metrics.SelectedBoxShadow ?? metrics.HoverBoxShadow ?? metrics.BoxShadow
+                : selected
+                    ? metrics.SelectedBoxShadow ?? metrics.HoverBoxShadow ?? metrics.BoxShadow
+                    : hovered
+                        ? metrics.HoverBoxShadow ?? metrics.BoxShadow
+                        : metrics.BoxShadow;
+            frame.Opacity = dragging ? 0.72 : 1;
             UpdateNoteEditorVisibility(node);
         }
 

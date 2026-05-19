@@ -12,10 +12,6 @@ namespace CodeWF.MindView;
 
 public static partial class MindMapDocumentCodec
 {
-    private static string UntitledTopic => GetResource(MindViewL.UntitledTopic, "Untitled topic");
-
-    private static string DefaultRootTitle => GetResource(MindViewL.DefaultRootTitle, "Center topic");
-
     public static string ToMarkdown(MindMapNode root)
     {
         var lines = new List<string>();
@@ -106,7 +102,7 @@ public static partial class MindMapDocumentCodec
             }
         }
 
-        root ??= new MindMapNode(DefaultRootTitle);
+        root ??= new MindMapNode(string.Empty);
         if (leadingNotes.Count > 0)
         {
             root.Note = AppendNote(root.Note, string.Join(Environment.NewLine, leadingNotes));
@@ -142,7 +138,7 @@ public static partial class MindMapDocumentCodec
             .Elements().FirstOrDefault(IsHeadElement)?
             .Elements().FirstOrDefault(element => element.Name.LocalName == "title")?
             .Value;
-        var root = new MindMapNode(string.IsNullOrWhiteSpace(title) ? DefaultRootTitle : title.Trim());
+        var root = new MindMapNode(string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim());
 
         foreach (var outline in outlines)
         {
@@ -363,18 +359,13 @@ public static partial class MindMapDocumentCodec
             return false;
         }
 
-        var match = Regex.Match(line[index..], @"^(?:[-*+]|\d+[.)])\s+(.*)$");
+        var match = Regex.Match(line[index..], @"^(?:[-*+]|\d+[.)])(?:\s+(.*))?$");
         if (!match.Success)
         {
             return false;
         }
 
         title = Regex.Replace(match.Groups[1].Value.Trim(), @"^\[[ xX]\]\s+", string.Empty);
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            title = UntitledTopic;
-        }
-
         return true;
     }
 
@@ -396,7 +387,7 @@ public static partial class MindMapDocumentCodec
 
         if (level == trimmed.Length)
         {
-            title = UntitledTopic;
+            title = string.Empty;
             return true;
         }
 
@@ -407,11 +398,6 @@ public static partial class MindMapDocumentCodec
         }
 
         title = trimmed[level..].Trim();
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            title = UntitledTopic;
-        }
-
         return true;
     }
 
@@ -434,7 +420,7 @@ public static partial class MindMapDocumentCodec
     private static MindMapNode FromOpmlOutline(XElement outline)
     {
         var title = outline.Attribute("text")?.Value ?? outline.Attribute("title")?.Value;
-        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? UntitledTopic : title.Trim())
+        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim())
         {
             Note = outline.Attribute("_note")?.Value ?? outline.Attribute("note")?.Value ?? string.Empty
         };
@@ -527,7 +513,7 @@ public static partial class MindMapDocumentCodec
 
     private static MindMapNode FromXMindJsonTopic(JsonElement topic)
     {
-        var node = new MindMapNode(GetJsonString(topic, "title") ?? UntitledTopic)
+        var node = new MindMapNode(CleanText(GetJsonString(topic, "title")))
         {
             Note = GetXMindJsonNote(topic)
         };
@@ -579,7 +565,7 @@ public static partial class MindMapDocumentCodec
     private static MindMapNode FromXMindXmlTopic(XElement topic)
     {
         var title = topic.Elements().FirstOrDefault(element => element.Name.LocalName == "title")?.Value;
-        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? UntitledTopic : title.Trim())
+        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim())
         {
             Note = topic
                 .Elements()
@@ -624,7 +610,7 @@ public static partial class MindMapDocumentCodec
 
     private static string GetTitle(MindMapNode node)
     {
-        return string.IsNullOrWhiteSpace(node.Title) ? UntitledTopic : node.Title.Trim();
+        return node.Title.Trim();
     }
 
     private static string CreateId()
