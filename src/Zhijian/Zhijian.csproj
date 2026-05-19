@@ -18,6 +18,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="CodeWF.EventBus" />
     <PackageReference Include="CodeWF.Markdown.Lite.Themes" />
+    <PackageReference Include="CodeWF.Tools.Core" />
     <PackageReference Include="Lang.Avalonia.Json" />
     <PackageReference Include="ReactiveUI.Avalonia" />
     <PackageReference Include="VC-LTL" />

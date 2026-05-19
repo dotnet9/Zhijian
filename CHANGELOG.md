@@ -2,6 +2,9 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[Optimize]-Added `CodeWF.Tools.Core` and switched the About window to read `Version` and `CompileTime` from `AssemblyExtensions` instead of hard-coded metadata.
+- 🔧[Optimize]-Moved About-window labels and description into language resources so the new compile-time label follows the app localization model.
+- 🧪[Test]-Built `Zhijian.slnx`, verified MSBuild resolves version `12.0.3.13`, and checked the localized About window metadata with the desktop app.
 - 🔧[Fix]-Aligned `Directory.Build.props` package version and About-window fallback metadata with the latest changelog release version.
 - 🧪[Test]-Built `Zhijian.slnx` and searched release metadata so the app version now resolves to `12.0.3.13`.
 - 🔧[Optimize]-Matched the mind-map shortcut help icon to the outline shortcut question icon, removed the status-bar onboarding shortcut, and moved onboarding tour access into the Help menu.

@@ -60,6 +60,15 @@ namespace Zhijian
         public static readonly string Changelog = "Zhijian.ZhijianL.Changelog";
         public static readonly string Thanks = "Zhijian.ZhijianL.Thanks";
         public static readonly string About = "Zhijian.ZhijianL.About";
+        public static readonly string AboutWindowTitle = "Zhijian.ZhijianL.AboutWindowTitle";
+        public static readonly string AboutDescription = "Zhijian.ZhijianL.AboutDescription";
+        public static readonly string AboutVersion = "Zhijian.ZhijianL.AboutVersion";
+        public static readonly string AboutCompileTime = "Zhijian.ZhijianL.AboutCompileTime";
+        public static readonly string AboutAuthor = "Zhijian.ZhijianL.AboutAuthor";
+        public static readonly string AboutContact = "Zhijian.ZhijianL.AboutContact";
+        public static readonly string AboutRepository = "Zhijian.ZhijianL.AboutRepository";
+        public static readonly string AboutMindViewPackage = "Zhijian.ZhijianL.AboutMindViewPackage";
+        public static readonly string AboutThemesPackage = "Zhijian.ZhijianL.AboutThemesPackage";
         public static readonly string FilesTab = "Zhijian.ZhijianL.FilesTab";
         public static readonly string OutlineTab = "Zhijian.ZhijianL.OutlineTab";
         public static readonly string MindMapTitle = "Zhijian.ZhijianL.MindMapTitle";

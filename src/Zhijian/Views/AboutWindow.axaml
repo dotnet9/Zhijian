@@ -1,11 +1,13 @@
 <atom:Window xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:atom="using:AtomUI.Desktop.Controls"
+             xmlns:codewf="https://codewf.com"
+             xmlns:l="clr-namespace:Zhijian"
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.AboutWindow"
              x:DataType="vm:AboutWindowViewModel"
              WindowStartupLocation="CenterOwner"
-             Title="关于枝见"
+             Title="{codewf:I18n {x:Static l:ZhijianL.AboutWindowTitle}}"
              Width="700"
              Height="520"
              MinWidth="560"
@@ -17,38 +19,46 @@
 
     <Border Padding="28,24">
         <StackPanel Spacing="0">
-            <TextBlock Text="{Binding ProductName}"
+            <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.AppName}}"
                        FontSize="26"
                        FontWeight="SemiBold"/>
 
-            <TextBlock Text="{Binding Description}"
+            <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.AboutDescription}}"
                        FontSize="14"
                        TextWrapping="Wrap"
                        Foreground="#667085"/>
 
             <Grid Margin="0,18,0,0"
-                  ColumnDefinitions="82,*"
+                  ColumnDefinitions="Auto,*"
                   RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                   RowSpacing="10">
-                <TextBlock Grid.Row="0" Text="版本号" Classes="aboutLabel"/>
+                <TextBlock Grid.Row="0"
+                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutVersion}}"
+                           Classes="aboutLabel"/>
                 <SelectableTextBlock Grid.Row="0"
                                      Grid.Column="1"
                                      Text="{Binding Version}"
                                      Classes="aboutValue"/>
 
-                <TextBlock Grid.Row="1" Text="更新时间" Classes="aboutLabel"/>
+                <TextBlock Grid.Row="1"
+                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutCompileTime}}"
+                           Classes="aboutLabel"/>
                 <SelectableTextBlock Grid.Row="1"
                                      Grid.Column="1"
-                                     Text="{Binding UpdatedAt}"
+                                     Text="{Binding CompileTime}"
                                      Classes="aboutValue"/>
 
-                <TextBlock Grid.Row="2" Text="作者" Classes="aboutLabel"/>
+                <TextBlock Grid.Row="2"
+                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutAuthor}}"
+                           Classes="aboutLabel"/>
                 <SelectableTextBlock Grid.Row="2"
                                      Grid.Column="1"
                                      Text="{Binding Author}"
                                      Classes="aboutValue"/>
 
-                <TextBlock Grid.Row="3" Text="联系方式" Classes="aboutLabel"/>
+                <TextBlock Grid.Row="3"
+                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutContact}}"
+                           Classes="aboutLabel"/>
                 <atom:HyperLinkButton Grid.Row="3"
                                       Grid.Column="1"
                                       NavigateUri="{Binding ContactUri}"
@@ -59,7 +69,9 @@
                     <TextBlock Text="{Binding ContactUrl}" TextWrapping="Wrap"/>
                 </atom:HyperLinkButton>
 
-                <TextBlock Grid.Row="4" Text="仓库地址" Classes="aboutLabel"/>
+                <TextBlock Grid.Row="4"
+                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutRepository}}"
+                           Classes="aboutLabel"/>
                 <atom:HyperLinkButton Grid.Row="4"
                                       Grid.Column="1"
                                       NavigateUri="{Binding RepositoryUri}"
@@ -70,7 +82,9 @@
                     <TextBlock Text="{Binding RepositoryUrl}" TextWrapping="Wrap"/>
                 </atom:HyperLinkButton>
 
-                <TextBlock Grid.Row="5" Text="NuGet 包" Classes="aboutLabel"/>
+                <TextBlock Grid.Row="5"
+                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutMindViewPackage}}"
+                           Classes="aboutLabel"/>
                 <atom:HyperLinkButton Grid.Row="5"
                                       Grid.Column="1"
                                       NavigateUri="{Binding MindViewNuGetUri}"
@@ -81,7 +95,9 @@
                     <TextBlock Text="{Binding MindViewNuGetUrl}" TextWrapping="Wrap"/>
                 </atom:HyperLinkButton>
 
-                <TextBlock Grid.Row="6" Text="主题包" Classes="aboutLabel"/>
+                <TextBlock Grid.Row="6"
+                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutThemesPackage}}"
+                           Classes="aboutLabel"/>
                 <atom:HyperLinkButton Grid.Row="6"
                                       Grid.Column="1"
                                       NavigateUri="{Binding MindViewThemesNuGetUri}"
@@ -98,6 +114,7 @@
     <atom:Window.Styles>
         <Style Selector="TextBlock.aboutLabel">
             <Setter Property="Foreground" Value="#667085"/>
+            <Setter Property="Margin" Value="0,0,16,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style Selector="SelectableTextBlock.aboutValue">

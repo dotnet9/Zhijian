@@ -1,16 +1,16 @@
+using System.Globalization;
 using System.Reflection;
+using CodeWF.Tools.Extensions;
 
 namespace Zhijian.ViewModels;
 
 public sealed class AboutWindowViewModel : ViewModelBase
 {
-    public string ProductName => "枝见 Zhijian";
+    private static readonly Assembly AppAssembly = typeof(AboutWindowViewModel).Assembly;
 
-    public string Description => "本地优先、Markdown-first 的 Avalonia / AtomUI 脑图编辑器。";
+    public string Version => AppAssembly.Version() ?? string.Empty;
 
-    public string Version => GetAppVersion();
-
-    public string UpdatedAt => "2026-05-19";
+    public string CompileTime => GetCompileTime();
 
     public string Author => "沙漠尽头的狼";
 
@@ -30,11 +30,9 @@ public sealed class AboutWindowViewModel : ViewModelBase
 
     public Uri MindViewThemesNuGetUri => new(MindViewThemesNuGetUrl);
 
-    private static string GetAppVersion()
+    private static string GetCompileTime()
     {
-        var assembly = typeof(AboutWindowViewModel).Assembly;
-        return assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
-               ?? assembly.GetName().Version?.ToString()
-               ?? "12.0.3.13";
+        return AppAssembly.CompileTime()?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+               ?? string.Empty;
     }
 }
