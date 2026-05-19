@@ -10,7 +10,7 @@ public sealed class AboutWindowViewModel : ViewModelBase
 
     public string Version => GetAppVersion();
 
-    public string UpdatedAt => "2026-05-17";
+    public string UpdatedAt => "2026-05-19";
 
     public string Author => "沙漠尽头的狼";
 
@@ -35,6 +35,6 @@ public sealed class AboutWindowViewModel : ViewModelBase
         var assembly = typeof(AboutWindowViewModel).Assembly;
         return assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
                ?? assembly.GetName().Version?.ToString()
-               ?? "12.0.3.5";
+               ?? "12.0.3.13";
     }
 }
