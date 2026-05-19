@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[优化]-将大纲快捷键 Tooltip 内容改为左对齐，并检查 Tooltip 用法，确认界面统一使用 AtomUI Tooltip 样式而非 Avalonia 原生 Tooltip。
+- 🧪[测试]-构建 `Zhijian.slnx`，检索原生 Tooltip 用法，启动桌面程序，并截图验证左对齐的 AtomUI Tooltip。
 - 🔧[修复]-将右侧脑图画布的 `Tab` 逻辑与左侧大纲层级编辑拆开：脑图中 `Tab` 和 `Shift+Tab` 现在新增子主题，大纲中仍保留 `Tab` 降级、`Shift+Tab` 提升。
 - 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 截图验证脑图 `Tab` 和 `Shift+Tab` 新增子节点，并复测大纲 `Tab` 降级。
 - 🔧[优化]-在大纲底部工具区新增紧凑的快捷键帮助按钮，让用户不用翻 README 也能发现 `Enter`、`Tab`、`Shift+Tab` 和 `Alt+Up/Alt+Down`。

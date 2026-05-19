@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[Optimize]-Left-aligned the outline shortcut tooltip content and audited tooltip usage so the app consistently uses AtomUI tooltip styling rather than native Avalonia tooltips.
+- 🧪[Test]-Built `Zhijian.slnx`, searched the codebase for native tooltip usage, launched the desktop app, and verified the left-aligned AtomUI tooltip screenshot.
 - 🔧[Fix]-Separated visual mind-map `Tab` handling from outline hierarchy editing: in the mind-map canvas `Tab` and `Shift+Tab` now add a child topic, while the outline keeps `Tab` demote and `Shift+Tab` promote behavior.
 - 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, verified visual `Tab` and `Shift+Tab` child creation with UI Automation screenshots, and rechecked outline `Tab` demotion.
 - 🔧[Optimize]-Added a compact outline shortcut help button in the bottom toolbar so users can discover `Enter`, `Tab`, `Shift+Tab`, and `Alt+Up/Alt+Down` without reading the README.
