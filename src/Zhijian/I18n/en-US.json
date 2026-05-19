@@ -146,7 +146,7 @@
       "TourCanvasTitle": "Pan and zoom the canvas",
       "TourCanvasDescription": "Pinch with two fingers on a touchpad to zoom; two-finger scroll or the mouse wheel pans. Ctrl/⌘ + wheel also zooms at the pointer, and Space+left drag or middle drag pans.",
       "TourStatusTitle": "Navigate from the status bar",
-      "TourStatusDescription": "Undo, redo, left-pane visibility, mini map, center root, and zoom live here. The question button reopens this guide at any time."
+      "TourStatusDescription": "Undo, redo, left-pane visibility, mini map, center root, zoom, and mind-map shortcuts live here. The Help menu reopens this guide at any time."
     }
   }
 }

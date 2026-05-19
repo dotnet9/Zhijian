@@ -192,6 +192,10 @@
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"
                                Command="{Binding OpenUserManualAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=ReadOutlined}"/>
+                <atom:MenuItem x:Name="NewUserGuideItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.NewUserGuide}}"
+                               Command="{Binding ShowNewUserTour}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="FeedbackItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Feedback}}"

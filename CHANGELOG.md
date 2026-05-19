@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[Optimize]-Matched the mind-map shortcut help icon to the outline shortcut question icon, removed the status-bar onboarding shortcut, and moved onboarding tour access into the Help menu.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified the mind-map shortcut question button plus Help menu onboarding entry with UI Automation screenshots.
 - 🔧[Fix]-Kept outline title editing focus stable after `Tab`, `Shift+Tab`, `Alt+Up`, and `Alt+Down`, while `Enter` still transfers focus to the newly created node.
 - 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified continuous keyboard typing after outline `Enter`, `Tab`, `Shift+Tab`, `Alt+Up`, and `Alt+Down` with UI Automation and screenshots.
 - 🔧[Optimize]-Added a compact mind-map shortcut help button with view-specific guidance, making it clear that visual `Tab` and `Shift+Tab` add child topics instead of changing outline hierarchy.
