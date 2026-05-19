@@ -34,6 +34,8 @@
       "CopyAsMarkdown": "复制为 Markdown",
       "OutlineShortcuts": "大纲快捷键",
       "OutlineShortcutsTip": "大纲快捷键\nEnter：添加同级（中心主题：添加子节点）\nTab：降级到上一个同级节点下\nShift+Tab：提升到父级同层\nAlt+Up/Down：在同级节点间移动",
+      "MindMapShortcuts": "脑图快捷键",
+      "MindMapShortcutsTip": "脑图快捷键\nEnter：添加同级（中心主题：添加子节点）\nTab / Shift+Tab：添加子节点\nAlt+Up/Down：在同级节点间移动\nDelete：删除选中主题",
       "ThemeMenu": "主题",
       "DarkTheme": "黑色主题",
       "LightTheme": "浅色主题",

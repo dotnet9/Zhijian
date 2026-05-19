@@ -94,6 +94,7 @@
                     <atom:ToolTip.Tip>
                         <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.OutlineShortcutsTip}}"
                                    TextAlignment="Left"
+                                   TextWrapping="Wrap"
                                    HorizontalAlignment="Left"/>
                     </atom:ToolTip.Tip>
                     <icons:QuestionCircleOutlined Width="16"

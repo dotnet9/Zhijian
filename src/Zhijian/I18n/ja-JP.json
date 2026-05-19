@@ -34,6 +34,8 @@
       "CopyAsMarkdown": "Markdown としてコピー",
       "OutlineShortcuts": "アウトラインのショートカット",
       "OutlineShortcutsTip": "アウトラインのショートカット\nEnter: 兄弟ノードを追加（中心トピック: 子ノードを追加）\nTab: 直前の兄弟の子へ下げる\nShift+Tab: 親階層へ上げる\nAlt+Up/Down: 兄弟内で移動",
+      "MindMapShortcuts": "マインドマップのショートカット",
+      "MindMapShortcutsTip": "マインドマップのショートカット\nEnter: 兄弟ノードを追加（中心トピック: 子ノードを追加）\nTab / Shift+Tab: 子ノードを追加\nAlt+Up/Down: 兄弟内で移動\nDelete: 選択したトピックを削除",
       "ThemeMenu": "テーマ",
       "DarkTheme": "ダークテーマ",
       "LightTheme": "ライトテーマ",

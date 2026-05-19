@@ -296,6 +296,19 @@
                         <atom:Button Width="32"
                                      Height="28"
                                      Padding="7,4"
+                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.MindMapShortcuts}}"
+                                     atom:ToolTip.Placement="TopEdgeAlignedRight">
+                            <atom:ToolTip.Tip>
+                                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.MindMapShortcutsTip}}"
+                                           TextAlignment="Left"
+                                           TextWrapping="Wrap"
+                                           HorizontalAlignment="Left"/>
+                            </atom:ToolTip.Tip>
+                            <icons:KeyOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
+                        </atom:Button>
+                        <atom:Button Width="32"
+                                     Height="28"
+                                     Padding="7,4"
                                      Command="{Binding ShowNewUserTour}"
                                      AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.NewUserGuide}}"
                                      atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.NewUserGuide}}">

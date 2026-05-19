@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[Optimize]-Added a compact mind-map shortcut help button with view-specific guidance, making it clear that visual `Tab` and `Shift+Tab` add child topics instead of changing outline hierarchy.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified wrapped, left-aligned shortcut tooltips for both the mind-map and outline help buttons with screenshots.
 - 🔧[Optimize]-Left-aligned the outline shortcut tooltip content and audited tooltip usage so the app consistently uses AtomUI tooltip styling rather than native Avalonia tooltips.
 - 🧪[Test]-Built `Zhijian.slnx`, searched the codebase for native tooltip usage, launched the desktop app, and verified the left-aligned AtomUI tooltip screenshot.
 - 🔧[Fix]-Separated visual mind-map `Tab` handling from outline hierarchy editing: in the mind-map canvas `Tab` and `Shift+Tab` now add a child topic, while the outline keeps `Tab` demote and `Shift+Tab` promote behavior.
