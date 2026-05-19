@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[修复]-将右侧脑图画布的 `Tab` 逻辑与左侧大纲层级编辑拆开：脑图中 `Tab` 和 `Shift+Tab` 现在新增子主题，大纲中仍保留 `Tab` 降级、`Shift+Tab` 提升。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 截图验证脑图 `Tab` 和 `Shift+Tab` 新增子节点，并复测大纲 `Tab` 降级。
 - 🔧[优化]-在大纲底部工具区新增紧凑的快捷键帮助按钮，让用户不用翻 README 也能发现 `Enter`、`Tab`、`Shift+Tab` 和 `Alt+Up/Alt+Down`。
 - 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 悬停新的大纲快捷键帮助按钮，并截图验证 Tooltip 展示效果。
 - 📝[文档]-同步 README、使用手册和控制器注释中的大纲快捷键说明，明确中心主题 `Enter` 添加子节点、普通节点 `Enter` 添加同级、`Tab` 降级、`Alt+Up/Alt+Down` 调整同级顺序。

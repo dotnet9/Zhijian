@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[Fix]-Separated visual mind-map `Tab` handling from outline hierarchy editing: in the mind-map canvas `Tab` and `Shift+Tab` now add a child topic, while the outline keeps `Tab` demote and `Shift+Tab` promote behavior.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, verified visual `Tab` and `Shift+Tab` child creation with UI Automation screenshots, and rechecked outline `Tab` demotion.
 - 🔧[Optimize]-Added a compact outline shortcut help button in the bottom toolbar so users can discover `Enter`, `Tab`, `Shift+Tab`, and `Alt+Up/Alt+Down` without reading the README.
 - 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, hovered the new outline shortcut help button with UI Automation, and verified the tooltip screenshot.
 - 📝[Docs]-Updated README, the user manual, and controller comments so outline shortcuts match the current behavior: center-topic `Enter` adds a child, normal-node `Enter` adds a sibling, `Tab` demotes, and `Alt+Up`/`Alt+Down` reorder siblings.

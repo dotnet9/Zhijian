@@ -174,10 +174,10 @@ public partial class MindMapEditor
     private void ShowNodeMenu(MindMapNode node, Point canvasPoint)
     {
         _nodeMenuPanel.Children.Clear();
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddChildText, null, true, () => AddChildFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddChildText, "Tab / Shift+Tab", true, () => AddChildFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddSiblingText, "Enter", !IsRootNode(node), () => AddSiblingFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", PromoteText, "Shift+Tab", CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", DemoteText, "Tab", CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", PromoteText, null, CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", DemoteText, null, CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", MoveUpText, "Alt+Up", CanMoveNodeUp(node), () => MoveNodeUpFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", MoveDownText, "Alt+Down", CanMoveNodeDown(node), () => MoveNodeDownFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? AddNoteText : EditNoteText, null, true, () => ShowNoteEditor(node)));

@@ -29,12 +29,18 @@ public partial class MindMapEditor
         var action = MindMapKeyboardGestureRouter.ResolveTitleAction(
             e.Key,
             e.KeyModifiers,
-            string.IsNullOrWhiteSpace(editor?.Text));
+            string.IsNullOrWhiteSpace(editor?.Text),
+            MindMapKeyboardTabBehavior.AddChild);
 
         switch (action)
         {
             case MindMapKeyboardAction.AddFromEnter:
                 FocusNode(HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.AddChildFromTab:
+                FocusNode(AddChild(node, string.Empty));
                 MarkEditorKeyEventHandled(e);
                 return;
 
@@ -104,7 +110,10 @@ public partial class MindMapEditor
             return;
         }
 
-        var action = MindMapKeyboardGestureRouter.ResolveFrameAction(e.Key, e.KeyModifiers);
+        var action = MindMapKeyboardGestureRouter.ResolveFrameAction(
+            e.Key,
+            e.KeyModifiers,
+            MindMapKeyboardTabBehavior.AddChild);
         switch (action)
         {
             case MindMapKeyboardAction.DeleteSelected:
@@ -114,6 +123,11 @@ public partial class MindMapEditor
 
             case MindMapKeyboardAction.AddFromEnter:
                 FocusNode(HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.AddChildFromTab:
+                FocusNode(AddChild(node, string.Empty));
                 MarkEditorKeyEventHandled(e);
                 return;
 

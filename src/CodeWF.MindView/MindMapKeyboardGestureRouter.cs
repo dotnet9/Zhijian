@@ -4,7 +4,11 @@ namespace CodeWF.MindView;
 
 public static class MindMapKeyboardGestureRouter
 {
-    public static MindMapKeyboardAction ResolveTitleAction(Key key, KeyModifiers modifiers, bool isTitleEmpty)
+    public static MindMapKeyboardAction ResolveTitleAction(
+        Key key,
+        KeyModifiers modifiers,
+        bool isTitleEmpty,
+        MindMapKeyboardTabBehavior tabBehavior = MindMapKeyboardTabBehavior.Hierarchy)
     {
         if (IsEnterKey(key))
         {
@@ -13,9 +17,7 @@ public static class MindMapKeyboardGestureRouter
 
         if (key == Key.Tab)
         {
-            return modifiers.HasFlag(KeyModifiers.Shift)
-                ? MindMapKeyboardAction.Promote
-                : MindMapKeyboardAction.Demote;
+            return ResolveTabAction(modifiers, tabBehavior);
         }
 
         if (modifiers.HasFlag(KeyModifiers.Alt))
@@ -36,7 +38,10 @@ public static class MindMapKeyboardGestureRouter
             : MindMapKeyboardAction.None;
     }
 
-    public static MindMapKeyboardAction ResolveFrameAction(Key key, KeyModifiers modifiers)
+    public static MindMapKeyboardAction ResolveFrameAction(
+        Key key,
+        KeyModifiers modifiers,
+        MindMapKeyboardTabBehavior tabBehavior = MindMapKeyboardTabBehavior.Hierarchy)
     {
         if (IsDeleteKey(key))
         {
@@ -50,9 +55,7 @@ public static class MindMapKeyboardGestureRouter
 
         if (key == Key.Tab)
         {
-            return modifiers.HasFlag(KeyModifiers.Shift)
-                ? MindMapKeyboardAction.Promote
-                : MindMapKeyboardAction.Demote;
+            return ResolveTabAction(modifiers, tabBehavior);
         }
 
         if (modifiers.HasFlag(KeyModifiers.Alt))
@@ -76,6 +79,20 @@ public static class MindMapKeyboardGestureRouter
         return IsDeleteKey(key) && isNoteEmpty
             ? MindMapKeyboardAction.DeleteEmptyNote
             : MindMapKeyboardAction.None;
+    }
+
+    private static MindMapKeyboardAction ResolveTabAction(
+        KeyModifiers modifiers,
+        MindMapKeyboardTabBehavior tabBehavior)
+    {
+        if (tabBehavior == MindMapKeyboardTabBehavior.AddChild)
+        {
+            return MindMapKeyboardAction.AddChildFromTab;
+        }
+
+        return modifiers.HasFlag(KeyModifiers.Shift)
+            ? MindMapKeyboardAction.Promote
+            : MindMapKeyboardAction.Demote;
     }
 
     public static bool IsEnterKey(Key key)
