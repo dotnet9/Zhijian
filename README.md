@@ -69,9 +69,10 @@ The left pane is the main writing area. Use outline mode for structured editing,
 
 Useful keyboard behavior while editing a node title:
 
-- `Enter`: add a sibling node. If the selected outline node has children, Zhijian adds a child node.
-- `Tab`: add or demote to a child node.
+- `Enter`: add a sibling node. On the center topic, `Enter` adds a child node.
+- `Tab`: demote the current node under its previous sibling.
 - `Shift + Tab`: promote a node.
+- `Alt + Up` / `Alt + Down`: move a node before or after its sibling.
 - `Delete` or `Backspace`: delete an empty non-root node.
 - `Two-finger touchpad pinch`: zoom the mind-map canvas around the pointer.
 - `Two-finger touchpad scroll` or `mouse wheel`: pan the mind-map canvas.

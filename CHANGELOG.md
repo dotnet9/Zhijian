@@ -2,6 +2,7 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 📝[Docs]-Updated README, the user manual, and controller comments so outline shortcuts match the current behavior: center-topic `Enter` adds a child, normal-node `Enter` adds a sibling, `Tab` demotes, and `Alt+Up`/`Alt+Down` reorder siblings.
 - 🔧[Optimize]-Made `Alt+Up`/`Alt+Down` work while editing topic titles, matching the shortcuts already shown in the node context menu and title-bar edit menu.
 - 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, created `Root/A/B` with UI Automation, and verified `Alt+Up`/`Alt+Down` reorder both the outline and mind-map views with screenshots.
 - ✨[Add]-Added `osx-x64` and `osx-arm64` publish profiles and included them in the default publish scripts so release packaging covers Windows, Linux, and macOS.

@@ -25,7 +25,7 @@ public interface IMindMapEditorController
     }
 
     /// <summary>
-    /// 处理脑图标题输入框中的 Tab。默认添加一个空标题子节点。
+    /// 处理脑图标题输入框中的 Tab。默认将节点降级为上一个同级节点的子节点。
     /// </summary>
     MindMapNode HandleMapTab(MindMapNode node)
     {

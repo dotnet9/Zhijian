@@ -2,6 +2,7 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 📝[文档]-同步 README、使用手册和控制器注释中的大纲快捷键说明，明确中心主题 `Enter` 添加子节点、普通节点 `Enter` 添加同级、`Tab` 降级、`Alt+Up/Alt+Down` 调整同级顺序。
 - 🔧[优化]-让标题编辑状态下的 `Alt+Up`/`Alt+Down` 真正执行同级上移/下移，与右键菜单和标题栏菜单展示的快捷键保持一致。
 - 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 创建 `Root/A/B`，并模拟 `Alt+Up`、`Alt+Down` 截图验证大纲和脑图排序同步。
 - ✨[新增]-新增 `osx-x64` 和 `osx-arm64` 发布配置，默认发布脚本覆盖 Windows、Linux 和 macOS 三个平台。
