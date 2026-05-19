@@ -206,6 +206,7 @@
                                Text="{Binding HistorySummary}"
                                Foreground="{Binding SecondaryTextBrush}"
                                FontSize="12"
+                               Margin="0,0,16,0"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"/>
 

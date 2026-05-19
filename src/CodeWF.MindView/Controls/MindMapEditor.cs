@@ -969,7 +969,10 @@ public partial class MindMapEditor : UserControl
 
     private void RecreateNodeChrome()
     {
+        _nodeMenu.Child = null;
+        _nodeMenuPanel.Children.Clear();
         _nodeToolbar = CreateNodeToolbar();
+        _nodeMenu = CreateNodeMenu();
         Rebuild();
     }
 

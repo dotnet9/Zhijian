@@ -6,7 +6,7 @@ namespace Zhijian.ViewModels;
 
 public sealed class WorkspaceOutlineViewModel : ViewModelBase
 {
-    private readonly IEventBus _eventBus;
+    private readonly IEventBus _eventBus = EventBus.Default;
     private bool _isApplyingState;
     private MindMapNode? _selectedNode;
     private bool _isOutlineMode = true;
@@ -21,10 +21,9 @@ public sealed class WorkspaceOutlineViewModel : ViewModelBase
     private string _secondaryTextBrush = string.Empty;
     private bool _canAddSiblingToSelectedNode;
 
-    public WorkspaceOutlineViewModel(IEventBus eventBus)
+    public WorkspaceOutlineViewModel()
     {
-        _eventBus = eventBus;
-        _eventBus.Subscribe<WorkspaceOutlineStateChangedCommand>(ApplyState);
+        _eventBus.Subscribe(this);
     }
 
     public ObservableCollection<MindMapNode> Roots { get; } = [];
@@ -133,6 +132,7 @@ public sealed class WorkspaceOutlineViewModel : ViewModelBase
         _eventBus.Publish(new WorkspaceToggleEditorModeRequestedCommand());
     }
 
+    [EventHandler]
     private void ApplyState(WorkspaceOutlineStateChangedCommand command)
     {
         _isApplyingState = true;

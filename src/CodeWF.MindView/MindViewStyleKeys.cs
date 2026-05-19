@@ -7,6 +7,7 @@ public static class MindViewStyleKeys
     public const string SelectionBrushResource = "CodeWFMindViewSelectionBrush";
     public const string RootBackgroundBrushResource = "CodeWFMindViewRootBackgroundBrush";
     public const string RootForegroundBrushResource = "CodeWFMindViewRootForegroundBrush";
+    public const string RootPlaceholderForegroundBrushResource = "CodeWFMindViewRootPlaceholderForegroundBrush";
     public const string BranchBackgroundBrushResource = "CodeWFMindViewBranchBackgroundBrush";
     public const string BranchBlendTargetBrushResource = "CodeWFMindViewBranchBlendTargetBrush";
     public const string BranchBorderOpacityResource = "CodeWFMindViewBranchBorderOpacity";
@@ -17,6 +18,7 @@ public static class MindViewStyleKeys
     public const string BranchSelectedBackgroundTargetWeightResource = "CodeWFMindViewBranchSelectedBackgroundTargetWeight";
     public const string PrimaryTextBrushResource = "CodeWFMindViewPrimaryTextBrush";
     public const string SecondaryTextBrushResource = "CodeWFMindViewSecondaryTextBrush";
+    public const string PlaceholderForegroundBrushResource = "CodeWFMindViewPlaceholderForegroundBrush";
     public const string PanelBackgroundBrushResource = "CodeWFMindViewPanelBackgroundBrush";
     public const string PanelBorderBrushResource = "CodeWFMindViewPanelBorderBrush";
     public const string ToolbarBackgroundBrushResource = "CodeWFMindViewToolbarBackgroundBrush";
@@ -29,6 +31,8 @@ public static class MindViewStyleKeys
     public const string LeafSelectedBackgroundBrushResource = "CodeWFMindViewLeafSelectedBackgroundBrush";
     public const string RootNoteForegroundBrushResource = "CodeWFMindViewRootNoteForegroundBrush";
     public const string NoteForegroundBrushResource = "CodeWFMindViewNoteForegroundBrush";
+    public const string RootNotePlaceholderForegroundBrushResource = "CodeWFMindViewRootNotePlaceholderForegroundBrush";
+    public const string NotePlaceholderForegroundBrushResource = "CodeWFMindViewNotePlaceholderForegroundBrush";
     public const string DropChildBrushResource = "CodeWFMindViewDropChildBrush";
     public const string MiniMapBackgroundBrushResource = "CodeWFMindViewMiniMapBackgroundBrush";
     public const string MiniMapBorderBrushResource = "CodeWFMindViewMiniMapBorderBrush";
@@ -75,6 +79,8 @@ public static class MindViewStyleKeys
     public const string BranchHoverBoxShadowResource = "CodeWFMindViewBranchHoverBoxShadow";
     public const string BranchSelectedBoxShadowResource = "CodeWFMindViewBranchSelectedBoxShadow";
     public const string BranchDragBoxShadowResource = "CodeWFMindViewBranchDragBoxShadow";
+    public const string LeafHoverBoxShadowResource = "CodeWFMindViewLeafHoverBoxShadow";
+    public const string LeafSelectedBoxShadowResource = "CodeWFMindViewLeafSelectedBoxShadow";
     public const string BranchFontSizeResource = "CodeWFMindViewBranchFontSize";
     public const string LeafMinWidthResource = "CodeWFMindViewLeafMinWidth";
     public const string LeafMaxWidthResource = "CodeWFMindViewLeafMaxWidth";
@@ -93,6 +99,7 @@ public static class MindViewStyleKeys
     public const string ToolbarCornerRadiusResource = "CodeWFMindViewToolbarCornerRadius";
     public const string ToolbarBorderThicknessResource = "CodeWFMindViewToolbarBorderThickness";
     public const string ToolbarBoxShadowResource = "CodeWFMindViewToolbarBoxShadow";
+    public const string ToolbarButtonSpacingResource = "CodeWFMindViewToolbarButtonSpacing";
     public const string ToolbarButtonWidthResource = "CodeWFMindViewToolbarButtonWidth";
     public const string ToolbarButtonHeightResource = "CodeWFMindViewToolbarButtonHeight";
     public const string ToolbarButtonCornerRadiusResource = "CodeWFMindViewToolbarButtonCornerRadius";

@@ -12,7 +12,13 @@
 - 🔨[Optimize]-Tightened horizontal mind-map spacing so common four-level maps fit better in a normal desktop window.
 - 🔨[Optimize]-Moved `CodeWF.MindView` node metrics, shadows, colors, menus, and mini-map styling into `CodeWF.MindView.Themes` Shared/Light/Dark resources, following the resource organization style used by Ursa.Avalonia.
 - 🔨[Optimize]-Split the left Files and Outline/Markdown panes into dedicated `UserControl` views and ViewModels, using `CodeWF.EventBus` for request/state decoupling from the main window ViewModel.
+- 🔨[Optimize]-Switched workspace messaging to `EventBus.Default` with attribute-based handlers and preserved `CodeWF.EventBus` for Native AOT trimming.
 - 🔨[Optimize]-Kept the app icon and product name only in the left title-bar area while showing the current document name after the menus, avoiding repeated app names in the window title.
+- 🔨[Optimize]-Applied AtomUI buttons to the `CodeWF.MindView` floating toolbar and context menu for smoother motion and click feedback.
+- 🔨[Optimize]-Refined floating mind-map toolbar spacing so the delete action no longer sits tight against the toolbar border.
+- 🔨[Optimize]-Let the mind-map canvas, toolbar, menu, node shadows, and placeholder colors follow the bound light/dark theme state consistently.
+- 🔨[Optimize]-Softened mind-map placeholder foregrounds and rounded third-level selected node surfaces so empty hints read as secondary content.
+- 🔨[Optimize]-Added clearer spacing between the bottom history-step text and undo/redo controls.
 - 🔨[Fix]-Fixed the empty Files pane action buttons being too short and clipping localized text descenders across Chinese, English, and Japanese layouts.
 - 🔨[Fix]-Restored double-click maximize/restore behavior for the custom title bar to match standard desktop window interaction.
 - 🔨[Optimize]-Localized outline editor text and wired startup file arguments into the main window flow.

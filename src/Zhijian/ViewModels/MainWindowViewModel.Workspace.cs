@@ -1,25 +1,36 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
+using CodeWF.EventBus;
 
 namespace Zhijian.ViewModels;
 
 public partial class MainWindowViewModel
 {
-    private void SubscribeWorkspaceEvents()
+    [EventHandler]
+    private Task HandleWorkspaceOpenDocumentRequested(WorkspaceOpenDocumentRequestedCommand command)
     {
-        _workspaceEventBus.Subscribe<WorkspaceOpenDocumentRequestedCommand>(_ => OpenDocumentAsync());
-        _workspaceEventBus.Subscribe<WorkspaceImportDocumentRequestedCommand>(_ => ImportDocumentAsync());
-        _workspaceEventBus.Subscribe<WorkspaceOpenFolderRequestedCommand>(_ => OpenFolderAsync());
-        _workspaceEventBus.Subscribe<WorkspaceOpenUserManualRequestedCommand>(_ => OpenUserManualAsync());
-        _workspaceEventBus.Subscribe<WorkspaceFolderFileSelectedCommand>(HandleWorkspaceFolderFileSelected);
-        _workspaceEventBus.Subscribe<WorkspaceSelectedNodeChangedCommand>(HandleWorkspaceSelectedNodeChanged);
-        _workspaceEventBus.Subscribe<WorkspaceMarkdownTextChangedCommand>(HandleWorkspaceMarkdownTextChanged);
-        _workspaceEventBus.Subscribe<WorkspaceAddChildRequestedCommand>(_ => AddChildToSelected());
-        _workspaceEventBus.Subscribe<WorkspaceAddSiblingRequestedCommand>(_ => AddSiblingToSelected());
-        _workspaceEventBus.Subscribe<WorkspaceCopyMarkdownRequestedCommand>(_ => CopyAsMarkdownAsync());
-        _workspaceEventBus.Subscribe<WorkspaceToggleEditorModeRequestedCommand>(_ => ToggleEditorMode());
+        return OpenDocumentAsync();
     }
 
+    [EventHandler]
+    private Task HandleWorkspaceImportDocumentRequested(WorkspaceImportDocumentRequestedCommand command)
+    {
+        return ImportDocumentAsync();
+    }
+
+    [EventHandler]
+    private Task HandleWorkspaceOpenFolderRequested(WorkspaceOpenFolderRequestedCommand command)
+    {
+        return OpenFolderAsync();
+    }
+
+    [EventHandler]
+    private Task HandleWorkspaceOpenUserManualRequested(WorkspaceOpenUserManualRequestedCommand command)
+    {
+        return OpenUserManualAsync();
+    }
+
+    [EventHandler]
     private void HandleWorkspaceFolderFileSelected(WorkspaceFolderFileSelectedCommand command)
     {
         if (!Equals(SelectedFolderFile, command.File))
@@ -28,6 +39,7 @@ public partial class MainWindowViewModel
         }
     }
 
+    [EventHandler]
     private void HandleWorkspaceSelectedNodeChanged(WorkspaceSelectedNodeChangedCommand command)
     {
         if (!ReferenceEquals(SelectedNode, command.Node))
@@ -36,12 +48,37 @@ public partial class MainWindowViewModel
         }
     }
 
+    [EventHandler]
     private void HandleWorkspaceMarkdownTextChanged(WorkspaceMarkdownTextChangedCommand command)
     {
         if (!string.Equals(MarkdownText, command.Text, StringComparison.Ordinal))
         {
             MarkdownText = command.Text;
         }
+    }
+
+    [EventHandler]
+    private void HandleWorkspaceAddChildRequested(WorkspaceAddChildRequestedCommand command)
+    {
+        AddChildToSelected();
+    }
+
+    [EventHandler]
+    private void HandleWorkspaceAddSiblingRequested(WorkspaceAddSiblingRequestedCommand command)
+    {
+        AddSiblingToSelected();
+    }
+
+    [EventHandler]
+    private Task HandleWorkspaceCopyMarkdownRequested(WorkspaceCopyMarkdownRequestedCommand command)
+    {
+        return CopyAsMarkdownAsync();
+    }
+
+    [EventHandler]
+    private void HandleWorkspaceToggleEditorModeRequested(WorkspaceToggleEditorModeRequestedCommand command)
+    {
+        ToggleEditorMode();
     }
 
     private void HandleWorkspaceStatePropertyChanged(object? sender, PropertyChangedEventArgs e)

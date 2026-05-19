@@ -78,13 +78,13 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         _fileService = fileService;
         _applicationActionService = applicationActionService;
         _recentFileStore = new RecentFileStore(ApplicationSettings.GetUserDataPath(RecentFilesName), MaxRecentFiles);
-        _workspaceEventBus = new EventBus();
-        SubscribeWorkspaceEvents();
+        _workspaceEventBus = EventBus.Default;
+        _workspaceEventBus.Subscribe(this);
         Roots = new ObservableCollection<MindMapNode> { CreateBlankRoot() };
         FolderFiles = [];
         RecentFiles = [];
-        FilesPane = new WorkspaceFilesViewModel(_workspaceEventBus);
-        OutlinePane = new WorkspaceOutlineViewModel(_workspaceEventBus);
+        FilesPane = new WorkspaceFilesViewModel();
+        OutlinePane = new WorkspaceOutlineViewModel();
         PropertyChanged += HandleWorkspaceStatePropertyChanged;
         Roots.CollectionChanged += HandleWorkspaceRootsChanged;
         FolderFiles.CollectionChanged += HandleWorkspaceFilesChanged;

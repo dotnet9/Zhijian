@@ -36,7 +36,7 @@ public partial class MindMapEditor
         else if (change.Property == IsDarkThemeProperty)
         {
             ApplyTheme();
-            Rebuild();
+            RecreateNodeChrome();
         }
         else if (change.Property == ControllerProperty)
         {
@@ -299,7 +299,7 @@ public partial class MindMapEditor
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = false,
             PlaceholderText = metrics.Placeholder,
-            PlaceholderForeground = isRoot ? Brushes.White : GetSecondaryTextBrush(),
+            PlaceholderForeground = GetTitlePlaceholderBrush(isRoot),
             FocusAdorner = null,
             TextAlignment = ToTextAlignment(metrics.ContentAlignment),
             HorizontalContentAlignment = metrics.ContentAlignment,
@@ -462,7 +462,7 @@ public partial class MindMapEditor
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = true,
             PlaceholderText = NotePlaceholder,
-            PlaceholderForeground = noteForeground,
+            PlaceholderForeground = GetNotePlaceholderBrush(IsRootNode(node)),
             FocusAdorner = null,
             TextAlignment = ToTextAlignment(metrics.ContentAlignment),
             MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),

@@ -5,7 +5,7 @@ namespace Zhijian.ViewModels;
 
 public sealed class WorkspaceFilesViewModel : ViewModelBase
 {
-    private readonly IEventBus _eventBus;
+    private readonly IEventBus _eventBus = EventBus.Default;
     private bool _isApplyingState;
     private MindMapFileItem? _selectedFolderFile;
     private bool _hasFolderFiles;
@@ -15,10 +15,9 @@ public sealed class WorkspaceFilesViewModel : ViewModelBase
     private string _primaryTextBrush = string.Empty;
     private string _secondaryTextBrush = string.Empty;
 
-    public WorkspaceFilesViewModel(IEventBus eventBus)
+    public WorkspaceFilesViewModel()
     {
-        _eventBus = eventBus;
-        _eventBus.Subscribe<WorkspaceFilesStateChangedCommand>(ApplyState);
+        _eventBus.Subscribe(this);
     }
 
     public ObservableCollection<MindMapFileItem> FolderFiles { get; } = [];
@@ -91,6 +90,7 @@ public sealed class WorkspaceFilesViewModel : ViewModelBase
         return _eventBus.PublishAsync(new WorkspaceOpenUserManualRequestedCommand());
     }
 
+    [EventHandler]
     private void ApplyState(WorkspaceFilesStateChangedCommand command)
     {
         _isApplyingState = true;

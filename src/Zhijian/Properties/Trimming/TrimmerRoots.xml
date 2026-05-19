@@ -12,6 +12,7 @@
   <assembly fullname="Lang.Avalonia" preserve="all" />
   <assembly fullname="Lang.Avalonia.Json" preserve="all" />
 
+  <assembly fullname="CodeWF.EventBus" preserve="all" />
   <assembly fullname="CodeWF.Markdown.Lite" preserve="all" />
   <assembly fullname="CodeWF.Markdown.Lite.Themes" preserve="all" />
 

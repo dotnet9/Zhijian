@@ -162,7 +162,9 @@ public partial class MindMapEditor
             TopicPlaceholder,
             IsTextOnly: true,
             HoverBackground: GetResourceBrush(MindViewStyleKeys.LeafHoverBackgroundBrushResource, "#EEF6FF", "#162235"),
-            SelectedBackground: GetResourceBrush(MindViewStyleKeys.LeafSelectedBackgroundBrushResource, "#E6F2FF", "#1E2F46"));
+            HoverBoxShadow: GetResourceBoxShadows(MindViewStyleKeys.LeafHoverBoxShadowResource, IsDarkTheme ? "0 2 8 0 #24000000" : "0 2 8 0 #0F000000"),
+            SelectedBackground: GetResourceBrush(MindViewStyleKeys.LeafSelectedBackgroundBrushResource, "#E6F2FF", "#1E2F46"),
+            SelectedBoxShadow: GetResourceBoxShadows(MindViewStyleKeys.LeafSelectedBoxShadowResource, IsDarkTheme ? "0 3 12 0 #30000000" : "0 3 12 0 #14000000"));
     }
 
     private static Geometry CreateConnectorGeometry(Point start, Point end)
@@ -250,6 +252,20 @@ public partial class MindMapEditor
     private IBrush GetSecondaryTextBrush()
     {
         return GetResourceBrush(MindViewStyleKeys.SecondaryTextBrushResource, "#6B7280", "#9CA3AF");
+    }
+
+    private IBrush GetTitlePlaceholderBrush(bool isRoot)
+    {
+        return isRoot
+            ? GetResourceBrush(MindViewStyleKeys.RootPlaceholderForegroundBrushResource, "#B3FFFFFF", "#B3FFFFFF")
+            : GetResourceBrush(MindViewStyleKeys.PlaceholderForegroundBrushResource, "#94A3B8", "#64748B");
+    }
+
+    private IBrush GetNotePlaceholderBrush(bool isRoot)
+    {
+        return isRoot
+            ? GetResourceBrush(MindViewStyleKeys.RootNotePlaceholderForegroundBrushResource, "#99FFFFFF", "#99FFFFFF")
+            : GetResourceBrush(MindViewStyleKeys.NotePlaceholderForegroundBrushResource, "#A0AEC0", "#64748B");
     }
 
     private IBrush CreateBranchBackgroundBrush(Color accent, bool isHover = false, bool isSelected = false)

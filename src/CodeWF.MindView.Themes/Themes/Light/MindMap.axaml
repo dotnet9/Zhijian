@@ -6,10 +6,12 @@
     <SolidColorBrush x:Key="CodeWFMindViewTextSelectionBrush" Color="#8FC7FF" Opacity="0.4" />
     <SolidColorBrush x:Key="CodeWFMindViewRootBackgroundBrush" Color="#148BFF" />
     <SolidColorBrush x:Key="CodeWFMindViewRootForegroundBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="CodeWFMindViewRootPlaceholderForegroundBrush" Color="#FFFFFF" Opacity="0.68" />
     <SolidColorBrush x:Key="CodeWFMindViewBranchBackgroundBrush" Color="#EEF0F3" />
     <SolidColorBrush x:Key="CodeWFMindViewBranchBlendTargetBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="CodeWFMindViewPrimaryTextBrush" Color="#111827" />
     <SolidColorBrush x:Key="CodeWFMindViewSecondaryTextBrush" Color="#334155" />
+    <SolidColorBrush x:Key="CodeWFMindViewPlaceholderForegroundBrush" Color="#94A3B8" />
     <SolidColorBrush x:Key="CodeWFMindViewPanelBackgroundBrush" Color="#F8FAFC" />
     <SolidColorBrush x:Key="CodeWFMindViewPanelBorderBrush" Color="#CBD5E1" />
     <SolidColorBrush x:Key="CodeWFMindViewToolbarBackgroundBrush" Color="#FFFFFF" />
@@ -18,10 +20,12 @@
     <SolidColorBrush x:Key="CodeWFMindViewNodeMenuShortcutBrush" Color="#667085" />
     <SolidColorBrush x:Key="CodeWFMindViewNodeMenuDisabledShortcutBrush" Color="#A0A7B1" />
     <SolidColorBrush x:Key="CodeWFMindViewNodeMenuRowHoverBrush" Color="#F1F5F9" />
-    <SolidColorBrush x:Key="CodeWFMindViewLeafHoverBackgroundBrush" Color="#EEF6FF" />
-    <SolidColorBrush x:Key="CodeWFMindViewLeafSelectedBackgroundBrush" Color="#E6F2FF" />
+    <SolidColorBrush x:Key="CodeWFMindViewLeafHoverBackgroundBrush" Color="#F2F8FF" />
+    <SolidColorBrush x:Key="CodeWFMindViewLeafSelectedBackgroundBrush" Color="#EAF4FF" />
     <SolidColorBrush x:Key="CodeWFMindViewRootNoteForegroundBrush" Color="#D1D5DB" />
     <SolidColorBrush x:Key="CodeWFMindViewNoteForegroundBrush" Color="#6B7280" />
+    <SolidColorBrush x:Key="CodeWFMindViewRootNotePlaceholderForegroundBrush" Color="#FFFFFF" Opacity="0.6" />
+    <SolidColorBrush x:Key="CodeWFMindViewNotePlaceholderForegroundBrush" Color="#A0AEC0" />
     <SolidColorBrush x:Key="CodeWFMindViewDropChildBrush" Color="#22C55E" />
     <SolidColorBrush x:Key="CodeWFMindViewMiniMapBackgroundBrush" Color="#F8FAFC" />
     <SolidColorBrush x:Key="CodeWFMindViewMiniMapBorderBrush" Color="#D8E0EA" />
@@ -40,4 +44,6 @@
     <x:String x:Key="CodeWFMindViewBranchHoverBoxShadow">0 7 18 0 #16000000</x:String>
     <x:String x:Key="CodeWFMindViewBranchSelectedBoxShadow">0 8 22 0 #1C000000</x:String>
     <x:String x:Key="CodeWFMindViewBranchDragBoxShadow">0 12 28 0 #22000000</x:String>
+    <x:String x:Key="CodeWFMindViewLeafHoverBoxShadow">0 2 8 0 #0F000000</x:String>
+    <x:String x:Key="CodeWFMindViewLeafSelectedBoxShadow">0 3 12 0 #14000000</x:String>
 </ResourceDictionary>

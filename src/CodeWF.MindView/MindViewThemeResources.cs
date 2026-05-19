@@ -2,6 +2,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Styling;
+using CodeWF.MindView.Controls;
 
 namespace CodeWF.MindView;
 
@@ -124,20 +125,28 @@ internal static class MindViewThemeResources
 
     public static bool IsDark(AvaloniaObject? owner)
     {
-        return owner is StyledElement styledElement
-            && styledElement.ActualThemeVariant == ThemeVariant.Dark;
+        return owner switch
+        {
+            MindMapEditor editor => editor.IsDarkTheme,
+            MindMapMiniMap miniMap => miniMap.IsDarkTheme,
+            StyledElement styledElement => styledElement.ActualThemeVariant == ThemeVariant.Dark,
+            _ => false
+        };
     }
 
     private static bool TryGetResource(AvaloniaObject? owner, string key, out object? value)
     {
-        if (owner is StyledElement styledElement
-            && styledElement.TryGetResource(key, styledElement.ActualThemeVariant, out value))
+        if (owner is StyledElement styledElement)
         {
-            return true;
+            var themeVariant = IsDark(owner) ? ThemeVariant.Dark : styledElement.ActualThemeVariant;
+            if (styledElement.TryGetResource(key, themeVariant, out value))
+            {
+                return true;
+            }
         }
 
         var application = Application.Current;
-        if (application is not null && application.TryGetResource(key, null, out value))
+        if (application is not null && application.TryGetResource(key, IsDark(owner) ? ThemeVariant.Dark : null, out value))
         {
             return true;
         }

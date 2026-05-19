@@ -45,8 +45,8 @@
     <x:Double x:Key="CodeWFMindViewLeafMinWidth">48</x:Double>
     <x:Double x:Key="CodeWFMindViewLeafMaxWidth">260</x:Double>
     <x:Double x:Key="CodeWFMindViewLeafMinHeight">30</x:Double>
-    <Thickness x:Key="CodeWFMindViewLeafPadding">0,2</Thickness>
-    <CornerRadius x:Key="CodeWFMindViewLeafCornerRadius">0</CornerRadius>
+    <Thickness x:Key="CodeWFMindViewLeafPadding">6,3</Thickness>
+    <CornerRadius x:Key="CodeWFMindViewLeafCornerRadius">5</CornerRadius>
     <x:Double x:Key="CodeWFMindViewLeafFontSize">16</x:Double>
 
     <x:Double x:Key="CodeWFMindViewDragHandleHitWidth">16</x:Double>
@@ -55,13 +55,14 @@
     <x:Double x:Key="CodeWFMindViewNoteMinHeight">28</x:Double>
     <x:Double x:Key="CodeWFMindViewNoteMaxHeight">96</x:Double>
 
-    <x:Double x:Key="CodeWFMindViewToolbarWidth">188</x:Double>
+    <x:Double x:Key="CodeWFMindViewToolbarWidth">208</x:Double>
     <x:Double x:Key="CodeWFMindViewToolbarHeight">32</x:Double>
-    <Thickness x:Key="CodeWFMindViewToolbarPadding">4,3</Thickness>
+    <Thickness x:Key="CodeWFMindViewToolbarPadding">8,3</Thickness>
     <CornerRadius x:Key="CodeWFMindViewToolbarCornerRadius">6</CornerRadius>
     <Thickness x:Key="CodeWFMindViewToolbarBorderThickness">1</Thickness>
     <x:String x:Key="CodeWFMindViewToolbarBoxShadow">0 6 18 0 #22000000</x:String>
-    <x:Double x:Key="CodeWFMindViewToolbarButtonWidth">30</x:Double>
+    <x:Double x:Key="CodeWFMindViewToolbarButtonSpacing">4</x:Double>
+    <x:Double x:Key="CodeWFMindViewToolbarButtonWidth">28</x:Double>
     <x:Double x:Key="CodeWFMindViewToolbarButtonHeight">24</x:Double>
     <CornerRadius x:Key="CodeWFMindViewToolbarButtonCornerRadius">4</CornerRadius>
     <x:Double x:Key="CodeWFMindViewToolbarIconSize">15</x:Double>
