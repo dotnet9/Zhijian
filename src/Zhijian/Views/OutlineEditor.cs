@@ -627,6 +627,11 @@ public partial class OutlineEditor : UserControl
             return;
         }
 
+        if (_isRebuildQueued)
+        {
+            return;
+        }
+
         if (!_titleEditors.TryGetValue(_pendingFocusNode, out var editor))
         {
             return;

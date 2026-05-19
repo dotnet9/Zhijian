@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[修复]-保持大纲标题编辑焦点在 `Tab`、`Shift+Tab`、`Alt+Up` 和 `Alt+Down` 后仍停留在当前节点，同时 `Enter` 仍切换到新建节点。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 验证大纲 `Enter`、`Tab`、`Shift+Tab`、`Alt+Up`、`Alt+Down` 后都能连续键盘输入，并截图确认。
 - 🔧[优化]-在脑图底部工具区新增紧凑的快捷键帮助按钮，用独立文案明确脑图视图中 `Tab` 和 `Shift+Tab` 是新增子主题，而不是调整大纲层级。
 - 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，并截图验证脑图和大纲快捷键 Tooltip 均可换行、左对齐且不被裁切。
 - 🔧[优化]-将大纲快捷键 Tooltip 内容改为左对齐，并检查 Tooltip 用法，确认界面统一使用 AtomUI Tooltip 样式而非 Avalonia 原生 Tooltip。
