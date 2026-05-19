@@ -102,14 +102,14 @@ public partial class MindMapEditor
                 MindMapLayoutMetrics.RootMinWidth,
                 MindMapLayoutMetrics.RootMaxWidth,
                 MindMapLayoutMetrics.RootMinHeight,
-                new CornerRadius(8),
+                GetResourceCornerRadius(MindViewStyleKeys.RootCornerRadiusResource, new CornerRadius(8)),
                 GetResourceBrush(MindViewStyleKeys.RootBackgroundBrushResource, "#148BFF", "#148BFF"),
                 Brushes.Transparent,
-                new Thickness(0),
-                new Thickness(10, 5),
-                BoxShadows.Parse("0 6 18 0 #16000000"),
+                GetResourceThickness(MindViewStyleKeys.RootBorderThicknessResource, new Thickness(0)),
+                GetResourceThickness(MindViewStyleKeys.RootPaddingResource, new Thickness(10, 5)),
+                GetResourceBoxShadows(MindViewStyleKeys.RootBoxShadowResource, "0 6 18 0 #16000000"),
                 GetResourceBrush(MindViewStyleKeys.RootForegroundBrushResource, "#FFFFFF", "#FFFFFF"),
-                18,
+                GetResourceDouble(MindViewStyleKeys.RootFontSizeResource, 18),
                 FontWeight.SemiBold,
                 HorizontalAlignment.Stretch,
                 CenterTopicPlaceholder,
@@ -123,46 +123,46 @@ public partial class MindMapEditor
                 MindMapLayoutMetrics.BranchMinWidth,
                 MindMapLayoutMetrics.BranchMaxWidth,
                 MindMapLayoutMetrics.BranchMinHeight,
-                new CornerRadius(8),
+                GetResourceCornerRadius(MindViewStyleKeys.BranchCornerRadiusResource, new CornerRadius(8)),
                 CreateBranchBackgroundBrush(accent),
-                CreateAccentBrush(accent, IsDarkTheme ? 0.5 : 0.34),
-                new Thickness(1),
-                new Thickness(12, 5),
-                BoxShadows.Parse(IsDarkTheme ? "0 4 12 0 #30000000" : "0 3 10 0 #10000000"),
+                CreateAccentBrush(accent, GetResourceDouble(MindViewStyleKeys.BranchBorderOpacityResource, IsDarkTheme ? 0.5 : 0.34)),
+                GetResourceThickness(MindViewStyleKeys.BranchBorderThicknessResource, new Thickness(1)),
+                GetResourceThickness(MindViewStyleKeys.BranchPaddingResource, new Thickness(12, 5)),
+                GetResourceBoxShadows(MindViewStyleKeys.BranchBoxShadowResource, IsDarkTheme ? "0 4 12 0 #30000000" : "0 3 10 0 #10000000"),
                 GetPrimaryTextBrush(),
-                17,
+                GetResourceDouble(MindViewStyleKeys.BranchFontSizeResource, 17),
                 FontWeight.SemiBold,
                 HorizontalAlignment.Stretch,
                 TopicPlaceholder,
                 IsTextOnly: false,
                 HoverBackground: CreateBranchBackgroundBrush(accent, isHover: true),
-                HoverBorderBrush: CreateAccentBrush(accent, IsDarkTheme ? 0.72 : 0.48),
-                HoverBoxShadow: BoxShadows.Parse(IsDarkTheme ? "0 7 18 0 #42000000" : "0 7 18 0 #16000000"),
+                HoverBorderBrush: CreateAccentBrush(accent, GetResourceDouble(MindViewStyleKeys.BranchHoverBorderOpacityResource, IsDarkTheme ? 0.72 : 0.48)),
+                HoverBoxShadow: GetResourceBoxShadows(MindViewStyleKeys.BranchHoverBoxShadowResource, IsDarkTheme ? "0 7 18 0 #42000000" : "0 7 18 0 #16000000"),
                 SelectedBackground: CreateBranchBackgroundBrush(accent, isSelected: true),
-                SelectedBorderBrush: CreateAccentBrush(accent, IsDarkTheme ? 0.95 : 0.72),
-                SelectedBorderThickness: new Thickness(1),
-                SelectedBoxShadow: BoxShadows.Parse(IsDarkTheme ? "0 8 22 0 #4A000000" : "0 8 22 0 #1C000000"),
-                DragBoxShadow: BoxShadows.Parse(IsDarkTheme ? "0 12 28 0 #58000000" : "0 12 28 0 #22000000"));
+                SelectedBorderBrush: CreateAccentBrush(accent, GetResourceDouble(MindViewStyleKeys.BranchSelectedBorderOpacityResource, IsDarkTheme ? 0.95 : 0.72)),
+                SelectedBorderThickness: GetResourceThickness(MindViewStyleKeys.BranchSelectedBorderThicknessResource, new Thickness(1)),
+                SelectedBoxShadow: GetResourceBoxShadows(MindViewStyleKeys.BranchSelectedBoxShadowResource, IsDarkTheme ? "0 8 22 0 #4A000000" : "0 8 22 0 #1C000000"),
+                DragBoxShadow: GetResourceBoxShadows(MindViewStyleKeys.BranchDragBoxShadowResource, IsDarkTheme ? "0 12 28 0 #58000000" : "0 12 28 0 #22000000"));
         }
 
         return new NodeMetrics(
             MindMapLayoutMetrics.LeafMinWidth,
             MindMapLayoutMetrics.LeafMaxWidth,
             MindMapLayoutMetrics.LeafMinHeight,
-            new CornerRadius(0),
+            GetResourceCornerRadius(MindViewStyleKeys.LeafCornerRadiusResource, new CornerRadius(0)),
             Brushes.Transparent,
             Brushes.Transparent,
             new Thickness(0),
-            new Thickness(0, 2),
+            GetResourceThickness(MindViewStyleKeys.LeafPaddingResource, new Thickness(0, 2)),
             default,
             GetPrimaryTextBrush(),
-            16,
+            GetResourceDouble(MindViewStyleKeys.LeafFontSizeResource, 16),
             FontWeight.Regular,
             HorizontalAlignment.Stretch,
             TopicPlaceholder,
             IsTextOnly: true,
-            HoverBackground: Brush.Parse(IsDarkTheme ? "#162235" : "#EEF6FF"),
-            SelectedBackground: Brush.Parse(IsDarkTheme ? "#1E2F46" : "#E6F2FF"));
+            HoverBackground: GetResourceBrush(MindViewStyleKeys.LeafHoverBackgroundBrushResource, "#EEF6FF", "#162235"),
+            SelectedBackground: GetResourceBrush(MindViewStyleKeys.LeafSelectedBackgroundBrushResource, "#E6F2FF", "#1E2F46"));
     }
 
     private static Geometry CreateConnectorGeometry(Point start, Point end)
@@ -211,6 +211,8 @@ public partial class MindMapEditor
     private void ApplyTheme()
     {
         var canvasBrush = GetCanvasBackgroundBrush();
+        _canvas.MinWidth = MinCanvasWidth;
+        _canvas.MinHeight = MinCanvasHeight;
         _canvas.Background = canvasBrush;
         _scrollViewer.Background = canvasBrush;
     }
@@ -232,12 +234,12 @@ public partial class MindMapEditor
 
     private IBrush GetPanelBackgroundBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#1F2937" : "#F8FAFC");
+        return GetResourceBrush(MindViewStyleKeys.PanelBackgroundBrushResource, "#F8FAFC", "#1F2937");
     }
 
     private IBrush GetPanelBorderBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#374151" : "#CBD5E1");
+        return GetResourceBrush(MindViewStyleKeys.PanelBorderBrushResource, "#CBD5E1", "#374151");
     }
 
     private IBrush GetPrimaryTextBrush()
@@ -252,10 +254,12 @@ public partial class MindMapEditor
 
     private IBrush CreateBranchBackgroundBrush(Color accent, bool isHover = false, bool isSelected = false)
     {
-        var target = Color.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
-        var targetWeight = IsDarkTheme
-            ? isSelected ? 0.66 : isHover ? 0.7 : 0.76
-            : isSelected ? 0.82 : isHover ? 0.86 : 0.91;
+        var target = GetResourceColor(MindViewStyleKeys.BranchBlendTargetBrushResource, "#FFFFFF", "#111827");
+        var targetWeight = isSelected
+            ? GetResourceDouble(MindViewStyleKeys.BranchSelectedBackgroundTargetWeightResource, IsDarkTheme ? 0.66 : 0.82)
+            : isHover
+                ? GetResourceDouble(MindViewStyleKeys.BranchHoverBackgroundTargetWeightResource, IsDarkTheme ? 0.7 : 0.86)
+                : GetResourceDouble(MindViewStyleKeys.BranchBackgroundTargetWeightResource, IsDarkTheme ? 0.76 : 0.91);
         return new SolidColorBrush(MixColor(accent, target, targetWeight));
     }
 
@@ -304,11 +308,41 @@ public partial class MindMapEditor
 
     private IBrush GetResourceBrush(string key, string lightFallback, string darkFallback)
     {
-        if (TryGetResource(key, ActualThemeVariant, out var value) && value is IBrush brush)
-        {
-            return brush;
-        }
+        return MindViewThemeResources.GetBrush(this, key, lightFallback, darkFallback);
+    }
 
-        return Brush.Parse(IsDarkTheme ? darkFallback : lightFallback);
+    private Color GetResourceColor(string key, string lightFallback, string darkFallback)
+    {
+        return MindViewThemeResources.GetColor(this, key, lightFallback, darkFallback);
+    }
+
+    private double GetResourceDouble(string key, double fallback)
+    {
+        return MindViewThemeResources.GetDouble(this, key, fallback);
+    }
+
+    private int GetResourceInt32(string key, int fallback)
+    {
+        return MindViewThemeResources.GetInt32(this, key, fallback);
+    }
+
+    private string GetResourceString(string key, string fallback)
+    {
+        return MindViewThemeResources.GetString(this, key, fallback);
+    }
+
+    private Thickness GetResourceThickness(string key, Thickness fallback)
+    {
+        return MindViewThemeResources.GetThickness(this, key, fallback);
+    }
+
+    private CornerRadius GetResourceCornerRadius(string key, CornerRadius fallback)
+    {
+        return MindViewThemeResources.GetCornerRadius(this, key, fallback);
+    }
+
+    private BoxShadows GetResourceBoxShadows(string key, string fallback)
+    {
+        return MindViewThemeResources.GetBoxShadows(this, key, fallback);
     }
 }

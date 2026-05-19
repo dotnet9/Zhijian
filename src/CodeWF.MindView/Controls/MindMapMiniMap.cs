@@ -19,7 +19,7 @@ public class MindMapMiniMap : Control
     public static readonly StyledProperty<Rect> ViewportBoundsProperty =
         AvaloniaProperty.Register<MindMapMiniMap, Rect>(nameof(ViewportBounds));
 
-    private const double PreviewPadding = 14;
+    private double PreviewPadding => GetResourceDouble(MindViewStyleKeys.MiniMapPreviewPaddingResource, 14);
 
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
@@ -306,12 +306,7 @@ public class MindMapMiniMap : Control
 
     private IBrush GetResourceBrush(string key, string lightFallback, string darkFallback)
     {
-        if (TryGetResource(key, ActualThemeVariant, out var value) && value is IBrush brush)
-        {
-            return brush;
-        }
-
-        return Brush.Parse(IsDarkTheme ? darkFallback : lightFallback);
+        return MindViewThemeResources.GetBrush(this, key, lightFallback, darkFallback);
     }
 
     private static IBrush WithOpacity(IBrush brush, double opacity)
@@ -323,8 +318,8 @@ public class MindMapMiniMap : Control
 
     private IBrush CreateBranchPreviewBrush(Color accent)
     {
-        var target = Color.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
-        var targetWeight = IsDarkTheme ? 0.7 : 0.88;
+        var target = GetResourceColor(MindViewStyleKeys.MiniMapBranchBlendTargetBrushResource, "#FFFFFF", "#111827");
+        var targetWeight = GetResourceDouble(MindViewStyleKeys.MiniMapBranchBackgroundTargetWeightResource, IsDarkTheme ? 0.7 : 0.88);
         return new SolidColorBrush(MixColor(accent, target, targetWeight));
     }
 
@@ -354,5 +349,15 @@ public class MindMapMiniMap : Control
     private static byte MixByte(byte source, byte target, double sourceWeight, double targetWeight)
     {
         return (byte)Math.Round(source * sourceWeight + target * targetWeight);
+    }
+
+    private double GetResourceDouble(string key, double fallback)
+    {
+        return MindViewThemeResources.GetDouble(this, key, fallback);
+    }
+
+    private Color GetResourceColor(string key, string lightFallback, string darkFallback)
+    {
+        return MindViewThemeResources.GetColor(this, key, lightFallback, darkFallback);
     }
 }

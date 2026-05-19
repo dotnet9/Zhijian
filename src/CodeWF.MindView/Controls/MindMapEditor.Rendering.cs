@@ -451,8 +451,8 @@ public partial class MindMapEditor
         var noteForeground = metrics.IsTextOnly
             ? GetSecondaryTextBrush()
             : IsRootNode(node)
-                ? Brush.Parse(IsDarkTheme ? "#DBEAFE" : "#D1D5DB")
-                : GetSecondaryTextBrush();
+                ? GetResourceBrush(MindViewStyleKeys.RootNoteForegroundBrushResource, "#D1D5DB", "#DBEAFE")
+                : GetResourceBrush(MindViewStyleKeys.NoteForegroundBrushResource, "#6B7280", "#CBD5E1");
         var noteBox = new TextBox
         {
             BorderThickness = new Thickness(0),
@@ -628,8 +628,8 @@ public partial class MindMapEditor
             return;
         }
 
-        _nodeToolbar.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
-        _nodeToolbar.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
+        _nodeToolbar.Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827");
+        _nodeToolbar.BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155");
         _nodeToolbar.IsVisible = true;
         PositionNodeToolbar();
     }

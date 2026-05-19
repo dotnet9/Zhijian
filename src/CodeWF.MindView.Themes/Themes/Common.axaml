@@ -6,40 +6,19 @@
     <Styles.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light">
-                    <SolidColorBrush x:Key="CodeWFMindViewCanvasBackgroundBrush" Color="#F8FAFC" />
-                    <SolidColorBrush x:Key="CodeWFMindViewConnectorBrush" Color="#148BFF" />
-                    <SolidColorBrush x:Key="CodeWFMindViewSelectionBrush" Color="#148BFF" />
-                    <SolidColorBrush x:Key="CodeWFMindViewRootBackgroundBrush" Color="#148BFF" />
-                    <SolidColorBrush x:Key="CodeWFMindViewRootForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="CodeWFMindViewBranchBackgroundBrush" Color="#EEF0F3" />
-                    <SolidColorBrush x:Key="CodeWFMindViewPrimaryTextBrush" Color="#111827" />
-                    <SolidColorBrush x:Key="CodeWFMindViewSecondaryTextBrush" Color="#334155" />
-                    <SolidColorBrush x:Key="CodeWFMindViewMiniMapBackgroundBrush" Color="#F8FAFC" />
-                    <SolidColorBrush x:Key="CodeWFMindViewMiniMapBorderBrush" Color="#D8E0EA" />
-                    <SolidColorBrush x:Key="CodeWFMindViewMiniMapViewportBrush" Color="#148BFF" Opacity="0.13" />
-                </ResourceDictionary>
-
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="CodeWFMindViewCanvasBackgroundBrush" Color="#111827" />
-                    <SolidColorBrush x:Key="CodeWFMindViewConnectorBrush" Color="#60A5FA" />
-                    <SolidColorBrush x:Key="CodeWFMindViewSelectionBrush" Color="#60A5FA" />
-                    <SolidColorBrush x:Key="CodeWFMindViewRootBackgroundBrush" Color="#148BFF" />
-                    <SolidColorBrush x:Key="CodeWFMindViewRootForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="CodeWFMindViewBranchBackgroundBrush" Color="#1F2937" />
-                    <SolidColorBrush x:Key="CodeWFMindViewPrimaryTextBrush" Color="#F9FAFB" />
-                    <SolidColorBrush x:Key="CodeWFMindViewSecondaryTextBrush" Color="#CBD5E1" />
-                    <SolidColorBrush x:Key="CodeWFMindViewMiniMapBackgroundBrush" Color="#0F172A" />
-                    <SolidColorBrush x:Key="CodeWFMindViewMiniMapBorderBrush" Color="#334155" />
-                    <SolidColorBrush x:Key="CodeWFMindViewMiniMapViewportBrush" Color="#1D4ED8" Opacity="0.15" />
-                </ResourceDictionary>
+                <ResourceInclude x:Key="Default" Source="Light/MindMap.axaml" />
+                <ResourceInclude x:Key="Light" Source="Light/MindMap.axaml" />
+                <ResourceInclude x:Key="Dark" Source="Dark/MindMap.axaml" />
             </ResourceDictionary.ThemeDictionaries>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="Shared/MindMap.axaml" />
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
 
     <Style Selector="TextBox.codewfMindMapTitleEditor">
         <Setter Property="CaretBrush" Value="{DynamicResource CodeWFMindViewPrimaryTextBrush}" />
-        <Setter Property="SelectionBrush" Value="#668FC7FF" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource CodeWFMindViewTextSelectionBrush}" />
         <Setter Property="Template">
             <ControlTemplate>
                 <ScrollViewer Name="PART_ScrollViewer"

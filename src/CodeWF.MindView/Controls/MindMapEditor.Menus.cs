@@ -48,14 +48,14 @@ public partial class MindMapEditor
 
         return new Border
         {
-            Width = 188,
-            Height = 32,
-            Padding = new Thickness(4, 3),
-            CornerRadius = new CornerRadius(6),
-            Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF"),
-            BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA"),
-            BorderThickness = new Thickness(1),
-            BoxShadow = BoxShadows.Parse("0 6 18 0 #22000000"),
+            Width = GetResourceDouble(MindViewStyleKeys.ToolbarWidthResource, 188),
+            Height = GetResourceDouble(MindViewStyleKeys.ToolbarHeightResource, 32),
+            Padding = GetResourceThickness(MindViewStyleKeys.ToolbarPaddingResource, new Thickness(4, 3)),
+            CornerRadius = GetResourceCornerRadius(MindViewStyleKeys.ToolbarCornerRadiusResource, new CornerRadius(6)),
+            Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827"),
+            BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155"),
+            BorderThickness = GetResourceThickness(MindViewStyleKeys.ToolbarBorderThicknessResource, new Thickness(1)),
+            BoxShadow = GetResourceBoxShadows(MindViewStyleKeys.ToolbarBoxShadowResource, "0 6 18 0 #22000000"),
             Child = panel,
             IsVisible = false
         };
@@ -76,14 +76,14 @@ public partial class MindMapEditor
 
         var button = new Border
         {
-            Width = 30,
-            Height = 24,
-            CornerRadius = new CornerRadius(4),
+            Width = GetResourceDouble(MindViewStyleKeys.ToolbarButtonWidthResource, 30),
+            Height = GetResourceDouble(MindViewStyleKeys.ToolbarButtonHeightResource, 24),
+            CornerRadius = GetResourceCornerRadius(MindViewStyleKeys.ToolbarButtonCornerRadiusResource, new CornerRadius(4)),
             Background = Brushes.Transparent,
             Child = new Viewbox
             {
-                Width = 15,
-                Height = 15,
+                Width = GetResourceDouble(MindViewStyleKeys.ToolbarIconSizeResource, 15),
+                Height = GetResourceDouble(MindViewStyleKeys.ToolbarIconSizeResource, 15),
                 Child = path
             }
         };
@@ -101,12 +101,12 @@ public partial class MindMapEditor
         var menu = new Border
         {
             Width = NodeMenuWidth,
-            Padding = new Thickness(6),
-            CornerRadius = new CornerRadius(6),
-            Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF"),
-            BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA"),
-            BorderThickness = new Thickness(1),
-            BoxShadow = BoxShadows.Parse("0 8 22 0 #24000000"),
+            Padding = GetResourceThickness(MindViewStyleKeys.NodeMenuPaddingResource, new Thickness(6)),
+            CornerRadius = GetResourceCornerRadius(MindViewStyleKeys.NodeMenuCornerRadiusResource, new CornerRadius(6)),
+            Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827"),
+            BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155"),
+            BorderThickness = GetResourceThickness(MindViewStyleKeys.NodeMenuBorderThicknessResource, new Thickness(1)),
+            BoxShadow = GetResourceBoxShadows(MindViewStyleKeys.NodeMenuBoxShadowResource, "0 8 22 0 #24000000"),
             Child = _nodeMenuPanel,
             IsVisible = false
         };
@@ -126,8 +126,8 @@ public partial class MindMapEditor
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? AddNoteText : EditNoteText, null, true, () => ShowNoteEditor(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", DeleteNodeText, "Delete", !IsRootNode(node), () => DeleteNodeFromMenu(node)));
 
-        _nodeMenu.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
-        _nodeMenu.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
+        _nodeMenu.Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827");
+        _nodeMenu.BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155");
         _nodeMenu.IsVisible = true;
 
         var x = Math.Clamp(canvasPoint.X, 8, Math.Max(8, _canvas.Width - NodeMenuWidth - 8));
@@ -140,15 +140,15 @@ public partial class MindMapEditor
     {
         var foreground = isEnabled
             ? GetPrimaryTextBrush()
-            : Brush.Parse(IsDarkTheme ? "#64748B" : "#A0A7B1");
+            : GetResourceBrush(MindViewStyleKeys.NodeMenuDisabledTextBrushResource, "#A0A7B1", "#64748B");
         var shortcutBrush = isEnabled
-            ? Brush.Parse(IsDarkTheme ? "#94A3B8" : "#667085")
-            : Brush.Parse(IsDarkTheme ? "#475569" : "#A0A7B1");
+            ? GetResourceBrush(MindViewStyleKeys.NodeMenuShortcutBrushResource, "#667085", "#94A3B8")
+            : GetResourceBrush(MindViewStyleKeys.NodeMenuDisabledShortcutBrushResource, "#A0A7B1", "#475569");
         var icon = new TextBlock
         {
             Text = iconText,
-            Width = 18,
-            FontSize = 13,
+            Width = GetResourceDouble(MindViewStyleKeys.NodeMenuIconWidthResource, 18),
+            FontSize = GetResourceDouble(MindViewStyleKeys.NodeMenuTextFontSizeResource, 13),
             FontWeight = FontWeight.SemiBold,
             Foreground = shortcutBrush,
             TextAlignment = TextAlignment.Center,
@@ -157,14 +157,14 @@ public partial class MindMapEditor
         var text = new TextBlock
         {
             Text = header,
-            FontSize = 13,
+            FontSize = GetResourceDouble(MindViewStyleKeys.NodeMenuTextFontSizeResource, 13),
             Foreground = foreground,
             VerticalAlignment = VerticalAlignment.Center
         };
         var shortcutText = new TextBlock
         {
             Text = shortcut ?? string.Empty,
-            FontSize = 12,
+            FontSize = GetResourceDouble(MindViewStyleKeys.NodeMenuShortcutFontSizeResource, 12),
             Foreground = shortcutBrush,
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center
@@ -182,16 +182,16 @@ public partial class MindMapEditor
 
         var row = new Border
         {
-            Height = 30,
-            CornerRadius = new CornerRadius(4),
-            Padding = new Thickness(8, 0),
+            Height = GetResourceDouble(MindViewStyleKeys.NodeMenuRowHeightResource, 30),
+            CornerRadius = GetResourceCornerRadius(MindViewStyleKeys.NodeMenuRowCornerRadiusResource, new CornerRadius(4)),
+            Padding = GetResourceThickness(MindViewStyleKeys.NodeMenuRowPaddingResource, new Thickness(8, 0)),
             Background = Brushes.Transparent,
             Cursor = isEnabled ? new Cursor(StandardCursorType.Hand) : Cursor.Default,
             Child = content
         };
         if (isEnabled)
         {
-            row.PointerEntered += (_, _) => row.Background = Brush.Parse(IsDarkTheme ? "#1F2937" : "#F1F5F9");
+            row.PointerEntered += (_, _) => row.Background = GetResourceBrush(MindViewStyleKeys.NodeMenuRowHoverBrushResource, "#F1F5F9", "#1F2937");
             row.PointerExited += (_, _) => row.Background = Brushes.Transparent;
             row.PointerPressed += (_, e) =>
             {

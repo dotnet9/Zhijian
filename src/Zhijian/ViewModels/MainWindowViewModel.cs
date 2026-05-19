@@ -1,5 +1,6 @@
 using AtomUI.Controls;
 using Avalonia;
+using CodeWF.EventBus;
 using CodeWF.MindView;
 using Lang.Avalonia;
 using System.Collections.ObjectModel;
@@ -31,6 +32,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private readonly IMindMapFileService _fileService;
     private readonly IApplicationActionService _applicationActionService;
     private readonly RecentFileStore _recentFileStore;
+    private readonly IEventBus _workspaceEventBus;
     private readonly HashSet<MindMapNode> _observedNodes = [];
     private readonly List<HistoryEntry> _history = [];
     private int _nextPaletteIndex = Random.Shared.Next(Palette.Length);
@@ -76,9 +78,16 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         _fileService = fileService;
         _applicationActionService = applicationActionService;
         _recentFileStore = new RecentFileStore(ApplicationSettings.GetUserDataPath(RecentFilesName), MaxRecentFiles);
+        _workspaceEventBus = new EventBus();
+        SubscribeWorkspaceEvents();
         Roots = new ObservableCollection<MindMapNode> { CreateBlankRoot() };
         FolderFiles = [];
         RecentFiles = [];
+        FilesPane = new WorkspaceFilesViewModel(_workspaceEventBus);
+        OutlinePane = new WorkspaceOutlineViewModel(_workspaceEventBus);
+        PropertyChanged += HandleWorkspaceStatePropertyChanged;
+        Roots.CollectionChanged += HandleWorkspaceRootsChanged;
+        FolderFiles.CollectionChanged += HandleWorkspaceFilesChanged;
 
         WatchTree();
         AssignMissingColors(Root);
@@ -90,6 +99,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SyncMarkdownFromTree();
         RecordHistoryStep(T(ZhijianL.EmptyMindMap));
         MarkDocumentClean();
+        PublishWorkspaceFilesState();
+        PublishWorkspaceOutlineState();
         _ = LoadRecentFilesAsync();
         _ = LoadStartupDocumentAsync(startupFilePath);
         _ = InitializeNewUserTourAsync();
@@ -100,6 +111,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public ObservableCollection<MindMapFileItem> FolderFiles { get; }
 
     public ObservableCollection<RecentFileItem> RecentFiles { get; }
+
+    public WorkspaceFilesViewModel FilesPane { get; }
+
+    public WorkspaceOutlineViewModel OutlinePane { get; }
 
     public MindMapNode? SelectedNode
     {
@@ -261,7 +276,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         ? FormatText(ZhijianL.HistorySummary, 0, 0)
         : FormatText(ZhijianL.HistorySummary, _historyIndex + 1, _history.Count);
 
-    public string WindowTitle => T(ZhijianL.AppName);
+    public string WindowTitle => string.Empty;
 
     public string DocumentTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName}";
 

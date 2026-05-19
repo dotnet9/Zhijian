@@ -406,7 +406,7 @@ public partial class MindMapEditor
         return true;
     }
 
-    private static double ToWheelPanDistance(double delta)
+    private double ToWheelPanDistance(double delta)
     {
         if (Math.Abs(delta) <= 3)
         {
@@ -416,7 +416,7 @@ public partial class MindMapEditor
         return delta;
     }
 
-    private static double ToTouchPadZoomFactor(Vector delta)
+    private double ToTouchPadZoomFactor(Vector delta)
     {
         var value = Math.Abs(delta.Y) >= Math.Abs(delta.X)
             ? delta.Y
@@ -681,7 +681,7 @@ public partial class MindMapEditor
         HideDropPreview();
     }
 
-    private static MindMapDropPlacement GetDropPlacement(Rect targetBounds, Point pointer)
+    private MindMapDropPlacement GetDropPlacement(Rect targetBounds, Point pointer)
     {
         var offsetY = pointer.Y - targetBounds.Top;
         if (offsetY < targetBounds.Height * DropEdgeRatio)
@@ -731,7 +731,7 @@ public partial class MindMapEditor
 
         var bounds = GetNodeBounds(target, frame);
         _dropPreviewPath.Stroke = placement == MindMapDropPlacement.Child
-            ? Brush.Parse("#22C55E")
+            ? GetResourceBrush(MindViewStyleKeys.DropChildBrushResource, "#22C55E", "#22C55E")
             : GetSelectionBrush();
         _dropPreviewPath.Data = CreateDropPreviewGeometry(bounds, placement);
         _dropPreviewPath.IsVisible = true;

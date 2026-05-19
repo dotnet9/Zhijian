@@ -106,22 +106,22 @@ public partial class MindMapEditor : UserControl
             nameof(ViewportBounds),
             editor => editor.ViewportBounds);
 
-    private const double MinCanvasWidth = 920;
-    private const double MinCanvasHeight = 620;
-    private const double MinCanvasHorizontalPadding = 240;
-    private const double MinCanvasVerticalPadding = 180;
-    private const double MinZoom = 0.1;
-    private const double MaxZoom = 2.0;
-    private const double ZoomFactor = 1.1;
-    private const double TouchPadMagnifySensitivity = 16;
-    private const double TouchPadMagnifyMaxSteps = 4;
-    private const double WheelPanStep = 72;
-    private const int RebuildConnectorBatchSize = 160;
-    private const int RebuildNodeBatchSize = 48;
-    private const double DragStartDistance = 6;
-    private const double DropEdgeRatio = 0.28;
-    private const double NodeMenuWidth = 224;
-    private static readonly string[] DefaultPalette =
+    private double MinCanvasWidth => GetResourceDouble(MindViewStyleKeys.MinCanvasWidthResource, 920);
+    private double MinCanvasHeight => GetResourceDouble(MindViewStyleKeys.MinCanvasHeightResource, 620);
+    private double MinCanvasHorizontalPadding => GetResourceDouble(MindViewStyleKeys.MinCanvasHorizontalPaddingResource, 240);
+    private double MinCanvasVerticalPadding => GetResourceDouble(MindViewStyleKeys.MinCanvasVerticalPaddingResource, 180);
+    private double MinZoom => GetResourceDouble(MindViewStyleKeys.MinZoomResource, 0.1);
+    private double MaxZoom => GetResourceDouble(MindViewStyleKeys.MaxZoomResource, 2.0);
+    private double ZoomFactor => GetResourceDouble(MindViewStyleKeys.ZoomFactorResource, 1.1);
+    private double TouchPadMagnifySensitivity => GetResourceDouble(MindViewStyleKeys.TouchPadMagnifySensitivityResource, 16);
+    private double TouchPadMagnifyMaxSteps => GetResourceDouble(MindViewStyleKeys.TouchPadMagnifyMaxStepsResource, 4);
+    private double WheelPanStep => GetResourceDouble(MindViewStyleKeys.WheelPanStepResource, 72);
+    private int RebuildConnectorBatchSize => GetResourceInt32(MindViewStyleKeys.RebuildConnectorBatchSizeResource, 160);
+    private int RebuildNodeBatchSize => GetResourceInt32(MindViewStyleKeys.RebuildNodeBatchSizeResource, 48);
+    private double DragStartDistance => GetResourceDouble(MindViewStyleKeys.DragStartDistanceResource, 6);
+    private double DropEdgeRatio => GetResourceDouble(MindViewStyleKeys.DropEdgeRatioResource, 0.28);
+    private double NodeMenuWidth => GetResourceDouble(MindViewStyleKeys.NodeMenuWidthResource, 224);
+    private static readonly string[] FallbackPalette =
     [
         "#2563EB",
         "#16A34A",
@@ -137,10 +137,8 @@ public partial class MindMapEditor : UserControl
 
     private readonly Canvas _canvas = new()
     {
-        Background = Brush.Parse("#F8FAFC"),
+        Background = Brushes.Transparent,
         Cursor = new Cursor(StandardCursorType.Hand),
-        MinWidth = MinCanvasWidth,
-        MinHeight = MinCanvasHeight
     };
     private readonly LayoutTransformControl _zoomHost;
     private readonly ScrollViewer _scrollViewer;
@@ -179,7 +177,7 @@ public partial class MindMapEditor : UserControl
     private RoutedEventArgs? _lastHandledPinchEvent;
     private MindMapNode? _hoverNode;
     private MindMapNode? _toolbarNode;
-    private int _nextPaletteIndex = Random.Shared.Next(DefaultPalette.Length);
+    private int _nextPaletteIndex = Random.Shared.Next(FallbackPalette.Length);
     private Point _panStartPointer;
     private Vector _panStartOffset;
     private double _zoomScale = 1;
@@ -702,7 +700,20 @@ public partial class MindMapEditor : UserControl
 
     private string NextColor()
     {
-        return DefaultPalette[_nextPaletteIndex++ % DefaultPalette.Length];
+        var palette = GetPalette();
+        return palette[_nextPaletteIndex++ % palette.Length];
+    }
+
+    private string[] GetPalette()
+    {
+        var paletteText = GetResourceString(
+            MindViewStyleKeys.DefaultPaletteResource,
+            string.Join(";", FallbackPalette));
+        var palette = paletteText
+            .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(value => value.Length > 0)
+            .ToArray();
+        return palette.Length == 0 ? FallbackPalette : palette;
     }
 
     private bool IsRootNode(MindMapNode? node)

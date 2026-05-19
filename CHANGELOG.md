@@ -10,8 +10,13 @@
 - 🔨[Optimize]-Softened second-level mind-map branch nodes with tinted backgrounds, accent borders, dark readable text, and matching mini-map previews.
 - 🔨[Optimize]-Added lightweight hover, selected, and drag motion feedback for mind-map nodes using brush and shadow transitions without changing node layout.
 - 🔨[Optimize]-Tightened horizontal mind-map spacing so common four-level maps fit better in a normal desktop window.
+- 🔨[Optimize]-Moved `CodeWF.MindView` node metrics, shadows, colors, menus, and mini-map styling into `CodeWF.MindView.Themes` Shared/Light/Dark resources, following the resource organization style used by Ursa.Avalonia.
+- 🔨[Optimize]-Split the left Files and Outline/Markdown panes into dedicated `UserControl` views and ViewModels, using `CodeWF.EventBus` for request/state decoupling from the main window ViewModel.
+- 🔨[Optimize]-Kept the app icon and product name only in the left title-bar area while showing the current document name after the menus, avoiding repeated app names in the window title.
+- 🔨[Fix]-Fixed the empty Files pane action buttons being too short and clipping localized text descenders across Chinese, English, and Japanese layouts.
+- 🔨[Fix]-Restored double-click maximize/restore behavior for the custom title bar to match standard desktop window interaction.
 - 🔨[Optimize]-Localized outline editor text and wired startup file arguments into the main window flow.
-- 🧪[Test]-Built `Zhijian.slnx`, ran the desktop app, and verified visible, immersive, restored pane, multi-level node color, and hover states with screenshots.
+- 🧪[Test]-Built `Zhijian.slnx`, ran the desktop app, and verified visible, immersive, restored pane, multi-level node color, language switching, empty Files buttons, title-bar double click, and custom node titles not being translated with screenshots.
 
 ## 12.0.3.12（2026-05-18）
 

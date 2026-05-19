@@ -25,6 +25,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         MiniMapPopup.PlacementTarget = MiniMapButton;
+        OutlineTourStep.Target = WorkspaceOutlineView.EditorHost;
+        EditorModeTourStep.Target = WorkspaceOutlineView.EditorModeToggleTarget;
         MiniMap.MapPointRequested += (_, point) =>
         {
             MiniMapPopup.IsOpen = false;
@@ -271,6 +273,15 @@ public partial class MainWindow : Window
             || WindowState == Avalonia.Controls.WindowState.FullScreen
             || !IsTitleBarDragSource(e))
         {
+            return;
+        }
+
+        if (e.ClickCount == 2)
+        {
+            WindowState = WindowState == Avalonia.Controls.WindowState.Maximized
+                ? Avalonia.Controls.WindowState.Normal
+                : Avalonia.Controls.WindowState.Maximized;
+            e.Handled = true;
             return;
         }
 
