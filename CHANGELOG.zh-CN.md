@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- ✨[新增]-新增 `osx-x64` 和 `osx-arm64` 发布配置，默认发布脚本覆盖 Windows、Linux 和 macOS 三个平台。
+- 🧪[测试]-分别执行 `dotnet publish` 验证 `osx-x64` 与 `osx-arm64` 发布链路，确认生成 `publish/osx-x64/Zhijian/Zhijian` 和 `publish/osx-arm64/Zhijian/Zhijian`。
 - 🔧[修复]-修复大纲视图被独立 `WorkspaceOutlineView` 包裹后无法拿到主窗口脑图控制器的问题，恢复 `Enter`、`Tab`、`Shift+Tab`、空标题删除与左右视图同步。
 - 🔧[优化]-将大纲/脑图标题快捷键解析集中到 `MindMapKeyboardGestureRouter`，并合并大纲树重建与焦点恢复，减少连续操作时的重复重绘。
 - 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 模拟根节点 `Enter`、普通节点 `Enter`、`Tab` 降级和 `Shift+Tab` 提升，并截图验证大纲与脑图同步。

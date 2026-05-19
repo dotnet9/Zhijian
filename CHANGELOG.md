@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- ✨[Add]-Added `osx-x64` and `osx-arm64` publish profiles and included them in the default publish scripts so release packaging covers Windows, Linux, and macOS.
+- 🧪[Test]-Published `osx-x64` and `osx-arm64` from `src/Zhijian/Zhijian.csproj` and confirmed the macOS executables are generated under `publish/osx-x64/Zhijian/Zhijian` and `publish/osx-arm64/Zhijian/Zhijian`.
 - 🔧[Fix]-Restored the outline editor's connection to the main mind-map controller when hosted inside `WorkspaceOutlineView`, bringing back `Enter`, `Tab`, `Shift+Tab`, empty-title deletion, and synchronized visual updates.
 - 🔧[Optimize]-Centralized outline/mind-map title keyboard routing in `MindMapKeyboardGestureRouter` and coalesced outline rebuild/focus restoration to reduce repeated redraws during fast editing.
 - 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and used UI Automation screenshots to verify root `Enter`, node `Enter`, `Tab` demote, and `Shift+Tab` promote across the outline and mind-map views.
