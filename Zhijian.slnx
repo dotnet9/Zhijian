@@ -5,9 +5,8 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="pack.bat" />
+    <File Path="publish.bat" />
     <File Path="Publish.Common.pubxml" />
-    <File Path="publish_all.bat" />
-    <File Path="publish_Zhijian.bat" />
     <File Path="publishbase.bat" />
     <File Path="README.zh-CN.md" />
     <File Path="docs/architecture.md" />
@@ -18,7 +17,7 @@
     <File Path="README.md" />
     <File Path="使用手册.md" />
   </Folder>
-  <Project Path="src/CodeWF.MindView/CodeWF.MindView.csproj" />
   <Project Path="src/CodeWF.MindView.Themes/CodeWF.MindView.Themes.csproj" />
+  <Project Path="src/CodeWF.MindView/CodeWF.MindView.csproj" />
   <Project Path="src/Zhijian/Zhijian.csproj" />
 </Solution>
