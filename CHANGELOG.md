@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[Optimize]-Added a compact outline shortcut help button in the bottom toolbar so users can discover `Enter`, `Tab`, `Shift+Tab`, and `Alt+Up/Alt+Down` without reading the README.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, hovered the new outline shortcut help button with UI Automation, and verified the tooltip screenshot.
 - 📝[Docs]-Updated README, the user manual, and controller comments so outline shortcuts match the current behavior: center-topic `Enter` adds a child, normal-node `Enter` adds a sibling, `Tab` demotes, and `Alt+Up`/`Alt+Down` reorder siblings.
 - 🔧[Optimize]-Made `Alt+Up`/`Alt+Down` work while editing topic titles, matching the shortcuts already shown in the node context menu and title-bar edit menu.
 - 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, created `Root/A/B` with UI Automation, and verified `Alt+Up`/`Alt+Down` reorder both the outline and mind-map views with screenshots.

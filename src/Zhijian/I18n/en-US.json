@@ -32,6 +32,8 @@
       "EditNote": "Edit Note",
       "DeleteNode": "Delete Node",
       "CopyAsMarkdown": "Copy as Markdown",
+      "OutlineShortcuts": "Outline Shortcuts",
+      "OutlineShortcutsTip": "Outline shortcuts\nEnter: add sibling (center topic: add child)\nTab: demote under previous sibling\nShift+Tab: promote to parent level\nAlt+Up/Down: move among siblings",
       "ThemeMenu": "Theme",
       "DarkTheme": "Dark Theme",
       "LightTheme": "Light Theme",

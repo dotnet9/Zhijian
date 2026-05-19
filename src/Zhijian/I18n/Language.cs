@@ -38,6 +38,8 @@ namespace Zhijian
         public static readonly string EditNote = "Zhijian.ZhijianL.EditNote";
         public static readonly string DeleteNode = "Zhijian.ZhijianL.DeleteNode";
         public static readonly string CopyAsMarkdown = "Zhijian.ZhijianL.CopyAsMarkdown";
+        public static readonly string OutlineShortcuts = "Zhijian.ZhijianL.OutlineShortcuts";
+        public static readonly string OutlineShortcutsTip = "Zhijian.ZhijianL.OutlineShortcutsTip";
         public static readonly string ThemeMenu = "Zhijian.ZhijianL.ThemeMenu";
         public static readonly string DarkTheme = "Zhijian.ZhijianL.DarkTheme";
         public static readonly string LightTheme = "Zhijian.ZhijianL.LightTheme";

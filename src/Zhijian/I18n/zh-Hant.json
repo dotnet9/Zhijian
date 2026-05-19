@@ -32,6 +32,8 @@
       "EditNote": "編輯備註",
       "DeleteNode": "刪除節點",
       "CopyAsMarkdown": "複製為 Markdown",
+      "OutlineShortcuts": "大綱快捷鍵",
+      "OutlineShortcutsTip": "大綱快捷鍵\nEnter：新增同級（中心主題：新增子節點）\nTab：降級到上一個同級節點下\nShift+Tab：提升到父級同層\nAlt+Up/Down：在同級節點間移動",
       "ThemeMenu": "主題",
       "DarkTheme": "黑色主題",
       "LightTheme": "淺色主題",

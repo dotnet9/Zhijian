@@ -85,6 +85,17 @@
                                               Height="16"
                                               Foreground="{Binding SecondaryTextBrush}"/>
                 </atom:Button>
+                <atom:Button Width="32"
+                             Height="30"
+                             Padding="7"
+                             IsVisible="{Binding IsOutlineMode}"
+                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OutlineShortcuts}}"
+                             atom:ToolTip.Placement="Top"
+                             atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.OutlineShortcutsTip}}">
+                    <icons:QuestionCircleOutlined Width="16"
+                                                  Height="16"
+                                                  Foreground="{Binding SecondaryTextBrush}"/>
+                </atom:Button>
                 <Border Width="1"
                         Height="18"
                         Margin="4,0"
