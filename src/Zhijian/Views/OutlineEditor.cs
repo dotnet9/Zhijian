@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CodeWF.MindView;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -26,6 +27,9 @@ public partial class OutlineEditor : UserControl
         AvaloniaProperty.Register<OutlineEditor, MindMapNode?>(
             nameof(SelectedNode),
             defaultBindingMode: BindingMode.TwoWay);
+
+    public static readonly StyledProperty<IMindMapEditorController?> ControllerProperty =
+        AvaloniaProperty.Register<OutlineEditor, IMindMapEditorController?>(nameof(Controller));
 
     public static readonly StyledProperty<bool> IsDarkThemeProperty =
         AvaloniaProperty.Register<OutlineEditor, bool>(nameof(IsDarkTheme));
@@ -94,8 +98,11 @@ public partial class OutlineEditor : UserControl
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
 
     private int _rebuildVersion;
+    private bool _isRebuildQueued;
+    private KeyEventArgs? _lastHandledEditorKeyEvent;
     private MindMapNode? _dragNode;
     private MindMapNode? _dropTarget;
+    private MindMapNode? _pendingFocusNode;
     private Control? _dragAnchor;
     private MindMapNode? _hoverDragHandleNode;
     private Point _dragStartPointer;
@@ -125,6 +132,12 @@ public partial class OutlineEditor : UserControl
     {
         get => GetValue(SelectedNodeProperty);
         set => SetValue(SelectedNodeProperty, value);
+    }
+
+    public IMindMapEditorController? Controller
+    {
+        get => GetValue(ControllerProperty);
+        set => SetValue(ControllerProperty, value);
     }
 
     public bool IsDarkTheme
@@ -211,7 +224,10 @@ public partial class OutlineEditor : UserControl
         set => SetValue(DragNodeTipProperty, value);
     }
 
-    private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
+    private IMindMapEditorController? ViewModel =>
+        Controller
+        ?? DataContext as IMindMapEditorController
+        ?? this.FindAncestorOfType<Window>()?.DataContext as IMindMapEditorController;
 
     private sealed record OutlineRowWorkItem(MindMapNode Node, int Level);
 
@@ -240,6 +256,7 @@ public partial class OutlineEditor : UserControl
 
     private void Rebuild()
     {
+        _isRebuildQueued = false;
         var version = ++_rebuildVersion;
         DetachSubscriptions();
         _itemsPanel.Children.Clear();
@@ -291,6 +308,8 @@ public partial class OutlineEditor : UserControl
             AddNodeRow(rowWork[i].Node, rowWork[i].Level);
         }
 
+        TryFocusPendingNode();
+
         if (rowLimit < rowWork.Count)
         {
             Dispatcher.UIThread.Post(
@@ -300,6 +319,7 @@ public partial class OutlineEditor : UserControl
         }
 
         ApplySelectionState();
+        TryFocusPendingNode();
     }
 
     private void DetachSubscriptions()
@@ -334,163 +354,13 @@ public partial class OutlineEditor : UserControl
     private void AddNodeRow(MindMapNode node, int level)
     {
         var isRoot = ViewModel?.IsRoot(node) == true;
-        var frame = new Border
-        {
-            BorderBrush = Brushes.Transparent,
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(4),
-            Background = Brushes.Transparent,
-            Margin = new Thickness((level - 1) * IndentSize, 0, 0, 0),
-            Padding = new Thickness(2, 1),
-            MinHeight = 32,
-            DataContext = node
-        };
-
-        var grid = new Grid
-        {
-            ColumnDefinitions = new ColumnDefinitions($"{DragHandleColumnWidth},*")
-        };
-
-        var dragHandle = CreateDragHandle(isRoot);
-        if (!isRoot)
-        {
-            AtomToolTip.SetTip(dragHandle, DragNodeTip);
-            dragHandle.PointerPressed += (sender, e) => HandleDragHandlePointerPressed(node, sender as Control, e);
-            dragHandle.PointerEntered += (_, _) => SetHoveredDragHandleNode(node);
-            dragHandle.PointerExited += (_, _) =>
-            {
-                if (ReferenceEquals(_hoverDragHandleNode, node))
-                {
-                    SetHoveredDragHandleNode(null);
-                }
-            };
-        }
-
-        var contentPanel = new StackPanel
-        {
-            Spacing = 3
-        };
-
-        Border CreateDragHandle(bool handleIsRoot)
-        {
-            var handle = new Border
-            {
-                Width = DragHandleColumnWidth,
-                MinHeight = 30,
-                Background = Brushes.Transparent,
-                BorderBrush = Brushes.Transparent,
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(4),
-                Cursor = handleIsRoot ? Cursor.Default : new Cursor(StandardCursorType.SizeAll),
-                IsHitTestVisible = !handleIsRoot,
-                Child = handleIsRoot ? null : CreateDragDot(node)
-            };
-            return handle;
-        }
-
-        Control CreateDragDot(MindMapNode dotNode)
-        {
-            var glow = new Border
-            {
-                Width = OutlineDotGlowSize,
-                Height = OutlineDotGlowSize,
-                CornerRadius = new CornerRadius(OutlineDotGlowSize / 2),
-                Background = Brushes.Transparent,
-                BorderBrush = Brushes.Transparent,
-                BorderThickness = new Thickness(1),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            var dot = new Border
-            {
-                Width = OutlineDotSize,
-                Height = OutlineDotSize,
-                CornerRadius = new CornerRadius(OutlineDotSize / 2),
-                Background = GetDragDotBrush(),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            var dotHost = new Grid
-            {
-                Width = DragHandleColumnWidth,
-                MinHeight = 30
-            };
-            dotHost.Children.Add(glow);
-            dotHost.Children.Add(dot);
-            _dragHandleGlows[dotNode] = glow;
-
-            return dotHost;
-        }
-
-        var titleBox = new AtomTextBox
-        {
-            Margin = new Thickness(0, 1, 4, 1),
-            BorderThickness = new Thickness(0),
-            Background = Brushes.Transparent,
-            Foreground = GetPrimaryTextBrush(),
-            PlaceholderForeground = GetPlaceholderTextBrush(),
-            FontSize = isRoot ? 16 : 15,
-            FontWeight = isRoot ? FontWeight.SemiBold : FontWeight.Regular,
-            PlaceholderText = isRoot ? CenterTopicPlaceholder : TopicPlaceholder,
-            AcceptsReturn = false,
-            VerticalContentAlignment = VerticalAlignment.Center,
-            MinHeight = 28
-        };
-        titleBox.Text = node.Title;
-        titleBox.PropertyChanged += (_, e) =>
-        {
-            if (e.Property == AtomTextBox.TextProperty && !string.Equals(node.Title, titleBox.Text, StringComparison.Ordinal))
-            {
-                node.Title = titleBox.Text ?? string.Empty;
-            }
-        };
-        titleBox.GotFocus += (_, _) => SelectNode(node);
-        titleBox.AddHandler(
-            KeyDownEvent,
-            (sender, e) => HandleTitleKeyDown(node, sender as AtomTextBox, e),
-            RoutingStrategies.Tunnel,
-            handledEventsToo: true);
-
-        var noteBox = new AtomTextBox
-        {
-            BorderThickness = new Thickness(0),
-            Background = Brushes.Transparent,
-            Foreground = GetSecondaryTextBrush(),
-            PlaceholderForeground = GetPlaceholderTextBrush(),
-            FontSize = MindMapLayoutMetrics.NoteFontSize,
-            PlaceholderText = NotePlaceholder,
-            AcceptsReturn = true,
-            TextWrapping = TextWrapping.Wrap,
-            MinHeight = 26,
-            MaxHeight = 94,
-            Padding = new Thickness(0, 1, 0, 3),
-            VerticalContentAlignment = VerticalAlignment.Top
-        };
-        noteBox.Text = node.Note;
-        noteBox.PropertyChanged += (_, e) =>
-        {
-            if (e.Property == AtomTextBox.TextProperty && !string.Equals(node.Note, noteBox.Text, StringComparison.Ordinal))
-            {
-                node.Note = noteBox.Text ?? string.Empty;
-            }
-        };
-        noteBox.GotFocus += (_, _) => SelectNode(node);
-        noteBox.LostFocus += (_, _) => CollapseEmptyNoteEditor(node);
-        noteBox.AddHandler(
-            KeyDownEvent,
-            (sender, e) => HandleNoteKeyDown(node, sender as AtomTextBox, e),
-            RoutingStrategies.Tunnel,
-            handledEventsToo: true);
-
-        var noteFrame = new Border
-        {
-            Margin = new Thickness(0, 0, 4, 4),
-            Background = Brushes.Transparent,
-            BorderBrush = Brushes.Transparent,
-            BorderThickness = new Thickness(0),
-            Padding = new Thickness(0),
-            Child = noteBox
-        };
+        var frame = CreateRowFrame(node, level);
+        var grid = CreateRowGrid();
+        var dragHandle = CreateDragHandle(node, isRoot);
+        var titleBox = CreateTitleEditor(node, isRoot);
+        var noteBox = CreateNoteEditor(node);
+        var noteFrame = CreateNoteFrame(noteBox);
+        var contentPanel = new StackPanel { Spacing = 3 };
 
         contentPanel.Children.Add(titleBox);
         contentPanel.Children.Add(noteFrame);
@@ -512,6 +382,177 @@ public partial class OutlineEditor : UserControl
         _noteFrames[node] = noteFrame;
         _dragHandles[node] = dragHandle;
         _itemsPanel.Children.Add(frame);
+    }
+
+    private Border CreateRowFrame(MindMapNode node, int level)
+    {
+        return new Border
+        {
+            BorderBrush = Brushes.Transparent,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(4),
+            Background = Brushes.Transparent,
+            Margin = new Thickness((level - 1) * IndentSize, 0, 0, 0),
+            Padding = new Thickness(2, 1),
+            MinHeight = 32,
+            DataContext = node
+        };
+    }
+
+    private static Grid CreateRowGrid()
+    {
+        return new Grid
+        {
+            ColumnDefinitions = new ColumnDefinitions($"{DragHandleColumnWidth},*")
+        };
+    }
+
+    private Border CreateDragHandle(MindMapNode node, bool isRoot)
+    {
+        var handle = new Border
+        {
+            Width = DragHandleColumnWidth,
+            MinHeight = 30,
+            Background = Brushes.Transparent,
+            BorderBrush = Brushes.Transparent,
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(4),
+            Cursor = isRoot ? Cursor.Default : new Cursor(StandardCursorType.SizeAll),
+            IsHitTestVisible = !isRoot,
+            Child = isRoot ? null : CreateDragDot(node)
+        };
+
+        if (isRoot)
+        {
+            return handle;
+        }
+
+        AtomToolTip.SetTip(handle, DragNodeTip);
+        handle.PointerPressed += (sender, e) => HandleDragHandlePointerPressed(node, sender as Control, e);
+        handle.PointerEntered += (_, _) => SetHoveredDragHandleNode(node);
+        handle.PointerExited += (_, _) =>
+        {
+            if (ReferenceEquals(_hoverDragHandleNode, node))
+            {
+                SetHoveredDragHandleNode(null);
+            }
+        };
+        return handle;
+    }
+
+    private Control CreateDragDot(MindMapNode node)
+    {
+        var glow = new Border
+        {
+            Width = OutlineDotGlowSize,
+            Height = OutlineDotGlowSize,
+            CornerRadius = new CornerRadius(OutlineDotGlowSize / 2),
+            Background = Brushes.Transparent,
+            BorderBrush = Brushes.Transparent,
+            BorderThickness = new Thickness(1),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        var dot = new Border
+        {
+            Width = OutlineDotSize,
+            Height = OutlineDotSize,
+            CornerRadius = new CornerRadius(OutlineDotSize / 2),
+            Background = GetDragDotBrush(),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        var dotHost = new Grid
+        {
+            Width = DragHandleColumnWidth,
+            MinHeight = 30
+        };
+        dotHost.Children.Add(glow);
+        dotHost.Children.Add(dot);
+        _dragHandleGlows[node] = glow;
+
+        return dotHost;
+    }
+
+    private AtomTextBox CreateTitleEditor(MindMapNode node, bool isRoot)
+    {
+        var editor = new AtomTextBox
+        {
+            Margin = new Thickness(0, 1, 4, 1),
+            BorderThickness = new Thickness(0),
+            Background = Brushes.Transparent,
+            Foreground = GetPrimaryTextBrush(),
+            PlaceholderForeground = GetPlaceholderTextBrush(),
+            FontSize = isRoot ? 16 : 15,
+            FontWeight = isRoot ? FontWeight.SemiBold : FontWeight.Regular,
+            PlaceholderText = isRoot ? CenterTopicPlaceholder : TopicPlaceholder,
+            AcceptsReturn = false,
+            VerticalContentAlignment = VerticalAlignment.Center,
+            MinHeight = 28
+        };
+        editor.Text = node.Title;
+        editor.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == AtomTextBox.TextProperty && !string.Equals(node.Title, editor.Text, StringComparison.Ordinal))
+            {
+                node.Title = editor.Text ?? string.Empty;
+            }
+        };
+        editor.GotFocus += (_, _) => SelectNode(node);
+        editor.AddHandler(
+            KeyDownEvent,
+            (sender, e) => HandleTitleKeyDown(node, sender as AtomTextBox, e),
+            RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
+            handledEventsToo: true);
+        return editor;
+    }
+
+    private AtomTextBox CreateNoteEditor(MindMapNode node)
+    {
+        var editor = new AtomTextBox
+        {
+            BorderThickness = new Thickness(0),
+            Background = Brushes.Transparent,
+            Foreground = GetSecondaryTextBrush(),
+            PlaceholderForeground = GetPlaceholderTextBrush(),
+            FontSize = MindMapLayoutMetrics.NoteFontSize,
+            PlaceholderText = NotePlaceholder,
+            AcceptsReturn = true,
+            TextWrapping = TextWrapping.Wrap,
+            MinHeight = 26,
+            MaxHeight = 94,
+            Padding = new Thickness(0, 1, 0, 3),
+            VerticalContentAlignment = VerticalAlignment.Top
+        };
+        editor.Text = node.Note;
+        editor.PropertyChanged += (_, e) =>
+        {
+            if (e.Property == AtomTextBox.TextProperty && !string.Equals(node.Note, editor.Text, StringComparison.Ordinal))
+            {
+                node.Note = editor.Text ?? string.Empty;
+            }
+        };
+        editor.GotFocus += (_, _) => SelectNode(node);
+        editor.LostFocus += (_, _) => CollapseEmptyNoteEditor(node);
+        editor.AddHandler(
+            KeyDownEvent,
+            (sender, e) => HandleNoteKeyDown(node, sender as AtomTextBox, e),
+            RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
+            handledEventsToo: true);
+        return editor;
+    }
+
+    private static Border CreateNoteFrame(AtomTextBox noteBox)
+    {
+        return new Border
+        {
+            Margin = new Thickness(0, 0, 4, 4),
+            Background = Brushes.Transparent,
+            BorderBrush = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(0),
+            Child = noteBox
+        };
     }
 
     private IBrush GetPrimaryTextBrush()
@@ -568,9 +609,37 @@ public partial class OutlineEditor : UserControl
         }
     }
 
+    private void ScheduleRebuild()
+    {
+        if (_isRebuildQueued)
+        {
+            return;
+        }
+
+        _isRebuildQueued = true;
+        Dispatcher.UIThread.Post(Rebuild, DispatcherPriority.Background);
+    }
+
+    private void TryFocusPendingNode()
+    {
+        if (_pendingFocusNode is null)
+        {
+            return;
+        }
+
+        if (!_titleEditors.TryGetValue(_pendingFocusNode, out var editor))
+        {
+            return;
+        }
+
+        _pendingFocusNode = null;
+        editor.Focus();
+        editor.CaretIndex = editor.Text?.Length ?? 0;
+    }
+
     private void HandleTreeChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        Rebuild();
+        ScheduleRebuild();
     }
 
     private static bool IsTextResourceProperty(AvaloniaProperty property)
@@ -589,4 +658,5 @@ public partial class OutlineEditor : UserControl
                || property == DeleteNodeTextProperty
                || property == DragNodeTipProperty;
     }
+
 }

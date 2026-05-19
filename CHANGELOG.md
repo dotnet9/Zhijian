@@ -2,6 +2,10 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[Fix]-Restored the outline editor's connection to the main mind-map controller when hosted inside `WorkspaceOutlineView`, bringing back `Enter`, `Tab`, `Shift+Tab`, empty-title deletion, and synchronized visual updates.
+- 🔧[Optimize]-Centralized outline/mind-map title keyboard routing in `MindMapKeyboardGestureRouter` and coalesced outline rebuild/focus restoration to reduce repeated redraws during fast editing.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and used UI Automation screenshots to verify root `Enter`, node `Enter`, `Tab` demote, and `Shift+Tab` promote across the outline and mind-map views.
+
 - ✨[Add]-Added an immersive mind-map mode with a left-pane hide/show toggle near the outline/mind-map boundary and a `Ctrl/⌘ + B` shortcut.
 - 🔨[Optimize]-Added visible outline quick actions for adding child nodes, adding sibling nodes, copying Markdown, and switching between outline and Markdown editing.
 - 🔨[Optimize]-When users open a folder or start the onboarding tour, the left pane is restored automatically so file navigation and guided targets remain visible.

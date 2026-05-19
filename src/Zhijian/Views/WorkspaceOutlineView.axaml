@@ -16,7 +16,8 @@
 
     <Grid x:Name="OutlineEditorHost"
           RowDefinitions="*,Auto">
-        <views:OutlineEditor Grid.Row="0"
+        <views:OutlineEditor x:Name="OutlineEditorControl"
+                             Grid.Row="0"
                              IsVisible="{Binding IsOutlineMode}"
                              IsDarkTheme="{Binding IsDarkTheme}"
                              Roots="{Binding Roots}"

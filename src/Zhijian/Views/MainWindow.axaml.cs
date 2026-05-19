@@ -80,6 +80,7 @@ public partial class MainWindow : Window
         }
 
         ApplyTitleBarDataContext();
+        WorkspaceOutlineView.Controller = viewModel;
         UpdateWorkspacePaneColumns(_viewModel?.IsWorkspacePaneVisible ?? true);
     }
 

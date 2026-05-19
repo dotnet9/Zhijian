@@ -21,44 +21,55 @@ public partial class MindMapEditor
 {
     private void HandleTitleKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
         {
-            var nextNode = HandleMapEnter(node);
-            FocusNode(nextNode);
-            e.Handled = true;
             return;
         }
 
-        if (e.Key == Key.Tab)
-        {
-            var nextNode = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
-                ? node
-                : HandleMapTab(node);
+        var action = MindMapKeyboardGestureRouter.ResolveTitleAction(
+            e.Key,
+            e.KeyModifiers,
+            string.IsNullOrWhiteSpace(editor?.Text));
 
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-            {
+        switch (action)
+        {
+            case MindMapKeyboardAction.AddFromEnter:
+                FocusNode(HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.Promote:
                 PromoteNode(node);
-            }
+                FocusNode(node);
+                MarkEditorKeyEventHandled(e);
+                return;
 
-            FocusNode(nextNode);
-            e.Handled = true;
-            return;
-        }
+            case MindMapKeyboardAction.Demote:
+                FocusNode(HandleMapTab(node));
+                MarkEditorKeyEventHandled(e);
+                return;
 
-        if ((e.Key == Key.Delete || e.Key == Key.Back)
-            && string.IsNullOrWhiteSpace(editor?.Text)
-            && !IsRootNode(node))
-        {
-            var focusTarget = DeleteNode(node);
-            FocusNode(focusTarget);
-            e.Handled = true;
+            case MindMapKeyboardAction.DeleteEmptyTitle:
+                if (!IsRootNode(node))
+                {
+                    FocusNode(DeleteNode(node));
+                    MarkEditorKeyEventHandled(e);
+                }
+                return;
         }
     }
 
     private void HandleNoteKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
     {
-        if (e.Key is not (Key.Back or Key.Delete)
-            || !string.IsNullOrWhiteSpace(editor?.Text))
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
+        {
+            return;
+        }
+
+        var action = MindMapKeyboardGestureRouter.ResolveNoteAction(
+            e.Key,
+            string.IsNullOrWhiteSpace(editor?.Text));
+        if (action != MindMapKeyboardAction.DeleteEmptyNote)
         {
             return;
         }
@@ -67,44 +78,48 @@ public partial class MindMapEditor
         _editingNoteNodes.Remove(node);
         UpdateNoteEditorVisibility(node);
         FocusNode(node);
-        e.Handled = true;
+        MarkEditorKeyEventHandled(e);
     }
 
     private void HandleFrameKeyDown(MindMapNode node, KeyEventArgs e)
     {
-        if (e.Key == Key.Delete || e.Key == Key.Back)
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
         {
-            var focusTarget = DeleteNode(node);
-            FocusFrame(focusTarget);
-            e.Handled = true;
             return;
         }
 
-        if (e.Key == Key.Enter)
+        var action = MindMapKeyboardGestureRouter.ResolveFrameAction(e.Key, e.KeyModifiers);
+        switch (action)
         {
-            var nextNode = HandleMapEnter(node);
-            FocusNode(nextNode);
-            e.Handled = true;
-            return;
-        }
+            case MindMapKeyboardAction.DeleteSelected:
+                FocusFrame(DeleteNode(node));
+                MarkEditorKeyEventHandled(e);
+                return;
 
-        if (e.Key == Key.Tab)
-        {
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-            {
+            case MindMapKeyboardAction.AddFromEnter:
+                FocusNode(HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.Promote:
                 if (PromoteNode(node))
                 {
                     FocusNode(node);
                 }
-            }
-            else
-            {
-                var nextNode = HandleMapTab(node);
-                FocusNode(nextNode);
-            }
+                MarkEditorKeyEventHandled(e);
+                return;
 
-            e.Handled = true;
+            case MindMapKeyboardAction.Demote:
+                FocusNode(HandleMapTab(node));
+                MarkEditorKeyEventHandled(e);
+                return;
         }
+    }
+
+    private void MarkEditorKeyEventHandled(KeyEventArgs e)
+    {
+        _lastHandledEditorKeyEvent = e;
+        e.Handled = true;
     }
 
     private void HandleNodeDragStarted(MindMapNode node, Control? control, PointerPressedEventArgs e)

@@ -208,6 +208,7 @@ public partial class MindMapEditor : UserControl
     private double _pinchStartZoom = 1;
     private RoutedEventArgs? _lastHandledTouchPadMagnifyEvent;
     private RoutedEventArgs? _lastHandledPinchEvent;
+    private KeyEventArgs? _lastHandledEditorKeyEvent;
     private MindMapNode? _hoverNode;
     private MindMapNode? _toolbarNode;
     private int _nextPaletteIndex = Random.Shared.Next(FallbackPalette.Length);
@@ -907,7 +908,8 @@ public partial class MindMapEditor : UserControl
             return controller.HandleMapTab(node);
         }
 
-        return AddChild(node, string.Empty);
+        DemoteNode(node);
+        return node;
     }
 
     private bool MoveNodeWithinSiblings(MindMapNode? node, int offset)

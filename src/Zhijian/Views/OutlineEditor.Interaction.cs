@@ -16,46 +16,49 @@ public partial class OutlineEditor
 {
     private void HandleTitleKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
     {
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
+        {
+            return;
+        }
+
         var viewModel = ViewModel;
         if (viewModel is null)
         {
             return;
         }
 
-        if (e.Key == Key.Enter)
-        {
-            var nextNode = viewModel.HandleMapEnter(node);
-            FocusNode(nextNode);
-            e.Handled = true;
-            return;
-        }
+        var action = MindMapKeyboardGestureRouter.ResolveTitleAction(
+            e.Key,
+            e.KeyModifiers,
+            string.IsNullOrWhiteSpace(editor?.Text));
 
-        if (e.Key == Key.Tab)
+        switch (action)
         {
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-            {
+            case MindMapKeyboardAction.AddFromEnter:
+                FocusNode(viewModel.HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.Promote:
                 if (viewModel.PromoteNode(node))
                 {
                     FocusNode(node);
                 }
-            }
-            else
-            {
-                var nextNode = viewModel.HandleMapTab(node);
-                FocusNode(nextNode);
-            }
+                MarkEditorKeyEventHandled(e);
+                return;
 
-            e.Handled = true;
-            return;
-        }
+            case MindMapKeyboardAction.Demote:
+                FocusNode(viewModel.HandleMapTab(node));
+                MarkEditorKeyEventHandled(e);
+                return;
 
-        if ((e.Key == Key.Delete || e.Key == Key.Back)
-            && string.IsNullOrWhiteSpace(editor?.Text)
-            && !viewModel.IsRoot(node))
-        {
-            var focusTarget = viewModel.DeleteNode(node);
-            FocusNode(focusTarget);
-            e.Handled = true;
+            case MindMapKeyboardAction.DeleteEmptyTitle:
+                if (!viewModel.IsRoot(node))
+                {
+                    FocusNode(viewModel.DeleteNode(node));
+                    MarkEditorKeyEventHandled(e);
+                }
+                return;
         }
     }
 
@@ -236,7 +239,7 @@ public partial class OutlineEditor
         menu.Items.Add(CreateNodeMenuItem(
             AddChildText,
             new SubnodeOutlined { Width = 14, Height = 14 },
-            "Tab",
+            null,
             true,
             () => AddChildFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
@@ -428,15 +431,9 @@ public partial class OutlineEditor
             return;
         }
 
+        _pendingFocusNode = node;
         SetCurrentValue(SelectedNodeProperty, node);
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_titleEditors.TryGetValue(node, out var editor))
-            {
-                editor.Focus();
-                editor.CaretIndex = editor.Text?.Length ?? 0;
-            }
-        });
+        Dispatcher.UIThread.Post(TryFocusPendingNode);
     }
 
     private void ApplySelectionState()
@@ -488,26 +485,44 @@ public partial class OutlineEditor
     private static bool HasVisualAncestor<T>(object? source)
         where T : Visual
     {
+        return FindVisualAncestor<T>(source) is not null;
+    }
+
+    private static T? FindVisualAncestor<T>(object? source)
+        where T : Visual
+    {
+        if (source is T sourceMatch)
+        {
+            return sourceMatch;
+        }
+
         if (source is not Visual visual)
         {
-            return false;
+            return null;
         }
 
         for (var current = visual; current is not null; current = current.GetVisualParent())
         {
-            if (current is T)
+            if (current is T ancestorMatch)
             {
-                return true;
+                return ancestorMatch;
             }
         }
 
-        return false;
+        return null;
     }
 
     private void HandleNoteKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
     {
-        if (e.Key is not (Key.Back or Key.Delete)
-            || !string.IsNullOrWhiteSpace(editor?.Text))
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
+        {
+            return;
+        }
+
+        var action = MindMapKeyboardGestureRouter.ResolveNoteAction(
+            e.Key,
+            string.IsNullOrWhiteSpace(editor?.Text));
+        if (action != MindMapKeyboardAction.DeleteEmptyNote)
         {
             return;
         }
@@ -516,6 +531,12 @@ public partial class OutlineEditor
         _editingNoteNodes.Remove(node);
         UpdateNoteVisibility(node);
         FocusNode(node);
+        MarkEditorKeyEventHandled(e);
+    }
+
+    private void MarkEditorKeyEventHandled(KeyEventArgs e)
+    {
+        _lastHandledEditorKeyEvent = e;
         e.Handled = true;
     }
 }

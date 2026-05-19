@@ -29,7 +29,8 @@ public interface IMindMapEditorController
     /// </summary>
     MindMapNode HandleMapTab(MindMapNode node)
     {
-        return AddChild(node, string.Empty);
+        DemoteNode(node);
+        return node;
     }
 
     /// <summary>

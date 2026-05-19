@@ -105,8 +105,7 @@
                 <atom:MenuItem x:Name="AddChildItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.AddChild}}"
                                Command="{Binding AddChildToSelected}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=SubnodeOutlined}"
-                               InputGesture="Tab"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=SubnodeOutlined}"/>
                 <atom:MenuItem x:Name="PromoteItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Promote}}"
                                Command="{Binding PromoteSelected}"

@@ -328,7 +328,7 @@ public partial class MindMapEditor
         titleBox.AddHandler(
             KeyDownEvent,
             (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
-            RoutingStrategies.Tunnel,
+            RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
             handledEventsToo: true);
         _titleEditors[node] = titleBox;
 
@@ -488,7 +488,7 @@ public partial class MindMapEditor
         noteBox.AddHandler(
             KeyDownEvent,
             (sender, e) => HandleNoteKeyDown(node, sender as TextBox, e),
-            RoutingStrategies.Tunnel,
+            RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
             handledEventsToo: true);
         return noteBox;
     }

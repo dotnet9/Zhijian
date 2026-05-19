@@ -174,7 +174,7 @@ public partial class MindMapEditor
     private void ShowNodeMenu(MindMapNode node, Point canvasPoint)
     {
         _nodeMenuPanel.Children.Clear();
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddChildText, "Tab", true, () => AddChildFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddChildText, null, true, () => AddChildFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddSiblingText, "Enter", !IsRootNode(node), () => AddSiblingFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", PromoteText, "Shift+Tab", CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
         _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", DemoteText, "Tab", CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
