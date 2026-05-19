@@ -396,20 +396,7 @@
                                             IsDarkTheme="{Binding IsDarkTheme}"
                                             Roots="{Binding Roots}"
                                             SelectedNode="{Binding SelectedNode, Mode=TwoWay}"
-                                            Controller="{Binding}"
-                                            CenterTopicPlaceholder="{codewf:I18n {x:Static l:ZhijianL.CenterTopicPlaceholder}}"
-                                            TopicPlaceholder="{codewf:I18n {x:Static l:ZhijianL.TopicPlaceholder}}"
-                                            NotePlaceholder="{codewf:I18n {x:Static l:ZhijianL.NotePlaceholder}}"
-                                            AddChildText="{codewf:I18n {x:Static l:ZhijianL.AddChild}}"
-                                            AddSiblingText="{codewf:I18n {x:Static l:ZhijianL.AddSibling}}"
-                                            PromoteText="{codewf:I18n {x:Static l:ZhijianL.Promote}}"
-                                            DemoteText="{codewf:I18n {x:Static l:ZhijianL.Demote}}"
-                                            MoveUpText="{codewf:I18n {x:Static l:ZhijianL.MoveUp}}"
-                                            MoveDownText="{codewf:I18n {x:Static l:ZhijianL.MoveDown}}"
-                                            AddNoteText="{codewf:I18n {x:Static l:ZhijianL.AddNote}}"
-                                            EditNoteText="{codewf:I18n {x:Static l:ZhijianL.EditNote}}"
-                                            DeleteNodeText="{codewf:I18n {x:Static l:ZhijianL.DeleteNode}}"
-                                            DragNodeTip="{codewf:I18n {x:Static l:ZhijianL.DragNodeTip}}"/>
+                                            Controller="{Binding}"/>
                     </Grid>
                 </Border>
             </Grid>

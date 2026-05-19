@@ -44,19 +44,26 @@ public partial class MindMapEditor
         }
         else if (IsTextResourceProperty(change.Property))
         {
-            RecreateNodeChrome();
+            if (!_isApplyingLocalizedText)
+            {
+                _hostTextProperties.Add(change.Property);
+                RecreateNodeChrome();
+            }
         }
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        SubscribeToI18n();
+        RefreshLocalizedText();
         AttachTopLevelKeyTracking();
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         DetachTopLevelKeyTracking();
+        UnsubscribeFromI18n();
         base.OnDetachedFromVisualTree(e);
     }
 

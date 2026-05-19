@@ -1,3 +1,5 @@
+using CodeWF.MindView.I18n;
+
 namespace CodeWF.MindView;
 
 public static partial class MindMapDocumentCodec
@@ -60,7 +62,10 @@ public static partial class MindMapDocumentCodec
         }
         catch (Exception exception)
         {
-            return CreateMetadataNode(format, filePath, $"解析失败：{exception.Message}");
+            return CreateMetadataNode(
+                format,
+                filePath,
+                FormatResource(MindViewL.ParseFailed, "Parse failed: {0}", exception.Message));
         }
     }
 

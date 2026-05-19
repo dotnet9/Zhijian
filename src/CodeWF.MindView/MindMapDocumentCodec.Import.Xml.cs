@@ -3,6 +3,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
+using CodeWF.MindView.I18n;
+
 namespace CodeWF.MindView;
 
 public static partial class MindMapDocumentCodec
@@ -73,7 +75,9 @@ public static partial class MindMapDocumentCodec
 
     private static MindMapNode FromDrawIoXml(XDocument document, string? filePath)
     {
-        var root = new MindMapNode(GetFileTitle(filePath, "draw.io 图表"));
+        var root = new MindMapNode(GetFileTitle(
+            filePath,
+            GetResource(MindViewL.DrawIoDiagramTitle, "draw.io diagram")));
         var diagrams = document.Descendants().Where(element => element.Name.LocalName == "diagram").ToList();
         if (diagrams.Count > 0)
         {

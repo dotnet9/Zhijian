@@ -4,13 +4,17 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using CodeWF.MindView.I18n;
+using Lang.Avalonia;
+using System.Globalization;
 
 namespace CodeWF.MindView;
 
 public static partial class MindMapDocumentCodec
 {
-    private const string UntitledTopic = "未命名主题";
-    private const string DefaultRootTitle = "中心主题";
+    private static string UntitledTopic => GetResource(MindViewL.UntitledTopic, "Untitled topic");
+
+    private static string DefaultRootTitle => GetResource(MindViewL.DefaultRootTitle, "Center topic");
 
     public static string ToMarkdown(MindMapNode root)
     {
@@ -182,7 +186,7 @@ public static partial class MindMapDocumentCodec
             return FromXMindXml(document);
         }
 
-        throw new InvalidDataException("未找到可识别的 XMind 内容。");
+        throw new InvalidDataException(GetResource(MindViewL.XMindContentMissing, "No recognizable XMind content was found."));
     }
 
     private static MindMapNode CreateMetadataNode(MindMapFileFormat format, string? filePath, string? detail = null)
@@ -199,12 +203,12 @@ public static partial class MindMapDocumentCodec
     {
         var lines = new List<string>
         {
-            $"格式：{GetFormatName(format)}"
+            FormatResource(MindViewL.MetadataFormatLabel, "Format: {0}", GetFormatName(format))
         };
 
         if (!string.IsNullOrWhiteSpace(filePath))
         {
-            lines.Add($"路径：{filePath}");
+            lines.Add(FormatResource(MindViewL.MetadataPathLabel, "Path: {0}", filePath));
         }
 
         if (!string.IsNullOrWhiteSpace(detail))
@@ -218,6 +222,17 @@ public static partial class MindMapDocumentCodec
     private static string GetFormatName(MindMapFileFormat format)
     {
         return MindMapFileFormatRegistry.GetDisplayName(format);
+    }
+
+    private static string GetResource(string key, string fallback)
+    {
+        var value = I18nManager.Instance.GetResource(key);
+        return string.Equals(value, key, StringComparison.Ordinal) ? fallback : value;
+    }
+
+    private static string FormatResource(string key, string fallbackFormat, params object[] args)
+    {
+        return string.Format(CultureInfo.CurrentCulture, GetResource(key, fallbackFormat), args);
     }
 
     private static string GetFileTitle(string? filePath, string fallback)
@@ -502,7 +517,9 @@ public static partial class MindMapDocumentCodec
         if (sheet.ValueKind != JsonValueKind.Object
             || !sheet.TryGetProperty("rootTopic", out var rootTopic))
         {
-            throw new InvalidDataException("XMind content.json 中没有 rootTopic。");
+            throw new InvalidDataException(GetResource(
+                MindViewL.XMindJsonMissingRootTopic,
+                "XMind content.json does not contain rootTopic."));
         }
 
         return FromXMindJsonTopic(rootTopic);
@@ -551,7 +568,9 @@ public static partial class MindMapDocumentCodec
 
         if (topic is null)
         {
-            throw new InvalidDataException("XMind content.xml 中没有根主题。");
+            throw new InvalidDataException(GetResource(
+                MindViewL.XMindXmlMissingRootTopic,
+                "XMind content.xml does not contain a root topic."));
         }
 
         return FromXMindXmlTopic(topic);

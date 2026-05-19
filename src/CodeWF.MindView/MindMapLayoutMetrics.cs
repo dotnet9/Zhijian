@@ -70,7 +70,7 @@ public static class MindMapLayoutMetrics
         };
     }
 
-    public static Size EstimateNodeSize(MindMapNode node, int level, string placeholder = "主题")
+    public static Size EstimateNodeSize(MindMapNode node, int level, string placeholder = "Topic")
     {
         var metrics = GetSizeMetrics(level);
         var text = string.IsNullOrWhiteSpace(node.Title) ? placeholder : node.Title.Trim();

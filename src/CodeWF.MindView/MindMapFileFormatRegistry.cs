@@ -1,3 +1,6 @@
+using CodeWF.MindView.I18n;
+using Lang.Avalonia;
+
 namespace CodeWF.MindView;
 
 /// <summary>
@@ -15,9 +18,25 @@ public static class MindMapFileFormatRegistry
         new(MindMapFileFormat.MindManager, "MindManager", ["mmap"], "mmap", canWrite: false, isText: false, requiresBinary: true),
         new(MindMapFileFormat.MindNode, "MindNode", ["mindnode"], "mindnode", canWrite: false, isText: false, requiresBinary: true),
         new(MindMapFileFormat.MindMaster, "MindMaster", ["emmx", "eddx", "mind"], "emmx", canWrite: false, isText: false, requiresBinary: true),
-        new(MindMapFileFormat.BaiduMindMap, "百度脑图", ["km"], "km", canWrite: false, isText: true, requiresBinary: false),
+        new(
+            MindMapFileFormat.BaiduMindMap,
+            "Baidu Mind Map",
+            ["km"],
+            "km",
+            canWrite: false,
+            isText: true,
+            requiresBinary: false,
+            displayNameResourceKey: MindViewL.BaiduMindMapFormat),
         new(MindMapFileFormat.MindNow, "MindNow", ["mindnow"], "mindnow", canWrite: false, isText: false, requiresBinary: true),
-        new(MindMapFileFormat.Image, "图片", ["png", "jpg", "jpeg", "gif"], "png", canWrite: false, isText: false, requiresBinary: false),
+        new(
+            MindMapFileFormat.Image,
+            "Image",
+            ["png", "jpg", "jpeg", "gif"],
+            "png",
+            canWrite: false,
+            isText: false,
+            requiresBinary: false,
+            displayNameResourceKey: MindViewL.ImageFormat),
         new(MindMapFileFormat.Svg, "SVG", ["svg"], "svg", canWrite: false, isText: true, requiresBinary: false),
         new(MindMapFileFormat.WebP, "WebP", ["webp"], "webp", canWrite: false, isText: false, requiresBinary: false),
         new(MindMapFileFormat.Pdf, "PDF", ["pdf"], "pdf", canWrite: false, isText: false, requiresBinary: false),
@@ -122,11 +141,14 @@ public sealed class MindMapFileFormatDescriptor(
     bool canWrite,
     bool isText,
     bool requiresBinary,
-    IReadOnlyList<string>? mimeTypes = null)
+    IReadOnlyList<string>? mimeTypes = null,
+    string? displayNameResourceKey = null)
 {
     public MindMapFileFormat Format { get; } = format;
 
-    public string DisplayName { get; } = displayName;
+    public string DisplayName => displayNameResourceKey is null
+        ? displayName
+        : GetResource(displayNameResourceKey, displayName);
 
     public IReadOnlyList<string> Extensions { get; } = extensions;
 
@@ -142,4 +164,10 @@ public sealed class MindMapFileFormatDescriptor(
 
     public IReadOnlyList<string> Patterns { get; } =
         extensions.Select(extension => $"*.{extension}").ToArray();
+
+    private static string GetResource(string key, string fallback)
+    {
+        var value = I18nManager.Instance.GetResource(key);
+        return string.Equals(value, key, StringComparison.Ordinal) ? fallback : value;
+    }
 }

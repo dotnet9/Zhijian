@@ -21,10 +21,28 @@
 
 	<ItemGroup>
 		<PackageReference Include="Avalonia" />
+		<PackageReference Include="Lang.Avalonia.Json" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="" Link="README.md" Visible="false" />
 		<None Include="..\..\logo.png" Pack="true" PackagePath="" Link="logo.png" Visible="false" />
+		<None Include="I18n\*.json" Pack="true" PackagePath="contentFiles\any\any\I18n\CodeWF.MindView\">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>I18n\CodeWF.MindView\%(Filename)%(Extension)</TargetPath>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="I18n\MindViewL.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>MindViewL.tt</DependentUpon>
+		</Compile>
+		<None Update="I18n\MindViewL.tt">
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<LastGenOutput>MindViewL.cs</LastGenOutput>
+		</None>
 	</ItemGroup>
 </Project>

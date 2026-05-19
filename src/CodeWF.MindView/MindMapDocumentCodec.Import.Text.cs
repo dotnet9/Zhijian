@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using CodeWF.MindView.I18n;
 
 namespace CodeWF.MindView;
 
@@ -49,7 +50,7 @@ public static partial class MindMapDocumentCodec
 
         foreach (var child in EnumerateJsonChildren(element).Take(200))
         {
-            node.Children.Add(FromJsonElement(child, "主题"));
+            node.Children.Add(FromJsonElement(child, GetResource(MindViewL.JsonChildTitle, "Topic")));
         }
 
         if (node.Children.Count == 0 && element.ValueKind == JsonValueKind.Object)
@@ -66,7 +67,7 @@ public static partial class MindMapDocumentCodec
         {
             foreach (var child in element.EnumerateArray().Take(200))
             {
-                node.Children.Add(FromJsonElement(child, "项目"));
+                node.Children.Add(FromJsonElement(child, GetResource(MindViewL.JsonItemTitle, "Item")));
             }
         }
 
@@ -239,12 +240,13 @@ public static partial class MindMapDocumentCodec
         var headers = rows[0];
         foreach (var row in rows.Skip(1).Take(200))
         {
-            var title = row.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)) ?? "记录";
+            var title = row.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))
+                ?? GetResource(MindViewL.CsvRecordTitle, "Record");
             var node = new MindMapNode(CleanText(title));
             node.Note = string.Join(
                 Environment.NewLine,
                 row.Select((value, index) =>
-                    $"{(index < headers.Count ? headers[index] : $"列 {index + 1}")}: {value}"));
+                    $"{(index < headers.Count ? headers[index] : FormatResource(MindViewL.CsvColumnTitle, "Column {0}", index + 1))}: {value}"));
             root.Children.Add(node);
         }
 

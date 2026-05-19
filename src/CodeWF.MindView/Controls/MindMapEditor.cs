@@ -6,6 +6,8 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using CodeWF.MindView.I18n;
+using Lang.Avalonia;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
@@ -28,43 +30,71 @@ public partial class MindMapEditor : UserControl
         AvaloniaProperty.Register<MindMapEditor, IMindMapEditorController?>(nameof(Controller));
 
     public static readonly StyledProperty<string> CenterTopicPlaceholderProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(CenterTopicPlaceholder), "中心主题");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(CenterTopicPlaceholder),
+            GetResource(MindViewL.CenterTopicPlaceholder, "Center topic"));
 
     public static readonly StyledProperty<string> TopicPlaceholderProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(TopicPlaceholder), "主题");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(TopicPlaceholder),
+            GetResource(MindViewL.TopicPlaceholder, "Topic"));
 
     public static readonly StyledProperty<string> NotePlaceholderProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(NotePlaceholder), "备注");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(NotePlaceholder),
+            GetResource(MindViewL.NotePlaceholder, "Note"));
 
     public static readonly StyledProperty<string> AddSiblingTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(AddSiblingText), "添加同级主题");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(AddSiblingText),
+            GetResource(MindViewL.AddSiblingText, "Add sibling topic"));
 
     public static readonly StyledProperty<string> AddChildTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(AddChildText), "添加子主题");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(AddChildText),
+            GetResource(MindViewL.AddChildText, "Add child topic"));
 
     public static readonly StyledProperty<string> PromoteTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(PromoteText), "提升为父节点");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(PromoteText),
+            GetResource(MindViewL.PromoteText, "Promote"));
 
     public static readonly StyledProperty<string> DemoteTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(DemoteText), "降级为子节点");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DemoteText),
+            GetResource(MindViewL.DemoteText, "Demote"));
 
     public static readonly StyledProperty<string> MoveUpTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(MoveUpText), "上移");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(MoveUpText),
+            GetResource(MindViewL.MoveUpText, "Move up"));
 
     public static readonly StyledProperty<string> MoveDownTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(MoveDownText), "下移");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(MoveDownText),
+            GetResource(MindViewL.MoveDownText, "Move down"));
 
     public static readonly StyledProperty<string> AddNoteTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(AddNoteText), "添加备注");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(AddNoteText),
+            GetResource(MindViewL.AddNoteText, "Add note"));
 
     public static readonly StyledProperty<string> EditNoteTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(EditNoteText), "编辑备注");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(EditNoteText),
+            GetResource(MindViewL.EditNoteText, "Edit note"));
 
     public static readonly StyledProperty<string> DeleteNodeTextProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(DeleteNodeText), "删除节点");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DeleteNodeText),
+            GetResource(MindViewL.DeleteNodeText, "Delete node"));
 
     public static readonly StyledProperty<string> DragNodeTipProperty =
-        AvaloniaProperty.Register<MindMapEditor, string>(nameof(DragNodeTip), "拖到节点中部成为子节点，拖到上下边缘调整同级顺序");
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DragNodeTip),
+            GetResource(
+                MindViewL.DragNodeTip,
+                "Drop on the middle to make it a child; drop on the top or bottom edge to reorder siblings"));
 
     public static readonly DirectProperty<MindMapEditor, string> ZoomTextProperty =
         AvaloniaProperty.RegisterDirect<MindMapEditor, string>(
@@ -130,9 +160,12 @@ public partial class MindMapEditor : UserControl
     private readonly List<Connector> _connectors = [];
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
+    private readonly HashSet<AvaloniaProperty> _hostTextProperties = [];
 
     private int _rebuildVersion;
     private bool _isRebuildingVisuals;
+    private bool _isApplyingLocalizedText;
+    private bool _isI18nSubscribed;
     private MindMapNode? _dragNode;
     private Point _dragStartPointer;
     private bool _isDraggingNode;
@@ -175,6 +208,7 @@ public partial class MindMapEditor : UserControl
             HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden
         };
+        RefreshLocalizedText(recreateChrome: false);
         _nodeToolbar = CreateNodeToolbar();
         _nodeMenu = CreateNodeMenu();
         LostFocus += (_, _) => HideNodeMenu();
@@ -828,6 +862,80 @@ public partial class MindMapEditor : UserControl
         SelectedNode = node;
         ArrangeNodes();
         return true;
+    }
+
+    private void SubscribeToI18n()
+    {
+        if (_isI18nSubscribed)
+        {
+            return;
+        }
+
+        I18nManager.Instance.CultureChanged += HandleCultureChanged;
+        _isI18nSubscribed = true;
+    }
+
+    private void UnsubscribeFromI18n()
+    {
+        if (!_isI18nSubscribed)
+        {
+            return;
+        }
+
+        I18nManager.Instance.CultureChanged -= HandleCultureChanged;
+        _isI18nSubscribed = false;
+    }
+
+    private void HandleCultureChanged(object? sender, EventArgs e)
+    {
+        RefreshLocalizedText();
+    }
+
+    private void RefreshLocalizedText(bool recreateChrome = true)
+    {
+        _isApplyingLocalizedText = true;
+        try
+        {
+            SetLocalizedText(CenterTopicPlaceholderProperty, MindViewL.CenterTopicPlaceholder, "Center topic");
+            SetLocalizedText(TopicPlaceholderProperty, MindViewL.TopicPlaceholder, "Topic");
+            SetLocalizedText(NotePlaceholderProperty, MindViewL.NotePlaceholder, "Note");
+            SetLocalizedText(AddSiblingTextProperty, MindViewL.AddSiblingText, "Add sibling topic");
+            SetLocalizedText(AddChildTextProperty, MindViewL.AddChildText, "Add child topic");
+            SetLocalizedText(PromoteTextProperty, MindViewL.PromoteText, "Promote");
+            SetLocalizedText(DemoteTextProperty, MindViewL.DemoteText, "Demote");
+            SetLocalizedText(MoveUpTextProperty, MindViewL.MoveUpText, "Move up");
+            SetLocalizedText(MoveDownTextProperty, MindViewL.MoveDownText, "Move down");
+            SetLocalizedText(AddNoteTextProperty, MindViewL.AddNoteText, "Add note");
+            SetLocalizedText(EditNoteTextProperty, MindViewL.EditNoteText, "Edit note");
+            SetLocalizedText(DeleteNodeTextProperty, MindViewL.DeleteNodeText, "Delete node");
+            SetLocalizedText(
+                DragNodeTipProperty,
+                MindViewL.DragNodeTip,
+                "Drop on the middle to make it a child; drop on the top or bottom edge to reorder siblings");
+        }
+        finally
+        {
+            _isApplyingLocalizedText = false;
+        }
+
+        if (recreateChrome)
+        {
+            RecreateNodeChrome();
+        }
+    }
+
+    private void SetLocalizedText(StyledProperty<string> property, string key, string fallback)
+    {
+        if (!_hostTextProperties.Contains(property))
+        {
+            SetValue(property, GetResource(key, fallback));
+        }
+    }
+
+    private static string GetResource(string key, string fallback)
+    {
+        var value = I18nManager.Instance.GetResource(key);
+        return string.Equals(value, key, StringComparison.Ordinal) ? fallback : value;
     }
 
     private static bool IsTextResourceProperty(AvaloniaProperty property)
