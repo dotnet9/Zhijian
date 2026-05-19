@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CodeWF.MindView;
 using AtomMenuFlyout = AtomUI.Desktop.Controls.MenuFlyout;
 using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
@@ -23,7 +24,7 @@ public partial class OutlineEditor
 
         if (e.Key == Key.Enter)
         {
-            var nextNode = viewModel.HandleOutlineEnter(node);
+            var nextNode = viewModel.HandleMapEnter(node);
             FocusNode(nextNode);
             e.Handled = true;
             return;
@@ -31,13 +32,17 @@ public partial class OutlineEditor
 
         if (e.Key == Key.Tab)
         {
-            var changed = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
-                ? viewModel.PromoteNode(node)
-                : viewModel.DemoteNode(node);
-
-            if (changed)
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                FocusNode(node);
+                if (viewModel.PromoteNode(node))
+                {
+                    FocusNode(node);
+                }
+            }
+            else
+            {
+                var nextNode = viewModel.HandleMapTab(node);
+                FocusNode(nextNode);
             }
 
             e.Handled = true;
@@ -54,7 +59,7 @@ public partial class OutlineEditor
         }
     }
 
-    private void HandleDotPointerPressed(MindMapNode node, Control? control, PointerPressedEventArgs e)
+    private void HandleDragHandlePointerPressed(MindMapNode node, Control? control, PointerPressedEventArgs e)
     {
         var viewModel = ViewModel;
         if (control is null
@@ -87,6 +92,28 @@ public partial class OutlineEditor
         e.Pointer.Capture(_itemsPanel);
         e.Handled = true;
         ApplySelectionState();
+    }
+
+    private void HandleRowPointerPressed(MindMapNode node, Control anchor, PointerPressedEventArgs e)
+    {
+        var point = e.GetCurrentPoint(anchor);
+        if (IsRightPointerPressed(point.Properties))
+        {
+            SelectNode(node);
+            ShowNodeMenu(node, anchor);
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Source is AtomTextBox || HasVisualAncestor<AtomTextBox>(e.Source))
+        {
+            return;
+        }
+
+        if (IsLeftPointerPressed(point.Properties))
+        {
+            SelectNode(node);
+        }
     }
 
     private void HandleDragMoved(object? sender, PointerEventArgs e)
@@ -383,6 +410,17 @@ public partial class OutlineEditor
         ApplySelectionState();
     }
 
+    private void SetHoveredDragHandleNode(MindMapNode? node)
+    {
+        if (ReferenceEquals(_hoverDragHandleNode, node))
+        {
+            return;
+        }
+
+        _hoverDragHandleNode = node;
+        ApplySelectionState();
+    }
+
     private void FocusNode(MindMapNode? node)
     {
         if (node is null)
@@ -421,15 +459,49 @@ public partial class OutlineEditor
             }
         }
 
-        foreach (var (node, dot) in _dragDots)
+        foreach (var (node, handle) in _dragHandles)
         {
             if (ViewModel?.IsRoot(node) == true)
             {
                 continue;
             }
 
-            dot.Fill = Brush.Parse(ReferenceEquals(node, _dragNode) ? "#2563EB" : IsDarkTheme ? "#CBD5E1" : "#111111");
+            var active = ReferenceEquals(node, _dragNode);
+            var hovered = ReferenceEquals(node, _hoverDragHandleNode);
+            handle.Background = Brushes.Transparent;
+            handle.BorderBrush = Brushes.Transparent;
+
+            if (_dragHandleGlows.TryGetValue(node, out var glow))
+            {
+                glow.Background = active || hovered
+                    ? Brush.Parse(IsDarkTheme ? "#FFFFFF24" : "#00000018")
+                    : Brushes.Transparent;
+                glow.BorderBrush = active
+                    ? Brush.Parse(IsDarkTheme ? "#93C5FD" : "#2563EB")
+                    : hovered
+                        ? Brush.Parse(IsDarkTheme ? "#FFFFFF33" : "#00000022")
+                        : Brushes.Transparent;
+            }
         }
+    }
+
+    private static bool HasVisualAncestor<T>(object? source)
+        where T : Visual
+    {
+        if (source is not Visual visual)
+        {
+            return false;
+        }
+
+        for (var current = visual; current is not null; current = current.GetVisualParent())
+        {
+            if (current is T)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void HandleNoteKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)

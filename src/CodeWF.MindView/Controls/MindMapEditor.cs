@@ -96,6 +96,26 @@ public partial class MindMapEditor : UserControl
                 MindViewL.DragNodeTip,
                 "Drop on the middle to make it a child; drop on the top or bottom edge to reorder siblings"));
 
+    public static readonly StyledProperty<string> DropAsChildTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropAsChildText),
+            GetResource(DropAsChildTextResourceKey, "Set as child"));
+
+    public static readonly StyledProperty<string> DropBeforeTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropBeforeText),
+            GetResource(DropBeforeTextResourceKey, "Insert before"));
+
+    public static readonly StyledProperty<string> DropAfterTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropAfterText),
+            GetResource(DropAfterTextResourceKey, "Insert after"));
+
+    public static readonly StyledProperty<string> DropUnavailableTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropUnavailableText),
+            GetResource(DropUnavailableTextResourceKey, "Cannot drop here"));
+
     public static readonly DirectProperty<MindMapEditor, string> ZoomTextProperty =
         AvaloniaProperty.RegisterDirect<MindMapEditor, string>(
             nameof(ZoomText),
@@ -121,6 +141,10 @@ public partial class MindMapEditor : UserControl
     private double DragStartDistance => GetResourceDouble(MindViewStyleKeys.DragStartDistanceResource, 6);
     private double DropEdgeRatio => GetResourceDouble(MindViewStyleKeys.DropEdgeRatioResource, 0.28);
     private double NodeMenuWidth => GetResourceDouble(MindViewStyleKeys.NodeMenuWidthResource, 224);
+    private const string DropAsChildTextResourceKey = "CodeWF.MindView.MindViewL.DropAsChildText";
+    private const string DropBeforeTextResourceKey = "CodeWF.MindView.MindViewL.DropBeforeText";
+    private const string DropAfterTextResourceKey = "CodeWF.MindView.MindViewL.DropAfterText";
+    private const string DropUnavailableTextResourceKey = "CodeWF.MindView.MindViewL.DropUnavailableText";
     private static readonly string[] FallbackPalette =
     [
         "#2563EB",
@@ -149,6 +173,14 @@ public partial class MindMapEditor : UserControl
         IsHitTestVisible = false,
         IsVisible = false
     };
+    private readonly TextBlock _dropPreviewText = new()
+    {
+        FontSize = 12,
+        FontWeight = FontWeight.SemiBold,
+        TextAlignment = TextAlignment.Center,
+        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+    };
+    private readonly Border _dropPreviewLabel;
 
     private readonly Dictionary<MindMapNode, Border> _nodeFrames = [];
     private readonly Dictionary<MindMapNode, TextBox> _titleEditors = [];
@@ -169,6 +201,7 @@ public partial class MindMapEditor : UserControl
     private bool _isDraggingNode;
     private MindMapNode? _dropTarget;
     private MindMapDropPlacement _dropPlacement = MindMapDropPlacement.Child;
+    private int _dropFeedbackVersion;
     private bool _isPanningCanvas;
     private bool _isSpacePressed;
     private bool _isPinching;
@@ -185,6 +218,7 @@ public partial class MindMapEditor : UserControl
     private Rect _viewportBounds;
     private TopLevel? _topLevel;
     private Border _nodeToolbar;
+    private AtomUI.Desktop.Controls.Button _nodeAddChildButton;
     private readonly StackPanel _nodeMenuPanel = new()
     {
         Spacing = 2
@@ -209,7 +243,9 @@ public partial class MindMapEditor : UserControl
         };
         RefreshLocalizedText(recreateChrome: false);
         _nodeToolbar = CreateNodeToolbar();
+        _nodeAddChildButton = CreateNodeAddChildButton();
         _nodeMenu = CreateNodeMenu();
+        _dropPreviewLabel = CreateDropPreviewLabel();
         LostFocus += (_, _) => HideNodeMenu();
 
         var viewport = new Grid();
@@ -337,6 +373,30 @@ public partial class MindMapEditor : UserControl
     {
         get => GetValue(DragNodeTipProperty);
         set => SetValue(DragNodeTipProperty, value);
+    }
+
+    public string DropAsChildText
+    {
+        get => GetValue(DropAsChildTextProperty);
+        set => SetValue(DropAsChildTextProperty, value);
+    }
+
+    public string DropBeforeText
+    {
+        get => GetValue(DropBeforeTextProperty);
+        set => SetValue(DropBeforeTextProperty, value);
+    }
+
+    public string DropAfterText
+    {
+        get => GetValue(DropAfterTextProperty);
+        set => SetValue(DropAfterTextProperty, value);
+    }
+
+    public string DropUnavailableText
+    {
+        get => GetValue(DropUnavailableTextProperty);
+        set => SetValue(DropUnavailableTextProperty, value);
     }
 
     public string ZoomText
@@ -924,6 +984,10 @@ public partial class MindMapEditor : UserControl
                 DragNodeTipProperty,
                 MindViewL.DragNodeTip,
                 "Drop on the middle to make it a child; drop on the top or bottom edge to reorder siblings");
+            SetLocalizedText(DropAsChildTextProperty, DropAsChildTextResourceKey, "Set as child");
+            SetLocalizedText(DropBeforeTextProperty, DropBeforeTextResourceKey, "Insert before");
+            SetLocalizedText(DropAfterTextProperty, DropAfterTextResourceKey, "Insert after");
+            SetLocalizedText(DropUnavailableTextProperty, DropUnavailableTextResourceKey, "Cannot drop here");
         }
         finally
         {
@@ -964,7 +1028,11 @@ public partial class MindMapEditor : UserControl
                || property == AddNoteTextProperty
                || property == EditNoteTextProperty
                || property == DeleteNodeTextProperty
-               || property == DragNodeTipProperty;
+               || property == DragNodeTipProperty
+               || property == DropAsChildTextProperty
+               || property == DropBeforeTextProperty
+               || property == DropAfterTextProperty
+               || property == DropUnavailableTextProperty;
     }
 
     private void RecreateNodeChrome()
@@ -972,6 +1040,7 @@ public partial class MindMapEditor : UserControl
         _nodeMenu.Child = null;
         _nodeMenuPanel.Children.Clear();
         _nodeToolbar = CreateNodeToolbar();
+        _nodeAddChildButton = CreateNodeAddChildButton();
         _nodeMenu = CreateNodeMenu();
         Rebuild();
     }

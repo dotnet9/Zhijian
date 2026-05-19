@@ -29,7 +29,7 @@ public static class MindMapLayoutMetrics
     public static double LeafMinWidth => GetDouble(MindViewStyleKeys.LeafMinWidthResource, 48);
     public static double LeafMaxWidth => GetDouble(MindViewStyleKeys.LeafMaxWidthResource, 260);
     public static double LeafMinHeight => GetDouble(MindViewStyleKeys.LeafMinHeightResource, 30);
-    public static double DragHandleHitWidth => GetDouble(MindViewStyleKeys.DragHandleHitWidthResource, 16);
+    public static double DragHandleHitWidth => GetDouble(MindViewStyleKeys.DragHandleHitWidthResource, 24);
     public static double NoteFontSize => GetDouble(MindViewStyleKeys.NoteFontSizeResource, 13);
     public static double NoteVerticalSpacing => GetDouble(MindViewStyleKeys.NoteVerticalSpacingResource, 4);
     public static double NoteMinHeight => GetDouble(MindViewStyleKeys.NoteMinHeightResource, 28);

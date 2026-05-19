@@ -182,7 +182,9 @@ public partial class MindMapEditor
         }
 
         _canvas.Children.Add(_dropPreviewPath);
+        _canvas.Children.Add(_dropPreviewLabel);
         _canvas.Children.Add(_nodeToolbar);
+        _canvas.Children.Add(_nodeAddChildButton);
         _canvas.Children.Add(_nodeMenu);
         _isRebuildingVisuals = false;
         HideDropPreview();
@@ -377,9 +379,30 @@ public partial class MindMapEditor
                     return;
                 }
 
-                if (HasVisualAncestor<TextBox>(e.Source))
+                var textEditor = FindVisualAncestor<TextBox>(e.Source);
+                if (textEditor is not null)
                 {
                     HideNodeMenu();
+                    SelectNode(node);
+                    ShowNodeToolbar(node);
+                    if (IsLeftPointerPressed(point.Properties) && e.ClickCount >= 2)
+                    {
+                        FocusTextEditor(textEditor);
+                        e.Handled = true;
+                        return;
+                    }
+
+                    if (IsLeftPointerPressed(point.Properties))
+                    {
+                        root.Focus();
+                        if (!isRoot)
+                        {
+                            HandleNodeDragStarted(node, root, e);
+                        }
+
+                        e.Handled = true;
+                    }
+
                     return;
                 }
 
@@ -388,7 +411,7 @@ public partial class MindMapEditor
                 ShowNodeToolbar(node);
                 if (isRoot)
                 {
-                    FocusNode(node);
+                    root.Focus();
                 }
                 else
                 {
@@ -417,33 +440,7 @@ public partial class MindMapEditor
 
     private Control CreateTitleHost(MindMapNode node, TextBox titleBox, bool isRoot)
     {
-        if (isRoot)
-        {
-            return titleBox;
-        }
-
-        var titleHost = new Grid();
-        titleHost.Children.Add(titleBox);
-        titleHost.Children.Add(CreateDragHandle(node));
-        return titleHost;
-    }
-
-    private Control CreateDragHandle(MindMapNode node)
-    {
-        // 只保留透明命中区，不画竖线，避免拖拽入口干扰脑图视觉样式。
-        var handle = new Border
-        {
-            Width = MindMapLayoutMetrics.DragHandleHitWidth,
-            Background = Brushes.Transparent,
-            Cursor = new Cursor(StandardCursorType.SizeAll),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Stretch
-        };
-        ToolTip.SetTip(handle, DragNodeTip);
-        handle.PointerPressed += (sender, e) => HandleNodeDragStarted(node, sender as Control, e);
-        handle.PointerMoved += HandleNodeDragged;
-        handle.PointerReleased += HandleNodeDragCompleted;
-        return handle;
+        return titleBox;
     }
 
     private TextBox CreateNoteEditor(MindMapNode node, NodeMetrics metrics)
@@ -625,13 +622,16 @@ public partial class MindMapEditor
         if (_toolbarNode is null || !_nodeFrames.ContainsKey(_toolbarNode))
         {
             _nodeToolbar.IsVisible = false;
+            _nodeAddChildButton.IsVisible = false;
             return;
         }
 
         _nodeToolbar.Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827");
         _nodeToolbar.BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155");
         _nodeToolbar.IsVisible = true;
+        _nodeAddChildButton.IsVisible = true;
         PositionNodeToolbar();
+        PositionNodeAddChildButton();
     }
 
     private void PositionNodeToolbar()
@@ -653,6 +653,22 @@ public partial class MindMapEditor
         Canvas.SetTop(_nodeToolbar, Math.Max(8, y));
     }
 
+    private void PositionNodeAddChildButton()
+    {
+        if (_toolbarNode is null || !_nodeFrames.TryGetValue(_toolbarNode, out _))
+        {
+            return;
+        }
+
+        var size = GetRenderedNodeSize(_toolbarNode);
+        var buttonWidth = _nodeAddChildButton.Width > 0 ? _nodeAddChildButton.Width : 28;
+        var buttonHeight = _nodeAddChildButton.Height > 0 ? _nodeAddChildButton.Height : 28;
+        var x = _toolbarNode.X + size.Width + 10;
+        var y = _toolbarNode.Y + size.Height / 2 - buttonHeight / 2;
+        Canvas.SetLeft(_nodeAddChildButton, Math.Max(8, x));
+        Canvas.SetTop(_nodeAddChildButton, Math.Max(8, y));
+    }
+
     private void FocusNode(MindMapNode? node)
     {
         if (node is null)
@@ -669,6 +685,12 @@ public partial class MindMapEditor
                 editor.CaretIndex = editor.Text?.Length ?? 0;
             }
         });
+    }
+
+    private static void FocusTextEditor(TextBox editor)
+    {
+        editor.Focus();
+        editor.CaretIndex = editor.Text?.Length ?? 0;
     }
 
     private void FocusFrame(MindMapNode? node)
@@ -719,9 +741,11 @@ public partial class MindMapEditor
                         : metrics.BoxShadow;
             frame.Opacity = dragging ? 0.72 : 1;
             UpdateNoteEditorVisibility(node);
+
         }
 
         PositionNodeToolbar();
+        PositionNodeAddChildButton();
     }
 
 }

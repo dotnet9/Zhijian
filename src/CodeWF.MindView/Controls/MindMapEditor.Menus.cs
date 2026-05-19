@@ -34,6 +34,14 @@ public partial class MindMapEditor
             Geometry.Parse("M5 7h14M10 12h9M14 17h5M9 13l-4-4 4-4"),
             DemoteToolbarNode));
         panel.Children.Add(CreateToolbarButton(
+            MoveUpText,
+            Geometry.Parse("M12 19V5M6 11l6-6 6 6"),
+            MoveToolbarNodeUp));
+        panel.Children.Add(CreateToolbarButton(
+            MoveDownText,
+            Geometry.Parse("M12 5v14M6 13l6 6 6-6"),
+            MoveToolbarNodeDown));
+        panel.Children.Add(CreateToolbarButton(
             AddNoteText,
             Geometry.Parse("M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"),
             () =>
@@ -99,6 +107,47 @@ public partial class MindMapEditor
         button.Click += (_, e) =>
         {
             action();
+            e.Handled = true;
+        };
+        return button;
+    }
+
+    private AtomUI.Desktop.Controls.Button CreateNodeAddChildButton()
+    {
+        var icon = new Avalonia.Controls.Shapes.Path
+        {
+            Data = Geometry.Parse("M12 5v14M5 12h14"),
+            Stroke = Brushes.White,
+            StrokeThickness = 2.2,
+            Fill = Brushes.Transparent,
+            Stretch = Stretch.Uniform,
+            StrokeLineCap = PenLineCap.Round,
+            StrokeJoin = PenLineJoin.Round
+        };
+        var button = new AtomUI.Desktop.Controls.Button
+        {
+            Width = 28,
+            Height = 28,
+            MinWidth = 28,
+            MinHeight = 28,
+            Padding = new Thickness(0),
+            ButtonType = AtomUI.Desktop.Controls.ButtonType.Primary,
+            Shape = AtomUI.Desktop.Controls.ButtonShape.Circle,
+            SizeType = SizeType.Small,
+            IsMotionEnabled = true,
+            IsWaveSpiritEnabled = true,
+            Content = new Viewbox
+            {
+                Width = 14,
+                Height = 14,
+                Child = icon
+            },
+            IsVisible = false
+        };
+        AtomUI.Desktop.Controls.ToolTip.SetTip(button, AddChildText);
+        button.Click += (_, e) =>
+        {
+            AddToolbarChildNode();
             e.Handled = true;
         };
         return button;
@@ -254,6 +303,22 @@ public partial class MindMapEditor
         if (_toolbarNode is not null)
         {
             DemoteNodeFromMenu(_toolbarNode);
+        }
+    }
+
+    private void MoveToolbarNodeUp()
+    {
+        if (_toolbarNode is not null)
+        {
+            MoveNodeUpFromMenu(_toolbarNode);
+        }
+    }
+
+    private void MoveToolbarNodeDown()
+    {
+        if (_toolbarNode is not null)
+        {
+            MoveNodeDownFromMenu(_toolbarNode);
         }
     }
 

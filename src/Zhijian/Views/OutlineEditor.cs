@@ -70,6 +70,9 @@ public partial class OutlineEditor : UserControl
         AvaloniaProperty.Register<OutlineEditor, string>(nameof(DragNodeTip), "拖到节点中部成为子节点，拖到上下边缘成为同级节点");
 
     private const double IndentSize = 24;
+    private const double DragHandleColumnWidth = 28;
+    private const double OutlineDotSize = 8;
+    private const double OutlineDotGlowSize = 20;
     private const double DropEdgeRatio = 0.28;
     private const double DragStartDistance = 6;
     private const int RebuildRowBatchSize = 80;
@@ -85,7 +88,8 @@ public partial class OutlineEditor : UserControl
     private readonly Dictionary<MindMapNode, AtomTextBox> _noteEditors = [];
     private readonly Dictionary<MindMapNode, Border> _noteFrames = [];
     private readonly HashSet<MindMapNode> _editingNoteNodes = [];
-    private readonly Dictionary<MindMapNode, Ellipse> _dragDots = [];
+    private readonly Dictionary<MindMapNode, Border> _dragHandles = [];
+    private readonly Dictionary<MindMapNode, Border> _dragHandleGlows = [];
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
 
@@ -93,6 +97,7 @@ public partial class OutlineEditor : UserControl
     private MindMapNode? _dragNode;
     private MindMapNode? _dropTarget;
     private Control? _dragAnchor;
+    private MindMapNode? _hoverDragHandleNode;
     private Point _dragStartPointer;
     private bool _isDraggingNode;
     private MindMapDropPlacement _dropPlacement = MindMapDropPlacement.Child;
@@ -242,7 +247,9 @@ public partial class OutlineEditor : UserControl
         _titleEditors.Clear();
         _noteEditors.Clear();
         _noteFrames.Clear();
-        _dragDots.Clear();
+        _dragHandles.Clear();
+        _dragHandleGlows.Clear();
+        _hoverDragHandleNode = null;
 
         if (Roots is null)
         {
@@ -341,31 +348,79 @@ public partial class OutlineEditor : UserControl
 
         var grid = new Grid
         {
-            ColumnDefinitions = new ColumnDefinitions("20,*")
+            ColumnDefinitions = new ColumnDefinitions($"{DragHandleColumnWidth},*")
         };
 
-        var dot = new Ellipse
-        {
-            Width = 6,
-            Height = 6,
-            Fill = isRoot ? Brushes.Transparent : Brush.Parse("#111111"),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Top,
-            Margin = new Thickness(0, 14, 0, 0),
-            Cursor = isRoot ? Cursor.Default : new Cursor(StandardCursorType.SizeAll),
-            IsHitTestVisible = !isRoot
-        };
-
+        var dragHandle = CreateDragHandle(isRoot);
         if (!isRoot)
         {
-            AtomToolTip.SetTip(dot, DragNodeTip);
-            dot.PointerPressed += (sender, e) => HandleDotPointerPressed(node, sender as Control, e);
+            AtomToolTip.SetTip(dragHandle, DragNodeTip);
+            dragHandle.PointerPressed += (sender, e) => HandleDragHandlePointerPressed(node, sender as Control, e);
+            dragHandle.PointerEntered += (_, _) => SetHoveredDragHandleNode(node);
+            dragHandle.PointerExited += (_, _) =>
+            {
+                if (ReferenceEquals(_hoverDragHandleNode, node))
+                {
+                    SetHoveredDragHandleNode(null);
+                }
+            };
         }
 
         var contentPanel = new StackPanel
         {
             Spacing = 3
         };
+
+        Border CreateDragHandle(bool handleIsRoot)
+        {
+            var handle = new Border
+            {
+                Width = DragHandleColumnWidth,
+                MinHeight = 30,
+                Background = Brushes.Transparent,
+                BorderBrush = Brushes.Transparent,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(4),
+                Cursor = handleIsRoot ? Cursor.Default : new Cursor(StandardCursorType.SizeAll),
+                IsHitTestVisible = !handleIsRoot,
+                Child = handleIsRoot ? null : CreateDragDot(node)
+            };
+            return handle;
+        }
+
+        Control CreateDragDot(MindMapNode dotNode)
+        {
+            var glow = new Border
+            {
+                Width = OutlineDotGlowSize,
+                Height = OutlineDotGlowSize,
+                CornerRadius = new CornerRadius(OutlineDotGlowSize / 2),
+                Background = Brushes.Transparent,
+                BorderBrush = Brushes.Transparent,
+                BorderThickness = new Thickness(1),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            var dot = new Border
+            {
+                Width = OutlineDotSize,
+                Height = OutlineDotSize,
+                CornerRadius = new CornerRadius(OutlineDotSize / 2),
+                Background = GetDragDotBrush(),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            var dotHost = new Grid
+            {
+                Width = DragHandleColumnWidth,
+                MinHeight = 30
+            };
+            dotHost.Children.Add(glow);
+            dotHost.Children.Add(dot);
+            _dragHandleGlows[dotNode] = glow;
+
+            return dotHost;
+        }
 
         var titleBox = new AtomTextBox
         {
@@ -441,25 +496,21 @@ public partial class OutlineEditor : UserControl
         contentPanel.Children.Add(noteFrame);
         Grid.SetColumn(contentPanel, 1);
 
-        grid.Children.Add(dot);
+        grid.Children.Add(dragHandle);
         grid.Children.Add(contentPanel);
         frame.Child = grid;
 
-        frame.PointerPressed += (_, e) =>
-        {
-            if (e.Source is AtomTextBox or Ellipse)
-            {
-                return;
-            }
-
-            SelectNode(node);
-        };
+        frame.AddHandler(
+            PointerPressedEvent,
+            (_, e) => HandleRowPointerPressed(node, frame, e),
+            RoutingStrategies.Tunnel,
+            handledEventsToo: true);
 
         _rowFrames[node] = frame;
         _titleEditors[node] = titleBox;
         _noteEditors[node] = noteBox;
         _noteFrames[node] = noteFrame;
-        _dragDots[node] = dot;
+        _dragHandles[node] = dragHandle;
         _itemsPanel.Children.Add(frame);
     }
 
@@ -476,6 +527,11 @@ public partial class OutlineEditor : UserControl
     private IBrush GetPlaceholderTextBrush()
     {
         return Brush.Parse(IsDarkTheme ? "#94A3B8" : "#667085");
+    }
+
+    private IBrush GetDragDotBrush()
+    {
+        return Brush.Parse(IsDarkTheme ? "#F8FAFC" : "#111111");
     }
 
     private void HandleNodePropertyChanged(object? sender, PropertyChangedEventArgs e)

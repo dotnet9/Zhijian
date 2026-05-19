@@ -106,12 +106,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public MindMapNode HandleOutlineEnter(MindMapNode node)
     {
-        if (IsRoot(node) || node.Children.Count > 0)
-        {
-            return AddChild(node, string.Empty);
-        }
-
-        return AddSibling(node, string.Empty);
+        return HandleMapEnter(node);
     }
 
     public MindMapNode HandleMapEnter(MindMapNode node)
