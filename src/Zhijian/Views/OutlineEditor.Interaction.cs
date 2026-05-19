@@ -207,49 +207,49 @@ public partial class OutlineEditor
         var viewModel = ViewModel;
         var menu = new AtomMenuFlyout();
         menu.Items.Add(CreateNodeMenuItem(
-            "添加子级",
+            AddChildText,
             new SubnodeOutlined { Width = 14, Height = 14 },
             "Tab",
             true,
             () => AddChildFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "添加同级",
+            AddSiblingText,
             new SisternodeOutlined { Width = 14, Height = 14 },
             "Enter",
             viewModel?.IsRoot(node) != true,
             () => AddSiblingFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "提升为父节点",
+            PromoteText,
             new MenuFoldOutlined { Width = 14, Height = 14 },
             "Shift+Tab",
             viewModel?.CanPromoteNode(node) == true,
             () => PromoteNodeFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "降级为子节点",
+            DemoteText,
             new MenuUnfoldOutlined { Width = 14, Height = 14 },
             "Tab",
             viewModel?.CanDemoteNode(node) == true,
             () => DemoteNodeFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "上移",
+            MoveUpText,
             new ArrowUpOutlined { Width = 14, Height = 14 },
             "Alt+Up",
             viewModel?.CanMoveNodeUp(node) == true,
             () => MoveNodeUpFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "下移",
+            MoveDownText,
             new ArrowDownOutlined { Width = 14, Height = 14 },
             "Alt+Down",
             viewModel?.CanMoveNodeDown(node) == true,
             () => MoveNodeDownFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注",
+            string.IsNullOrWhiteSpace(node.Note) ? AddNoteText : EditNoteText,
             new CommentOutlined { Width = 14, Height = 14 },
             null,
             true,
             () => ShowNoteEditor(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "删除",
+            DeleteNodeText,
             new DeleteOutlined { Width = 14, Height = 14 },
             "Delete",
             viewModel?.IsRoot(node) != true,

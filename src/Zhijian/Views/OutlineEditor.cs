@@ -30,6 +30,45 @@ public partial class OutlineEditor : UserControl
     public static readonly StyledProperty<bool> IsDarkThemeProperty =
         AvaloniaProperty.Register<OutlineEditor, bool>(nameof(IsDarkTheme));
 
+    public static readonly StyledProperty<string> CenterTopicPlaceholderProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(CenterTopicPlaceholder), "中心主题");
+
+    public static readonly StyledProperty<string> TopicPlaceholderProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(TopicPlaceholder), "主题");
+
+    public static readonly StyledProperty<string> NotePlaceholderProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(NotePlaceholder), "备注");
+
+    public static readonly StyledProperty<string> AddChildTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddChildText), "添加子级");
+
+    public static readonly StyledProperty<string> AddSiblingTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddSiblingText), "添加同级");
+
+    public static readonly StyledProperty<string> PromoteTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(PromoteText), "提升为父节点");
+
+    public static readonly StyledProperty<string> DemoteTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DemoteText), "降级为子节点");
+
+    public static readonly StyledProperty<string> MoveUpTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(MoveUpText), "上移");
+
+    public static readonly StyledProperty<string> MoveDownTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(MoveDownText), "下移");
+
+    public static readonly StyledProperty<string> AddNoteTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddNoteText), "添加备注");
+
+    public static readonly StyledProperty<string> EditNoteTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(EditNoteText), "编辑备注");
+
+    public static readonly StyledProperty<string> DeleteNodeTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DeleteNodeText), "删除节点");
+
+    public static readonly StyledProperty<string> DragNodeTipProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DragNodeTip), "拖到节点中部成为子节点，拖到上下边缘成为同级节点");
+
     private const double IndentSize = 24;
     private const double DropEdgeRatio = 0.28;
     private const double DragStartDistance = 6;
@@ -89,6 +128,84 @@ public partial class OutlineEditor : UserControl
         set => SetValue(IsDarkThemeProperty, value);
     }
 
+    public string CenterTopicPlaceholder
+    {
+        get => GetValue(CenterTopicPlaceholderProperty);
+        set => SetValue(CenterTopicPlaceholderProperty, value);
+    }
+
+    public string TopicPlaceholder
+    {
+        get => GetValue(TopicPlaceholderProperty);
+        set => SetValue(TopicPlaceholderProperty, value);
+    }
+
+    public string NotePlaceholder
+    {
+        get => GetValue(NotePlaceholderProperty);
+        set => SetValue(NotePlaceholderProperty, value);
+    }
+
+    public string AddChildText
+    {
+        get => GetValue(AddChildTextProperty);
+        set => SetValue(AddChildTextProperty, value);
+    }
+
+    public string AddSiblingText
+    {
+        get => GetValue(AddSiblingTextProperty);
+        set => SetValue(AddSiblingTextProperty, value);
+    }
+
+    public string PromoteText
+    {
+        get => GetValue(PromoteTextProperty);
+        set => SetValue(PromoteTextProperty, value);
+    }
+
+    public string DemoteText
+    {
+        get => GetValue(DemoteTextProperty);
+        set => SetValue(DemoteTextProperty, value);
+    }
+
+    public string MoveUpText
+    {
+        get => GetValue(MoveUpTextProperty);
+        set => SetValue(MoveUpTextProperty, value);
+    }
+
+    public string MoveDownText
+    {
+        get => GetValue(MoveDownTextProperty);
+        set => SetValue(MoveDownTextProperty, value);
+    }
+
+    public string AddNoteText
+    {
+        get => GetValue(AddNoteTextProperty);
+        set => SetValue(AddNoteTextProperty, value);
+    }
+
+    public string EditNoteText
+    {
+        get => GetValue(EditNoteTextProperty);
+        set => SetValue(EditNoteTextProperty, value);
+    }
+
+    public string DeleteNodeText
+    {
+        get => GetValue(DeleteNodeTextProperty);
+        set => SetValue(DeleteNodeTextProperty, value);
+    }
+
+    public string DragNodeTip
+    {
+        get => GetValue(DragNodeTipProperty);
+        set => SetValue(DragNodeTipProperty, value);
+    }
+
     private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
 
     private sealed record OutlineRowWorkItem(MindMapNode Node, int Level);
@@ -107,6 +224,10 @@ public partial class OutlineEditor : UserControl
             ApplySelectionState();
         }
         else if (change.Property == IsDarkThemeProperty)
+        {
+            Rebuild();
+        }
+        else if (IsTextResourceProperty(change.Property))
         {
             Rebuild();
         }
@@ -237,7 +358,7 @@ public partial class OutlineEditor : UserControl
 
         if (!isRoot)
         {
-            AtomToolTip.SetTip(dot, "拖到节点中部成为子节点，拖到上下边缘成为同级节点");
+            AtomToolTip.SetTip(dot, DragNodeTip);
             dot.PointerPressed += (sender, e) => HandleDotPointerPressed(node, sender as Control, e);
         }
 
@@ -255,7 +376,7 @@ public partial class OutlineEditor : UserControl
             PlaceholderForeground = GetPlaceholderTextBrush(),
             FontSize = isRoot ? 16 : 15,
             FontWeight = isRoot ? FontWeight.SemiBold : FontWeight.Regular,
-            PlaceholderText = isRoot ? "中心主题" : "主题",
+            PlaceholderText = isRoot ? CenterTopicPlaceholder : TopicPlaceholder,
             AcceptsReturn = false,
             VerticalContentAlignment = VerticalAlignment.Center,
             MinHeight = 28
@@ -282,7 +403,7 @@ public partial class OutlineEditor : UserControl
             Foreground = GetSecondaryTextBrush(),
             PlaceholderForeground = GetPlaceholderTextBrush(),
             FontSize = MindMapLayoutMetrics.NoteFontSize,
-            PlaceholderText = "备注",
+            PlaceholderText = NotePlaceholder,
             AcceptsReturn = true,
             TextWrapping = TextWrapping.Wrap,
             MinHeight = 26,
@@ -394,5 +515,22 @@ public partial class OutlineEditor : UserControl
     private void HandleTreeChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         Rebuild();
+    }
+
+    private static bool IsTextResourceProperty(AvaloniaProperty property)
+    {
+        return property == CenterTopicPlaceholderProperty
+               || property == TopicPlaceholderProperty
+               || property == NotePlaceholderProperty
+               || property == AddChildTextProperty
+               || property == AddSiblingTextProperty
+               || property == PromoteTextProperty
+               || property == DemoteTextProperty
+               || property == MoveUpTextProperty
+               || property == MoveDownTextProperty
+               || property == AddNoteTextProperty
+               || property == EditNoteTextProperty
+               || property == DeleteNodeTextProperty
+               || property == DragNodeTipProperty;
     }
 }

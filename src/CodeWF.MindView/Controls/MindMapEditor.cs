@@ -27,6 +27,45 @@ public partial class MindMapEditor : UserControl
     public static readonly StyledProperty<IMindMapEditorController?> ControllerProperty =
         AvaloniaProperty.Register<MindMapEditor, IMindMapEditorController?>(nameof(Controller));
 
+    public static readonly StyledProperty<string> CenterTopicPlaceholderProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(CenterTopicPlaceholder), "中心主题");
+
+    public static readonly StyledProperty<string> TopicPlaceholderProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(TopicPlaceholder), "主题");
+
+    public static readonly StyledProperty<string> NotePlaceholderProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(NotePlaceholder), "备注");
+
+    public static readonly StyledProperty<string> AddSiblingTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(AddSiblingText), "添加同级主题");
+
+    public static readonly StyledProperty<string> AddChildTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(AddChildText), "添加子主题");
+
+    public static readonly StyledProperty<string> PromoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(PromoteText), "提升为父节点");
+
+    public static readonly StyledProperty<string> DemoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(DemoteText), "降级为子节点");
+
+    public static readonly StyledProperty<string> MoveUpTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(MoveUpText), "上移");
+
+    public static readonly StyledProperty<string> MoveDownTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(MoveDownText), "下移");
+
+    public static readonly StyledProperty<string> AddNoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(AddNoteText), "添加备注");
+
+    public static readonly StyledProperty<string> EditNoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(EditNoteText), "编辑备注");
+
+    public static readonly StyledProperty<string> DeleteNodeTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(DeleteNodeText), "删除节点");
+
+    public static readonly StyledProperty<string> DragNodeTipProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(nameof(DragNodeTip), "拖到节点中部成为子节点，拖到上下边缘调整同级顺序");
+
     public static readonly DirectProperty<MindMapEditor, string> ZoomTextProperty =
         AvaloniaProperty.RegisterDirect<MindMapEditor, string>(
             nameof(ZoomText),
@@ -113,12 +152,12 @@ public partial class MindMapEditor : UserControl
     private string _zoomText = "100%";
     private Rect _viewportBounds;
     private TopLevel? _topLevel;
-    private readonly Border _nodeToolbar;
+    private Border _nodeToolbar;
     private readonly StackPanel _nodeMenuPanel = new()
     {
         Spacing = 2
     };
-    private readonly Border _nodeMenu;
+    private Border _nodeMenu;
 
     public MindMapEditor()
     {
@@ -189,6 +228,84 @@ public partial class MindMapEditor : UserControl
         set => SetValue(ControllerProperty, value);
     }
 
+    public string CenterTopicPlaceholder
+    {
+        get => GetValue(CenterTopicPlaceholderProperty);
+        set => SetValue(CenterTopicPlaceholderProperty, value);
+    }
+
+    public string TopicPlaceholder
+    {
+        get => GetValue(TopicPlaceholderProperty);
+        set => SetValue(TopicPlaceholderProperty, value);
+    }
+
+    public string NotePlaceholder
+    {
+        get => GetValue(NotePlaceholderProperty);
+        set => SetValue(NotePlaceholderProperty, value);
+    }
+
+    public string AddSiblingText
+    {
+        get => GetValue(AddSiblingTextProperty);
+        set => SetValue(AddSiblingTextProperty, value);
+    }
+
+    public string AddChildText
+    {
+        get => GetValue(AddChildTextProperty);
+        set => SetValue(AddChildTextProperty, value);
+    }
+
+    public string PromoteText
+    {
+        get => GetValue(PromoteTextProperty);
+        set => SetValue(PromoteTextProperty, value);
+    }
+
+    public string DemoteText
+    {
+        get => GetValue(DemoteTextProperty);
+        set => SetValue(DemoteTextProperty, value);
+    }
+
+    public string MoveUpText
+    {
+        get => GetValue(MoveUpTextProperty);
+        set => SetValue(MoveUpTextProperty, value);
+    }
+
+    public string MoveDownText
+    {
+        get => GetValue(MoveDownTextProperty);
+        set => SetValue(MoveDownTextProperty, value);
+    }
+
+    public string AddNoteText
+    {
+        get => GetValue(AddNoteTextProperty);
+        set => SetValue(AddNoteTextProperty, value);
+    }
+
+    public string EditNoteText
+    {
+        get => GetValue(EditNoteTextProperty);
+        set => SetValue(EditNoteTextProperty, value);
+    }
+
+    public string DeleteNodeText
+    {
+        get => GetValue(DeleteNodeTextProperty);
+        set => SetValue(DeleteNodeTextProperty, value);
+    }
+
+    public string DragNodeTip
+    {
+        get => GetValue(DragNodeTipProperty);
+        set => SetValue(DragNodeTipProperty, value);
+    }
+
     public string ZoomText
     {
         get => _zoomText;
@@ -222,7 +339,7 @@ public partial class MindMapEditor : UserControl
     /// <summary>
     /// 添加子主题。宿主提供 Controller 时委托给宿主，否则使用控件内置树操作。
     /// </summary>
-    public MindMapNode AddChild(MindMapNode? parent = null, string title = "新主题")
+    public MindMapNode AddChild(MindMapNode? parent = null, string title = "")
     {
         if (ControllerContext is { } controller)
         {
@@ -240,7 +357,7 @@ public partial class MindMapEditor : UserControl
     /// <summary>
     /// 添加同级主题；根节点会转为添加子主题，避免产生多个中心主题。
     /// </summary>
-    public MindMapNode AddSibling(MindMapNode? node = null, string title = "新主题")
+    public MindMapNode AddSibling(MindMapNode? node = null, string title = "")
     {
         if (ControllerContext is { } controller)
         {
@@ -711,6 +828,29 @@ public partial class MindMapEditor : UserControl
         SelectedNode = node;
         ArrangeNodes();
         return true;
+    }
+
+    private static bool IsTextResourceProperty(AvaloniaProperty property)
+    {
+        return property == CenterTopicPlaceholderProperty
+               || property == TopicPlaceholderProperty
+               || property == NotePlaceholderProperty
+               || property == AddSiblingTextProperty
+               || property == AddChildTextProperty
+               || property == PromoteTextProperty
+               || property == DemoteTextProperty
+               || property == MoveUpTextProperty
+               || property == MoveDownTextProperty
+               || property == AddNoteTextProperty
+               || property == EditNoteTextProperty
+               || property == DeleteNodeTextProperty
+               || property == DragNodeTipProperty;
+    }
+
+    private void RecreateNodeChrome()
+    {
+        _nodeToolbar = CreateNodeToolbar();
+        Rebuild();
     }
 
 }

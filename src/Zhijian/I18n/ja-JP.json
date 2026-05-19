@@ -59,12 +59,16 @@
       "CenterTopicPlaceholder": "中心トピック",
       "TopicPlaceholder": "トピック",
       "NotePlaceholder": "ノート",
+      "DragNodeTip": "中央にドロップすると子トピック、上下端にドロップすると同階層で並べ替えます",
+      "PaneResizeTip": "ドラッグして幅を調整",
       "MiniMap": "ミニマップ",
       "CenterRoot": "中心トピックへ移動",
       "ZoomOut": "縮小",
       "ZoomIn": "拡大",
       "ResetZoom": "ズームをリセット",
       "NewUserGuide": "オンボーディングを表示",
+      "HideWorkspacePane": "左ペインを隠す",
+      "ShowWorkspacePane": "左ペインを表示",
       "Ready": "準備完了",
       "EmptyMindMap": "空のマインドマップ",
       "FolderSummaryClosed": "ファイルなし",
@@ -122,6 +126,8 @@
       "StatusThemeChanged": "テーマを {0} に変更しました",
       "StatusLanguageChanged": "言語を変更しました: {0}",
       "StatusShowNewUserTour": "オンボーディングを開きました",
+      "StatusWorkspacePaneHidden": "没入型マインドマップ表示にしました",
+      "StatusWorkspacePaneShown": "左ペインを表示しました",
       "TourSkip": "スキップ",
       "TourWelcomeTitle": "Zhijian へようこそ",
       "TourWelcomeDescription": "このツアーでは、実際のファイル入口、アウトライン編集、Markdown 切替、マインドマップキャンバス、下部ナビゲーションを案内します。",
@@ -136,7 +142,7 @@
       "TourCanvasTitle": "キャンバスを移動・ズーム",
       "TourCanvasDescription": "タッチパッドの2本指ピンチでズーム、2本指スクロールまたはホイールでキャンバスを移動できます。Ctrl/⌘ + ホイールでもポインター位置でズームし、Space+左ドラッグまたは中ボタンドラッグで移動できます。",
       "TourStatusTitle": "ステータスバーでナビゲート",
-      "TourStatusDescription": "元に戻す、やり直す、ミニマップ、中心へ戻る、ズームがあります。右下の ? でこのガイドをいつでも再表示できます。"
+      "TourStatusDescription": "元に戻す、やり直す、左ペイン表示、ミニマップ、中心へ戻る、ズームがあります。右下の ? でこのガイドをいつでも再表示できます。"
     }
   }
 }

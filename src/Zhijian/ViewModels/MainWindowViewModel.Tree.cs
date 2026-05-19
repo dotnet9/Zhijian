@@ -124,7 +124,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         return AddChild(node, string.Empty);
     }
 
-    public MindMapNode AddChild(MindMapNode? parent, string title = "新主题")
+    public MindMapNode AddChild(MindMapNode? parent, string title = "")
     {
         parent ??= SelectedNode ?? Root;
 
@@ -138,7 +138,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         return child;
     }
 
-    public MindMapNode AddSibling(MindMapNode? node, string title = "新主题")
+    public MindMapNode AddSibling(MindMapNode? node, string title = "")
     {
         node ??= SelectedNode ?? Root;
         if (IsRoot(node))

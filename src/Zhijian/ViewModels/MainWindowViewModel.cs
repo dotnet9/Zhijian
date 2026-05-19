@@ -56,6 +56,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private int _workspaceTabIndex = 1;
     private MindMapFileItem? _selectedFolderFile;
     private bool _isNewUserTourOpen;
+    private bool _isWorkspacePaneVisible = true;
 
     public MainWindowViewModel()
         : this(new DisabledMindMapFileService(), new DisabledApplicationActionService())
@@ -220,6 +221,20 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
     }
 
+    public bool IsWorkspacePaneVisible
+    {
+        get => _isWorkspacePaneVisible;
+        set
+        {
+            if (SetProperty(ref _isWorkspacePaneVisible, value))
+            {
+                OnIsWorkspacePaneVisibleChanged(value);
+            }
+        }
+    }
+
+    public bool IsWorkspacePaneHidden => !IsWorkspacePaneVisible;
+
     public MindMapNode Root => Roots[0];
 
     public bool IsOutlineMode => !IsMarkdownMode;
@@ -229,6 +244,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public string ToggleEditorToolTip => IsMarkdownMode ? T(ZhijianL.ToggleToOutline) : T(ZhijianL.ToggleToMarkdown);
 
     public string CenterRootToolTip => $"{T(ZhijianL.CenterRoot)}  {PrimaryCommandText} + L";
+
+    public string ToggleWorkspacePaneToolTip => $"{(IsWorkspacePaneVisible ? T(ZhijianL.HideWorkspacePane) : T(ZhijianL.ShowWorkspacePane))}  {PrimaryCommandText} + B";
 
     public string SelectedNodeSummary => SelectedNode is null
         ? FormatText(ZhijianL.NodeSummary, NodeCount)
@@ -295,5 +312,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public bool CanMoveSelectedNodeDown => CanMoveNodeDown(SelectedNode);
 
     public bool CanDeleteSelectedNode => SelectedNode is not null && !IsRoot(SelectedNode);
+
+    public bool CanAddSiblingToSelectedNode => SelectedNode is not null && !IsRoot(SelectedNode);
 
 }

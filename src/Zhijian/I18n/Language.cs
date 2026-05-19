@@ -65,12 +65,16 @@ namespace Zhijian
         public static readonly string CenterTopicPlaceholder = "Zhijian.ZhijianL.CenterTopicPlaceholder";
         public static readonly string TopicPlaceholder = "Zhijian.ZhijianL.TopicPlaceholder";
         public static readonly string NotePlaceholder = "Zhijian.ZhijianL.NotePlaceholder";
+        public static readonly string DragNodeTip = "Zhijian.ZhijianL.DragNodeTip";
+        public static readonly string PaneResizeTip = "Zhijian.ZhijianL.PaneResizeTip";
         public static readonly string MiniMap = "Zhijian.ZhijianL.MiniMap";
         public static readonly string CenterRoot = "Zhijian.ZhijianL.CenterRoot";
         public static readonly string ZoomOut = "Zhijian.ZhijianL.ZoomOut";
         public static readonly string ZoomIn = "Zhijian.ZhijianL.ZoomIn";
         public static readonly string ResetZoom = "Zhijian.ZhijianL.ResetZoom";
         public static readonly string NewUserGuide = "Zhijian.ZhijianL.NewUserGuide";
+        public static readonly string HideWorkspacePane = "Zhijian.ZhijianL.HideWorkspacePane";
+        public static readonly string ShowWorkspacePane = "Zhijian.ZhijianL.ShowWorkspacePane";
         public static readonly string Ready = "Zhijian.ZhijianL.Ready";
         public static readonly string EmptyMindMap = "Zhijian.ZhijianL.EmptyMindMap";
         public static readonly string FolderSummaryClosed = "Zhijian.ZhijianL.FolderSummaryClosed";
@@ -128,6 +132,8 @@ namespace Zhijian
         public static readonly string StatusThemeChanged = "Zhijian.ZhijianL.StatusThemeChanged";
         public static readonly string StatusLanguageChanged = "Zhijian.ZhijianL.StatusLanguageChanged";
         public static readonly string StatusShowNewUserTour = "Zhijian.ZhijianL.StatusShowNewUserTour";
+        public static readonly string StatusWorkspacePaneHidden = "Zhijian.ZhijianL.StatusWorkspacePaneHidden";
+        public static readonly string StatusWorkspacePaneShown = "Zhijian.ZhijianL.StatusWorkspacePaneShown";
         public static readonly string TourSkip = "Zhijian.ZhijianL.TourSkip";
         public static readonly string TourWelcomeTitle = "Zhijian.ZhijianL.TourWelcomeTitle";
         public static readonly string TourWelcomeDescription = "Zhijian.ZhijianL.TourWelcomeDescription";

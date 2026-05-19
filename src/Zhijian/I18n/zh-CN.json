@@ -59,12 +59,16 @@
       "CenterTopicPlaceholder": "中心主题",
       "TopicPlaceholder": "主题",
       "NotePlaceholder": "备注",
+      "DragNodeTip": "拖到节点中部成为子节点，拖到上下边缘调整同级顺序",
+      "PaneResizeTip": "拖拽调整宽度",
       "MiniMap": "小图",
       "CenterRoot": "定位到中心主题",
       "ZoomOut": "缩小",
       "ZoomIn": "放大",
       "ResetZoom": "重置缩放",
       "NewUserGuide": "显示新手引导",
+      "HideWorkspacePane": "隐藏左侧视图",
+      "ShowWorkspacePane": "显示左侧视图",
       "Ready": "就绪",
       "EmptyMindMap": "空白脑图",
       "FolderSummaryClosed": "暂无文件",
@@ -122,6 +126,8 @@
       "StatusThemeChanged": "已切换到{0}",
       "StatusLanguageChanged": "已切换语言：{0}",
       "StatusShowNewUserTour": "已打开新手引导",
+      "StatusWorkspacePaneHidden": "已进入沉浸脑图视图",
+      "StatusWorkspacePaneShown": "已显示左侧视图",
       "TourSkip": "跳过",
       "TourWelcomeTitle": "欢迎使用枝见",
       "TourWelcomeDescription": "这段引导会按真实界面高亮文件入口、大纲编辑区、Markdown 切换、脑图画布和底部导航。",
@@ -136,7 +142,7 @@
       "TourCanvasTitle": "移动和缩放画布",
       "TourCanvasDescription": "触控板双指捏合可缩放，双指滑动或滚轮可平移画布；按 Ctrl/⌘ 配合滚轮也可在指针位置缩放，Space+左键或中键可拖动画布。",
       "TourStatusTitle": "状态栏提供导航和帮助",
-      "TourStatusDescription": "这里可以撤销/重做、打开小图预览、定位中心主题、缩放脑图。右下角问号可随时重新打开本引导。"
+      "TourStatusDescription": "这里可以撤销/重做、隐藏或显示左侧视图、打开小图预览、定位中心主题、缩放脑图。右下角问号可随时重新打开本引导。"
     }
   }
 }

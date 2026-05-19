@@ -16,23 +16,23 @@ public partial class MindMapEditor
             Spacing = 2
         };
         panel.Children.Add(CreateToolbarButton(
-            "添加同级主题",
+            AddSiblingText,
             Geometry.Parse("M4 7h6v6H4zM14 7h6v6h-6zM10 10h4M7 13v4h10v-4"),
             AddToolbarSiblingNode));
         panel.Children.Add(CreateToolbarButton(
-            "添加子主题",
+            AddChildText,
             Geometry.Parse("M5 5h7v7H5zM12 8h5v4M17 12h2v7h-7v-7h5"),
             AddToolbarChildNode));
         panel.Children.Add(CreateToolbarButton(
-            "提升为父节点",
+            PromoteText,
             Geometry.Parse("M5 7h14M5 12h9M5 17h5M15 13l4-4-4-4"),
             PromoteToolbarNode));
         panel.Children.Add(CreateToolbarButton(
-            "降级为子节点",
+            DemoteText,
             Geometry.Parse("M5 7h14M10 12h9M14 17h5M9 13l-4-4 4-4"),
             DemoteToolbarNode));
         panel.Children.Add(CreateToolbarButton(
-            "备注",
+            AddNoteText,
             Geometry.Parse("M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"),
             () =>
             {
@@ -42,7 +42,7 @@ public partial class MindMapEditor
                 }
             }));
         panel.Children.Add(CreateToolbarButton(
-            "删除",
+            DeleteNodeText,
             Geometry.Parse("M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"),
             DeleteToolbarNode));
 
@@ -117,14 +117,14 @@ public partial class MindMapEditor
     private void ShowNodeMenu(MindMapNode node, Point canvasPoint)
     {
         _nodeMenuPanel.Children.Clear();
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加子级", "Tab", true, () => AddChildFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加同级", "Enter", !IsRootNode(node), () => AddSiblingFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", "提升为父节点", "Shift+Tab", CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", "降级为子节点", "Tab", CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", "上移", "Alt+Up", CanMoveNodeUp(node), () => MoveNodeUpFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", "下移", "Alt+Down", CanMoveNodeDown(node), () => MoveNodeDownFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注", null, true, () => ShowNoteEditor(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", "删除", "Delete", !IsRootNode(node), () => DeleteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddChildText, "Tab", true, () => AddChildFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddSiblingText, "Enter", !IsRootNode(node), () => AddSiblingFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", PromoteText, "Shift+Tab", CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", DemoteText, "Tab", CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", MoveUpText, "Alt+Up", CanMoveNodeUp(node), () => MoveNodeUpFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", MoveDownText, "Alt+Down", CanMoveNodeDown(node), () => MoveNodeDownFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? AddNoteText : EditNoteText, null, true, () => ShowNoteEditor(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", DeleteNodeText, "Delete", !IsRootNode(node), () => DeleteNodeFromMenu(node)));
 
         _nodeMenu.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
         _nodeMenu.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");

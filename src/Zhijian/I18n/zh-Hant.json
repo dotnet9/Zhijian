@@ -59,12 +59,16 @@
       "CenterTopicPlaceholder": "中心主題",
       "TopicPlaceholder": "主題",
       "NotePlaceholder": "備註",
+      "DragNodeTip": "拖到節點中部成為子節點，拖到上下邊緣調整同級順序",
+      "PaneResizeTip": "拖曳調整寬度",
       "MiniMap": "小圖",
       "CenterRoot": "定位到中心主題",
       "ZoomOut": "縮小",
       "ZoomIn": "放大",
       "ResetZoom": "重置縮放",
       "NewUserGuide": "顯示新手引導",
+      "HideWorkspacePane": "隱藏左側視圖",
+      "ShowWorkspacePane": "顯示左側視圖",
       "Ready": "就緒",
       "EmptyMindMap": "空白腦圖",
       "FolderSummaryClosed": "暫無文件",
@@ -122,6 +126,8 @@
       "StatusThemeChanged": "已切換到{0}",
       "StatusLanguageChanged": "已切換語言：{0}",
       "StatusShowNewUserTour": "已開啟新手引導",
+      "StatusWorkspacePaneHidden": "已進入沉浸腦圖視圖",
+      "StatusWorkspacePaneShown": "已顯示左側視圖",
       "TourSkip": "跳過",
       "TourWelcomeTitle": "歡迎使用枝見",
       "TourWelcomeDescription": "這段引導會依照真實介面標示文件入口、大綱編輯區、Markdown 切換、腦圖畫布和底部導航。",
@@ -136,7 +142,7 @@
       "TourCanvasTitle": "移動和縮放畫布",
       "TourCanvasDescription": "觸控板雙指捏合可縮放，雙指滑動或滾輪可平移畫布；按 Ctrl/⌘ 搭配滾輪也可在指標位置縮放，Space+左鍵或中鍵可拖動畫布。",
       "TourStatusTitle": "狀態列提供導航和幫助",
-      "TourStatusDescription": "這裡可以復原/重做、開啟小圖預覽、定位中心主題、縮放腦圖。右下角問號可隨時重新開啟本引導。"
+      "TourStatusDescription": "這裡可以復原/重做、隱藏或顯示左側視圖、開啟小圖預覽、定位中心主題、縮放腦圖。右下角問號可隨時重新開啟本引導。"
     }
   }
 }

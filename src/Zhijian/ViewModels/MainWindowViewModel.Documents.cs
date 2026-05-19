@@ -79,6 +79,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             }
 
             await LoadFolderFilesAsync(folderPath);
+            IsWorkspacePaneVisible = true;
             WorkspaceTabIndex = 0;
             StatusText = FormatText(ZhijianL.StatusOpenFolder, folderPath);
         });

@@ -121,6 +121,12 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         StatusText = T(ZhijianL.StatusShowNewUserTour);
     }
 
+    public void ToggleWorkspacePane()
+    {
+        IsWorkspacePaneVisible = !IsWorkspacePaneVisible;
+        StatusText = T(IsWorkspacePaneVisible ? ZhijianL.StatusWorkspacePaneShown : ZhijianL.StatusWorkspacePaneHidden);
+    }
+
     private void SetLanguage(string cultureName)
     {
         if (string.Equals(_selectedCultureName, cultureName, StringComparison.OrdinalIgnoreCase))
@@ -157,6 +163,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     private void PrepareNewUserTour()
     {
+        IsWorkspacePaneVisible = true;
         WorkspaceTabIndex = 1;
         SelectedNode ??= Root;
     }
@@ -222,6 +229,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(EditorPaneTitle));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
         OnPropertyChanged(nameof(CenterRootToolTip));
+        OnPropertyChanged(nameof(ToggleWorkspacePaneToolTip));
         OnPropertyChanged(nameof(SelectedNodeSummary));
         OnPropertyChanged(nameof(HistorySummary));
         OnPropertyChanged(nameof(WindowTitle));
@@ -253,6 +261,12 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(EditorPaneTitle));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
         OnPropertyChanged(nameof(CenterRootToolTip));
+    }
+
+    private void OnIsWorkspacePaneVisibleChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsWorkspacePaneHidden));
+        OnPropertyChanged(nameof(ToggleWorkspacePaneToolTip));
     }
 
     private void OnIsDarkThemeChanged(bool value)

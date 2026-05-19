@@ -112,7 +112,7 @@ public partial class MindMapEditor
                 18,
                 FontWeight.SemiBold,
                 HorizontalAlignment.Stretch,
-                "中心主题",
+                CenterTopicPlaceholder,
                 IsTextOnly: false);
         }
 
@@ -132,7 +132,7 @@ public partial class MindMapEditor
                 17,
                 FontWeight.Medium,
                 HorizontalAlignment.Stretch,
-                "主题",
+                TopicPlaceholder,
                 IsTextOnly: false);
         }
 
@@ -150,7 +150,7 @@ public partial class MindMapEditor
             16,
             FontWeight.Regular,
             HorizontalAlignment.Stretch,
-            "主题",
+            TopicPlaceholder,
             IsTextOnly: true);
     }
 

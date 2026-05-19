@@ -42,6 +42,10 @@ public partial class MindMapEditor
         {
             Rebuild();
         }
+        else if (IsTextResourceProperty(change.Property))
+        {
+            RecreateNodeChrome();
+        }
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -418,7 +422,7 @@ public partial class MindMapEditor
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Stretch
         };
-        ToolTip.SetTip(handle, "拖到节点中部成为子节点，拖到上下边缘调整同级顺序");
+        ToolTip.SetTip(handle, DragNodeTip);
         handle.PointerPressed += (sender, e) => HandleNodeDragStarted(node, sender as Control, e);
         handle.PointerMoved += HandleNodeDragged;
         handle.PointerReleased += HandleNodeDragCompleted;
@@ -438,7 +442,7 @@ public partial class MindMapEditor
             FontSize = MindMapLayoutMetrics.NoteFontSize,
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = true,
-            PlaceholderText = "备注",
+            PlaceholderText = NotePlaceholder,
             PlaceholderForeground = noteForeground,
             FocusAdorner = null,
             TextAlignment = ToTextAlignment(metrics.ContentAlignment),

@@ -1,5 +1,13 @@
 # Changelog
 
+## 12.0.3.13（2026-05-19）
+
+- ✨[Add]-Added an immersive mind-map mode with a left-pane hide/show toggle near the outline/mind-map boundary and a `Ctrl/⌘ + B` shortcut.
+- 🔨[Optimize]-Added visible outline quick actions for adding child nodes, adding sibling nodes, copying Markdown, and switching between outline and Markdown editing.
+- 🔨[Optimize]-When users open a folder or start the onboarding tour, the left pane is restored automatically so file navigation and guided targets remain visible.
+- 🔨[Optimize]-Localized outline and mind-map editor text and wired startup file arguments into the main window flow.
+- 🧪[Test]-Built `Zhijian.slnx`, ran the desktop app, and verified visible, immersive, and restored pane states with screenshots.
+
 ## 12.0.3.12（2026-05-18）
 
 - 🔨[Optimize]-Hid the mind-map canvas scrollbars while keeping wheel, touchpad, mini-map, and drag navigation active, reducing visual noise on laptop-sized windows.

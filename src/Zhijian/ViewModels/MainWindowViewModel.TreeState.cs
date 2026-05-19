@@ -371,6 +371,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(CanMoveSelectedNodeUp));
         OnPropertyChanged(nameof(CanMoveSelectedNodeDown));
         OnPropertyChanged(nameof(CanDeleteSelectedNode));
+        OnPropertyChanged(nameof(CanAddSiblingToSelectedNode));
     }
 
     private sealed record LoadedMindMapDocument(

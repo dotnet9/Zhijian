@@ -35,12 +35,12 @@ public interface IMindMapEditorController
     /// <summary>
     /// 给指定父节点添加子主题，并返回需要获得焦点的新节点。
     /// </summary>
-    MindMapNode AddChild(MindMapNode? parent, string title = "新主题");
+    MindMapNode AddChild(MindMapNode? parent, string title = "");
 
     /// <summary>
     /// 在指定节点后添加同级主题，并返回需要获得焦点的新节点。
     /// </summary>
-    MindMapNode AddSibling(MindMapNode? node, string title = "新主题");
+    MindMapNode AddSibling(MindMapNode? node, string title = "");
 
     /// <summary>
     /// 判断节点是否可提升为父节点的同级。
