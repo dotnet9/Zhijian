@@ -49,6 +49,22 @@ public partial class MindMapEditor
                 MarkEditorKeyEventHandled(e);
                 return;
 
+            case MindMapKeyboardAction.MoveUp:
+                if (MoveNodeUp(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveDown:
+                if (MoveNodeDown(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
             case MindMapKeyboardAction.DeleteEmptyTitle:
                 if (!IsRootNode(node))
                 {
@@ -111,6 +127,22 @@ public partial class MindMapEditor
 
             case MindMapKeyboardAction.Demote:
                 FocusNode(HandleMapTab(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveUp:
+                if (MoveNodeUp(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveDown:
+                if (MoveNodeDown(node))
+                {
+                    FocusNode(node);
+                }
                 MarkEditorKeyEventHandled(e);
                 return;
         }

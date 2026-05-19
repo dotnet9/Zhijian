@@ -2,6 +2,8 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- 🔧[优化]-让标题编辑状态下的 `Alt+Up`/`Alt+Down` 真正执行同级上移/下移，与右键菜单和标题栏菜单展示的快捷键保持一致。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 创建 `Root/A/B`，并模拟 `Alt+Up`、`Alt+Down` 截图验证大纲和脑图排序同步。
 - ✨[新增]-新增 `osx-x64` 和 `osx-arm64` 发布配置，默认发布脚本覆盖 Windows、Linux 和 macOS 三个平台。
 - 🧪[测试]-分别执行 `dotnet publish` 验证 `osx-x64` 与 `osx-arm64` 发布链路，确认生成 `publish/osx-x64/Zhijian/Zhijian` 和 `publish/osx-arm64/Zhijian/Zhijian`。
 - 🔧[修复]-修复大纲视图被独立 `WorkspaceOutlineView` 包裹后无法拿到主窗口脑图控制器的问题，恢复 `Enter`、`Tab`、`Shift+Tab`、空标题删除与左右视图同步。

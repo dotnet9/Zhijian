@@ -6,6 +6,8 @@ public enum MindMapKeyboardAction
     AddFromEnter,
     Demote,
     Promote,
+    MoveUp,
+    MoveDown,
     DeleteEmptyTitle,
     DeleteEmptyNote,
     DeleteSelected

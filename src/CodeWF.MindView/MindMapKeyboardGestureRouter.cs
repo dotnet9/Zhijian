@@ -18,6 +18,19 @@ public static class MindMapKeyboardGestureRouter
                 : MindMapKeyboardAction.Demote;
         }
 
+        if (modifiers.HasFlag(KeyModifiers.Alt))
+        {
+            if (key == Key.Up)
+            {
+                return MindMapKeyboardAction.MoveUp;
+            }
+
+            if (key == Key.Down)
+            {
+                return MindMapKeyboardAction.MoveDown;
+            }
+        }
+
         return IsDeleteKey(key) && isTitleEmpty
             ? MindMapKeyboardAction.DeleteEmptyTitle
             : MindMapKeyboardAction.None;
@@ -40,6 +53,19 @@ public static class MindMapKeyboardGestureRouter
             return modifiers.HasFlag(KeyModifiers.Shift)
                 ? MindMapKeyboardAction.Promote
                 : MindMapKeyboardAction.Demote;
+        }
+
+        if (modifiers.HasFlag(KeyModifiers.Alt))
+        {
+            if (key == Key.Up)
+            {
+                return MindMapKeyboardAction.MoveUp;
+            }
+
+            if (key == Key.Down)
+            {
+                return MindMapKeyboardAction.MoveDown;
+            }
         }
 
         return MindMapKeyboardAction.None;

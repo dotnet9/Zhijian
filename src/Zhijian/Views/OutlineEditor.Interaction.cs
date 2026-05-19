@@ -52,6 +52,22 @@ public partial class OutlineEditor
                 MarkEditorKeyEventHandled(e);
                 return;
 
+            case MindMapKeyboardAction.MoveUp:
+                if (viewModel.MoveNodeUp(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveDown:
+                if (viewModel.MoveNodeDown(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
             case MindMapKeyboardAction.DeleteEmptyTitle:
                 if (!viewModel.IsRoot(node))
                 {
