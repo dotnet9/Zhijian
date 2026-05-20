@@ -19,7 +19,7 @@
              Height="820"
              MinWidth="980"
              MinHeight="640"
-             Title=""
+             Title="{Binding WindowTitle}"
              TitleBarFrameBackground="{Binding TitleBarBackground}">
 
     <Design.DataContext>

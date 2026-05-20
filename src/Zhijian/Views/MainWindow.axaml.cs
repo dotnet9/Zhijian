@@ -1,5 +1,6 @@
 using AtomUI.Desktop.Controls;
 using Avalonia;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
@@ -17,6 +18,7 @@ public partial class MainWindow : Window
     private const double SplitterWidth = 14;
 
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
+    private IDisposable? _titleBarTitleBinding;
     private MainWindowViewModel? _viewModel;
     private Avalonia.Controls.GridLength _lastOutlinePaneWidth = new(DefaultOutlinePaneWidth);
     private bool _isCloseConfirmed;
@@ -53,7 +55,13 @@ public partial class MainWindow : Window
         _titleBarLeftAddOn = new TitleBarLeftAddOn();
         FileMenuTourStep.Target = _titleBarLeftAddOn.FileMenuTourTarget;
         ApplyTitleBarDataContext();
-        titleBar.SetCurrentValue(WindowTitleBar.TitleProperty, string.Empty);
+        _titleBarTitleBinding?.Dispose();
+        _titleBarTitleBinding = titleBar.Bind(
+            WindowTitleBar.TitleProperty,
+            new Binding($"{nameof(DataContext)}.{nameof(MainWindowViewModel.DocumentTitle)}")
+            {
+                Source = this
+            });
         titleBar.SetCurrentValue(WindowTitleBar.LeftAddOnProperty, _titleBarLeftAddOn);
         titleBar.SetCurrentValue(WindowTitleBar.RightAddOnProperty, null);
     }
