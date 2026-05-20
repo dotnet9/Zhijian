@@ -14,6 +14,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private static readonly int MaxRecentFiles = ApplicationSettings.MaxRecentFiles;
     private static readonly string RecentFilesName = ApplicationSettings.RecentFilesFileName;
     private static readonly string TourSeenName = ApplicationSettings.TourSeenFileName;
+    private const string MarkdownStatsSummaryKey = "Zhijian.ZhijianL.MarkdownStatsSummary";
+    private const string MarkdownStatsSavedKey = "Zhijian.ZhijianL.MarkdownStatsSaved";
+    private const string MarkdownStatsUnsavedKey = "Zhijian.ZhijianL.MarkdownStatsUnsaved";
 
     private static readonly string[] Palette =
     [
@@ -254,7 +257,14 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public bool IsOutlineMode => !IsMarkdownMode;
 
-    public string EditorPaneTitle => IsMarkdownMode ? "Markdown" : T(ZhijianL.OutlineTab);
+    public string EditorPaneTitle => IsMarkdownMode ? MarkdownStatsSummary : T(ZhijianL.OutlineTab);
+
+    public string MarkdownStatsSummary => FormatText(
+        MarkdownStatsSummaryKey,
+        CountMarkdownLines(MarkdownText),
+        CountMarkdownCharacters(MarkdownText),
+        NodeCount,
+        T(IsDirty ? MarkdownStatsUnsavedKey : MarkdownStatsSavedKey));
 
     public string ToggleEditorToolTip => IsMarkdownMode ? T(ZhijianL.ToggleToOutline) : T(ZhijianL.ToggleToMarkdown);
 
