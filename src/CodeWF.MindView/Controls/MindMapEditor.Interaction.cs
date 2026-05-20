@@ -26,6 +26,11 @@ public partial class MindMapEditor
             return;
         }
 
+        if (TryHandleTitleNavigation(node, editor, e))
+        {
+            return;
+        }
+
         var action = MindMapKeyboardGestureRouter.ResolveTitleAction(
             e.Key,
             e.KeyModifiers,
@@ -110,6 +115,11 @@ public partial class MindMapEditor
             return;
         }
 
+        if (TryHandleFrameNavigation(node, e))
+        {
+            return;
+        }
+
         var action = MindMapKeyboardGestureRouter.ResolveFrameAction(
             e.Key,
             e.KeyModifiers,
@@ -166,6 +176,221 @@ public partial class MindMapEditor
     {
         _lastHandledEditorKeyEvent = e;
         e.Handled = true;
+    }
+
+    private bool TryHandleTitleNavigation(MindMapNode node, TextBox? editor, KeyEventArgs e)
+    {
+        if (!CanNavigateWithArrowKey(e))
+        {
+            return false;
+        }
+
+        if (e.Key == Key.Left && !IsCaretAtStart(editor))
+        {
+            return false;
+        }
+
+        if (e.Key == Key.Right && !IsCaretAtEnd(editor))
+        {
+            return false;
+        }
+
+        return TryNavigateToDirectionalNode(node, e.Key, focusTitleEditor: true, e);
+    }
+
+    private bool TryHandleFrameNavigation(MindMapNode node, KeyEventArgs e)
+    {
+        return CanNavigateWithArrowKey(e)
+            && TryNavigateToDirectionalNode(node, e.Key, focusTitleEditor: false, e);
+    }
+
+    private bool TryNavigateToDirectionalNode(
+        MindMapNode current,
+        Key key,
+        bool focusTitleEditor,
+        KeyEventArgs e)
+    {
+        var target = FindDirectionalNode(current, key);
+        if (target is null)
+        {
+            return false;
+        }
+
+        if (focusTitleEditor)
+        {
+            FocusNode(target);
+        }
+        else
+        {
+            FocusFrame(target);
+        }
+
+        EnsureNodeVisible(target);
+        MarkEditorKeyEventHandled(e);
+        return true;
+    }
+
+    private MindMapNode? FindDirectionalNode(MindMapNode current, Key key)
+    {
+        if (!_nodeFrames.ContainsKey(current))
+        {
+            return FindTreeNavigationFallback(current, key);
+        }
+
+        var currentCenter = GetNodeCenter(current);
+        MindMapNode? bestNode = null;
+        var bestScore = double.MaxValue;
+
+        foreach (var candidate in _nodeFrames.Keys)
+        {
+            if (ReferenceEquals(candidate, current))
+            {
+                continue;
+            }
+
+            var candidateCenter = GetNodeCenter(candidate);
+            var dx = candidateCenter.X - currentCenter.X;
+            var dy = candidateCenter.Y - currentCenter.Y;
+            if (!IsInDirection(key, dx, dy))
+            {
+                continue;
+            }
+
+            var primary = key is Key.Left or Key.Right ? Math.Abs(dx) : Math.Abs(dy);
+            var secondary = key is Key.Left or Key.Right ? Math.Abs(dy) : Math.Abs(dx);
+            var score = primary * 4 + secondary;
+            if (score < bestScore)
+            {
+                bestScore = score;
+                bestNode = candidate;
+            }
+        }
+
+        return bestNode ?? FindTreeNavigationFallback(current, key);
+    }
+
+    private MindMapNode? FindTreeNavigationFallback(MindMapNode current, Key key)
+    {
+        return key switch
+        {
+            Key.Left => FindParent(current),
+            Key.Right => current.Children.FirstOrDefault(),
+            Key.Up => FindAdjacentTreeNode(current, -1),
+            Key.Down => FindAdjacentTreeNode(current, 1),
+            _ => null
+        };
+    }
+
+    private MindMapNode? FindAdjacentTreeNode(MindMapNode current, int offset)
+    {
+        var nodes = GetTreeOrderedNodes();
+        var index = nodes.IndexOf(current);
+        var targetIndex = index + offset;
+        return index >= 0 && targetIndex >= 0 && targetIndex < nodes.Count
+            ? nodes[targetIndex]
+            : null;
+    }
+
+    private List<MindMapNode> GetTreeOrderedNodes()
+    {
+        var nodes = new List<MindMapNode>();
+        if (Roots is null)
+        {
+            return nodes;
+        }
+
+        foreach (var root in Roots)
+        {
+            CollectTreeOrderedNodes(root, nodes);
+        }
+
+        return nodes;
+    }
+
+    private static void CollectTreeOrderedNodes(MindMapNode node, ICollection<MindMapNode> nodes)
+    {
+        nodes.Add(node);
+        foreach (var child in node.Children)
+        {
+            CollectTreeOrderedNodes(child, nodes);
+        }
+    }
+
+    private Point GetNodeCenter(MindMapNode node)
+    {
+        var size = GetRenderedNodeSize(node);
+        return new Point(node.X + size.Width / 2, node.Y + size.Height / 2);
+    }
+
+    private static bool IsInDirection(Key key, double dx, double dy)
+    {
+        const double epsilon = 1;
+        return key switch
+        {
+            Key.Left => dx < -epsilon,
+            Key.Right => dx > epsilon,
+            Key.Up => dy < -epsilon,
+            Key.Down => dy > epsilon,
+            _ => false
+        };
+    }
+
+    private void EnsureNodeVisible(MindMapNode node)
+    {
+        if (_zoomScale <= 0 || _scrollViewer.Viewport.Width <= 0 || _scrollViewer.Viewport.Height <= 0)
+        {
+            return;
+        }
+
+        var size = GetRenderedNodeSize(node);
+        var bounds = new Rect(node.X, node.Y, size.Width, size.Height).Inflate(40);
+        var viewport = ViewportBounds;
+        if (bounds.Left >= viewport.Left
+            && bounds.Top >= viewport.Top
+            && bounds.Right <= viewport.Right
+            && bounds.Bottom <= viewport.Bottom)
+        {
+            return;
+        }
+
+        var offsetX = _scrollViewer.Offset.X;
+        var offsetY = _scrollViewer.Offset.Y;
+        if (bounds.Left < viewport.Left)
+        {
+            offsetX = bounds.Left * _zoomScale;
+        }
+        else if (bounds.Right > viewport.Right)
+        {
+            offsetX = bounds.Right * _zoomScale - _scrollViewer.Viewport.Width;
+        }
+
+        if (bounds.Top < viewport.Top)
+        {
+            offsetY = bounds.Top * _zoomScale;
+        }
+        else if (bounds.Bottom > viewport.Bottom)
+        {
+            offsetY = bounds.Bottom * _zoomScale - _scrollViewer.Viewport.Height;
+        }
+
+        _scrollViewer.Offset = ClampScrollOffset(new Vector(offsetX, offsetY));
+        UpdateViewportBounds();
+    }
+
+    private static bool CanNavigateWithArrowKey(KeyEventArgs e)
+    {
+        return e.KeyModifiers == KeyModifiers.None
+            && e.Key is Key.Left or Key.Right or Key.Up or Key.Down;
+    }
+
+    private static bool IsCaretAtStart(TextBox? editor)
+    {
+        return editor is null || editor.CaretIndex <= 0;
+    }
+
+    private static bool IsCaretAtEnd(TextBox? editor)
+    {
+        return editor is null || editor.CaretIndex >= (editor.Text?.Length ?? 0);
     }
 
     private void HandleNodeDragStarted(MindMapNode node, Control? control, PointerPressedEventArgs e)

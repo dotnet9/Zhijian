@@ -56,7 +56,7 @@ public static partial class MindMapDocumentCodec
                     new XAttribute("name", GetDrawIoTitle(exportRoot, 1)),
                     graphModel)));
 
-        return document.ToString(SaveOptions.DisableFormatting);
+        return document.ToString();
     }
 
     private static MindMapNode CloneDrawIoNode(MindMapNode node)

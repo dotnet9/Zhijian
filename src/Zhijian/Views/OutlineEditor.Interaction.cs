@@ -27,6 +27,11 @@ public partial class OutlineEditor
             return;
         }
 
+        if (TryHandleTitleNavigation(node, editor, e))
+        {
+            return;
+        }
+
         var action = MindMapKeyboardGestureRouter.ResolveTitleAction(
             e.Key,
             e.KeyModifiers,
@@ -548,6 +553,115 @@ public partial class OutlineEditor
         UpdateNoteVisibility(node);
         FocusNode(node);
         MarkEditorKeyEventHandled(e);
+    }
+
+    private bool TryHandleTitleNavigation(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
+    {
+        if (e.KeyModifiers != KeyModifiers.None)
+        {
+            return false;
+        }
+
+        var target = e.Key switch
+        {
+            Key.Up => FindAdjacentOutlineNode(node, -1),
+            Key.Down => FindAdjacentOutlineNode(node, 1),
+            Key.Left when IsCaretAtStart(editor) => FindOutlineParent(node),
+            Key.Right when IsCaretAtEnd(editor) => node.Children.FirstOrDefault(),
+            _ => null
+        };
+
+        if (target is null)
+        {
+            return false;
+        }
+
+        FocusNode(target);
+        MarkEditorKeyEventHandled(e);
+        return true;
+    }
+
+    private MindMapNode? FindAdjacentOutlineNode(MindMapNode node, int offset)
+    {
+        var nodes = GetOutlineNodes();
+        var index = nodes.IndexOf(node);
+        var targetIndex = index + offset;
+        return index >= 0 && targetIndex >= 0 && targetIndex < nodes.Count
+            ? nodes[targetIndex]
+            : null;
+    }
+
+    private List<MindMapNode> GetOutlineNodes()
+    {
+        var nodes = new List<MindMapNode>();
+        if (Roots is null)
+        {
+            return nodes;
+        }
+
+        foreach (var root in Roots)
+        {
+            CollectOutlineNodes(root, nodes);
+        }
+
+        return nodes;
+    }
+
+    private static void CollectOutlineNodes(MindMapNode node, ICollection<MindMapNode> nodes)
+    {
+        nodes.Add(node);
+        foreach (var child in node.Children)
+        {
+            CollectOutlineNodes(child, nodes);
+        }
+    }
+
+    private MindMapNode? FindOutlineParent(MindMapNode node)
+    {
+        if (Roots is null)
+        {
+            return null;
+        }
+
+        foreach (var root in Roots)
+        {
+            var parent = FindOutlineParent(root, node);
+            if (parent is not null)
+            {
+                return parent;
+            }
+        }
+
+        return null;
+    }
+
+    private static MindMapNode? FindOutlineParent(MindMapNode parent, MindMapNode node)
+    {
+        if (parent.Children.Contains(node))
+        {
+            return parent;
+        }
+
+        foreach (var child in parent.Children)
+        {
+            var match = FindOutlineParent(child, node);
+            if (match is not null)
+            {
+                return match;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsCaretAtStart(AtomTextBox? editor)
+    {
+        return editor is null || editor.CaretIndex <= 0;
+    }
+
+    private static bool IsCaretAtEnd(AtomTextBox? editor)
+    {
+        return editor is null || editor.CaretIndex >= (editor.Text?.Length ?? 0);
     }
 
     private void MarkEditorKeyEventHandled(KeyEventArgs e)

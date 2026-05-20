@@ -120,7 +120,7 @@ public static partial class MindMapDocumentCodec
                 new XElement("head", new XElement("title", GetTitle(root))),
                 new XElement("body", ToOpmlOutline(root))));
 
-        return document.ToString(SaveOptions.DisableFormatting);
+        return document.ToString();
     }
 
     public static MindMapNode FromOpml(string opml)
@@ -154,8 +154,8 @@ public static partial class MindMapDocumentCodec
         using (var archive = new ZipArchive(memory, ZipArchiveMode.Create, leaveOpen: true))
         {
             WriteArchiveEntry(archive, "content.json", CreateXMindContentJson(root));
-            WriteArchiveEntry(archive, "metadata.json", "{\"creator\":{\"name\":\"CodeWF.MindView\",\"version\":\"1.0\"}}");
-            WriteArchiveEntry(archive, "manifest.json", "{\"file-entries\":{\"content.json\":{},\"metadata.json\":{}}}");
+            WriteArchiveEntry(archive, "metadata.json", CreateXMindMetadataJson());
+            WriteArchiveEntry(archive, "manifest.json", CreateXMindManifestJson());
         }
 
         return memory.ToArray();
@@ -436,7 +436,7 @@ public static partial class MindMapDocumentCodec
     private static string CreateXMindContentJson(MindMapNode root)
     {
         using var memory = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = false }))
+        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = true }))
         {
             writer.WriteStartArray();
             writer.WriteStartObject();
@@ -447,6 +447,44 @@ public static partial class MindMapDocumentCodec
             WriteXMindTopic(writer, root);
             writer.WriteEndObject();
             writer.WriteEndArray();
+        }
+
+        return Encoding.UTF8.GetString(memory.ToArray());
+    }
+
+    private static string CreateXMindMetadataJson()
+    {
+        using var memory = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = true }))
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName("creator");
+            writer.WriteStartObject();
+            writer.WriteString("name", "CodeWF.MindView");
+            writer.WriteString("version", "1.0");
+            writer.WriteEndObject();
+            writer.WriteEndObject();
+        }
+
+        return Encoding.UTF8.GetString(memory.ToArray());
+    }
+
+    private static string CreateXMindManifestJson()
+    {
+        using var memory = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = true }))
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName("file-entries");
+            writer.WriteStartObject();
+            writer.WritePropertyName("content.json");
+            writer.WriteStartObject();
+            writer.WriteEndObject();
+            writer.WritePropertyName("metadata.json");
+            writer.WriteStartObject();
+            writer.WriteEndObject();
+            writer.WriteEndObject();
+            writer.WriteEndObject();
         }
 
         return Encoding.UTF8.GetString(memory.ToArray());
