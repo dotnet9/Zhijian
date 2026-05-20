@@ -48,10 +48,12 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
 
         await using var textStream = await file.OpenReadAsync();
         using var reader = new StreamReader(textStream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        var textContent = await reader.ReadToEndAsync(cancellationToken);
+        format = DetectTextFormat(format, textContent);
         return new MindMapFileOpenResult(
             filePath,
             format,
-            await reader.ReadToEndAsync(cancellationToken),
+            textContent,
             null);
     }
 
@@ -125,8 +127,13 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         var targetFormat = MindMapFileFormatRegistry.GetFormatFromPath(filePath, writableFormat);
         if (!MindMapFileFormatRegistry.CanWriteFormat(targetFormat))
         {
-            targetFormat = writableFormat;
-            filePath = Path.ChangeExtension(filePath, MindMapFileFormatRegistry.GetDefaultExtension(targetFormat));
+            targetFormat = MindMapFileFormatRegistry.WritableFormats
+                .FirstOrDefault(descriptor => MindMapFileFormatRegistry.PathMatchesFormat(filePath, descriptor.Format))
+                ?.Format ?? writableFormat;
+            if (!MindMapFileFormatRegistry.PathMatchesFormat(filePath, targetFormat))
+            {
+                filePath = Path.ChangeExtension(filePath, MindMapFileFormatRegistry.GetDefaultExtension(targetFormat));
+            }
         }
 
         return new MindMapFileSaveTarget(filePath, targetFormat);
@@ -262,6 +269,18 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
     private static string GetLocalPath(IStorageItem item)
     {
         return item.Path.LocalPath;
+    }
+
+    private static MindMapFileFormat DetectTextFormat(MindMapFileFormat format, string textContent)
+    {
+        if (format != MindMapFileFormat.Xml)
+        {
+            return format;
+        }
+
+        return MindMapDocumentCodec.LooksLikeDrawIo(textContent)
+            ? MindMapFileFormat.DrawIo
+            : format;
     }
 
 }

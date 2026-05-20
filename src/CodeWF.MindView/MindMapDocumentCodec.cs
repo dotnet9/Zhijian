@@ -4,18 +4,20 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using CodeWF.MindView.I18n;
+using Lang.Avalonia;
+using System.Globalization;
 
 namespace CodeWF.MindView;
 
 public static partial class MindMapDocumentCodec
 {
-    private const string UntitledTopic = "未命名主题";
-    private const string DefaultRootTitle = "中心主题";
+    private const int RootMarkdownHeadingLevel = 1;
 
     public static string ToMarkdown(MindMapNode root)
     {
         var lines = new List<string>();
-        WriteMarkdownRoot(root, lines);
+        WriteMarkdownHeadingNode(root, RootMarkdownHeadingLevel, lines);
         return string.Join(Environment.NewLine, lines);
     }
 
@@ -102,7 +104,7 @@ public static partial class MindMapDocumentCodec
             }
         }
 
-        root ??= new MindMapNode(DefaultRootTitle);
+        root ??= new MindMapNode(string.Empty);
         if (leadingNotes.Count > 0)
         {
             root.Note = AppendNote(root.Note, string.Join(Environment.NewLine, leadingNotes));
@@ -120,7 +122,7 @@ public static partial class MindMapDocumentCodec
                 new XElement("head", new XElement("title", GetTitle(root))),
                 new XElement("body", ToOpmlOutline(root))));
 
-        return document.ToString(SaveOptions.DisableFormatting);
+        return document.ToString();
     }
 
     public static MindMapNode FromOpml(string opml)
@@ -138,7 +140,7 @@ public static partial class MindMapDocumentCodec
             .Elements().FirstOrDefault(IsHeadElement)?
             .Elements().FirstOrDefault(element => element.Name.LocalName == "title")?
             .Value;
-        var root = new MindMapNode(string.IsNullOrWhiteSpace(title) ? DefaultRootTitle : title.Trim());
+        var root = new MindMapNode(string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim());
 
         foreach (var outline in outlines)
         {
@@ -154,8 +156,8 @@ public static partial class MindMapDocumentCodec
         using (var archive = new ZipArchive(memory, ZipArchiveMode.Create, leaveOpen: true))
         {
             WriteArchiveEntry(archive, "content.json", CreateXMindContentJson(root));
-            WriteArchiveEntry(archive, "metadata.json", "{\"creator\":{\"name\":\"CodeWF.MindView\",\"version\":\"1.0\"}}");
-            WriteArchiveEntry(archive, "manifest.json", "{\"file-entries\":{\"content.json\":{},\"metadata.json\":{}}}");
+            WriteArchiveEntry(archive, "metadata.json", CreateXMindMetadataJson());
+            WriteArchiveEntry(archive, "manifest.json", CreateXMindManifestJson());
         }
 
         return memory.ToArray();
@@ -182,7 +184,7 @@ public static partial class MindMapDocumentCodec
             return FromXMindXml(document);
         }
 
-        throw new InvalidDataException("未找到可识别的 XMind 内容。");
+        throw new InvalidDataException(GetResource(MindViewL.XMindContentMissing, "No recognizable XMind content was found."));
     }
 
     private static MindMapNode CreateMetadataNode(MindMapFileFormat format, string? filePath, string? detail = null)
@@ -199,12 +201,12 @@ public static partial class MindMapDocumentCodec
     {
         var lines = new List<string>
         {
-            $"格式：{GetFormatName(format)}"
+            FormatResource(MindViewL.MetadataFormatLabel, "Format: {0}", GetFormatName(format))
         };
 
         if (!string.IsNullOrWhiteSpace(filePath))
         {
-            lines.Add($"路径：{filePath}");
+            lines.Add(FormatResource(MindViewL.MetadataPathLabel, "Path: {0}", filePath));
         }
 
         if (!string.IsNullOrWhiteSpace(detail))
@@ -218,6 +220,17 @@ public static partial class MindMapDocumentCodec
     private static string GetFormatName(MindMapFileFormat format)
     {
         return MindMapFileFormatRegistry.GetDisplayName(format);
+    }
+
+    private static string GetResource(string key, string fallback)
+    {
+        var value = I18nManager.Instance.GetResource(key);
+        return string.Equals(value, key, StringComparison.Ordinal) ? fallback : value;
+    }
+
+    private static string FormatResource(string key, string fallbackFormat, params object[] args)
+    {
+        return string.Format(CultureInfo.CurrentCulture, GetResource(key, fallbackFormat), args);
     }
 
     private static string GetFileTitle(string? filePath, string fallback)
@@ -255,26 +268,15 @@ public static partial class MindMapDocumentCodec
         return string.IsNullOrWhiteSpace(normalized) ? fallback : normalized;
     }
 
-    private static void WriteMarkdownRoot(MindMapNode node, List<string> lines)
+    private static void WriteMarkdownHeadingNode(MindMapNode node, int level, List<string> lines)
     {
-        lines.Add($"# {GetTitle(node)}");
+        var headingLevel = Math.Max(RootMarkdownHeadingLevel, level);
+        lines.Add($"{new string('#', headingLevel)} {GetTitle(node)}");
         WriteMarkdownNote(node.Note, string.Empty, lines);
 
         foreach (var child in node.Children)
         {
-            WriteMarkdownListNode(child, 0, lines);
-        }
-    }
-
-    private static void WriteMarkdownListNode(MindMapNode node, int level, List<string> lines)
-    {
-        var indent = new string(' ', Math.Max(0, level) * 2);
-        lines.Add($"{indent}- {GetTitle(node)}");
-        WriteMarkdownNote(node.Note, $"{indent}  ", lines);
-
-        foreach (var child in node.Children)
-        {
-            WriteMarkdownListNode(child, level + 1, lines);
+            WriteMarkdownHeadingNode(child, headingLevel + 1, lines);
         }
     }
 
@@ -348,18 +350,13 @@ public static partial class MindMapDocumentCodec
             return false;
         }
 
-        var match = Regex.Match(line[index..], @"^(?:[-*+]|\d+[.)])\s+(.*)$");
+        var match = Regex.Match(line[index..], @"^(?:[-*+]|\d+[.)])(?:\s+(.*))?$");
         if (!match.Success)
         {
             return false;
         }
 
         title = Regex.Replace(match.Groups[1].Value.Trim(), @"^\[[ xX]\]\s+", string.Empty);
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            title = UntitledTopic;
-        }
-
         return true;
     }
 
@@ -381,7 +378,7 @@ public static partial class MindMapDocumentCodec
 
         if (level == trimmed.Length)
         {
-            title = UntitledTopic;
+            title = string.Empty;
             return true;
         }
 
@@ -392,11 +389,6 @@ public static partial class MindMapDocumentCodec
         }
 
         title = trimmed[level..].Trim();
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            title = UntitledTopic;
-        }
-
         return true;
     }
 
@@ -419,7 +411,7 @@ public static partial class MindMapDocumentCodec
     private static MindMapNode FromOpmlOutline(XElement outline)
     {
         var title = outline.Attribute("text")?.Value ?? outline.Attribute("title")?.Value;
-        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? UntitledTopic : title.Trim())
+        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim())
         {
             Note = outline.Attribute("_note")?.Value ?? outline.Attribute("note")?.Value ?? string.Empty
         };
@@ -435,7 +427,7 @@ public static partial class MindMapDocumentCodec
     private static string CreateXMindContentJson(MindMapNode root)
     {
         using var memory = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = false }))
+        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = true }))
         {
             writer.WriteStartArray();
             writer.WriteStartObject();
@@ -446,6 +438,44 @@ public static partial class MindMapDocumentCodec
             WriteXMindTopic(writer, root);
             writer.WriteEndObject();
             writer.WriteEndArray();
+        }
+
+        return Encoding.UTF8.GetString(memory.ToArray());
+    }
+
+    private static string CreateXMindMetadataJson()
+    {
+        using var memory = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = true }))
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName("creator");
+            writer.WriteStartObject();
+            writer.WriteString("name", "CodeWF.MindView");
+            writer.WriteString("version", "1.0");
+            writer.WriteEndObject();
+            writer.WriteEndObject();
+        }
+
+        return Encoding.UTF8.GetString(memory.ToArray());
+    }
+
+    private static string CreateXMindManifestJson()
+    {
+        using var memory = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(memory, new JsonWriterOptions { Indented = true }))
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName("file-entries");
+            writer.WriteStartObject();
+            writer.WritePropertyName("content.json");
+            writer.WriteStartObject();
+            writer.WriteEndObject();
+            writer.WritePropertyName("metadata.json");
+            writer.WriteStartObject();
+            writer.WriteEndObject();
+            writer.WriteEndObject();
+            writer.WriteEndObject();
         }
 
         return Encoding.UTF8.GetString(memory.ToArray());
@@ -502,7 +532,9 @@ public static partial class MindMapDocumentCodec
         if (sheet.ValueKind != JsonValueKind.Object
             || !sheet.TryGetProperty("rootTopic", out var rootTopic))
         {
-            throw new InvalidDataException("XMind content.json 中没有 rootTopic。");
+            throw new InvalidDataException(GetResource(
+                MindViewL.XMindJsonMissingRootTopic,
+                "XMind content.json does not contain rootTopic."));
         }
 
         return FromXMindJsonTopic(rootTopic);
@@ -510,7 +542,7 @@ public static partial class MindMapDocumentCodec
 
     private static MindMapNode FromXMindJsonTopic(JsonElement topic)
     {
-        var node = new MindMapNode(GetJsonString(topic, "title") ?? UntitledTopic)
+        var node = new MindMapNode(CleanText(GetJsonString(topic, "title")))
         {
             Note = GetXMindJsonNote(topic)
         };
@@ -551,7 +583,9 @@ public static partial class MindMapDocumentCodec
 
         if (topic is null)
         {
-            throw new InvalidDataException("XMind content.xml 中没有根主题。");
+            throw new InvalidDataException(GetResource(
+                MindViewL.XMindXmlMissingRootTopic,
+                "XMind content.xml does not contain a root topic."));
         }
 
         return FromXMindXmlTopic(topic);
@@ -560,7 +594,7 @@ public static partial class MindMapDocumentCodec
     private static MindMapNode FromXMindXmlTopic(XElement topic)
     {
         var title = topic.Elements().FirstOrDefault(element => element.Name.LocalName == "title")?.Value;
-        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? UntitledTopic : title.Trim())
+        var node = new MindMapNode(string.IsNullOrWhiteSpace(title) ? string.Empty : title.Trim())
         {
             Note = topic
                 .Elements()
@@ -605,7 +639,7 @@ public static partial class MindMapDocumentCodec
 
     private static string GetTitle(MindMapNode node)
     {
-        return string.IsNullOrWhiteSpace(node.Title) ? UntitledTopic : node.Title.Trim();
+        return node.Title.Trim();
     }
 
     private static string CreateId()

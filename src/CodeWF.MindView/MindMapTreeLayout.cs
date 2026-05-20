@@ -5,9 +5,9 @@ namespace CodeWF.MindView;
 /// </summary>
 public static class MindMapTreeLayout
 {
-    private const double DefaultRootX = 72;
-    private const double DefaultRootY = 72;
-    private const double DefaultMinNodeY = 24;
+    private static double DefaultRootX => GetDouble(MindViewStyleKeys.DefaultRootXResource, 72);
+    private static double DefaultRootY => GetDouble(MindViewStyleKeys.DefaultRootYResource, 72);
+    private static double DefaultMinNodeY => GetDouble(MindViewStyleKeys.DefaultMinNodeYResource, 24);
 
     public static void Arrange(IEnumerable<MindMapNode> roots)
     {
@@ -98,4 +98,9 @@ public static class MindMapTreeLayout
     }
 
     private readonly record struct LayoutResult(double CenterY, double Top, double Bottom);
+
+    private static double GetDouble(string key, double fallback)
+    {
+        return MindViewThemeResources.GetDouble(null, key, fallback);
+    }
 }

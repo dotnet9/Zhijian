@@ -71,6 +71,26 @@
                                Header="{codewf:I18n {x:Static l:ZhijianL.SaveAs}}"
                                Command="{Binding SaveAsAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=CopyOutlined}"/>
+                <atom:MenuItem x:Name="ExportMenuItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.Export}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=ExportOutlined}">
+                    <atom:MenuItem x:Name="ExportMarkdownItem"
+                                   Header="{codewf:I18n {x:Static l:ZhijianL.ExportMarkdown}}"
+                                   Command="{Binding ExportMarkdownAsync}"
+                                   Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"/>
+                    <atom:MenuItem x:Name="ExportOpmlItem"
+                                   Header="{codewf:I18n {x:Static l:ZhijianL.ExportOpml}}"
+                                   Command="{Binding ExportOpmlAsync}"
+                                   Icon="{antdicons:AntDesignIconProvider Kind=BranchesOutlined}"/>
+                    <atom:MenuItem x:Name="ExportXMindItem"
+                                   Header="{codewf:I18n {x:Static l:ZhijianL.ExportXMind}}"
+                                   Command="{Binding ExportXMindAsync}"
+                                   Icon="{antdicons:AntDesignIconProvider Kind=FileDoneOutlined}"/>
+                    <atom:MenuItem x:Name="ExportDrawIoItem"
+                                   Header="{codewf:I18n {x:Static l:ZhijianL.ExportDrawIo}}"
+                                   Command="{Binding ExportDrawIoAsync}"
+                                   Icon="{antdicons:AntDesignIconProvider Kind=NodeIndexOutlined}"/>
+                </atom:MenuItem>
                 <atom:MenuItem x:Name="OpenFileLocationItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenFileLocation}}"
                                Command="{Binding OpenFileLocation}"
@@ -105,8 +125,7 @@
                 <atom:MenuItem x:Name="AddChildItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.AddChild}}"
                                Command="{Binding AddChildToSelected}"
-                               Icon="{antdicons:AntDesignIconProvider Kind=SubnodeOutlined}"
-                               InputGesture="Tab"/>
+                               Icon="{antdicons:AntDesignIconProvider Kind=SubnodeOutlined}"/>
                 <atom:MenuItem x:Name="PromoteItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Promote}}"
                                Command="{Binding PromoteSelected}"
@@ -193,6 +212,10 @@
                                Header="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"
                                Command="{Binding OpenUserManualAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=ReadOutlined}"/>
+                <atom:MenuItem x:Name="NewUserGuideItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.NewUserGuide}}"
+                               Command="{Binding ShowNewUserTour}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"/>
                 <atom:MenuSeparator/>
                 <atom:MenuItem x:Name="FeedbackItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.Feedback}}"
@@ -234,14 +257,5 @@
                                Icon="{antdicons:AntDesignIconProvider Kind=QuestionCircleOutlined}"/>
             </atom:MenuItem>
         </atom:Menu>
-
-        <TextBlock Text="{Binding DocumentTitle}"
-                   MaxWidth="360"
-                   FontSize="12"
-                   FontWeight="SemiBold"
-                   Foreground="{Binding PrimaryTextBrush}"
-                   TextTrimming="CharacterEllipsis"
-                   IsHitTestVisible="False"
-                   VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>

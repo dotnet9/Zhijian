@@ -21,44 +21,82 @@ public partial class MindMapEditor
 {
     private void HandleTitleKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
         {
-            var nextNode = HandleMapEnter(node);
-            FocusNode(nextNode);
-            e.Handled = true;
             return;
         }
 
-        if (e.Key == Key.Tab)
+        if (TryHandleTitleNavigation(node, editor, e))
         {
-            var nextNode = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
-                ? node
-                : HandleMapTab(node);
+            return;
+        }
 
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-            {
+        var action = MindMapKeyboardGestureRouter.ResolveTitleAction(
+            e.Key,
+            e.KeyModifiers,
+            string.IsNullOrWhiteSpace(editor?.Text),
+            MindMapKeyboardTabBehavior.AddChild);
+
+        switch (action)
+        {
+            case MindMapKeyboardAction.AddFromEnter:
+                FocusNode(HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.AddChildFromTab:
+                FocusNode(AddChild(node, string.Empty));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.Promote:
                 PromoteNode(node);
-            }
+                FocusNode(node);
+                MarkEditorKeyEventHandled(e);
+                return;
 
-            FocusNode(nextNode);
-            e.Handled = true;
-            return;
-        }
+            case MindMapKeyboardAction.Demote:
+                FocusNode(HandleMapTab(node));
+                MarkEditorKeyEventHandled(e);
+                return;
 
-        if ((e.Key == Key.Delete || e.Key == Key.Back)
-            && string.IsNullOrWhiteSpace(editor?.Text)
-            && !IsRootNode(node))
-        {
-            var focusTarget = DeleteNode(node);
-            FocusNode(focusTarget);
-            e.Handled = true;
+            case MindMapKeyboardAction.MoveUp:
+                if (MoveNodeUp(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveDown:
+                if (MoveNodeDown(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.DeleteEmptyTitle:
+                if (!IsRootNode(node))
+                {
+                    FocusNode(DeleteNode(node));
+                    MarkEditorKeyEventHandled(e);
+                }
+                return;
         }
     }
 
     private void HandleNoteKeyDown(MindMapNode node, TextBox? editor, KeyEventArgs e)
     {
-        if (e.Key is not (Key.Back or Key.Delete)
-            || !string.IsNullOrWhiteSpace(editor?.Text))
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
+        {
+            return;
+        }
+
+        var action = MindMapKeyboardGestureRouter.ResolveNoteAction(
+            e.Key,
+            string.IsNullOrWhiteSpace(editor?.Text));
+        if (action != MindMapKeyboardAction.DeleteEmptyNote)
         {
             return;
         }
@@ -67,44 +105,214 @@ public partial class MindMapEditor
         _editingNoteNodes.Remove(node);
         UpdateNoteEditorVisibility(node);
         FocusNode(node);
-        e.Handled = true;
+        MarkEditorKeyEventHandled(e);
     }
 
     private void HandleFrameKeyDown(MindMapNode node, KeyEventArgs e)
     {
-        if (e.Key == Key.Delete || e.Key == Key.Back)
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
         {
-            var focusTarget = DeleteNode(node);
-            FocusFrame(focusTarget);
-            e.Handled = true;
             return;
         }
 
-        if (e.Key == Key.Enter)
+        if (TryHandleFrameNavigation(node, e))
         {
-            var nextNode = HandleMapEnter(node);
-            FocusNode(nextNode);
-            e.Handled = true;
             return;
         }
 
-        if (e.Key == Key.Tab)
+        var action = MindMapKeyboardGestureRouter.ResolveFrameAction(
+            e.Key,
+            e.KeyModifiers,
+            MindMapKeyboardTabBehavior.AddChild);
+        switch (action)
         {
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-            {
+            case MindMapKeyboardAction.DeleteSelected:
+                FocusFrame(DeleteNode(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.AddFromEnter:
+                FocusNode(HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.AddChildFromTab:
+                FocusNode(AddChild(node, string.Empty));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.Promote:
                 if (PromoteNode(node))
                 {
                     FocusNode(node);
                 }
-            }
-            else
-            {
-                var nextNode = HandleMapTab(node);
-                FocusNode(nextNode);
-            }
+                MarkEditorKeyEventHandled(e);
+                return;
 
-            e.Handled = true;
+            case MindMapKeyboardAction.Demote:
+                FocusNode(HandleMapTab(node));
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveUp:
+                if (MoveNodeUp(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveDown:
+                if (MoveNodeDown(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
         }
+    }
+
+    private void MarkEditorKeyEventHandled(KeyEventArgs e)
+    {
+        _lastHandledEditorKeyEvent = e;
+        e.Handled = true;
+    }
+
+    private bool TryHandleTitleNavigation(MindMapNode node, TextBox? editor, KeyEventArgs e)
+    {
+        if (!CanNavigateWithArrowKey(e))
+        {
+            return false;
+        }
+
+        if (e.Key == Key.Left && !IsCaretAtStart(editor))
+        {
+            return false;
+        }
+
+        if (e.Key == Key.Right && !IsCaretAtEnd(editor))
+        {
+            return false;
+        }
+
+        return TryNavigateToDirectionalNode(node, e.Key, focusTitleEditor: true, e);
+    }
+
+    private bool TryHandleFrameNavigation(MindMapNode node, KeyEventArgs e)
+    {
+        return CanNavigateWithArrowKey(e)
+            && TryNavigateToDirectionalNode(node, e.Key, focusTitleEditor: false, e);
+    }
+
+    private bool TryNavigateToDirectionalNode(
+        MindMapNode current,
+        Key key,
+        bool focusTitleEditor,
+        KeyEventArgs e)
+    {
+        var target = FindStructuralNavigationTarget(current, key);
+        if (target is null)
+        {
+            return false;
+        }
+
+        if (focusTitleEditor)
+        {
+            FocusNode(target);
+        }
+        else
+        {
+            FocusFrame(target);
+        }
+
+        EnsureNodeVisible(target);
+        MarkEditorKeyEventHandled(e);
+        return true;
+    }
+
+    private MindMapNode? FindStructuralNavigationTarget(MindMapNode current, Key key)
+    {
+        return key switch
+        {
+            Key.Left => FindParent(current),
+            Key.Right => current.Children.FirstOrDefault(),
+            Key.Up => FindAdjacentSiblingNode(current, -1),
+            Key.Down => FindAdjacentSiblingNode(current, 1),
+            _ => null
+        };
+    }
+
+    private MindMapNode? FindAdjacentSiblingNode(MindMapNode current, int offset)
+    {
+        var siblings = FindParent(current)?.Children ?? Roots;
+        if (siblings is null)
+        {
+            return null;
+        }
+
+        var index = siblings.IndexOf(current);
+        var targetIndex = index + offset;
+        return index >= 0 && targetIndex >= 0 && targetIndex < siblings.Count
+            ? siblings[targetIndex]
+            : null;
+    }
+
+    private void EnsureNodeVisible(MindMapNode node)
+    {
+        if (_zoomScale <= 0 || _scrollViewer.Viewport.Width <= 0 || _scrollViewer.Viewport.Height <= 0)
+        {
+            return;
+        }
+
+        var size = GetRenderedNodeSize(node);
+        var bounds = new Rect(node.X, node.Y, size.Width, size.Height).Inflate(40);
+        var viewport = ViewportBounds;
+        if (bounds.Left >= viewport.Left
+            && bounds.Top >= viewport.Top
+            && bounds.Right <= viewport.Right
+            && bounds.Bottom <= viewport.Bottom)
+        {
+            return;
+        }
+
+        var offsetX = _scrollViewer.Offset.X;
+        var offsetY = _scrollViewer.Offset.Y;
+        if (bounds.Left < viewport.Left)
+        {
+            offsetX = bounds.Left * _zoomScale;
+        }
+        else if (bounds.Right > viewport.Right)
+        {
+            offsetX = bounds.Right * _zoomScale - _scrollViewer.Viewport.Width;
+        }
+
+        if (bounds.Top < viewport.Top)
+        {
+            offsetY = bounds.Top * _zoomScale;
+        }
+        else if (bounds.Bottom > viewport.Bottom)
+        {
+            offsetY = bounds.Bottom * _zoomScale - _scrollViewer.Viewport.Height;
+        }
+
+        _scrollViewer.Offset = ClampScrollOffset(new Vector(offsetX, offsetY));
+        UpdateViewportBounds();
+    }
+
+    private static bool CanNavigateWithArrowKey(KeyEventArgs e)
+    {
+        return e.KeyModifiers == KeyModifiers.None
+            && e.Key is Key.Left or Key.Right or Key.Up or Key.Down;
+    }
+
+    private static bool IsCaretAtStart(TextBox? editor)
+    {
+        return editor is null || editor.CaretIndex <= 0;
+    }
+
+    private static bool IsCaretAtEnd(TextBox? editor)
+    {
+        return editor is null || editor.CaretIndex >= (editor.Text?.Length ?? 0);
     }
 
     private void HandleNodeDragStarted(MindMapNode node, Control? control, PointerPressedEventArgs e)
@@ -158,6 +366,7 @@ public partial class MindMapEditor
         var dropTarget = _dropTarget;
         var dropPlacement = _dropPlacement;
         var wasDragging = _isDraggingNode;
+        var releasePoint = e.GetPosition(_canvas);
 
         _dragNode = null;
         _dropTarget = null;
@@ -166,14 +375,20 @@ public partial class MindMapEditor
         HideDropPreview();
         e.Pointer.Capture(null);
 
-        if (dropTarget is not null
-            && MoveNode(dragNode, dropTarget, dropPlacement))
+        var moved = dropTarget is not null
+            && MoveNode(dragNode, dropTarget, dropPlacement);
+        if (moved)
         {
             FocusNode(dragNode);
         }
+        else if (wasDragging)
+        {
+            FocusFrame(dragNode);
+            ShowDropFeedback(DropUnavailableText, releasePoint, isError: true);
+        }
         else if (!wasDragging)
         {
-            FocusNode(dragNode);
+            FocusFrame(dragNode);
         }
 
         ApplySelectionState();
@@ -185,11 +400,12 @@ public partial class MindMapEditor
         var point = e.GetCurrentPoint(_scrollViewer);
         var isLeftSpaceDrag = _isSpacePressed && IsLeftPointerPressed(point.Properties);
         var isMiddleDrag = IsMiddlePointerPressed(point.Properties);
+        var isRightDrag = IsRightPointerPressed(point.Properties);
 
         if (_isPanningCanvas
             || _dragNode is not null
             || !IsCanvasPanSource(e.Source)
-            || (!isLeftSpaceDrag && !isMiddleDrag))
+            || (!isLeftSpaceDrag && !isMiddleDrag && !isRightDrag))
         {
             return;
         }
@@ -406,7 +622,7 @@ public partial class MindMapEditor
         return true;
     }
 
-    private static double ToWheelPanDistance(double delta)
+    private double ToWheelPanDistance(double delta)
     {
         if (Math.Abs(delta) <= 3)
         {
@@ -416,7 +632,7 @@ public partial class MindMapEditor
         return delta;
     }
 
-    private static double ToTouchPadZoomFactor(Vector delta)
+    private double ToTouchPadZoomFactor(Vector delta)
     {
         var value = Math.Abs(delta.Y) >= Math.Abs(delta.X)
             ? delta.Y
@@ -613,20 +829,26 @@ public partial class MindMapEditor
     private static bool HasVisualAncestor<T>(object? source)
         where T : Visual
     {
+        return FindVisualAncestor<T>(source) is not null;
+    }
+
+    private static T? FindVisualAncestor<T>(object? source)
+        where T : Visual
+    {
         if (source is not Visual visual)
         {
-            return false;
+            return null;
         }
 
         for (var current = visual; current is not null; current = current.GetVisualParent())
         {
-            if (current is T)
+            if (current is T match)
             {
-                return true;
+                return match;
             }
         }
 
-        return false;
+        return null;
     }
 
     private void UpdateZoomText()
@@ -681,7 +903,7 @@ public partial class MindMapEditor
         HideDropPreview();
     }
 
-    private static MindMapDropPlacement GetDropPlacement(Rect targetBounds, Point pointer)
+    private MindMapDropPlacement GetDropPlacement(Rect targetBounds, Point pointer)
     {
         var offsetY = pointer.Y - targetBounds.Top;
         if (offsetY < targetBounds.Height * DropEdgeRatio)
@@ -721,6 +943,22 @@ public partial class MindMapEditor
         return new Rect(node.X, node.Y, size.Width, size.Height);
     }
 
+    private Border CreateDropPreviewLabel()
+    {
+        return new Border
+        {
+            MinWidth = 72,
+            MinHeight = 26,
+            Padding = new Thickness(8, 4),
+            CornerRadius = new CornerRadius(4),
+            BorderThickness = new Thickness(1),
+            BoxShadow = GetResourceBoxShadows(MindViewStyleKeys.ToolbarBoxShadowResource, "0 6 18 0 #22000000"),
+            Child = _dropPreviewText,
+            IsHitTestVisible = false,
+            IsVisible = false
+        };
+    }
+
     private void ShowDropPreview(MindMapNode target, MindMapDropPlacement placement)
     {
         if (!_nodeFrames.TryGetValue(target, out var frame))
@@ -731,16 +969,123 @@ public partial class MindMapEditor
 
         var bounds = GetNodeBounds(target, frame);
         _dropPreviewPath.Stroke = placement == MindMapDropPlacement.Child
-            ? Brush.Parse("#22C55E")
+            ? GetResourceBrush(MindViewStyleKeys.DropChildBrushResource, "#22C55E", "#22C55E")
             : GetSelectionBrush();
         _dropPreviewPath.Data = CreateDropPreviewGeometry(bounds, placement);
         _dropPreviewPath.IsVisible = true;
+        ShowDropPreviewLabel(GetDropPlacementText(placement), bounds, placement, isError: false);
     }
 
     private void HideDropPreview()
     {
+        _dropFeedbackVersion++;
         _dropPreviewPath.IsVisible = false;
         _dropPreviewPath.Data = null;
+        _dropPreviewLabel.IsVisible = false;
+        _dropPreviewText.Text = string.Empty;
+    }
+
+    private void ShowDropPreviewLabel(string text, Rect bounds, MindMapDropPlacement placement, bool isError)
+    {
+        _dropFeedbackVersion++;
+        ApplyDropPreviewLabelStyle(isError);
+        _dropPreviewText.Text = text;
+        _dropPreviewLabel.IsVisible = true;
+        PositionDropPreviewLabel(bounds, placement);
+    }
+
+    private void ShowDropFeedback(string text, Point canvasPoint, bool isError)
+    {
+        var version = ++_dropFeedbackVersion;
+        _dropPreviewPath.IsVisible = false;
+        _dropPreviewPath.Data = null;
+        ApplyDropPreviewLabelStyle(isError);
+        _dropPreviewText.Text = text;
+        _dropPreviewLabel.IsVisible = true;
+        PositionDropPreviewLabel(canvasPoint);
+        DispatcherTimer.RunOnce(
+            () =>
+            {
+                if (version == _dropFeedbackVersion)
+                {
+                    HideDropPreview();
+                }
+            },
+            TimeSpan.FromMilliseconds(900));
+    }
+
+    private void ApplyDropPreviewLabelStyle(bool isError)
+    {
+        if (isError)
+        {
+            _dropPreviewLabel.Background = Brush.Parse(IsDarkTheme ? "#7F1D1D" : "#FEF2F2");
+            _dropPreviewLabel.BorderBrush = Brush.Parse(IsDarkTheme ? "#FCA5A5" : "#FCA5A5");
+            _dropPreviewText.Foreground = Brush.Parse(IsDarkTheme ? "#FEE2E2" : "#991B1B");
+            return;
+        }
+
+        _dropPreviewLabel.Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827");
+        _dropPreviewLabel.BorderBrush = GetSelectionBrush();
+        _dropPreviewText.Foreground = GetPrimaryTextBrush();
+    }
+
+    private string GetDropPlacementText(MindMapDropPlacement placement)
+    {
+        return placement switch
+        {
+            MindMapDropPlacement.Before => DropBeforeText,
+            MindMapDropPlacement.After => DropAfterText,
+            _ => DropAsChildText
+        };
+    }
+
+    private void PositionDropPreviewLabel(Rect bounds, MindMapDropPlacement placement)
+    {
+        var labelSize = MeasureDropPreviewLabel();
+        var x = placement == MindMapDropPlacement.Child
+            ? bounds.Right + 10
+            : bounds.Left + bounds.Width / 2 - labelSize.Width / 2;
+        var y = placement switch
+        {
+            MindMapDropPlacement.Before => bounds.Top - labelSize.Height - 12,
+            MindMapDropPlacement.After => bounds.Bottom + 12,
+            _ => bounds.Top + bounds.Height / 2 - labelSize.Height / 2
+        };
+        PositionDropPreviewLabel(new Point(x, y), labelSize);
+    }
+
+    private void PositionDropPreviewLabel(Point canvasPoint)
+    {
+        PositionDropPreviewLabel(canvasPoint, MeasureDropPreviewLabel());
+    }
+
+    private void PositionDropPreviewLabel(Point canvasPoint, Size labelSize)
+    {
+        var canvasWidth = GetFiniteSize(_canvas.Width, _canvas.Bounds.Width);
+        var canvasHeight = GetFiniteSize(_canvas.Height, _canvas.Bounds.Height);
+        var x = Math.Clamp(canvasPoint.X, 8, Math.Max(8, canvasWidth - labelSize.Width - 8));
+        var y = Math.Clamp(canvasPoint.Y, 8, Math.Max(8, canvasHeight - labelSize.Height - 8));
+        Canvas.SetLeft(_dropPreviewLabel, x);
+        Canvas.SetTop(_dropPreviewLabel, y);
+    }
+
+    private Size MeasureDropPreviewLabel()
+    {
+        _dropPreviewLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var size = _dropPreviewLabel.DesiredSize;
+        return new Size(
+            size.Width > 0 ? size.Width : 96,
+            size.Height > 0 ? size.Height : 26);
+    }
+
+    private static double GetFiniteSize(double preferred, double fallback)
+    {
+        if (!double.IsNaN(preferred) && !double.IsInfinity(preferred) && preferred > 0)
+        {
+            return preferred;
+        }
+
+        return !double.IsNaN(fallback) && !double.IsInfinity(fallback) && fallback > 0 ? fallback : 1000;
     }
 
     private static Geometry CreateDropPreviewGeometry(Rect bounds, MindMapDropPlacement placement)

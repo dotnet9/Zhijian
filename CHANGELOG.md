@@ -1,5 +1,63 @@
 # Changelog
 
+## 12.0.3.13（2026-05-19）
+
+- ✨[Add]-Added a blank-document quick-start strip in the mind-map panel with direct actions for adding a child node, opening the user manual, importing files, and switching to Markdown.
+- 🔧[Optimize]-Reworked the empty Files pane with AtomUI `Empty` and icon buttons, restored meaningful native window titles, and made the status bar keep its tool buttons stable at minimum window size.
+- 🧪[Test]-Built `src/Zhijian/Zhijian.csproj -f net10.0-windows`, launched the desktop app, and verified the blank-document start strip, Files empty state, native title, and minimum-size status bar with screenshots.
+- 🔧[Optimize]-Added `CodeWF.Tools.Core` and switched the About window to read `Version` and `CompileTime` from `AssemblyExtensions` instead of hard-coded metadata.
+- 🔧[Optimize]-Moved About-window labels and description into language resources so the new compile-time label follows the app localization model.
+- 🧪[Test]-Built `Zhijian.slnx`, verified MSBuild resolves version `12.0.3.13`, and checked the localized About window metadata with the desktop app.
+- 🔧[Fix]-Aligned `Directory.Build.props` package version and About-window fallback metadata with the latest changelog release version.
+- 🧪[Test]-Built `Zhijian.slnx` and searched release metadata so the app version now resolves to `12.0.3.13`.
+- 🔧[Optimize]-Matched the mind-map shortcut help icon to the outline shortcut question icon, removed the status-bar onboarding shortcut, and moved onboarding tour access into the Help menu.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified the mind-map shortcut question button plus Help menu onboarding entry with UI Automation screenshots.
+- 🔧[Fix]-Kept outline title editing focus stable after `Tab`, `Shift+Tab`, `Alt+Up`, and `Alt+Down`, while `Enter` still transfers focus to the newly created node.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified continuous keyboard typing after outline `Enter`, `Tab`, `Shift+Tab`, `Alt+Up`, and `Alt+Down` with UI Automation and screenshots.
+- 🔧[Optimize]-Added a compact mind-map shortcut help button with view-specific guidance, making it clear that visual `Tab` and `Shift+Tab` add child topics instead of changing outline hierarchy.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified wrapped, left-aligned shortcut tooltips for both the mind-map and outline help buttons with screenshots.
+- 🔧[Optimize]-Left-aligned the outline shortcut tooltip content and audited tooltip usage so the app consistently uses AtomUI tooltip styling rather than native Avalonia tooltips.
+- 🧪[Test]-Built `Zhijian.slnx`, searched the codebase for native tooltip usage, launched the desktop app, and verified the left-aligned AtomUI tooltip screenshot.
+- 🔧[Fix]-Separated visual mind-map `Tab` handling from outline hierarchy editing: in the mind-map canvas `Tab` and `Shift+Tab` now add a child topic, while the outline keeps `Tab` demote and `Shift+Tab` promote behavior.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, verified visual `Tab` and `Shift+Tab` child creation with UI Automation screenshots, and rechecked outline `Tab` demotion.
+- 🔧[Optimize]-Added a compact outline shortcut help button in the bottom toolbar so users can discover `Enter`, `Tab`, `Shift+Tab`, and `Alt+Up/Alt+Down` without reading the README.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, hovered the new outline shortcut help button with UI Automation, and verified the tooltip screenshot.
+- 📝[Docs]-Updated README, the user manual, and controller comments so outline shortcuts match the current behavior: center-topic `Enter` adds a child, normal-node `Enter` adds a sibling, `Tab` demotes, and `Alt+Up`/`Alt+Down` reorder siblings.
+- 🔧[Optimize]-Made `Alt+Up`/`Alt+Down` work while editing topic titles, matching the shortcuts already shown in the node context menu and title-bar edit menu.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, created `Root/A/B` with UI Automation, and verified `Alt+Up`/`Alt+Down` reorder both the outline and mind-map views with screenshots.
+- ✨[Add]-Added `osx-x64` and `osx-arm64` publish profiles and included them in the default publish scripts so release packaging covers Windows, Linux, and macOS.
+- 🧪[Test]-Published `osx-x64` and `osx-arm64` from `src/Zhijian/Zhijian.csproj` and confirmed the macOS executables are generated under `publish/osx-x64/Zhijian/Zhijian` and `publish/osx-arm64/Zhijian/Zhijian`.
+- 🔧[Fix]-Restored the outline editor's connection to the main mind-map controller when hosted inside `WorkspaceOutlineView`, bringing back `Enter`, `Tab`, `Shift+Tab`, empty-title deletion, and synchronized visual updates.
+- 🔧[Optimize]-Centralized outline/mind-map title keyboard routing in `MindMapKeyboardGestureRouter` and coalesced outline rebuild/focus restoration to reduce repeated redraws during fast editing.
+- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and used UI Automation screenshots to verify root `Enter`, node `Enter`, `Tab` demote, and `Shift+Tab` promote across the outline and mind-map views.
+
+- ✨[Add]-Added an immersive mind-map mode with a left-pane hide/show toggle near the outline/mind-map boundary and a `Ctrl/⌘ + B` shortcut.
+- 🔨[Optimize]-Added visible outline quick actions for adding child nodes, adding sibling nodes, copying Markdown, and switching between outline and Markdown editing.
+- 🔨[Optimize]-When users open a folder or start the onboarding tour, the left pane is restored automatically so file navigation and guided targets remain visible.
+- 🔨[Optimize]-Moved `CodeWF.MindView` editor chrome, placeholders, messages, and selected format names into its own `Lang.Avalonia.Json` resources with T4-generated keys.
+- 🔨[Optimize]-Kept blank and fallback node titles empty through Markdown, OPML, XMind, JSON, XML, HTML, CSV, and text import paths, so localized placeholders do not become user content.
+- 🔨[Optimize]-Softened second-level mind-map branch nodes with tinted backgrounds, accent borders, dark readable text, and matching mini-map previews.
+- 🔨[Optimize]-Added lightweight hover, selected, and drag motion feedback for mind-map nodes using brush and shadow transitions without changing node layout.
+- 🔨[Optimize]-Tightened horizontal mind-map spacing so common four-level maps fit better in a normal desktop window.
+- 🔨[Optimize]-Moved `CodeWF.MindView` node metrics, shadows, colors, menus, and mini-map styling into `CodeWF.MindView.Themes` Shared/Light/Dark resources, following the resource organization style used by Ursa.Avalonia.
+- 🔨[Optimize]-Split the left Files and Outline/Markdown panes into dedicated `UserControl` views and ViewModels, using `CodeWF.EventBus` for request/state decoupling from the main window ViewModel.
+- 🔨[Optimize]-Switched workspace messaging to `EventBus.Default` with attribute-based handlers and preserved `CodeWF.EventBus` for Native AOT trimming.
+- 🔨[Optimize]-Kept the app icon and product name only in the left title-bar area while showing the current document name after the menus, avoiding repeated app names in the window title.
+- 🔨[Optimize]-Applied AtomUI buttons to the `CodeWF.MindView` floating toolbar and context menu for smoother motion and click feedback.
+- 🔨[Optimize]-Refined floating mind-map toolbar spacing so the delete action no longer sits tight against the toolbar border.
+- 🔨[Optimize]-Let the mind-map canvas, toolbar, menu, node shadows, and placeholder colors follow the bound light/dark theme state consistently.
+- 🔨[Optimize]-Softened mind-map placeholder foregrounds and rounded third-level selected node surfaces so empty hints read as secondary content.
+- 🔨[Optimize]-Added clearer spacing between the bottom history-step text and undo/redo controls.
+- 🔨[Fix]-Fixed the empty Files pane action buttons being too short and clipping localized text descenders across Chinese, English, and Japanese layouts.
+- 🔨[Fix]-Restored double-click maximize/restore behavior for the custom title bar to match standard desktop window interaction.
+- 🔨[Optimize]-Localized outline editor text and wired startup file arguments into the main window flow.
+- 🧪[Test]-Built `Zhijian.slnx`, ran the desktop app, and verified visible, immersive, restored pane, multi-level node color, language switching, empty Files buttons, title-bar double click, and custom node titles not being translated with screenshots.
+
+## 12.0.3.12（2026-05-18）
+
+- 🔨[Optimize]-Hid the mind-map canvas scrollbars while keeping wheel, touchpad, mini-map, and drag navigation active, reducing visual noise on laptop-sized windows.
+- 🧪[Test]-Ran the desktop app and checked light/dark theme screenshots at 1366×768, 1100×720, and the minimum window size.
+
 ## 12.0.3.11（2026-05-18）
 
 - 🔨[Fix]-Added Avalonia `PinchGestureRecognizer` handling to the mind-map canvas and strengthened native touchpad magnify handling so laptop touchpad two-finger pinch can zoom the canvas.

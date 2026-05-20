@@ -99,9 +99,10 @@ public static class ApplicationSettings
                         }
                     }
                 }
-                catch
+                catch (Exception exception)
                 {
                     // 配置文件损坏不应影响应用启动，读取失败时统一回退到代码中的默认值。
+                    ApplicationLogger.Warning($"Loading application config failed. file=\"{configPath}\"", exception);
                 }
             }
 

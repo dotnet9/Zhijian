@@ -36,23 +36,34 @@ public partial class MindMapEditor
         else if (change.Property == IsDarkThemeProperty)
         {
             ApplyTheme();
-            Rebuild();
+            RecreateNodeChrome();
         }
         else if (change.Property == ControllerProperty)
         {
             Rebuild();
+        }
+        else if (IsTextResourceProperty(change.Property))
+        {
+            if (!_isApplyingLocalizedText)
+            {
+                _hostTextProperties.Add(change.Property);
+                RecreateNodeChrome();
+            }
         }
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        SubscribeToI18n();
+        RefreshLocalizedText();
         AttachTopLevelKeyTracking();
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         DetachTopLevelKeyTracking();
+        UnsubscribeFromI18n();
         base.OnDetachedFromVisualTree(e);
     }
 
@@ -96,6 +107,7 @@ public partial class MindMapEditor
         _noteEditors.Clear();
         _noteFrames.Clear();
         _connectors.Clear();
+        _hoverNode = null;
 
         if (Roots is null)
         {
@@ -170,7 +182,9 @@ public partial class MindMapEditor
         }
 
         _canvas.Children.Add(_dropPreviewPath);
+        _canvas.Children.Add(_dropPreviewLabel);
         _canvas.Children.Add(_nodeToolbar);
+        _canvas.Children.Add(_nodeAddChildButton);
         _canvas.Children.Add(_nodeMenu);
         _isRebuildingVisuals = false;
         HideDropPreview();
@@ -269,6 +283,7 @@ public partial class MindMapEditor
             Focusable = true,
             Transitions = new Transitions
             {
+                new BrushTransition { Property = Border.BackgroundProperty, Duration = TimeSpan.FromMilliseconds(160) },
                 new BrushTransition { Property = Border.BorderBrushProperty, Duration = TimeSpan.FromMilliseconds(160) },
                 new ThicknessTransition { Property = Border.BorderThicknessProperty, Duration = TimeSpan.FromMilliseconds(120) },
                 new BoxShadowsTransition { Property = Border.BoxShadowProperty, Duration = TimeSpan.FromMilliseconds(180) }
@@ -286,7 +301,7 @@ public partial class MindMapEditor
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = false,
             PlaceholderText = metrics.Placeholder,
-            PlaceholderForeground = isRoot ? Brushes.White : GetSecondaryTextBrush(),
+            PlaceholderForeground = GetTitlePlaceholderBrush(isRoot),
             FocusAdorner = null,
             TextAlignment = ToTextAlignment(metrics.ContentAlignment),
             HorizontalContentAlignment = metrics.ContentAlignment,
@@ -313,7 +328,7 @@ public partial class MindMapEditor
         titleBox.AddHandler(
             KeyDownEvent,
             (sender, e) => HandleTitleKeyDown(node, sender as TextBox, e),
-            RoutingStrategies.Tunnel,
+            RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
             handledEventsToo: true);
         _titleEditors[node] = titleBox;
 
@@ -364,9 +379,30 @@ public partial class MindMapEditor
                     return;
                 }
 
-                if (HasVisualAncestor<TextBox>(e.Source))
+                var textEditor = FindVisualAncestor<TextBox>(e.Source);
+                if (textEditor is not null)
                 {
                     HideNodeMenu();
+                    SelectNode(node);
+                    ShowNodeToolbar(node);
+                    if (IsLeftPointerPressed(point.Properties) && e.ClickCount >= 2)
+                    {
+                        FocusTextEditor(textEditor);
+                        e.Handled = true;
+                        return;
+                    }
+
+                    if (IsLeftPointerPressed(point.Properties))
+                    {
+                        root.Focus();
+                        if (!isRoot)
+                        {
+                            HandleNodeDragStarted(node, root, e);
+                        }
+
+                        e.Handled = true;
+                    }
+
                     return;
                 }
 
@@ -375,7 +411,7 @@ public partial class MindMapEditor
                 ShowNodeToolbar(node);
                 if (isRoot)
                 {
-                    FocusNode(node);
+                    root.Focus();
                 }
                 else
                 {
@@ -389,6 +425,14 @@ public partial class MindMapEditor
             handledEventsToo: true);
         root.PointerMoved += HandleNodeDragged;
         root.PointerReleased += HandleNodeDragCompleted;
+        root.PointerEntered += (_, _) => SetHoveredNode(node);
+        root.PointerExited += (_, _) =>
+        {
+            if (ReferenceEquals(_hoverNode, node))
+            {
+                SetHoveredNode(null);
+            }
+        };
         root.KeyDown += (_, e) => HandleFrameKeyDown(node, e);
 
         return root;
@@ -396,40 +440,16 @@ public partial class MindMapEditor
 
     private Control CreateTitleHost(MindMapNode node, TextBox titleBox, bool isRoot)
     {
-        if (isRoot)
-        {
-            return titleBox;
-        }
-
-        var titleHost = new Grid();
-        titleHost.Children.Add(titleBox);
-        titleHost.Children.Add(CreateDragHandle(node));
-        return titleHost;
-    }
-
-    private Control CreateDragHandle(MindMapNode node)
-    {
-        // 只保留透明命中区，不画竖线，避免拖拽入口干扰脑图视觉样式。
-        var handle = new Border
-        {
-            Width = MindMapLayoutMetrics.DragHandleHitWidth,
-            Background = Brushes.Transparent,
-            Cursor = new Cursor(StandardCursorType.SizeAll),
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Stretch
-        };
-        ToolTip.SetTip(handle, "拖到节点中部成为子节点，拖到上下边缘调整同级顺序");
-        handle.PointerPressed += (sender, e) => HandleNodeDragStarted(node, sender as Control, e);
-        handle.PointerMoved += HandleNodeDragged;
-        handle.PointerReleased += HandleNodeDragCompleted;
-        return handle;
+        return titleBox;
     }
 
     private TextBox CreateNoteEditor(MindMapNode node, NodeMetrics metrics)
     {
         var noteForeground = metrics.IsTextOnly
             ? GetSecondaryTextBrush()
-            : Brush.Parse(IsDarkTheme ? "#CBD5E1" : "#D1D5DB");
+            : IsRootNode(node)
+                ? GetResourceBrush(MindViewStyleKeys.RootNoteForegroundBrushResource, "#D1D5DB", "#DBEAFE")
+                : GetResourceBrush(MindViewStyleKeys.NoteForegroundBrushResource, "#6B7280", "#CBD5E1");
         var noteBox = new TextBox
         {
             BorderThickness = new Thickness(0),
@@ -438,8 +458,8 @@ public partial class MindMapEditor
             FontSize = MindMapLayoutMetrics.NoteFontSize,
             TextWrapping = TextWrapping.Wrap,
             AcceptsReturn = true,
-            PlaceholderText = "备注",
-            PlaceholderForeground = noteForeground,
+            PlaceholderText = NotePlaceholder,
+            PlaceholderForeground = GetNotePlaceholderBrush(IsRootNode(node)),
             FocusAdorner = null,
             TextAlignment = ToTextAlignment(metrics.ContentAlignment),
             MinWidth = Math.Max(12, metrics.MinWidth - metrics.Padding.Left - metrics.Padding.Right),
@@ -468,7 +488,7 @@ public partial class MindMapEditor
         noteBox.AddHandler(
             KeyDownEvent,
             (sender, e) => HandleNoteKeyDown(node, sender as TextBox, e),
-            RoutingStrategies.Tunnel,
+            RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
             handledEventsToo: true);
         return noteBox;
     }
@@ -524,6 +544,17 @@ public partial class MindMapEditor
     private void SelectNode(MindMapNode node)
     {
         SetCurrentValue(SelectedNodeProperty, node);
+        ApplySelectionState();
+    }
+
+    private void SetHoveredNode(MindMapNode? node)
+    {
+        if (ReferenceEquals(_hoverNode, node))
+        {
+            return;
+        }
+
+        _hoverNode = node;
         ApplySelectionState();
     }
 
@@ -591,13 +622,16 @@ public partial class MindMapEditor
         if (_toolbarNode is null || !_nodeFrames.ContainsKey(_toolbarNode))
         {
             _nodeToolbar.IsVisible = false;
+            _nodeAddChildButton.IsVisible = false;
             return;
         }
 
-        _nodeToolbar.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
-        _nodeToolbar.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
+        _nodeToolbar.Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827");
+        _nodeToolbar.BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155");
         _nodeToolbar.IsVisible = true;
+        _nodeAddChildButton.IsVisible = true;
         PositionNodeToolbar();
+        PositionNodeAddChildButton();
     }
 
     private void PositionNodeToolbar()
@@ -619,6 +653,22 @@ public partial class MindMapEditor
         Canvas.SetTop(_nodeToolbar, Math.Max(8, y));
     }
 
+    private void PositionNodeAddChildButton()
+    {
+        if (_toolbarNode is null || !_nodeFrames.TryGetValue(_toolbarNode, out _))
+        {
+            return;
+        }
+
+        var size = GetRenderedNodeSize(_toolbarNode);
+        var buttonWidth = _nodeAddChildButton.Width > 0 ? _nodeAddChildButton.Width : 28;
+        var buttonHeight = _nodeAddChildButton.Height > 0 ? _nodeAddChildButton.Height : 28;
+        var x = _toolbarNode.X + size.Width + 10;
+        var y = _toolbarNode.Y + size.Height / 2 - buttonHeight / 2;
+        Canvas.SetLeft(_nodeAddChildButton, Math.Max(8, x));
+        Canvas.SetTop(_nodeAddChildButton, Math.Max(8, y));
+    }
+
     private void FocusNode(MindMapNode? node)
     {
         if (node is null)
@@ -635,6 +685,12 @@ public partial class MindMapEditor
                 editor.CaretIndex = editor.Text?.Length ?? 0;
             }
         });
+    }
+
+    private static void FocusTextEditor(TextBox editor)
+    {
+        editor.Focus();
+        editor.CaretIndex = editor.Text?.Length ?? 0;
     }
 
     private void FocusFrame(MindMapNode? node)
@@ -660,19 +716,36 @@ public partial class MindMapEditor
         {
             var metrics = GetNodeMetrics(node);
             var selected = ReferenceEquals(node, SelectedNode);
+            var hovered = ReferenceEquals(node, _hoverNode);
             var dragging = _isDraggingNode && ReferenceEquals(node, _dragNode);
-            frame.BorderBrush = selected ? GetSelectionBrush() : metrics.BorderBrush;
+
+            frame.Background = selected
+                ? metrics.SelectedBackground ?? metrics.HoverBackground ?? metrics.Background
+                : hovered
+                    ? metrics.HoverBackground ?? metrics.Background
+                    : metrics.Background;
+            frame.BorderBrush = selected
+                ? metrics.SelectedBorderBrush ?? GetSelectionBrush()
+                : hovered
+                    ? metrics.HoverBorderBrush ?? metrics.BorderBrush
+                    : metrics.BorderBrush;
             frame.BorderThickness = selected
-                ? new Thickness(metrics.IsTextOnly ? 0 : 2)
+                ? metrics.SelectedBorderThickness ?? metrics.BorderThickness
                 : metrics.BorderThickness;
-            frame.BoxShadow = selected && !metrics.IsTextOnly
-                ? BoxShadows.Parse("0 6 18 0 #18000000")
-                : metrics.BoxShadow;
-            frame.Opacity = dragging ? 0.55 : 1;
+            frame.BoxShadow = dragging
+                ? metrics.DragBoxShadow ?? metrics.SelectedBoxShadow ?? metrics.HoverBoxShadow ?? metrics.BoxShadow
+                : selected
+                    ? metrics.SelectedBoxShadow ?? metrics.HoverBoxShadow ?? metrics.BoxShadow
+                    : hovered
+                        ? metrics.HoverBoxShadow ?? metrics.BoxShadow
+                        : metrics.BoxShadow;
+            frame.Opacity = dragging ? 0.72 : 1;
             UpdateNoteEditorVisibility(node);
+
         }
 
         PositionNodeToolbar();
+        PositionNodeAddChildButton();
     }
 
 }

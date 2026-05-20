@@ -6,6 +6,8 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using CodeWF.MindView.I18n;
+using Lang.Avalonia;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
@@ -27,6 +29,93 @@ public partial class MindMapEditor : UserControl
     public static readonly StyledProperty<IMindMapEditorController?> ControllerProperty =
         AvaloniaProperty.Register<MindMapEditor, IMindMapEditorController?>(nameof(Controller));
 
+    public static readonly StyledProperty<string> CenterTopicPlaceholderProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(CenterTopicPlaceholder),
+            GetResource(MindViewL.CenterTopicPlaceholder, "Center topic"));
+
+    public static readonly StyledProperty<string> TopicPlaceholderProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(TopicPlaceholder),
+            GetResource(MindViewL.TopicPlaceholder, "Topic"));
+
+    public static readonly StyledProperty<string> NotePlaceholderProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(NotePlaceholder),
+            GetResource(MindViewL.NotePlaceholder, "Note"));
+
+    public static readonly StyledProperty<string> AddSiblingTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(AddSiblingText),
+            GetResource(MindViewL.AddSiblingText, "Add sibling topic"));
+
+    public static readonly StyledProperty<string> AddChildTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(AddChildText),
+            GetResource(MindViewL.AddChildText, "Add child topic"));
+
+    public static readonly StyledProperty<string> PromoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(PromoteText),
+            GetResource(MindViewL.PromoteText, "Promote"));
+
+    public static readonly StyledProperty<string> DemoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DemoteText),
+            GetResource(MindViewL.DemoteText, "Demote"));
+
+    public static readonly StyledProperty<string> MoveUpTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(MoveUpText),
+            GetResource(MindViewL.MoveUpText, "Move up"));
+
+    public static readonly StyledProperty<string> MoveDownTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(MoveDownText),
+            GetResource(MindViewL.MoveDownText, "Move down"));
+
+    public static readonly StyledProperty<string> AddNoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(AddNoteText),
+            GetResource(MindViewL.AddNoteText, "Add note"));
+
+    public static readonly StyledProperty<string> EditNoteTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(EditNoteText),
+            GetResource(MindViewL.EditNoteText, "Edit note"));
+
+    public static readonly StyledProperty<string> DeleteNodeTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DeleteNodeText),
+            GetResource(MindViewL.DeleteNodeText, "Delete node"));
+
+    public static readonly StyledProperty<string> DragNodeTipProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DragNodeTip),
+            GetResource(
+                MindViewL.DragNodeTip,
+                "Drop on the middle to make it a child; drop on the top or bottom edge to reorder siblings"));
+
+    public static readonly StyledProperty<string> DropAsChildTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropAsChildText),
+            GetResource(DropAsChildTextResourceKey, "Set as child"));
+
+    public static readonly StyledProperty<string> DropBeforeTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropBeforeText),
+            GetResource(DropBeforeTextResourceKey, "Insert before"));
+
+    public static readonly StyledProperty<string> DropAfterTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropAfterText),
+            GetResource(DropAfterTextResourceKey, "Insert after"));
+
+    public static readonly StyledProperty<string> DropUnavailableTextProperty =
+        AvaloniaProperty.Register<MindMapEditor, string>(
+            nameof(DropUnavailableText),
+            GetResource(DropUnavailableTextResourceKey, "Cannot drop here"));
+
     public static readonly DirectProperty<MindMapEditor, string> ZoomTextProperty =
         AvaloniaProperty.RegisterDirect<MindMapEditor, string>(
             nameof(ZoomText),
@@ -37,22 +126,26 @@ public partial class MindMapEditor : UserControl
             nameof(ViewportBounds),
             editor => editor.ViewportBounds);
 
-    private const double MinCanvasWidth = 920;
-    private const double MinCanvasHeight = 620;
-    private const double MinCanvasHorizontalPadding = 240;
-    private const double MinCanvasVerticalPadding = 180;
-    private const double MinZoom = 0.1;
-    private const double MaxZoom = 2.0;
-    private const double ZoomFactor = 1.1;
-    private const double TouchPadMagnifySensitivity = 16;
-    private const double TouchPadMagnifyMaxSteps = 4;
-    private const double WheelPanStep = 72;
-    private const int RebuildConnectorBatchSize = 160;
-    private const int RebuildNodeBatchSize = 48;
-    private const double DragStartDistance = 6;
-    private const double DropEdgeRatio = 0.28;
-    private const double NodeMenuWidth = 224;
-    private static readonly string[] DefaultPalette =
+    private double MinCanvasWidth => GetResourceDouble(MindViewStyleKeys.MinCanvasWidthResource, 920);
+    private double MinCanvasHeight => GetResourceDouble(MindViewStyleKeys.MinCanvasHeightResource, 620);
+    private double MinCanvasHorizontalPadding => GetResourceDouble(MindViewStyleKeys.MinCanvasHorizontalPaddingResource, 240);
+    private double MinCanvasVerticalPadding => GetResourceDouble(MindViewStyleKeys.MinCanvasVerticalPaddingResource, 180);
+    private double MinZoom => GetResourceDouble(MindViewStyleKeys.MinZoomResource, 0.1);
+    private double MaxZoom => GetResourceDouble(MindViewStyleKeys.MaxZoomResource, 2.0);
+    private double ZoomFactor => GetResourceDouble(MindViewStyleKeys.ZoomFactorResource, 1.1);
+    private double TouchPadMagnifySensitivity => GetResourceDouble(MindViewStyleKeys.TouchPadMagnifySensitivityResource, 16);
+    private double TouchPadMagnifyMaxSteps => GetResourceDouble(MindViewStyleKeys.TouchPadMagnifyMaxStepsResource, 4);
+    private double WheelPanStep => GetResourceDouble(MindViewStyleKeys.WheelPanStepResource, 72);
+    private int RebuildConnectorBatchSize => GetResourceInt32(MindViewStyleKeys.RebuildConnectorBatchSizeResource, 160);
+    private int RebuildNodeBatchSize => GetResourceInt32(MindViewStyleKeys.RebuildNodeBatchSizeResource, 48);
+    private double DragStartDistance => GetResourceDouble(MindViewStyleKeys.DragStartDistanceResource, 6);
+    private double DropEdgeRatio => GetResourceDouble(MindViewStyleKeys.DropEdgeRatioResource, 0.28);
+    private double NodeMenuWidth => GetResourceDouble(MindViewStyleKeys.NodeMenuWidthResource, 224);
+    private const string DropAsChildTextResourceKey = "CodeWF.MindView.MindViewL.DropAsChildText";
+    private const string DropBeforeTextResourceKey = "CodeWF.MindView.MindViewL.DropBeforeText";
+    private const string DropAfterTextResourceKey = "CodeWF.MindView.MindViewL.DropAfterText";
+    private const string DropUnavailableTextResourceKey = "CodeWF.MindView.MindViewL.DropUnavailableText";
+    private static readonly string[] FallbackPalette =
     [
         "#2563EB",
         "#16A34A",
@@ -68,10 +161,8 @@ public partial class MindMapEditor : UserControl
 
     private readonly Canvas _canvas = new()
     {
-        Background = Brush.Parse("#F8FAFC"),
+        Background = Brushes.Transparent,
         Cursor = new Cursor(StandardCursorType.Hand),
-        MinWidth = MinCanvasWidth,
-        MinHeight = MinCanvasHeight
     };
     private readonly LayoutTransformControl _zoomHost;
     private readonly ScrollViewer _scrollViewer;
@@ -82,6 +173,14 @@ public partial class MindMapEditor : UserControl
         IsHitTestVisible = false,
         IsVisible = false
     };
+    private readonly TextBlock _dropPreviewText = new()
+    {
+        FontSize = 12,
+        FontWeight = FontWeight.SemiBold,
+        TextAlignment = TextAlignment.Center,
+        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+    };
+    private readonly Border _dropPreviewLabel;
 
     private readonly Dictionary<MindMapNode, Border> _nodeFrames = [];
     private readonly Dictionary<MindMapNode, TextBox> _titleEditors = [];
@@ -91,34 +190,41 @@ public partial class MindMapEditor : UserControl
     private readonly List<Connector> _connectors = [];
     private readonly List<MindMapNode> _observedNodes = [];
     private readonly List<INotifyCollectionChanged> _observedCollections = [];
+    private readonly HashSet<AvaloniaProperty> _hostTextProperties = [];
 
     private int _rebuildVersion;
     private bool _isRebuildingVisuals;
+    private bool _isApplyingLocalizedText;
+    private bool _isI18nSubscribed;
     private MindMapNode? _dragNode;
     private Point _dragStartPointer;
     private bool _isDraggingNode;
     private MindMapNode? _dropTarget;
     private MindMapDropPlacement _dropPlacement = MindMapDropPlacement.Child;
+    private int _dropFeedbackVersion;
     private bool _isPanningCanvas;
     private bool _isSpacePressed;
     private bool _isPinching;
     private double _pinchStartZoom = 1;
     private RoutedEventArgs? _lastHandledTouchPadMagnifyEvent;
     private RoutedEventArgs? _lastHandledPinchEvent;
+    private KeyEventArgs? _lastHandledEditorKeyEvent;
+    private MindMapNode? _hoverNode;
     private MindMapNode? _toolbarNode;
-    private int _nextPaletteIndex = Random.Shared.Next(DefaultPalette.Length);
+    private int _nextPaletteIndex = Random.Shared.Next(FallbackPalette.Length);
     private Point _panStartPointer;
     private Vector _panStartOffset;
     private double _zoomScale = 1;
     private string _zoomText = "100%";
     private Rect _viewportBounds;
     private TopLevel? _topLevel;
-    private readonly Border _nodeToolbar;
+    private Border _nodeToolbar;
+    private AtomUI.Desktop.Controls.Button _nodeAddChildButton;
     private readonly StackPanel _nodeMenuPanel = new()
     {
         Spacing = 2
     };
-    private readonly Border _nodeMenu;
+    private Border _nodeMenu;
 
     public MindMapEditor()
     {
@@ -133,11 +239,14 @@ public partial class MindMapEditor : UserControl
         {
             Content = _zoomHost,
             Background = _canvas.Background,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden
         };
+        RefreshLocalizedText(recreateChrome: false);
         _nodeToolbar = CreateNodeToolbar();
+        _nodeAddChildButton = CreateNodeAddChildButton();
         _nodeMenu = CreateNodeMenu();
+        _dropPreviewLabel = CreateDropPreviewLabel();
         LostFocus += (_, _) => HideNodeMenu();
 
         var viewport = new Grid();
@@ -189,6 +298,108 @@ public partial class MindMapEditor : UserControl
         set => SetValue(ControllerProperty, value);
     }
 
+    public string CenterTopicPlaceholder
+    {
+        get => GetValue(CenterTopicPlaceholderProperty);
+        set => SetValue(CenterTopicPlaceholderProperty, value);
+    }
+
+    public string TopicPlaceholder
+    {
+        get => GetValue(TopicPlaceholderProperty);
+        set => SetValue(TopicPlaceholderProperty, value);
+    }
+
+    public string NotePlaceholder
+    {
+        get => GetValue(NotePlaceholderProperty);
+        set => SetValue(NotePlaceholderProperty, value);
+    }
+
+    public string AddSiblingText
+    {
+        get => GetValue(AddSiblingTextProperty);
+        set => SetValue(AddSiblingTextProperty, value);
+    }
+
+    public string AddChildText
+    {
+        get => GetValue(AddChildTextProperty);
+        set => SetValue(AddChildTextProperty, value);
+    }
+
+    public string PromoteText
+    {
+        get => GetValue(PromoteTextProperty);
+        set => SetValue(PromoteTextProperty, value);
+    }
+
+    public string DemoteText
+    {
+        get => GetValue(DemoteTextProperty);
+        set => SetValue(DemoteTextProperty, value);
+    }
+
+    public string MoveUpText
+    {
+        get => GetValue(MoveUpTextProperty);
+        set => SetValue(MoveUpTextProperty, value);
+    }
+
+    public string MoveDownText
+    {
+        get => GetValue(MoveDownTextProperty);
+        set => SetValue(MoveDownTextProperty, value);
+    }
+
+    public string AddNoteText
+    {
+        get => GetValue(AddNoteTextProperty);
+        set => SetValue(AddNoteTextProperty, value);
+    }
+
+    public string EditNoteText
+    {
+        get => GetValue(EditNoteTextProperty);
+        set => SetValue(EditNoteTextProperty, value);
+    }
+
+    public string DeleteNodeText
+    {
+        get => GetValue(DeleteNodeTextProperty);
+        set => SetValue(DeleteNodeTextProperty, value);
+    }
+
+    public string DragNodeTip
+    {
+        get => GetValue(DragNodeTipProperty);
+        set => SetValue(DragNodeTipProperty, value);
+    }
+
+    public string DropAsChildText
+    {
+        get => GetValue(DropAsChildTextProperty);
+        set => SetValue(DropAsChildTextProperty, value);
+    }
+
+    public string DropBeforeText
+    {
+        get => GetValue(DropBeforeTextProperty);
+        set => SetValue(DropBeforeTextProperty, value);
+    }
+
+    public string DropAfterText
+    {
+        get => GetValue(DropAfterTextProperty);
+        set => SetValue(DropAfterTextProperty, value);
+    }
+
+    public string DropUnavailableText
+    {
+        get => GetValue(DropUnavailableTextProperty);
+        set => SetValue(DropUnavailableTextProperty, value);
+    }
+
     public string ZoomText
     {
         get => _zoomText;
@@ -222,7 +433,7 @@ public partial class MindMapEditor : UserControl
     /// <summary>
     /// 添加子主题。宿主提供 Controller 时委托给宿主，否则使用控件内置树操作。
     /// </summary>
-    public MindMapNode AddChild(MindMapNode? parent = null, string title = "新主题")
+    public MindMapNode AddChild(MindMapNode? parent = null, string title = "")
     {
         if (ControllerContext is { } controller)
         {
@@ -240,7 +451,7 @@ public partial class MindMapEditor : UserControl
     /// <summary>
     /// 添加同级主题；根节点会转为添加子主题，避免产生多个中心主题。
     /// </summary>
-    public MindMapNode AddSibling(MindMapNode? node = null, string title = "新主题")
+    public MindMapNode AddSibling(MindMapNode? node = null, string title = "")
     {
         if (ControllerContext is { } controller)
         {
@@ -550,7 +761,20 @@ public partial class MindMapEditor : UserControl
 
     private string NextColor()
     {
-        return DefaultPalette[_nextPaletteIndex++ % DefaultPalette.Length];
+        var palette = GetPalette();
+        return palette[_nextPaletteIndex++ % palette.Length];
+    }
+
+    private string[] GetPalette()
+    {
+        var paletteText = GetResourceString(
+            MindViewStyleKeys.DefaultPaletteResource,
+            string.Join(";", FallbackPalette));
+        var palette = paletteText
+            .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(value => value.Length > 0)
+            .ToArray();
+        return palette.Length == 0 ? FallbackPalette : palette;
     }
 
     private bool IsRootNode(MindMapNode? node)
@@ -684,7 +908,8 @@ public partial class MindMapEditor : UserControl
             return controller.HandleMapTab(node);
         }
 
-        return AddChild(node, string.Empty);
+        DemoteNode(node);
+        return node;
     }
 
     private bool MoveNodeWithinSiblings(MindMapNode? node, int offset)
@@ -711,6 +936,115 @@ public partial class MindMapEditor : UserControl
         SelectedNode = node;
         ArrangeNodes();
         return true;
+    }
+
+    private void SubscribeToI18n()
+    {
+        if (_isI18nSubscribed)
+        {
+            return;
+        }
+
+        I18nManager.Instance.CultureChanged += HandleCultureChanged;
+        _isI18nSubscribed = true;
+    }
+
+    private void UnsubscribeFromI18n()
+    {
+        if (!_isI18nSubscribed)
+        {
+            return;
+        }
+
+        I18nManager.Instance.CultureChanged -= HandleCultureChanged;
+        _isI18nSubscribed = false;
+    }
+
+    private void HandleCultureChanged(object? sender, EventArgs e)
+    {
+        RefreshLocalizedText();
+    }
+
+    private void RefreshLocalizedText(bool recreateChrome = true)
+    {
+        _isApplyingLocalizedText = true;
+        try
+        {
+            SetLocalizedText(CenterTopicPlaceholderProperty, MindViewL.CenterTopicPlaceholder, "Center topic");
+            SetLocalizedText(TopicPlaceholderProperty, MindViewL.TopicPlaceholder, "Topic");
+            SetLocalizedText(NotePlaceholderProperty, MindViewL.NotePlaceholder, "Note");
+            SetLocalizedText(AddSiblingTextProperty, MindViewL.AddSiblingText, "Add sibling topic");
+            SetLocalizedText(AddChildTextProperty, MindViewL.AddChildText, "Add child topic");
+            SetLocalizedText(PromoteTextProperty, MindViewL.PromoteText, "Promote");
+            SetLocalizedText(DemoteTextProperty, MindViewL.DemoteText, "Demote");
+            SetLocalizedText(MoveUpTextProperty, MindViewL.MoveUpText, "Move up");
+            SetLocalizedText(MoveDownTextProperty, MindViewL.MoveDownText, "Move down");
+            SetLocalizedText(AddNoteTextProperty, MindViewL.AddNoteText, "Add note");
+            SetLocalizedText(EditNoteTextProperty, MindViewL.EditNoteText, "Edit note");
+            SetLocalizedText(DeleteNodeTextProperty, MindViewL.DeleteNodeText, "Delete node");
+            SetLocalizedText(
+                DragNodeTipProperty,
+                MindViewL.DragNodeTip,
+                "Drop on the middle to make it a child; drop on the top or bottom edge to reorder siblings");
+            SetLocalizedText(DropAsChildTextProperty, DropAsChildTextResourceKey, "Set as child");
+            SetLocalizedText(DropBeforeTextProperty, DropBeforeTextResourceKey, "Insert before");
+            SetLocalizedText(DropAfterTextProperty, DropAfterTextResourceKey, "Insert after");
+            SetLocalizedText(DropUnavailableTextProperty, DropUnavailableTextResourceKey, "Cannot drop here");
+        }
+        finally
+        {
+            _isApplyingLocalizedText = false;
+        }
+
+        if (recreateChrome)
+        {
+            RecreateNodeChrome();
+        }
+    }
+
+    private void SetLocalizedText(StyledProperty<string> property, string key, string fallback)
+    {
+        if (!_hostTextProperties.Contains(property))
+        {
+            SetValue(property, GetResource(key, fallback));
+        }
+    }
+
+    private static string GetResource(string key, string fallback)
+    {
+        var value = I18nManager.Instance.GetResource(key);
+        return string.Equals(value, key, StringComparison.Ordinal) ? fallback : value;
+    }
+
+    private static bool IsTextResourceProperty(AvaloniaProperty property)
+    {
+        return property == CenterTopicPlaceholderProperty
+               || property == TopicPlaceholderProperty
+               || property == NotePlaceholderProperty
+               || property == AddSiblingTextProperty
+               || property == AddChildTextProperty
+               || property == PromoteTextProperty
+               || property == DemoteTextProperty
+               || property == MoveUpTextProperty
+               || property == MoveDownTextProperty
+               || property == AddNoteTextProperty
+               || property == EditNoteTextProperty
+               || property == DeleteNodeTextProperty
+               || property == DragNodeTipProperty
+               || property == DropAsChildTextProperty
+               || property == DropBeforeTextProperty
+               || property == DropAfterTextProperty
+               || property == DropUnavailableTextProperty;
+    }
+
+    private void RecreateNodeChrome()
+    {
+        _nodeMenu.Child = null;
+        _nodeMenuPanel.Children.Clear();
+        _nodeToolbar = CreateNodeToolbar();
+        _nodeAddChildButton = CreateNodeAddChildButton();
+        _nodeMenu = CreateNodeMenu();
+        Rebuild();
     }
 
 }

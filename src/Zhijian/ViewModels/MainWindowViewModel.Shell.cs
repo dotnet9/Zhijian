@@ -121,6 +121,12 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         StatusText = T(ZhijianL.StatusShowNewUserTour);
     }
 
+    public void ToggleWorkspacePane()
+    {
+        IsWorkspacePaneVisible = !IsWorkspacePaneVisible;
+        StatusText = T(IsWorkspacePaneVisible ? ZhijianL.StatusWorkspacePaneShown : ZhijianL.StatusWorkspacePaneHidden);
+    }
+
     private void SetLanguage(string cultureName)
     {
         if (string.Equals(_selectedCultureName, cultureName, StringComparison.OrdinalIgnoreCase))
@@ -157,6 +163,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     private void PrepareNewUserTour()
     {
+        IsWorkspacePaneVisible = true;
         WorkspaceTabIndex = 1;
         SelectedNode ??= Root;
     }
@@ -200,8 +207,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture),
                 Encoding.UTF8);
         }
-        catch
+        catch (Exception exception)
         {
+            ApplicationLogger.Warning($"Persisting the new user tour marker failed. file=\"{GetTourSeenPath()}\"", exception);
         }
     }
 
@@ -220,8 +228,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private void RefreshLocalizedProperties()
     {
         OnPropertyChanged(nameof(EditorPaneTitle));
+        OnPropertyChanged(nameof(MarkdownStatsSummary));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
         OnPropertyChanged(nameof(CenterRootToolTip));
+        OnPropertyChanged(nameof(ToggleWorkspacePaneToolTip));
         OnPropertyChanged(nameof(SelectedNodeSummary));
         OnPropertyChanged(nameof(HistorySummary));
         OnPropertyChanged(nameof(WindowTitle));
@@ -247,12 +257,52 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         return string.Format(CultureInfo.CurrentCulture, T(key), args);
     }
 
+    private static int CountMarkdownLines(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return 0;
+        }
+
+        var lineCount = 1;
+        foreach (var character in value)
+        {
+            if (character == '\n')
+            {
+                lineCount++;
+            }
+        }
+
+        return lineCount;
+    }
+
+    private static int CountMarkdownCharacters(string value)
+    {
+        var characterCount = 0;
+        foreach (var character in value)
+        {
+            if (character is not '\r' and not '\n')
+            {
+                characterCount++;
+            }
+        }
+
+        return characterCount;
+    }
+
     private void OnIsMarkdownModeChanged(bool value)
     {
         OnPropertyChanged(nameof(IsOutlineMode));
         OnPropertyChanged(nameof(EditorPaneTitle));
+        OnPropertyChanged(nameof(MarkdownStatsSummary));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
         OnPropertyChanged(nameof(CenterRootToolTip));
+    }
+
+    private void OnIsWorkspacePaneVisibleChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsWorkspacePaneHidden));
+        OnPropertyChanged(nameof(ToggleWorkspacePaneToolTip));
     }
 
     private void OnIsDarkThemeChanged(bool value)
@@ -280,12 +330,15 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(WindowTitle));
         OnPropertyChanged(nameof(DocumentTitle));
         OnPropertyChanged(nameof(HasCurrentFile));
+        OnPropertyChanged(nameof(IsBlankDocument));
     }
 
     private void OnIsDirtyChanged(bool value)
     {
         OnPropertyChanged(nameof(WindowTitle));
         OnPropertyChanged(nameof(DocumentTitle));
+        OnPropertyChanged(nameof(IsBlankDocument));
+        RefreshMarkdownStats();
     }
 
     private void OnSelectedFolderFileChanged(MindMapFileItem? value)
@@ -302,12 +355,22 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     private void OnMarkdownTextChanged(string value)
     {
+        RefreshMarkdownStats();
         if (_isSyncingMarkdownFromTree || _isApplyingMarkdown || !IsMarkdownMode)
         {
             return;
         }
 
         ApplyMarkdownToTree(refreshMarkdownText: false);
+    }
+
+    private void RefreshMarkdownStats()
+    {
+        OnPropertyChanged(nameof(MarkdownStatsSummary));
+        if (IsMarkdownMode)
+        {
+            OnPropertyChanged(nameof(EditorPaneTitle));
+        }
     }
 
     private async Task RunFileOperationAsync(Func<Task> operation)
@@ -321,6 +384,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
         catch (Exception exception)
         {
+            ApplicationLogger.Error("File operation failed.", exception);
             StatusText = exception.Message;
         }
     }

@@ -6,7 +6,7 @@ namespace CodeWF.MindView;
 public enum MindMapFileFormat
 {
     /// <summary>
-    /// 可读、可直接提交版本库的 Markdown 层级列表。
+    /// 可读、可直接提交版本库的 Markdown 标题层级。
     /// </summary>
     Markdown,
 

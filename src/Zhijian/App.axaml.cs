@@ -40,13 +40,16 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         ApplicationSettings.InitializeAsync().GetAwaiter().GetResult();
+        ApplicationLogger.ConfigureLogDirectory(ApplicationSettings.UserDataDirectory);
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var mainWindow = new MainWindow();
+            var startupFilePath = desktop.Args?.FirstOrDefault(static arg => !string.IsNullOrWhiteSpace(arg));
             mainWindow.DataContext = new MainWindowViewModel(
                 new AvaloniaMindMapFileService(mainWindow),
-                new AvaloniaApplicationActionService(mainWindow));
+                new AvaloniaApplicationActionService(mainWindow),
+                startupFilePath);
             desktop.MainWindow = mainWindow;
         }
 

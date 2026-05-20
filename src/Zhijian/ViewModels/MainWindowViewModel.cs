@@ -1,5 +1,6 @@
 using AtomUI.Controls;
 using Avalonia;
+using CodeWF.EventBus;
 using CodeWF.MindView;
 using Lang.Avalonia;
 using System.Collections.ObjectModel;
@@ -13,6 +14,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private static readonly int MaxRecentFiles = ApplicationSettings.MaxRecentFiles;
     private static readonly string RecentFilesName = ApplicationSettings.RecentFilesFileName;
     private static readonly string TourSeenName = ApplicationSettings.TourSeenFileName;
+    private const string MarkdownStatsSummaryKey = "Zhijian.ZhijianL.MarkdownStatsSummary";
+    private const string MarkdownStatsSavedKey = "Zhijian.ZhijianL.MarkdownStatsSaved";
+    private const string MarkdownStatsUnsavedKey = "Zhijian.ZhijianL.MarkdownStatsUnsaved";
 
     private static readonly string[] Palette =
     [
@@ -31,6 +35,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private readonly IMindMapFileService _fileService;
     private readonly IApplicationActionService _applicationActionService;
     private readonly RecentFileStore _recentFileStore;
+    private readonly IEventBus _workspaceEventBus;
     private readonly HashSet<MindMapNode> _observedNodes = [];
     private readonly List<HistoryEntry> _history = [];
     private int _nextPaletteIndex = Random.Shared.Next(Palette.Length);
@@ -56,6 +61,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private int _workspaceTabIndex = 1;
     private MindMapFileItem? _selectedFolderFile;
     private bool _isNewUserTourOpen;
+    private bool _isWorkspacePaneVisible = true;
 
     public MainWindowViewModel()
         : this(new DisabledMindMapFileService(), new DisabledApplicationActionService())
@@ -75,9 +81,16 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         _fileService = fileService;
         _applicationActionService = applicationActionService;
         _recentFileStore = new RecentFileStore(ApplicationSettings.GetUserDataPath(RecentFilesName), MaxRecentFiles);
+        _workspaceEventBus = EventBus.Default;
+        _workspaceEventBus.Subscribe(this);
         Roots = new ObservableCollection<MindMapNode> { CreateBlankRoot() };
         FolderFiles = [];
         RecentFiles = [];
+        FilesPane = new WorkspaceFilesViewModel();
+        OutlinePane = new WorkspaceOutlineViewModel();
+        PropertyChanged += HandleWorkspaceStatePropertyChanged;
+        Roots.CollectionChanged += HandleWorkspaceRootsChanged;
+        FolderFiles.CollectionChanged += HandleWorkspaceFilesChanged;
 
         WatchTree();
         AssignMissingColors(Root);
@@ -89,6 +102,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         SyncMarkdownFromTree();
         RecordHistoryStep(T(ZhijianL.EmptyMindMap));
         MarkDocumentClean();
+        PublishWorkspaceFilesState();
+        PublishWorkspaceOutlineState();
         _ = LoadRecentFilesAsync();
         _ = LoadStartupDocumentAsync(startupFilePath);
         _ = InitializeNewUserTourAsync();
@@ -99,6 +114,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public ObservableCollection<MindMapFileItem> FolderFiles { get; }
 
     public ObservableCollection<RecentFileItem> RecentFiles { get; }
+
+    public WorkspaceFilesViewModel FilesPane { get; }
+
+    public WorkspaceOutlineViewModel OutlinePane { get; }
 
     public MindMapNode? SelectedNode
     {
@@ -220,15 +239,38 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
     }
 
+    public bool IsWorkspacePaneVisible
+    {
+        get => _isWorkspacePaneVisible;
+        set
+        {
+            if (SetProperty(ref _isWorkspacePaneVisible, value))
+            {
+                OnIsWorkspacePaneVisibleChanged(value);
+            }
+        }
+    }
+
+    public bool IsWorkspacePaneHidden => !IsWorkspacePaneVisible;
+
     public MindMapNode Root => Roots[0];
 
     public bool IsOutlineMode => !IsMarkdownMode;
 
-    public string EditorPaneTitle => IsMarkdownMode ? "Markdown" : T(ZhijianL.OutlineTab);
+    public string EditorPaneTitle => IsMarkdownMode ? MarkdownStatsSummary : T(ZhijianL.OutlineTab);
+
+    public string MarkdownStatsSummary => FormatText(
+        MarkdownStatsSummaryKey,
+        CountMarkdownLines(MarkdownText),
+        CountMarkdownCharacters(MarkdownText),
+        NodeCount,
+        T(IsDirty ? MarkdownStatsUnsavedKey : MarkdownStatsSavedKey));
 
     public string ToggleEditorToolTip => IsMarkdownMode ? T(ZhijianL.ToggleToOutline) : T(ZhijianL.ToggleToMarkdown);
 
     public string CenterRootToolTip => $"{T(ZhijianL.CenterRoot)}  {PrimaryCommandText} + L";
+
+    public string ToggleWorkspacePaneToolTip => $"{(IsWorkspacePaneVisible ? T(ZhijianL.HideWorkspacePane) : T(ZhijianL.ShowWorkspacePane))}  {PrimaryCommandText} + B";
 
     public string SelectedNodeSummary => SelectedNode is null
         ? FormatText(ZhijianL.NodeSummary, NodeCount)
@@ -244,7 +286,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         ? FormatText(ZhijianL.HistorySummary, 0, 0)
         : FormatText(ZhijianL.HistorySummary, _historyIndex + 1, _history.Count);
 
-    public string WindowTitle => T(ZhijianL.AppName);
+    public string WindowTitle => $"{DocumentTitle} - {T(ZhijianL.AppName)}";
 
     public string DocumentTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName}";
 
@@ -286,6 +328,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public bool HasCurrentFile => !string.IsNullOrWhiteSpace(CurrentFilePath);
 
+    public bool IsBlankDocument => !HasCurrentFile && !IsDirty && NodeCount == 1;
+
     public bool CanPromoteSelectedNode => CanPromoteNode(SelectedNode);
 
     public bool CanDemoteSelectedNode => CanDemoteNode(SelectedNode);
@@ -295,5 +339,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public bool CanMoveSelectedNodeDown => CanMoveNodeDown(SelectedNode);
 
     public bool CanDeleteSelectedNode => SelectedNode is not null && !IsRoot(SelectedNode);
+
+    public bool CanAddSiblingToSelectedNode => SelectedNode is not null && !IsRoot(SelectedNode);
 
 }

@@ -1,22 +1,34 @@
 using AtomUI.Desktop.Controls;
 using Avalonia;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Lang.Avalonia;
+using System.ComponentModel;
 using Zhijian.ViewModels;
 
 namespace Zhijian.Views;
 
 public partial class MainWindow : Window
 {
+    private const double DefaultOutlinePaneWidth = 360;
+    private const double OutlinePaneMinWidth = 280;
+    private const double OutlinePaneMaxWidth = 560;
+    private const double SplitterWidth = 14;
+
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
+    private IDisposable? _titleBarTitleBinding;
+    private MainWindowViewModel? _viewModel;
+    private Avalonia.Controls.GridLength _lastOutlinePaneWidth = new(DefaultOutlinePaneWidth);
     private bool _isCloseConfirmed;
 
     public MainWindow()
     {
         InitializeComponent();
         MiniMapPopup.PlacementTarget = MiniMapButton;
+        OutlineTourStep.Target = WorkspaceOutlineView.EditorHost;
+        EditorModeTourStep.Target = WorkspaceOutlineView.EditorModeToggleTarget;
         MiniMap.MapPointRequested += (_, point) =>
         {
             MiniMapPopup.IsOpen = false;
@@ -25,7 +37,7 @@ public partial class MainWindow : Window
         };
         AddHandler(PointerPressedEvent, HandleTitleBarDragPressed, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(KeyDownEvent, HandleWindowKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
-        DataContextChanged += (_, _) => ApplyTitleBarDataContext();
+        DataContextChanged += (_, _) => WireViewModel(DataContext as MainWindowViewModel);
         Closing += HandleWindowClosing;
     }
 
@@ -43,7 +55,13 @@ public partial class MainWindow : Window
         _titleBarLeftAddOn = new TitleBarLeftAddOn();
         FileMenuTourStep.Target = _titleBarLeftAddOn.FileMenuTourTarget;
         ApplyTitleBarDataContext();
-        titleBar.SetCurrentValue(WindowTitleBar.TitleProperty, string.Empty);
+        _titleBarTitleBinding?.Dispose();
+        _titleBarTitleBinding = titleBar.Bind(
+            WindowTitleBar.TitleProperty,
+            new Binding($"{nameof(DataContext)}.{nameof(MainWindowViewModel.DocumentTitle)}")
+            {
+                Source = this
+            });
         titleBar.SetCurrentValue(WindowTitleBar.LeftAddOnProperty, _titleBarLeftAddOn);
         titleBar.SetCurrentValue(WindowTitleBar.RightAddOnProperty, null);
     }
@@ -54,6 +72,60 @@ public partial class MainWindow : Window
         {
             _titleBarLeftAddOn.DataContext = DataContext;
         }
+    }
+
+    private void WireViewModel(MainWindowViewModel? viewModel)
+    {
+        if (_viewModel is not null)
+        {
+            _viewModel.PropertyChanged -= HandleViewModelPropertyChanged;
+        }
+
+        _viewModel = viewModel;
+        if (_viewModel is not null)
+        {
+            _viewModel.PropertyChanged += HandleViewModelPropertyChanged;
+        }
+
+        ApplyTitleBarDataContext();
+        WorkspaceOutlineView.Controller = viewModel;
+        UpdateWorkspacePaneColumns(_viewModel?.IsWorkspacePaneVisible ?? true);
+    }
+
+    private void HandleViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainWindowViewModel.IsWorkspacePaneVisible)
+            && sender is MainWindowViewModel viewModel)
+        {
+            UpdateWorkspacePaneColumns(viewModel.IsWorkspacePaneVisible);
+        }
+    }
+
+    private void UpdateWorkspacePaneColumns(bool isVisible)
+    {
+        var outlinePaneColumn = PaneGrid.ColumnDefinitions[0];
+        var splitterColumn = PaneGrid.ColumnDefinitions[1];
+
+        if (isVisible)
+        {
+            outlinePaneColumn.MinWidth = OutlinePaneMinWidth;
+            outlinePaneColumn.MaxWidth = OutlinePaneMaxWidth;
+            outlinePaneColumn.Width = _lastOutlinePaneWidth.Value <= 0
+                ? new Avalonia.Controls.GridLength(DefaultOutlinePaneWidth)
+                : _lastOutlinePaneWidth;
+            splitterColumn.Width = new Avalonia.Controls.GridLength(SplitterWidth);
+            return;
+        }
+
+        if (outlinePaneColumn.Width.Value > 0)
+        {
+            _lastOutlinePaneWidth = outlinePaneColumn.Width;
+        }
+
+        outlinePaneColumn.MinWidth = 0;
+        outlinePaneColumn.MaxWidth = 0;
+        outlinePaneColumn.Width = new Avalonia.Controls.GridLength(0);
+        splitterColumn.Width = new Avalonia.Controls.GridLength(0);
     }
 
     private void ToggleMiniMapClicked(object? sender, RoutedEventArgs e)
@@ -118,6 +190,13 @@ public partial class MainWindow : Window
             {
                 e.Handled = true;
                 await viewModel.OpenFolderAsync();
+                return;
+            }
+
+            if (e.Key == Key.B)
+            {
+                e.Handled = true;
+                viewModel.ToggleWorkspacePane();
                 return;
             }
 
@@ -203,6 +282,15 @@ public partial class MainWindow : Window
             || WindowState == Avalonia.Controls.WindowState.FullScreen
             || !IsTitleBarDragSource(e))
         {
+            return;
+        }
+
+        if (e.ClickCount == 2)
+        {
+            WindowState = WindowState == Avalonia.Controls.WindowState.Maximized
+                ? Avalonia.Controls.WindowState.Normal
+                : Avalonia.Controls.WindowState.Maximized;
+            e.Handled = true;
             return;
         }
 

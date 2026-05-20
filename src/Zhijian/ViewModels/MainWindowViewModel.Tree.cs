@@ -106,12 +106,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public MindMapNode HandleOutlineEnter(MindMapNode node)
     {
-        if (IsRoot(node) || node.Children.Count > 0)
-        {
-            return AddChild(node, string.Empty);
-        }
-
-        return AddSibling(node, string.Empty);
+        return HandleMapEnter(node);
     }
 
     public MindMapNode HandleMapEnter(MindMapNode node)
@@ -121,10 +116,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public MindMapNode HandleMapTab(MindMapNode node)
     {
-        return AddChild(node, string.Empty);
+        DemoteNode(node);
+        return node;
     }
 
-    public MindMapNode AddChild(MindMapNode? parent, string title = "新主题")
+    public MindMapNode AddChild(MindMapNode? parent, string title = "")
     {
         parent ??= SelectedNode ?? Root;
 
@@ -138,7 +134,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         return child;
     }
 
-    public MindMapNode AddSibling(MindMapNode? node, string title = "新主题")
+    public MindMapNode AddSibling(MindMapNode? node, string title = "")
     {
         node ??= SelectedNode ?? Root;
         if (IsRoot(node))

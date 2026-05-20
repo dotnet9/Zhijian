@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CodeWF.MindView;
 using AtomMenuFlyout = AtomUI.Desktop.Controls.MenuFlyout;
 using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
@@ -15,46 +16,74 @@ public partial class OutlineEditor
 {
     private void HandleTitleKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
     {
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
+        {
+            return;
+        }
+
         var viewModel = ViewModel;
         if (viewModel is null)
         {
             return;
         }
 
-        if (e.Key == Key.Enter)
+        if (TryHandleTitleNavigation(node, editor, e))
         {
-            var nextNode = viewModel.HandleOutlineEnter(node);
-            FocusNode(nextNode);
-            e.Handled = true;
             return;
         }
 
-        if (e.Key == Key.Tab)
+        var action = MindMapKeyboardGestureRouter.ResolveTitleAction(
+            e.Key,
+            e.KeyModifiers,
+            string.IsNullOrWhiteSpace(editor?.Text));
+
+        switch (action)
         {
-            var changed = e.KeyModifiers.HasFlag(KeyModifiers.Shift)
-                ? viewModel.PromoteNode(node)
-                : viewModel.DemoteNode(node);
+            case MindMapKeyboardAction.AddFromEnter:
+                FocusNode(viewModel.HandleMapEnter(node));
+                MarkEditorKeyEventHandled(e);
+                return;
 
-            if (changed)
-            {
-                FocusNode(node);
-            }
+            case MindMapKeyboardAction.Promote:
+                if (viewModel.PromoteNode(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
 
-            e.Handled = true;
-            return;
-        }
+            case MindMapKeyboardAction.Demote:
+                FocusNode(viewModel.HandleMapTab(node));
+                MarkEditorKeyEventHandled(e);
+                return;
 
-        if ((e.Key == Key.Delete || e.Key == Key.Back)
-            && string.IsNullOrWhiteSpace(editor?.Text)
-            && !viewModel.IsRoot(node))
-        {
-            var focusTarget = viewModel.DeleteNode(node);
-            FocusNode(focusTarget);
-            e.Handled = true;
+            case MindMapKeyboardAction.MoveUp:
+                if (viewModel.MoveNodeUp(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.MoveDown:
+                if (viewModel.MoveNodeDown(node))
+                {
+                    FocusNode(node);
+                }
+                MarkEditorKeyEventHandled(e);
+                return;
+
+            case MindMapKeyboardAction.DeleteEmptyTitle:
+                if (!viewModel.IsRoot(node))
+                {
+                    FocusNode(viewModel.DeleteNode(node));
+                    MarkEditorKeyEventHandled(e);
+                }
+                return;
         }
     }
 
-    private void HandleDotPointerPressed(MindMapNode node, Control? control, PointerPressedEventArgs e)
+    private void HandleDragHandlePointerPressed(MindMapNode node, Control? control, PointerPressedEventArgs e)
     {
         var viewModel = ViewModel;
         if (control is null
@@ -82,11 +111,34 @@ public partial class OutlineEditor
         _dropTarget = null;
         _dragAnchor = control;
         _dragStartPointer = e.GetPosition(_itemsPanel);
-        // 短按圆点打开菜单，移动超过阈值后才进入拖拽，避免菜单和拖拽互相抢事件。
+        // A short dot click opens the node menu; only movement beyond the threshold starts dragging.
         _isDraggingNode = false;
+        HideDropPreview();
         e.Pointer.Capture(_itemsPanel);
         e.Handled = true;
         ApplySelectionState();
+    }
+
+    private void HandleRowPointerPressed(MindMapNode node, Control anchor, PointerPressedEventArgs e)
+    {
+        var point = e.GetCurrentPoint(anchor);
+        if (IsRightPointerPressed(point.Properties))
+        {
+            SelectNode(node);
+            ShowNodeMenu(node, anchor);
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Source is AtomTextBox || HasVisualAncestor<AtomTextBox>(e.Source))
+        {
+            return;
+        }
+
+        if (IsLeftPointerPressed(point.Properties))
+        {
+            SelectNode(node);
+        }
     }
 
     private void HandleDragMoved(object? sender, PointerEventArgs e)
@@ -123,6 +175,11 @@ public partial class OutlineEditor
 
             nextTarget = node;
             nextPlacement = GetDropPlacement(bounds, point);
+            if (viewModel?.IsRoot(node) == true
+                && nextPlacement is MindMapDropPlacement.Before or MindMapDropPlacement.After)
+            {
+                nextPlacement = MindMapDropPlacement.Child;
+            }
             break;
         }
 
@@ -130,6 +187,14 @@ public partial class OutlineEditor
         {
             _dropTarget = nextTarget;
             _dropPlacement = nextPlacement;
+            if (nextTarget is null)
+            {
+                HideDropPreview();
+            }
+            else
+            {
+                ShowDropPreview(nextTarget, nextPlacement);
+            }
             ApplySelectionState();
         }
 
@@ -152,7 +217,9 @@ public partial class OutlineEditor
         _dragNode = null;
         _dropTarget = null;
         _dragAnchor = null;
+        _dropPlacement = MindMapDropPlacement.Child;
         _isDraggingNode = false;
+        HideDropPreview();
         e.Pointer.Capture(null);
 
         if (!wasDragging)
@@ -184,6 +251,150 @@ public partial class OutlineEditor
         return MindMapDropPlacement.Child;
     }
 
+    private Border CreateDropPreviewLabel()
+    {
+        return new Border
+        {
+            MinWidth = DropPreviewLabelMinWidth,
+            MinHeight = DropPreviewLabelMinHeight,
+            Padding = new Thickness(DropPreviewLabelPaddingX, DropPreviewLabelPaddingY),
+            CornerRadius = new CornerRadius(DropPreviewLabelCornerRadius),
+            BorderThickness = new Thickness(DropPreviewLabelBorderThickness),
+            BoxShadow = BoxShadows.Parse(DropPreviewBoxShadow),
+            Child = _dropPreviewText,
+            IsHitTestVisible = false,
+            IsVisible = false
+        };
+    }
+
+    private void ShowDropPreview(MindMapNode target, MindMapDropPlacement placement)
+    {
+        if (!_rowFrames.TryGetValue(target, out var frame))
+        {
+            HideDropPreview();
+            return;
+        }
+
+        var translated = frame.TranslatePoint(default, _dropPreviewOverlay);
+        if (translated is not { } topLeft)
+        {
+            HideDropPreview();
+            return;
+        }
+
+        var bounds = new Rect(topLeft, frame.Bounds.Size);
+        ApplyDropPreviewStyle(placement);
+        ShowDropPreviewLine(bounds, placement);
+        ShowDropPreviewLabel(GetDropPlacementText(placement), bounds, placement);
+    }
+
+    private void HideDropPreview()
+    {
+        _dropPreviewLine.IsVisible = false;
+        _dropPreviewLabel.IsVisible = false;
+        _dropPreviewText.Text = string.Empty;
+    }
+
+    private void ShowDropPreviewLine(Rect bounds, MindMapDropPlacement placement)
+    {
+        if (placement == MindMapDropPlacement.Child)
+        {
+            _dropPreviewLine.IsVisible = false;
+            return;
+        }
+
+        var y = placement == MindMapDropPlacement.Before
+            ? bounds.Top
+            : bounds.Bottom;
+        var lineLeft = bounds.Left + DragHandleColumnWidth + DropPreviewLineLeftPadding;
+        var lineWidth = Math.Max(DropPreviewLineMinWidth, bounds.Right - lineLeft - DropPreviewLineRightPadding);
+
+        _dropPreviewLine.Width = lineWidth;
+        _dropPreviewLine.Height = DropPreviewLineThickness;
+        Canvas.SetLeft(_dropPreviewLine, lineLeft);
+        Canvas.SetTop(_dropPreviewLine, y - DropPreviewLineThickness / 2);
+        _dropPreviewLine.IsVisible = true;
+    }
+
+    private void ShowDropPreviewLabel(string text, Rect bounds, MindMapDropPlacement placement)
+    {
+        _dropPreviewText.Text = text;
+        _dropPreviewLabel.IsVisible = true;
+        PositionDropPreviewLabel(bounds, placement);
+    }
+
+    private void ApplyDropPreviewStyle(MindMapDropPlacement placement)
+    {
+        var isChild = placement == MindMapDropPlacement.Child;
+        var accent = Brush.Parse(isChild ? DropChildAccentBrush : DropSiblingAccentBrush);
+        _dropPreviewLine.Background = accent;
+        _dropPreviewLabel.BorderBrush = accent;
+        _dropPreviewLabel.Background = Brush.Parse(isChild
+            ? IsDarkTheme ? DropChildLabelBackgroundDark : DropChildLabelBackgroundLight
+            : IsDarkTheme ? DropSiblingLabelBackgroundDark : DropSiblingLabelBackgroundLight);
+        _dropPreviewText.Foreground = Brush.Parse(isChild
+            ? IsDarkTheme ? DropChildLabelForegroundDark : DropChildLabelForegroundLight
+            : IsDarkTheme ? DropSiblingLabelForegroundDark : DropSiblingLabelForegroundLight);
+    }
+
+    private string GetDropPlacementText(MindMapDropPlacement placement)
+    {
+        return placement switch
+        {
+            MindMapDropPlacement.Before => DropBeforeText,
+            MindMapDropPlacement.After => DropAfterText,
+            _ => DropAsChildText
+        };
+    }
+
+    private void PositionDropPreviewLabel(Rect bounds, MindMapDropPlacement placement)
+    {
+        var labelSize = MeasureDropPreviewLabel();
+        var x = placement == MindMapDropPlacement.Child
+            ? bounds.Left + DragHandleColumnWidth + DropPreviewChildLabelOffsetX
+            : bounds.Left + bounds.Width / 2 - labelSize.Width / 2;
+        var y = placement switch
+        {
+            MindMapDropPlacement.Before => bounds.Top - labelSize.Height - DropPreviewLabelSpacing,
+            MindMapDropPlacement.After => bounds.Bottom + DropPreviewLabelSpacing,
+            _ => bounds.Top + bounds.Height / 2 - labelSize.Height / 2
+        };
+
+        var overlayWidth = GetFiniteSize(_dropPreviewOverlay.Bounds.Width, _itemsPanel.Bounds.Width);
+        var overlayHeight = GetFiniteSize(_dropPreviewOverlay.Bounds.Height, _itemsPanel.Bounds.Height);
+        x = Math.Clamp(
+            x,
+            DropPreviewOverlayPadding,
+            Math.Max(DropPreviewOverlayPadding, overlayWidth - labelSize.Width - DropPreviewOverlayPadding));
+        y = Math.Clamp(
+            y,
+            DropPreviewOverlayPadding,
+            Math.Max(DropPreviewOverlayPadding, overlayHeight - labelSize.Height - DropPreviewOverlayPadding));
+        Canvas.SetLeft(_dropPreviewLabel, x);
+        Canvas.SetTop(_dropPreviewLabel, y);
+    }
+
+    private Size MeasureDropPreviewLabel()
+    {
+        _dropPreviewLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var size = _dropPreviewLabel.DesiredSize;
+        return new Size(
+            size.Width > 0 ? size.Width : DropPreviewLabelFallbackWidth,
+            size.Height > 0 ? size.Height : DropPreviewLabelFallbackHeight);
+    }
+
+    private static double GetFiniteSize(double preferred, double fallback)
+    {
+        if (!double.IsNaN(preferred) && !double.IsInfinity(preferred) && preferred > 0)
+        {
+            return preferred;
+        }
+
+        return !double.IsNaN(fallback) && !double.IsInfinity(fallback) && fallback > 0
+            ? fallback
+            : DropPreviewLabelFallbackWidth;
+    }
+
     private static bool IsRightPointerPressed(PointerPointProperties properties)
     {
         return properties.IsRightButtonPressed
@@ -207,49 +418,49 @@ public partial class OutlineEditor
         var viewModel = ViewModel;
         var menu = new AtomMenuFlyout();
         menu.Items.Add(CreateNodeMenuItem(
-            "添加子级",
+            AddChildText,
             new SubnodeOutlined { Width = 14, Height = 14 },
-            "Tab",
+            null,
             true,
             () => AddChildFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "添加同级",
+            AddSiblingText,
             new SisternodeOutlined { Width = 14, Height = 14 },
             "Enter",
             viewModel?.IsRoot(node) != true,
             () => AddSiblingFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "提升为父节点",
+            PromoteText,
             new MenuFoldOutlined { Width = 14, Height = 14 },
             "Shift+Tab",
             viewModel?.CanPromoteNode(node) == true,
             () => PromoteNodeFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "降级为子节点",
+            DemoteText,
             new MenuUnfoldOutlined { Width = 14, Height = 14 },
             "Tab",
             viewModel?.CanDemoteNode(node) == true,
             () => DemoteNodeFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "上移",
+            MoveUpText,
             new ArrowUpOutlined { Width = 14, Height = 14 },
             "Alt+Up",
             viewModel?.CanMoveNodeUp(node) == true,
             () => MoveNodeUpFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "下移",
+            MoveDownText,
             new ArrowDownOutlined { Width = 14, Height = 14 },
             "Alt+Down",
             viewModel?.CanMoveNodeDown(node) == true,
             () => MoveNodeDownFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注",
+            string.IsNullOrWhiteSpace(node.Note) ? AddNoteText : EditNoteText,
             new CommentOutlined { Width = 14, Height = 14 },
             null,
             true,
             () => ShowNoteEditor(node)));
         menu.Items.Add(CreateNodeMenuItem(
-            "删除",
+            DeleteNodeText,
             new DeleteOutlined { Width = 14, Height = 14 },
             "Delete",
             viewModel?.IsRoot(node) != true,
@@ -324,7 +535,7 @@ public partial class OutlineEditor
 
     private void ShowNoteEditor(MindMapNode node)
     {
-        // 备注与标题共用 MindMapNode，显示策略由编辑状态和实际内容共同决定。
+        // Notes and titles share the same MindMapNode; visibility depends on edit state and content.
         _editingNoteNodes.Add(node);
         SelectNode(node);
         UpdateNoteVisibility(node);
@@ -383,6 +594,17 @@ public partial class OutlineEditor
         ApplySelectionState();
     }
 
+    private void SetHoveredDragHandleNode(MindMapNode? node)
+    {
+        if (ReferenceEquals(_hoverDragHandleNode, node))
+        {
+            return;
+        }
+
+        _hoverDragHandleNode = node;
+        ApplySelectionState();
+    }
+
     private void FocusNode(MindMapNode? node)
     {
         if (node is null)
@@ -390,15 +612,9 @@ public partial class OutlineEditor
             return;
         }
 
+        _pendingFocusNode = node;
         SetCurrentValue(SelectedNodeProperty, node);
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_titleEditors.TryGetValue(node, out var editor))
-            {
-                editor.Focus();
-                editor.CaretIndex = editor.Text?.Length ?? 0;
-            }
-        });
+        Dispatcher.UIThread.Post(TryFocusPendingNode);
     }
 
     private void ApplySelectionState()
@@ -407,11 +623,19 @@ public partial class OutlineEditor
         {
             var selected = ReferenceEquals(node, SelectedNode);
             var isDropTarget = ReferenceEquals(node, _dropTarget);
+            var dropAsChild = isDropTarget && _dropPlacement == MindMapDropPlacement.Child;
 
-            frame.Background = Brushes.Transparent;
+            frame.Background = isDropTarget
+                ? Brush.Parse(dropAsChild
+                    ? IsDarkTheme ? DropChildRowBackgroundDark : DropChildRowBackgroundLight
+                    : IsDarkTheme ? DropSiblingRowBackgroundDark : DropSiblingRowBackgroundLight)
+                : Brushes.Transparent;
+            frame.BorderThickness = dropAsChild
+                ? new Thickness(RowFrameDropChildBorderThickness)
+                : new Thickness(RowFrameBorderThickness);
             frame.BorderBrush = Brush.Parse(isDropTarget
-                ? _dropPlacement == MindMapDropPlacement.Child ? "#22C55E" : "#2563EB"
-                : selected ? IsDarkTheme ? "#64748B" : "#CBD5E1" : "#00000000");
+                ? dropAsChild ? DropChildAccentBrush : DropSiblingAccentBrush
+                : selected ? IsDarkTheme ? SelectedRowBorderDark : SelectedRowBorderLight : TransparentBrushText);
 
             if (_noteFrames.TryGetValue(node, out var noteFrame))
             {
@@ -421,21 +645,73 @@ public partial class OutlineEditor
             }
         }
 
-        foreach (var (node, dot) in _dragDots)
+        foreach (var (node, handle) in _dragHandles)
         {
             if (ViewModel?.IsRoot(node) == true)
             {
                 continue;
             }
 
-            dot.Fill = Brush.Parse(ReferenceEquals(node, _dragNode) ? "#2563EB" : IsDarkTheme ? "#CBD5E1" : "#111111");
+            var active = ReferenceEquals(node, _dragNode);
+            var hovered = ReferenceEquals(node, _hoverDragHandleNode);
+            handle.Background = Brushes.Transparent;
+            handle.BorderBrush = Brushes.Transparent;
+
+            if (_dragHandleGlows.TryGetValue(node, out var glow))
+            {
+                glow.Background = active || hovered
+                    ? Brush.Parse(IsDarkTheme ? DragHandleGlowBackgroundDark : DragHandleGlowBackgroundLight)
+                    : Brushes.Transparent;
+                glow.BorderBrush = active
+                    ? Brush.Parse(IsDarkTheme ? DragHandleActiveBorderDark : DragHandleActiveBorderLight)
+                    : hovered
+                        ? Brush.Parse(IsDarkTheme ? DragHandleHoverBorderDark : DragHandleHoverBorderLight)
+                        : Brushes.Transparent;
+            }
         }
+    }
+
+    private static bool HasVisualAncestor<T>(object? source)
+        where T : Visual
+    {
+        return FindVisualAncestor<T>(source) is not null;
+    }
+
+    private static T? FindVisualAncestor<T>(object? source)
+        where T : Visual
+    {
+        if (source is T sourceMatch)
+        {
+            return sourceMatch;
+        }
+
+        if (source is not Visual visual)
+        {
+            return null;
+        }
+
+        for (var current = visual; current is not null; current = current.GetVisualParent())
+        {
+            if (current is T ancestorMatch)
+            {
+                return ancestorMatch;
+            }
+        }
+
+        return null;
     }
 
     private void HandleNoteKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
     {
-        if (e.Key is not (Key.Back or Key.Delete)
-            || !string.IsNullOrWhiteSpace(editor?.Text))
+        if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
+        {
+            return;
+        }
+
+        var action = MindMapKeyboardGestureRouter.ResolveNoteAction(
+            e.Key,
+            string.IsNullOrWhiteSpace(editor?.Text));
+        if (action != MindMapKeyboardAction.DeleteEmptyNote)
         {
             return;
         }
@@ -444,6 +720,121 @@ public partial class OutlineEditor
         _editingNoteNodes.Remove(node);
         UpdateNoteVisibility(node);
         FocusNode(node);
+        MarkEditorKeyEventHandled(e);
+    }
+
+    private bool TryHandleTitleNavigation(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
+    {
+        if (e.KeyModifiers != KeyModifiers.None)
+        {
+            return false;
+        }
+
+        var target = e.Key switch
+        {
+            Key.Up => FindAdjacentOutlineNode(node, -1),
+            Key.Down => FindAdjacentOutlineNode(node, 1),
+            Key.Left when IsCaretAtStart(editor) => FindOutlineParent(node),
+            Key.Right when IsCaretAtEnd(editor) => node.Children.FirstOrDefault(),
+            _ => null
+        };
+
+        if (target is null)
+        {
+            return false;
+        }
+
+        FocusNode(target);
+        MarkEditorKeyEventHandled(e);
+        return true;
+    }
+
+    private MindMapNode? FindAdjacentOutlineNode(MindMapNode node, int offset)
+    {
+        var nodes = GetOutlineNodes();
+        var index = nodes.IndexOf(node);
+        var targetIndex = index + offset;
+        return index >= 0 && targetIndex >= 0 && targetIndex < nodes.Count
+            ? nodes[targetIndex]
+            : null;
+    }
+
+    private List<MindMapNode> GetOutlineNodes()
+    {
+        var nodes = new List<MindMapNode>();
+        if (Roots is null)
+        {
+            return nodes;
+        }
+
+        foreach (var root in Roots)
+        {
+            CollectOutlineNodes(root, nodes);
+        }
+
+        return nodes;
+    }
+
+    private static void CollectOutlineNodes(MindMapNode node, ICollection<MindMapNode> nodes)
+    {
+        nodes.Add(node);
+        foreach (var child in node.Children)
+        {
+            CollectOutlineNodes(child, nodes);
+        }
+    }
+
+    private MindMapNode? FindOutlineParent(MindMapNode node)
+    {
+        if (Roots is null)
+        {
+            return null;
+        }
+
+        foreach (var root in Roots)
+        {
+            var parent = FindOutlineParent(root, node);
+            if (parent is not null)
+            {
+                return parent;
+            }
+        }
+
+        return null;
+    }
+
+    private static MindMapNode? FindOutlineParent(MindMapNode parent, MindMapNode node)
+    {
+        if (parent.Children.Contains(node))
+        {
+            return parent;
+        }
+
+        foreach (var child in parent.Children)
+        {
+            var match = FindOutlineParent(child, node);
+            if (match is not null)
+            {
+                return match;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsCaretAtStart(AtomTextBox? editor)
+    {
+        return editor is null || editor.CaretIndex <= 0;
+    }
+
+    private static bool IsCaretAtEnd(AtomTextBox? editor)
+    {
+        return editor is null || editor.CaretIndex >= (editor.Text?.Length ?? 0);
+    }
+
+    private void MarkEditorKeyEventHandled(KeyEventArgs e)
+    {
+        _lastHandledEditorKeyEvent = e;
         e.Handled = true;
     }
 }

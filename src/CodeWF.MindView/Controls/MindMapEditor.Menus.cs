@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
+using AtomUI;
+using AtomUI.Controls;
 
 namespace CodeWF.MindView.Controls;
 
@@ -13,26 +15,34 @@ public partial class MindMapEditor
         var panel = new StackPanel
         {
             Orientation = Orientation.Horizontal,
-            Spacing = 2
+            Spacing = GetResourceDouble(MindViewStyleKeys.ToolbarButtonSpacingResource, 4)
         };
         panel.Children.Add(CreateToolbarButton(
-            "添加同级主题",
+            AddSiblingText,
             Geometry.Parse("M4 7h6v6H4zM14 7h6v6h-6zM10 10h4M7 13v4h10v-4"),
             AddToolbarSiblingNode));
         panel.Children.Add(CreateToolbarButton(
-            "添加子主题",
+            AddChildText,
             Geometry.Parse("M5 5h7v7H5zM12 8h5v4M17 12h2v7h-7v-7h5"),
             AddToolbarChildNode));
         panel.Children.Add(CreateToolbarButton(
-            "提升为父节点",
+            PromoteText,
             Geometry.Parse("M5 7h14M5 12h9M5 17h5M15 13l4-4-4-4"),
             PromoteToolbarNode));
         panel.Children.Add(CreateToolbarButton(
-            "降级为子节点",
+            DemoteText,
             Geometry.Parse("M5 7h14M10 12h9M14 17h5M9 13l-4-4 4-4"),
             DemoteToolbarNode));
         panel.Children.Add(CreateToolbarButton(
-            "备注",
+            MoveUpText,
+            Geometry.Parse("M12 19V5M6 11l6-6 6 6"),
+            MoveToolbarNodeUp));
+        panel.Children.Add(CreateToolbarButton(
+            MoveDownText,
+            Geometry.Parse("M12 5v14M6 13l6 6 6-6"),
+            MoveToolbarNodeDown));
+        panel.Children.Add(CreateToolbarButton(
+            AddNoteText,
             Geometry.Parse("M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"),
             () =>
             {
@@ -42,27 +52,28 @@ public partial class MindMapEditor
                 }
             }));
         panel.Children.Add(CreateToolbarButton(
-            "删除",
+            DeleteNodeText,
             Geometry.Parse("M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"),
             DeleteToolbarNode));
 
         return new Border
         {
-            Width = 188,
-            Height = 32,
-            Padding = new Thickness(4, 3),
-            CornerRadius = new CornerRadius(6),
-            Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF"),
-            BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA"),
-            BorderThickness = new Thickness(1),
-            BoxShadow = BoxShadows.Parse("0 6 18 0 #22000000"),
+            Width = GetResourceDouble(MindViewStyleKeys.ToolbarWidthResource, 208),
+            Height = GetResourceDouble(MindViewStyleKeys.ToolbarHeightResource, 32),
+            Padding = GetResourceThickness(MindViewStyleKeys.ToolbarPaddingResource, new Thickness(8, 3)),
+            CornerRadius = GetResourceCornerRadius(MindViewStyleKeys.ToolbarCornerRadiusResource, new CornerRadius(6)),
+            Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827"),
+            BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155"),
+            BorderThickness = GetResourceThickness(MindViewStyleKeys.ToolbarBorderThicknessResource, new Thickness(1)),
+            BoxShadow = GetResourceBoxShadows(MindViewStyleKeys.ToolbarBoxShadowResource, "0 6 18 0 #22000000"),
             Child = panel,
             IsVisible = false
         };
     }
 
-    private Border CreateToolbarButton(string tooltip, Geometry icon, Action action)
+    private Control CreateToolbarButton(string tooltip, Geometry icon, Action action)
     {
+        var iconSize = GetResourceDouble(MindViewStyleKeys.ToolbarIconSizeResource, 15);
         var path = new Avalonia.Controls.Shapes.Path
         {
             Data = icon,
@@ -73,24 +84,70 @@ public partial class MindMapEditor
             StrokeLineCap = PenLineCap.Round,
             StrokeJoin = PenLineJoin.Round
         };
-
-        var button = new Border
+        var button = new AtomUI.Desktop.Controls.Button
         {
-            Width = 30,
-            Height = 24,
-            CornerRadius = new CornerRadius(4),
-            Background = Brushes.Transparent,
-            Child = new Viewbox
+            Width = GetResourceDouble(MindViewStyleKeys.ToolbarButtonWidthResource, 28),
+            Height = GetResourceDouble(MindViewStyleKeys.ToolbarButtonHeightResource, 24),
+            MinWidth = GetResourceDouble(MindViewStyleKeys.ToolbarButtonWidthResource, 28),
+            MinHeight = GetResourceDouble(MindViewStyleKeys.ToolbarButtonHeightResource, 24),
+            Padding = new Thickness(0),
+            ButtonType = AtomUI.Desktop.Controls.ButtonType.Text,
+            Shape = AtomUI.Desktop.Controls.ButtonShape.Default,
+            SizeType = SizeType.Small,
+            IsMotionEnabled = true,
+            IsWaveSpiritEnabled = true,
+            Content = new Viewbox
             {
-                Width = 15,
-                Height = 15,
+                Width = iconSize,
+                Height = iconSize,
                 Child = path
             }
         };
-        ToolTip.SetTip(button, tooltip);
-        button.PointerPressed += (_, e) =>
+        AtomUI.Desktop.Controls.ToolTip.SetTip(button, tooltip);
+        button.Click += (_, e) =>
         {
             action();
+            e.Handled = true;
+        };
+        return button;
+    }
+
+    private AtomUI.Desktop.Controls.Button CreateNodeAddChildButton()
+    {
+        var icon = new Avalonia.Controls.Shapes.Path
+        {
+            Data = Geometry.Parse("M12 5v14M5 12h14"),
+            Stroke = Brushes.White,
+            StrokeThickness = 2.2,
+            Fill = Brushes.Transparent,
+            Stretch = Stretch.Uniform,
+            StrokeLineCap = PenLineCap.Round,
+            StrokeJoin = PenLineJoin.Round
+        };
+        var button = new AtomUI.Desktop.Controls.Button
+        {
+            Width = 28,
+            Height = 28,
+            MinWidth = 28,
+            MinHeight = 28,
+            Padding = new Thickness(0),
+            ButtonType = AtomUI.Desktop.Controls.ButtonType.Primary,
+            Shape = AtomUI.Desktop.Controls.ButtonShape.Circle,
+            SizeType = SizeType.Small,
+            IsMotionEnabled = true,
+            IsWaveSpiritEnabled = true,
+            Content = new Viewbox
+            {
+                Width = 14,
+                Height = 14,
+                Child = icon
+            },
+            IsVisible = false
+        };
+        AtomUI.Desktop.Controls.ToolTip.SetTip(button, AddChildText);
+        button.Click += (_, e) =>
+        {
+            AddToolbarChildNode();
             e.Handled = true;
         };
         return button;
@@ -101,12 +158,12 @@ public partial class MindMapEditor
         var menu = new Border
         {
             Width = NodeMenuWidth,
-            Padding = new Thickness(6),
-            CornerRadius = new CornerRadius(6),
-            Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF"),
-            BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA"),
-            BorderThickness = new Thickness(1),
-            BoxShadow = BoxShadows.Parse("0 8 22 0 #24000000"),
+            Padding = GetResourceThickness(MindViewStyleKeys.NodeMenuPaddingResource, new Thickness(6)),
+            CornerRadius = GetResourceCornerRadius(MindViewStyleKeys.NodeMenuCornerRadiusResource, new CornerRadius(6)),
+            Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827"),
+            BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155"),
+            BorderThickness = GetResourceThickness(MindViewStyleKeys.NodeMenuBorderThicknessResource, new Thickness(1)),
+            BoxShadow = GetResourceBoxShadows(MindViewStyleKeys.NodeMenuBoxShadowResource, "0 8 22 0 #24000000"),
             Child = _nodeMenuPanel,
             IsVisible = false
         };
@@ -117,17 +174,17 @@ public partial class MindMapEditor
     private void ShowNodeMenu(MindMapNode node, Point canvasPoint)
     {
         _nodeMenuPanel.Children.Clear();
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加子级", "Tab", true, () => AddChildFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", "添加同级", "Enter", !IsRootNode(node), () => AddSiblingFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", "提升为父节点", "Shift+Tab", CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", "降级为子节点", "Tab", CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", "上移", "Alt+Up", CanMoveNodeUp(node), () => MoveNodeUpFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", "下移", "Alt+Down", CanMoveNodeDown(node), () => MoveNodeDownFromMenu(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? "添加备注" : "编辑备注", null, true, () => ShowNoteEditor(node)));
-        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", "删除", "Delete", !IsRootNode(node), () => DeleteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddChildText, "Tab / Shift+Tab", true, () => AddChildFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("+", AddSiblingText, "Enter", !IsRootNode(node), () => AddSiblingFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("<", PromoteText, null, CanPromoteNode(node), () => PromoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem(">", DemoteText, null, CanDemoteNode(node), () => DemoteNodeFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("^", MoveUpText, "Alt+Up", CanMoveNodeUp(node), () => MoveNodeUpFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("v", MoveDownText, "Alt+Down", CanMoveNodeDown(node), () => MoveNodeDownFromMenu(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("i", string.IsNullOrWhiteSpace(node.Note) ? AddNoteText : EditNoteText, null, true, () => ShowNoteEditor(node)));
+        _nodeMenuPanel.Children.Add(CreateNodeMenuItem("x", DeleteNodeText, "Delete", !IsRootNode(node), () => DeleteNodeFromMenu(node)));
 
-        _nodeMenu.Background = Brush.Parse(IsDarkTheme ? "#111827" : "#FFFFFF");
-        _nodeMenu.BorderBrush = Brush.Parse(IsDarkTheme ? "#334155" : "#D8E0EA");
+        _nodeMenu.Background = GetResourceBrush(MindViewStyleKeys.ToolbarBackgroundBrushResource, "#FFFFFF", "#111827");
+        _nodeMenu.BorderBrush = GetResourceBrush(MindViewStyleKeys.ToolbarBorderBrushResource, "#D8E0EA", "#334155");
         _nodeMenu.IsVisible = true;
 
         var x = Math.Clamp(canvasPoint.X, 8, Math.Max(8, _canvas.Width - NodeMenuWidth - 8));
@@ -136,19 +193,19 @@ public partial class MindMapEditor
         Canvas.SetTop(_nodeMenu, y);
     }
 
-    private Border CreateNodeMenuItem(string iconText, string header, string? shortcut, bool isEnabled, Action action)
+    private Control CreateNodeMenuItem(string iconText, string header, string? shortcut, bool isEnabled, Action action)
     {
         var foreground = isEnabled
             ? GetPrimaryTextBrush()
-            : Brush.Parse(IsDarkTheme ? "#64748B" : "#A0A7B1");
+            : GetResourceBrush(MindViewStyleKeys.NodeMenuDisabledTextBrushResource, "#A0A7B1", "#64748B");
         var shortcutBrush = isEnabled
-            ? Brush.Parse(IsDarkTheme ? "#94A3B8" : "#667085")
-            : Brush.Parse(IsDarkTheme ? "#475569" : "#A0A7B1");
+            ? GetResourceBrush(MindViewStyleKeys.NodeMenuShortcutBrushResource, "#667085", "#94A3B8")
+            : GetResourceBrush(MindViewStyleKeys.NodeMenuDisabledShortcutBrushResource, "#A0A7B1", "#475569");
         var icon = new TextBlock
         {
             Text = iconText,
-            Width = 18,
-            FontSize = 13,
+            Width = GetResourceDouble(MindViewStyleKeys.NodeMenuIconWidthResource, 18),
+            FontSize = GetResourceDouble(MindViewStyleKeys.NodeMenuTextFontSizeResource, 13),
             FontWeight = FontWeight.SemiBold,
             Foreground = shortcutBrush,
             TextAlignment = TextAlignment.Center,
@@ -157,14 +214,14 @@ public partial class MindMapEditor
         var text = new TextBlock
         {
             Text = header,
-            FontSize = 13,
+            FontSize = GetResourceDouble(MindViewStyleKeys.NodeMenuTextFontSizeResource, 13),
             Foreground = foreground,
             VerticalAlignment = VerticalAlignment.Center
         };
         var shortcutText = new TextBlock
         {
             Text = shortcut ?? string.Empty,
-            FontSize = 12,
+            FontSize = GetResourceDouble(MindViewStyleKeys.NodeMenuShortcutFontSizeResource, 12),
             Foreground = shortcutBrush,
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Center
@@ -180,20 +237,24 @@ public partial class MindMapEditor
         content.Children.Add(text);
         content.Children.Add(shortcutText);
 
-        var row = new Border
+        var row = new AtomUI.Desktop.Controls.Button
         {
-            Height = 30,
-            CornerRadius = new CornerRadius(4),
-            Padding = new Thickness(8, 0),
-            Background = Brushes.Transparent,
+            Height = GetResourceDouble(MindViewStyleKeys.NodeMenuRowHeightResource, 30),
+            MinHeight = GetResourceDouble(MindViewStyleKeys.NodeMenuRowHeightResource, 30),
+            Padding = GetResourceThickness(MindViewStyleKeys.NodeMenuRowPaddingResource, new Thickness(8, 0)),
+            ButtonType = AtomUI.Desktop.Controls.ButtonType.Text,
+            Shape = AtomUI.Desktop.Controls.ButtonShape.Default,
+            SizeType = SizeType.Small,
+            IsMotionEnabled = true,
+            IsWaveSpiritEnabled = true,
+            IsEnabled = isEnabled,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
             Cursor = isEnabled ? new Cursor(StandardCursorType.Hand) : Cursor.Default,
-            Child = content
+            Content = content
         };
         if (isEnabled)
         {
-            row.PointerEntered += (_, _) => row.Background = Brush.Parse(IsDarkTheme ? "#1F2937" : "#F1F5F9");
-            row.PointerExited += (_, _) => row.Background = Brushes.Transparent;
-            row.PointerPressed += (_, e) =>
+            row.Click += (_, e) =>
             {
                 HideNodeMenu();
                 action();
@@ -242,6 +303,22 @@ public partial class MindMapEditor
         if (_toolbarNode is not null)
         {
             DemoteNodeFromMenu(_toolbarNode);
+        }
+    }
+
+    private void MoveToolbarNodeUp()
+    {
+        if (_toolbarNode is not null)
+        {
+            MoveNodeUpFromMenu(_toolbarNode);
+        }
+    }
+
+    private void MoveToolbarNodeDown()
+    {
+        if (_toolbarNode is not null)
+        {
+            MoveNodeDownFromMenu(_toolbarNode);
         }
     }
 

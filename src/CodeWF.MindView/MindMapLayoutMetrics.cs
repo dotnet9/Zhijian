@@ -18,22 +18,22 @@ public readonly record struct MindMapNodeSizeMetrics(
 
 public static class MindMapLayoutMetrics
 {
-    public const double DefaultHorizontalSpacing = 130;
-    public const double DefaultVerticalSpacing = 34;
-    public const double RootMinWidth = 88;
-    public const double RootMaxWidth = 260;
-    public const double RootMinHeight = 46;
-    public const double BranchMinWidth = 112;
-    public const double BranchMaxWidth = 240;
-    public const double BranchMinHeight = 42;
-    public const double LeafMinWidth = 48;
-    public const double LeafMaxWidth = 260;
-    public const double LeafMinHeight = 30;
-    public const double DragHandleHitWidth = 16;
-    public const double NoteFontSize = 13;
-    public const double NoteVerticalSpacing = 4;
-    public const double NoteMinHeight = 28;
-    public const double NoteMaxHeight = 96;
+    public static double DefaultHorizontalSpacing => GetDouble(MindViewStyleKeys.DefaultHorizontalSpacingResource, 104);
+    public static double DefaultVerticalSpacing => GetDouble(MindViewStyleKeys.DefaultVerticalSpacingResource, 34);
+    public static double RootMinWidth => GetDouble(MindViewStyleKeys.RootMinWidthResource, 88);
+    public static double RootMaxWidth => GetDouble(MindViewStyleKeys.RootMaxWidthResource, 260);
+    public static double RootMinHeight => GetDouble(MindViewStyleKeys.RootMinHeightResource, 46);
+    public static double BranchMinWidth => GetDouble(MindViewStyleKeys.BranchMinWidthResource, 112);
+    public static double BranchMaxWidth => GetDouble(MindViewStyleKeys.BranchMaxWidthResource, 240);
+    public static double BranchMinHeight => GetDouble(MindViewStyleKeys.BranchMinHeightResource, 42);
+    public static double LeafMinWidth => GetDouble(MindViewStyleKeys.LeafMinWidthResource, 48);
+    public static double LeafMaxWidth => GetDouble(MindViewStyleKeys.LeafMaxWidthResource, 260);
+    public static double LeafMinHeight => GetDouble(MindViewStyleKeys.LeafMinHeightResource, 30);
+    public static double DragHandleHitWidth => GetDouble(MindViewStyleKeys.DragHandleHitWidthResource, 24);
+    public static double NoteFontSize => GetDouble(MindViewStyleKeys.NoteFontSizeResource, 13);
+    public static double NoteVerticalSpacing => GetDouble(MindViewStyleKeys.NoteVerticalSpacingResource, 4);
+    public static double NoteMinHeight => GetDouble(MindViewStyleKeys.NoteMinHeightResource, 28);
+    public static double NoteMaxHeight => GetDouble(MindViewStyleKeys.NoteMaxHeightResource, 96);
 
     public static MindMapNodeVisualKind GetVisualKind(int level)
     {
@@ -53,24 +53,24 @@ public static class MindMapLayoutMetrics
                 RootMinWidth,
                 RootMaxWidth,
                 RootMinHeight,
-                new Thickness(10, 5),
-                18),
+                GetThickness(MindViewStyleKeys.RootPaddingResource, new Thickness(10, 5)),
+                GetDouble(MindViewStyleKeys.RootFontSizeResource, 18)),
             MindMapNodeVisualKind.Branch => new MindMapNodeSizeMetrics(
                 BranchMinWidth,
                 BranchMaxWidth,
                 BranchMinHeight,
-                new Thickness(12, 5),
-                17),
+                GetThickness(MindViewStyleKeys.BranchPaddingResource, new Thickness(12, 5)),
+                GetDouble(MindViewStyleKeys.BranchFontSizeResource, 17)),
             _ => new MindMapNodeSizeMetrics(
                 LeafMinWidth,
                 LeafMaxWidth,
                 LeafMinHeight,
-                new Thickness(0, 2),
-                16)
+                GetThickness(MindViewStyleKeys.LeafPaddingResource, new Thickness(0, 2)),
+                GetDouble(MindViewStyleKeys.LeafFontSizeResource, 16))
         };
     }
 
-    public static Size EstimateNodeSize(MindMapNode node, int level, string placeholder = "主题")
+    public static Size EstimateNodeSize(MindMapNode node, int level, string placeholder = "Topic")
     {
         var metrics = GetSizeMetrics(level);
         var text = string.IsNullOrWhiteSpace(node.Title) ? placeholder : node.Title.Trim();
@@ -138,5 +138,15 @@ public static class MindMapLayoutMetrics
         }
 
         return Math.Max(fontSize, width);
+    }
+
+    private static double GetDouble(string key, double fallback)
+    {
+        return MindViewThemeResources.GetDouble(null, key, fallback);
+    }
+
+    private static Thickness GetThickness(string key, Thickness fallback)
+    {
+        return MindViewThemeResources.GetThickness(null, key, fallback);
     }
 }

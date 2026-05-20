@@ -219,6 +219,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         OnPropertyChanged(nameof(NodeCount));
         OnPropertyChanged(nameof(SelectedNodeSummary));
+        OnPropertyChanged(nameof(IsBlankDocument));
+        RefreshMarkdownStats();
         RefreshSelectedNodeCommands();
     }
 
@@ -296,10 +298,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             }
         }
 
-        RecordHistoryStep(T(ZhijianL.HistoryEditMarkdown));
+        RecordHistoryStep(T(ZhijianL.HistoryEditMarkdown), coalesce: true);
     }
 
-    private void RecordHistoryStep(string label, string? snapshot = null)
+    private void RecordHistoryStep(string label, string? snapshot = null, bool coalesce = false)
     {
         if (_isRestoringHistory || Roots.Count == 0)
         {
@@ -315,6 +317,16 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         if (_historyIndex < _history.Count - 1)
         {
             _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
+        }
+
+        if (coalesce
+            && _historyIndex >= 0
+            && string.Equals(_history[_historyIndex].Label, label, StringComparison.Ordinal))
+        {
+            _history[_historyIndex] = new HistoryEntry(label, snapshot);
+            RefreshHistoryState();
+            MarkDocumentDirty();
+            return;
         }
 
         _history.Add(new HistoryEntry(label, snapshot));
@@ -371,6 +383,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(CanMoveSelectedNodeUp));
         OnPropertyChanged(nameof(CanMoveSelectedNodeDown));
         OnPropertyChanged(nameof(CanDeleteSelectedNode));
+        OnPropertyChanged(nameof(CanAddSiblingToSelectedNode));
     }
 
     private sealed record LoadedMindMapDocument(
