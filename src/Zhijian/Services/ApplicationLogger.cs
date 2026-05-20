@@ -1,9 +1,11 @@
 using CodeWF.Log.Core;
+using System.Diagnostics;
 
 namespace Zhijian.Services;
 
 internal static class ApplicationLogger
 {
+    private static readonly TimeSpan FlushTimeout = TimeSpan.FromSeconds(2);
     private static int _configured;
 
     public static void Configure()
@@ -65,7 +67,21 @@ internal static class ApplicationLogger
 
     public static void Flush()
     {
-        Logger.FlushAsync().GetAwaiter().GetResult();
+        try
+        {
+            var flushTask = Logger.FlushAsync();
+            if (flushTask.Wait(FlushTimeout))
+            {
+                flushTask.GetAwaiter().GetResult();
+                return;
+            }
+
+            Debug.WriteLine("Application log flush timed out.");
+        }
+        catch (Exception exception)
+        {
+            Debug.WriteLine($"Application log flush failed: {exception}");
+        }
     }
 
     private static string GetDefaultLogDirectory()
