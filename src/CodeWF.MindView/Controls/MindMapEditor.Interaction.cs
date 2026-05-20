@@ -210,7 +210,7 @@ public partial class MindMapEditor
         bool focusTitleEditor,
         KeyEventArgs e)
     {
-        var target = FindDirectionalNode(current, key);
+        var target = FindStructuralNavigationTarget(current, key);
         if (target is null)
         {
             return false;
@@ -230,109 +230,31 @@ public partial class MindMapEditor
         return true;
     }
 
-    private MindMapNode? FindDirectionalNode(MindMapNode current, Key key)
-    {
-        if (!_nodeFrames.ContainsKey(current))
-        {
-            return FindTreeNavigationFallback(current, key);
-        }
-
-        var currentCenter = GetNodeCenter(current);
-        MindMapNode? bestNode = null;
-        var bestScore = double.MaxValue;
-
-        foreach (var candidate in _nodeFrames.Keys)
-        {
-            if (ReferenceEquals(candidate, current))
-            {
-                continue;
-            }
-
-            var candidateCenter = GetNodeCenter(candidate);
-            var dx = candidateCenter.X - currentCenter.X;
-            var dy = candidateCenter.Y - currentCenter.Y;
-            if (!IsInDirection(key, dx, dy))
-            {
-                continue;
-            }
-
-            var primary = key is Key.Left or Key.Right ? Math.Abs(dx) : Math.Abs(dy);
-            var secondary = key is Key.Left or Key.Right ? Math.Abs(dy) : Math.Abs(dx);
-            var score = primary * 4 + secondary;
-            if (score < bestScore)
-            {
-                bestScore = score;
-                bestNode = candidate;
-            }
-        }
-
-        return bestNode ?? FindTreeNavigationFallback(current, key);
-    }
-
-    private MindMapNode? FindTreeNavigationFallback(MindMapNode current, Key key)
+    private MindMapNode? FindStructuralNavigationTarget(MindMapNode current, Key key)
     {
         return key switch
         {
             Key.Left => FindParent(current),
             Key.Right => current.Children.FirstOrDefault(),
-            Key.Up => FindAdjacentTreeNode(current, -1),
-            Key.Down => FindAdjacentTreeNode(current, 1),
+            Key.Up => FindAdjacentSiblingNode(current, -1),
+            Key.Down => FindAdjacentSiblingNode(current, 1),
             _ => null
         };
     }
 
-    private MindMapNode? FindAdjacentTreeNode(MindMapNode current, int offset)
+    private MindMapNode? FindAdjacentSiblingNode(MindMapNode current, int offset)
     {
-        var nodes = GetTreeOrderedNodes();
-        var index = nodes.IndexOf(current);
+        var siblings = FindParent(current)?.Children ?? Roots;
+        if (siblings is null)
+        {
+            return null;
+        }
+
+        var index = siblings.IndexOf(current);
         var targetIndex = index + offset;
-        return index >= 0 && targetIndex >= 0 && targetIndex < nodes.Count
-            ? nodes[targetIndex]
+        return index >= 0 && targetIndex >= 0 && targetIndex < siblings.Count
+            ? siblings[targetIndex]
             : null;
-    }
-
-    private List<MindMapNode> GetTreeOrderedNodes()
-    {
-        var nodes = new List<MindMapNode>();
-        if (Roots is null)
-        {
-            return nodes;
-        }
-
-        foreach (var root in Roots)
-        {
-            CollectTreeOrderedNodes(root, nodes);
-        }
-
-        return nodes;
-    }
-
-    private static void CollectTreeOrderedNodes(MindMapNode node, ICollection<MindMapNode> nodes)
-    {
-        nodes.Add(node);
-        foreach (var child in node.Children)
-        {
-            CollectTreeOrderedNodes(child, nodes);
-        }
-    }
-
-    private Point GetNodeCenter(MindMapNode node)
-    {
-        var size = GetRenderedNodeSize(node);
-        return new Point(node.X + size.Width / 2, node.Y + size.Height / 2);
-    }
-
-    private static bool IsInDirection(Key key, double dx, double dy)
-    {
-        const double epsilon = 1;
-        return key switch
-        {
-            Key.Left => dx < -epsilon,
-            Key.Right => dx > epsilon,
-            Key.Up => dy < -epsilon,
-            Key.Down => dy > epsilon,
-            _ => false
-        };
     }
 
     private void EnsureNodeVisible(MindMapNode node)
