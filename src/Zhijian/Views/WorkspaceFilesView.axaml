@@ -1,8 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:atom="using:AtomUI.Desktop.Controls"
+             xmlns:antdicons="https://atomui.net/icons/antdesign"
              xmlns:codewf="https://codewf.com"
-             xmlns:icons="using:AtomUI.Icons.AntDesign"
              xmlns:l="clr-namespace:Zhijian"
              xmlns:vm="using:Zhijian.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -61,108 +61,51 @@
             </atom:ListBox>
 
             <StackPanel IsVisible="{Binding IsFolderEmpty}"
-                        Width="240"
+                        Width="260"
                         Spacing="14"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                <icons:FileSearchOutlined Width="28"
-                                          Height="28"
-                                          HorizontalAlignment="Center"
-                                          Foreground="{Binding SecondaryTextBrush}"/>
-                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.FilesEmptyTitle}}"
-                           FontSize="15"
-                           FontWeight="SemiBold"
-                           Foreground="{Binding PrimaryTextBrush}"
-                           TextAlignment="Center"/>
+                <atom:Empty PresetImage="Simple"
+                            SizeType="Middle"
+                            Description="{codewf:I18n {x:Static l:ZhijianL.FilesEmptyTitle}}"/>
                 <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.FilesEmptyDescription}}"
                            FontSize="12"
                            Foreground="{Binding SecondaryTextBrush}"
                            TextAlignment="Center"
                            TextWrapping="Wrap"/>
                 <atom:Button Command="{Binding OpenDocumentAsync}"
+                             ButtonType="Primary"
                              HorizontalAlignment="Stretch"
                              MinHeight="36"
                              Padding="12,0"
+                             Content="{codewf:I18n {x:Static l:ZhijianL.Open}}"
+                             Icon="{antdicons:AntDesignIconProvider Kind=FileSearchOutlined}"
                              VerticalContentAlignment="Center"
-                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Open}}">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="6"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <icons:FileSearchOutlined Width="14"
-                                                  Height="14"
-                                                  VerticalAlignment="Center"
-                                                  Foreground="{Binding PrimaryTextBrush}"/>
-                        <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.Open}}"
-                                   TextTrimming="CharacterEllipsis"
-                                   LineHeight="20"
-                                   VerticalAlignment="Center"
-                                   Foreground="{Binding PrimaryTextBrush}"/>
-                    </StackPanel>
-                </atom:Button>
+                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Open}}"/>
                 <atom:Button Command="{Binding ImportDocumentAsync}"
                              HorizontalAlignment="Stretch"
                              MinHeight="36"
                              Padding="12,0"
+                             Content="{codewf:I18n {x:Static l:ZhijianL.Import}}"
+                             Icon="{antdicons:AntDesignIconProvider Kind=ImportOutlined}"
                              VerticalContentAlignment="Center"
-                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Import}}">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="6"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <icons:ImportOutlined Width="14"
-                                              Height="14"
-                                              VerticalAlignment="Center"
-                                              Foreground="{Binding PrimaryTextBrush}"/>
-                        <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.Import}}"
-                                   TextTrimming="CharacterEllipsis"
-                                   LineHeight="20"
-                                   VerticalAlignment="Center"
-                                   Foreground="{Binding PrimaryTextBrush}"/>
-                    </StackPanel>
-                </atom:Button>
+                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Import}}"/>
                 <atom:Button Command="{Binding OpenFolderAsync}"
                              HorizontalAlignment="Stretch"
                              MinHeight="36"
                              Padding="12,0"
+                             Content="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}"
+                             Icon="{antdicons:AntDesignIconProvider Kind=FolderOpenOutlined}"
                              VerticalContentAlignment="Center"
-                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="6"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <icons:FolderOpenOutlined Width="14"
-                                                  Height="14"
-                                                  VerticalAlignment="Center"
-                                                  Foreground="{Binding PrimaryTextBrush}"/>
-                        <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}"
-                                   TextTrimming="CharacterEllipsis"
-                                   LineHeight="20"
-                                   VerticalAlignment="Center"
-                                   Foreground="{Binding PrimaryTextBrush}"/>
-                    </StackPanel>
-                </atom:Button>
+                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenFolder}}"/>
                 <atom:Button Command="{Binding OpenUserManualAsync}"
                              HorizontalAlignment="Stretch"
                              MinHeight="36"
                              Padding="12,0"
+                             Content="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"
+                             Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"
                              VerticalContentAlignment="Center"
-                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="6"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <icons:FileMarkdownOutlined Width="14"
-                                                    Height="14"
-                                                    VerticalAlignment="Center"
-                                                    Foreground="{Binding PrimaryTextBrush}"/>
-                        <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"
-                                   TextTrimming="CharacterEllipsis"
-                                   LineHeight="20"
-                                   VerticalAlignment="Center"
-                                   Foreground="{Binding PrimaryTextBrush}"/>
-                    </StackPanel>
-                </atom:Button>
+                             AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"/>
             </StackPanel>
         </Grid>
     </Grid>

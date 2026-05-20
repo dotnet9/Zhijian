@@ -2,6 +2,9 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- ✨[Add]-Added a blank-document quick-start strip in the mind-map panel with direct actions for adding a child node, opening the user manual, importing files, and switching to Markdown.
+- 🔧[Optimize]-Reworked the empty Files pane with AtomUI `Empty` and icon buttons, restored meaningful native window titles, and made the status bar keep its tool buttons stable at minimum window size.
+- 🧪[Test]-Built `src/Zhijian/Zhijian.csproj -f net10.0-windows`, launched the desktop app, and verified the blank-document start strip, Files empty state, native title, and minimum-size status bar with screenshots.
 - 🔧[Optimize]-Added `CodeWF.Tools.Core` and switched the About window to read `Version` and `CompileTime` from `AssemblyExtensions` instead of hard-coded metadata.
 - 🔧[Optimize]-Moved About-window labels and description into language resources so the new compile-time label follows the app localization model.
 - 🧪[Test]-Built `Zhijian.slnx`, verified MSBuild resolves version `12.0.3.13`, and checked the localized About window metadata with the desktop app.

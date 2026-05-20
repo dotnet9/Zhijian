@@ -219,6 +219,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         OnPropertyChanged(nameof(NodeCount));
         OnPropertyChanged(nameof(SelectedNodeSummary));
+        OnPropertyChanged(nameof(IsBlankDocument));
         RefreshSelectedNodeCommands();
     }
 

@@ -276,7 +276,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         ? FormatText(ZhijianL.HistorySummary, 0, 0)
         : FormatText(ZhijianL.HistorySummary, _historyIndex + 1, _history.Count);
 
-    public string WindowTitle => string.Empty;
+    public string WindowTitle => $"{DocumentTitle} - {T(ZhijianL.AppName)}";
 
     public string DocumentTitle => $"{(IsDirty ? "*" : string.Empty)}{CurrentDocumentName}";
 
@@ -317,6 +317,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     public string SecondaryTextBrush => IsDarkTheme ? "#CBD5E1" : "#667085";
 
     public bool HasCurrentFile => !string.IsNullOrWhiteSpace(CurrentFilePath);
+
+    public bool IsBlankDocument => !HasCurrentFile && !IsDirty && NodeCount == 1;
 
     public bool CanPromoteSelectedNode => CanPromoteNode(SelectedNode);
 

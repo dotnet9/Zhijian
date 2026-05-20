@@ -294,12 +294,14 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(WindowTitle));
         OnPropertyChanged(nameof(DocumentTitle));
         OnPropertyChanged(nameof(HasCurrentFile));
+        OnPropertyChanged(nameof(IsBlankDocument));
     }
 
     private void OnIsDirtyChanged(bool value)
     {
         OnPropertyChanged(nameof(WindowTitle));
         OnPropertyChanged(nameof(DocumentTitle));
+        OnPropertyChanged(nameof(IsBlankDocument));
     }
 
     private void OnSelectedFolderFileChanged(MindMapFileItem? value)
