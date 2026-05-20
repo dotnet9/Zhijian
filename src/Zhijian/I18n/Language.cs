@@ -84,6 +84,9 @@ namespace Zhijian
         public static readonly string TopicPlaceholder = "Zhijian.ZhijianL.TopicPlaceholder";
         public static readonly string NotePlaceholder = "Zhijian.ZhijianL.NotePlaceholder";
         public static readonly string DragNodeTip = "Zhijian.ZhijianL.DragNodeTip";
+        public static readonly string DropAsChildText = "Zhijian.ZhijianL.DropAsChildText";
+        public static readonly string DropBeforeText = "Zhijian.ZhijianL.DropBeforeText";
+        public static readonly string DropAfterText = "Zhijian.ZhijianL.DropAfterText";
         public static readonly string PaneResizeTip = "Zhijian.ZhijianL.PaneResizeTip";
         public static readonly string MiniMap = "Zhijian.ZhijianL.MiniMap";
         public static readonly string CenterRoot = "Zhijian.ZhijianL.CenterRoot";

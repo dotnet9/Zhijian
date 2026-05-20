@@ -73,12 +73,23 @@ public partial class OutlineEditor : UserControl
     public static readonly StyledProperty<string> DragNodeTipProperty =
         AvaloniaProperty.Register<OutlineEditor, string>(nameof(DragNodeTip), "拖到节点中部成为子节点，拖到上下边缘成为同级节点");
 
+    public static readonly StyledProperty<string> DropAsChildTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropAsChildText), "设为子节点");
+
+    public static readonly StyledProperty<string> DropBeforeTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropBeforeText), "插入到上方");
+
+    public static readonly StyledProperty<string> DropAfterTextProperty =
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropAfterText), "插入到下方");
+
     private const double IndentSize = 24;
     private const double DragHandleColumnWidth = 28;
     private const double OutlineDotSize = 8;
     private const double OutlineDotGlowSize = 20;
     private const double DropEdgeRatio = 0.28;
     private const double DragStartDistance = 6;
+    private const double DropPreviewLineThickness = 3;
+    private const double DropPreviewLabelSpacing = 6;
     private const int RebuildRowBatchSize = 80;
 
     private readonly StackPanel _itemsPanel = new()
@@ -86,6 +97,26 @@ public partial class OutlineEditor : UserControl
         Spacing = 2,
         Margin = new Thickness(10, 8)
     };
+
+    private readonly ScrollViewer _scrollViewer;
+    private readonly Canvas _dropPreviewOverlay = new()
+    {
+        IsHitTestVisible = false
+    };
+    private readonly Border _dropPreviewLine = new()
+    {
+        Height = DropPreviewLineThickness,
+        CornerRadius = new CornerRadius(DropPreviewLineThickness / 2),
+        IsHitTestVisible = false,
+        IsVisible = false
+    };
+    private readonly TextBlock _dropPreviewText = new()
+    {
+        FontSize = 12,
+        FontWeight = FontWeight.SemiBold,
+        TextWrapping = TextWrapping.NoWrap
+    };
+    private readonly Border _dropPreviewLabel;
 
     private readonly Dictionary<MindMapNode, Border> _rowFrames = [];
     private readonly Dictionary<MindMapNode, AtomTextBox> _titleEditors = [];
@@ -111,14 +142,25 @@ public partial class OutlineEditor : UserControl
 
     public OutlineEditor()
     {
-        _itemsPanel.PointerMoved += HandleDragMoved;
-        _itemsPanel.PointerReleased += HandleDragReleased;
-
-        Content = new ScrollViewer
+        _scrollViewer = new ScrollViewer
         {
             Content = _itemsPanel,
             HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
             VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
+        };
+        _dropPreviewLabel = CreateDropPreviewLabel();
+        _dropPreviewOverlay.Children.Add(_dropPreviewLine);
+        _dropPreviewOverlay.Children.Add(_dropPreviewLabel);
+        _itemsPanel.PointerMoved += HandleDragMoved;
+        _itemsPanel.PointerReleased += HandleDragReleased;
+
+        Content = new Grid
+        {
+            Children =
+            {
+                _scrollViewer,
+                _dropPreviewOverlay
+            }
         };
     }
 
@@ -224,6 +266,24 @@ public partial class OutlineEditor : UserControl
         set => SetValue(DragNodeTipProperty, value);
     }
 
+    public string DropAsChildText
+    {
+        get => GetValue(DropAsChildTextProperty);
+        set => SetValue(DropAsChildTextProperty, value);
+    }
+
+    public string DropBeforeText
+    {
+        get => GetValue(DropBeforeTextProperty);
+        set => SetValue(DropBeforeTextProperty, value);
+    }
+
+    public string DropAfterText
+    {
+        get => GetValue(DropAfterTextProperty);
+        set => SetValue(DropAfterTextProperty, value);
+    }
+
     private IMindMapEditorController? ViewModel =>
         Controller
         ?? DataContext as IMindMapEditorController
@@ -267,6 +327,7 @@ public partial class OutlineEditor : UserControl
         _dragHandles.Clear();
         _dragHandleGlows.Clear();
         _hoverDragHandleNode = null;
+        HideDropPreview();
 
         if (Roots is null)
         {
@@ -661,7 +722,10 @@ public partial class OutlineEditor : UserControl
                || property == AddNoteTextProperty
                || property == EditNoteTextProperty
                || property == DeleteNodeTextProperty
-               || property == DragNodeTipProperty;
+               || property == DragNodeTipProperty
+               || property == DropAsChildTextProperty
+               || property == DropBeforeTextProperty
+               || property == DropAfterTextProperty;
     }
 
 }

@@ -34,7 +34,10 @@
                              AddNoteText="{codewf:I18n {x:Static l:ZhijianL.AddNote}}"
                              EditNoteText="{codewf:I18n {x:Static l:ZhijianL.EditNote}}"
                              DeleteNodeText="{codewf:I18n {x:Static l:ZhijianL.DeleteNode}}"
-                             DragNodeTip="{codewf:I18n {x:Static l:ZhijianL.DragNodeTip}}"/>
+                             DragNodeTip="{codewf:I18n {x:Static l:ZhijianL.DragNodeTip}}"
+                             DropAsChildText="{codewf:I18n {x:Static l:ZhijianL.DropAsChildText}}"
+                             DropBeforeText="{codewf:I18n {x:Static l:ZhijianL.DropBeforeText}}"
+                             DropAfterText="{codewf:I18n {x:Static l:ZhijianL.DropAfterText}}"/>
 
         <atom:TextBox Grid.Row="0"
                       IsVisible="{Binding IsMarkdownMode}"

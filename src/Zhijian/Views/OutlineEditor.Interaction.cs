@@ -113,6 +113,7 @@ public partial class OutlineEditor
         _dragStartPointer = e.GetPosition(_itemsPanel);
         // 短按圆点打开菜单，移动超过阈值后才进入拖拽，避免菜单和拖拽互相抢事件。
         _isDraggingNode = false;
+        HideDropPreview();
         e.Pointer.Capture(_itemsPanel);
         e.Handled = true;
         ApplySelectionState();
@@ -174,6 +175,11 @@ public partial class OutlineEditor
 
             nextTarget = node;
             nextPlacement = GetDropPlacement(bounds, point);
+            if (viewModel?.IsRoot(node) == true
+                && nextPlacement is MindMapDropPlacement.Before or MindMapDropPlacement.After)
+            {
+                nextPlacement = MindMapDropPlacement.Child;
+            }
             break;
         }
 
@@ -181,6 +187,14 @@ public partial class OutlineEditor
         {
             _dropTarget = nextTarget;
             _dropPlacement = nextPlacement;
+            if (nextTarget is null)
+            {
+                HideDropPreview();
+            }
+            else
+            {
+                ShowDropPreview(nextTarget, nextPlacement);
+            }
             ApplySelectionState();
         }
 
@@ -203,7 +217,9 @@ public partial class OutlineEditor
         _dragNode = null;
         _dropTarget = null;
         _dragAnchor = null;
+        _dropPlacement = MindMapDropPlacement.Child;
         _isDraggingNode = false;
+        HideDropPreview();
         e.Pointer.Capture(null);
 
         if (!wasDragging)
@@ -233,6 +249,142 @@ public partial class OutlineEditor
         }
 
         return MindMapDropPlacement.Child;
+    }
+
+    private Border CreateDropPreviewLabel()
+    {
+        return new Border
+        {
+            MinWidth = 72,
+            MinHeight = 26,
+            Padding = new Thickness(8, 4),
+            CornerRadius = new CornerRadius(4),
+            BorderThickness = new Thickness(1),
+            BoxShadow = BoxShadows.Parse("0 6 18 0 #22000000"),
+            Child = _dropPreviewText,
+            IsHitTestVisible = false,
+            IsVisible = false
+        };
+    }
+
+    private void ShowDropPreview(MindMapNode target, MindMapDropPlacement placement)
+    {
+        if (!_rowFrames.TryGetValue(target, out var frame))
+        {
+            HideDropPreview();
+            return;
+        }
+
+        var translated = frame.TranslatePoint(new Point(0, 0), _dropPreviewOverlay);
+        if (translated is not { } topLeft)
+        {
+            HideDropPreview();
+            return;
+        }
+
+        var bounds = new Rect(topLeft, frame.Bounds.Size);
+        ApplyDropPreviewStyle(placement);
+        ShowDropPreviewLine(bounds, placement);
+        ShowDropPreviewLabel(GetDropPlacementText(placement), bounds, placement);
+    }
+
+    private void HideDropPreview()
+    {
+        _dropPreviewLine.IsVisible = false;
+        _dropPreviewLabel.IsVisible = false;
+        _dropPreviewText.Text = string.Empty;
+    }
+
+    private void ShowDropPreviewLine(Rect bounds, MindMapDropPlacement placement)
+    {
+        if (placement == MindMapDropPlacement.Child)
+        {
+            _dropPreviewLine.IsVisible = false;
+            return;
+        }
+
+        var y = placement == MindMapDropPlacement.Before
+            ? bounds.Top
+            : bounds.Bottom;
+        var lineLeft = bounds.Left + DragHandleColumnWidth + 4;
+        var lineWidth = Math.Max(48, bounds.Right - lineLeft - 8);
+
+        _dropPreviewLine.Width = lineWidth;
+        _dropPreviewLine.Height = DropPreviewLineThickness;
+        Canvas.SetLeft(_dropPreviewLine, lineLeft);
+        Canvas.SetTop(_dropPreviewLine, y - DropPreviewLineThickness / 2);
+        _dropPreviewLine.IsVisible = true;
+    }
+
+    private void ShowDropPreviewLabel(string text, Rect bounds, MindMapDropPlacement placement)
+    {
+        _dropPreviewText.Text = text;
+        _dropPreviewLabel.IsVisible = true;
+        PositionDropPreviewLabel(bounds, placement);
+    }
+
+    private void ApplyDropPreviewStyle(MindMapDropPlacement placement)
+    {
+        var isChild = placement == MindMapDropPlacement.Child;
+        var accent = Brush.Parse(isChild ? "#22C55E" : "#2563EB");
+        _dropPreviewLine.Background = accent;
+        _dropPreviewLabel.BorderBrush = accent;
+        _dropPreviewLabel.Background = Brush.Parse(isChild
+            ? IsDarkTheme ? "#064E3B" : "#ECFDF5"
+            : IsDarkTheme ? "#172554" : "#EFF6FF");
+        _dropPreviewText.Foreground = Brush.Parse(isChild
+            ? IsDarkTheme ? "#DCFCE7" : "#166534"
+            : IsDarkTheme ? "#DBEAFE" : "#1D4ED8");
+    }
+
+    private string GetDropPlacementText(MindMapDropPlacement placement)
+    {
+        return placement switch
+        {
+            MindMapDropPlacement.Before => DropBeforeText,
+            MindMapDropPlacement.After => DropAfterText,
+            _ => DropAsChildText
+        };
+    }
+
+    private void PositionDropPreviewLabel(Rect bounds, MindMapDropPlacement placement)
+    {
+        var labelSize = MeasureDropPreviewLabel();
+        var x = placement == MindMapDropPlacement.Child
+            ? bounds.Left + DragHandleColumnWidth + 10
+            : bounds.Left + bounds.Width / 2 - labelSize.Width / 2;
+        var y = placement switch
+        {
+            MindMapDropPlacement.Before => bounds.Top - labelSize.Height - DropPreviewLabelSpacing,
+            MindMapDropPlacement.After => bounds.Bottom + DropPreviewLabelSpacing,
+            _ => bounds.Top + bounds.Height / 2 - labelSize.Height / 2
+        };
+
+        var overlayWidth = GetFiniteSize(_dropPreviewOverlay.Bounds.Width, _itemsPanel.Bounds.Width);
+        var overlayHeight = GetFiniteSize(_dropPreviewOverlay.Bounds.Height, _itemsPanel.Bounds.Height);
+        x = Math.Clamp(x, 8, Math.Max(8, overlayWidth - labelSize.Width - 8));
+        y = Math.Clamp(y, 8, Math.Max(8, overlayHeight - labelSize.Height - 8));
+        Canvas.SetLeft(_dropPreviewLabel, x);
+        Canvas.SetTop(_dropPreviewLabel, y);
+    }
+
+    private Size MeasureDropPreviewLabel()
+    {
+        _dropPreviewLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        var size = _dropPreviewLabel.DesiredSize;
+        return new Size(
+            size.Width > 0 ? size.Width : 96,
+            size.Height > 0 ? size.Height : 26);
+    }
+
+    private static double GetFiniteSize(double preferred, double fallback)
+    {
+        if (!double.IsNaN(preferred) && !double.IsInfinity(preferred) && preferred > 0)
+        {
+            return preferred;
+        }
+
+        return !double.IsNaN(fallback) && !double.IsInfinity(fallback) && fallback > 0 ? fallback : 1000;
     }
 
     private static bool IsRightPointerPressed(PointerPointProperties properties)
@@ -463,10 +615,16 @@ public partial class OutlineEditor
         {
             var selected = ReferenceEquals(node, SelectedNode);
             var isDropTarget = ReferenceEquals(node, _dropTarget);
+            var dropAsChild = isDropTarget && _dropPlacement == MindMapDropPlacement.Child;
 
-            frame.Background = Brushes.Transparent;
+            frame.Background = isDropTarget
+                ? Brush.Parse(dropAsChild
+                    ? IsDarkTheme ? "#064E3B33" : "#ECFDF5"
+                    : IsDarkTheme ? "#1D4ED833" : "#EFF6FF")
+                : Brushes.Transparent;
+            frame.BorderThickness = dropAsChild ? new Thickness(2) : new Thickness(1);
             frame.BorderBrush = Brush.Parse(isDropTarget
-                ? _dropPlacement == MindMapDropPlacement.Child ? "#22C55E" : "#2563EB"
+                ? dropAsChild ? "#22C55E" : "#2563EB"
                 : selected ? IsDarkTheme ? "#64748B" : "#CBD5E1" : "#00000000");
 
             if (_noteFrames.TryGetValue(node, out var noteFrame))
