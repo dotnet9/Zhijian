@@ -270,6 +270,14 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
     public string CenterRootToolTip => $"{T(ZhijianL.CenterRoot)}  {PrimaryCommandText} + L";
 
+    public string ZoomOutToolTip => $"{T(ZhijianL.ZoomOut)}  {PrimaryCommandText} + -";
+
+    public string ZoomInToolTip => $"{T(ZhijianL.ZoomIn)}  {PrimaryCommandText} + +";
+
+    public string ResetZoomToolTip => $"{T(ZhijianL.ResetZoom)}  {PrimaryCommandText} + 0";
+
+    public string ToggleWorkspacePaneText => IsWorkspacePaneVisible ? T(ZhijianL.HideWorkspacePane) : T(ZhijianL.ShowWorkspacePane);
+
     public string ToggleWorkspacePaneToolTip => $"{(IsWorkspacePaneVisible ? T(ZhijianL.HideWorkspacePane) : T(ZhijianL.ShowWorkspacePane))}  {PrimaryCommandText} + B";
 
     public string SelectedNodeSummary => SelectedNode is null

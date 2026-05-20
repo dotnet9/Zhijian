@@ -41,6 +41,7 @@
       "OutlineShortcutsTip": "Outline shortcuts\nArrow keys: switch selected node\nEnter: add sibling (center topic: add child)\nTab: demote under previous sibling\nShift+Tab: promote to parent level\nAlt+Up/Down: move among siblings",
       "MindMapShortcuts": "Mind Map Shortcuts",
       "MindMapShortcutsTip": "Mind map shortcuts\nArrow keys: switch selected topic\nEnter: add sibling (center topic: add child)\nTab / Shift+Tab: add child\nAlt+Up/Down: move among siblings\nDelete: delete selected topic",
+      "ViewMenu": "View",
       "ThemeMenu": "Theme",
       "DarkTheme": "Dark Theme",
       "LightTheme": "Light Theme",

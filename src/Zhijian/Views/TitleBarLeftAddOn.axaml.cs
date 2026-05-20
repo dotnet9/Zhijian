@@ -13,13 +13,36 @@ public partial class TitleBarLeftAddOn : UserControl
 {
     private MainWindowViewModel? _viewModel;
 
+    public event EventHandler? CenterRootRequested;
+
+    public event EventHandler? ZoomOutRequested;
+
+    public event EventHandler? ZoomInRequested;
+
+    public event EventHandler? ResetZoomRequested;
+
     public Control FileMenuTourTarget => FileMenuItem;
 
     public TitleBarLeftAddOn()
     {
         InitializeComponent();
+        WireViewActions();
         ApplyPlatformInputGestures();
         DataContextChanged += (_, _) => WireViewModel(DataContext as MainWindowViewModel);
+    }
+
+    private void WireViewActions()
+    {
+        CenterRootItem.Click += (_, e) => RaiseViewAction(CenterRootRequested, e);
+        ZoomOutItem.Click += (_, e) => RaiseViewAction(ZoomOutRequested, e);
+        ZoomInItem.Click += (_, e) => RaiseViewAction(ZoomInRequested, e);
+        ResetZoomItem.Click += (_, e) => RaiseViewAction(ResetZoomRequested, e);
+    }
+
+    private void RaiseViewAction(EventHandler? handler, RoutedEventArgs e)
+    {
+        handler?.Invoke(this, EventArgs.Empty);
+        e.Handled = true;
     }
 
     private void WireViewModel(MainWindowViewModel? viewModel)
@@ -86,6 +109,11 @@ public partial class TitleBarLeftAddOn : UserControl
             ? CreateCommandGesture(Key.Z, KeyModifiers.Shift)
             : CreateCommandGesture(Key.Y);
         CopyMarkdownItem.InputGesture = CreateCommandGesture(Key.C, KeyModifiers.Shift);
+        ToggleWorkspacePaneItem.InputGesture = CreateCommandGesture(Key.B);
+        CenterRootItem.InputGesture = CreateCommandGesture(Key.L);
+        ZoomOutItem.InputGesture = CreateCommandGesture(Key.OemMinus);
+        ZoomInItem.InputGesture = CreateCommandGesture(Key.OemPlus);
+        ResetZoomItem.InputGesture = CreateCommandGesture(Key.D0);
     }
 
     private static KeyGesture CreateCommandGesture(Key key, KeyModifiers extraModifiers = KeyModifiers.None)

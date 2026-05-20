@@ -163,6 +163,27 @@
                                InputGesture="Delete"/>
             </atom:MenuItem>
 
+            <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.ViewMenu}}"
+                           Icon="{antdicons:AntDesignIconProvider Kind=EyeOutlined}"
+                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ViewMenu}}">
+                <atom:MenuItem x:Name="ToggleWorkspacePaneItem"
+                               Header="{Binding ToggleWorkspacePaneText}"
+                               Command="{Binding ToggleWorkspacePane}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=MenuFoldOutlined}"/>
+                <atom:MenuSeparator/>
+                <atom:MenuItem x:Name="CenterRootItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.CenterRoot}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=AimOutlined}"/>
+                <atom:MenuItem x:Name="ZoomOutItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.ZoomOut}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=ZoomOutOutlined}"/>
+                <atom:MenuItem x:Name="ZoomInItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.ZoomIn}}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=ZoomInOutlined}"/>
+                <atom:MenuItem x:Name="ResetZoomItem"
+                               Header="{codewf:I18n {x:Static l:ZhijianL.ResetZoom}}"/>
+            </atom:MenuItem>
+
             <atom:MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}"
                            Icon="{antdicons:AntDesignIconProvider Kind=BgColorsOutlined}"
                            AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}">

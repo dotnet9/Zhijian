@@ -53,6 +53,10 @@ public partial class MainWindow : Window
     {
         base.NotifyConfigureTitleBar(titleBar);
         _titleBarLeftAddOn = new TitleBarLeftAddOn();
+        _titleBarLeftAddOn.CenterRootRequested += (_, _) => CenterRootTopic();
+        _titleBarLeftAddOn.ZoomOutRequested += (_, _) => MindMap.ZoomOut();
+        _titleBarLeftAddOn.ZoomInRequested += (_, _) => MindMap.ZoomIn();
+        _titleBarLeftAddOn.ResetZoomRequested += (_, _) => MindMap.ResetZoom();
         FileMenuTourStep.Target = _titleBarLeftAddOn.FileMenuTourTarget;
         ApplyTitleBarDataContext();
         _titleBarTitleBinding?.Dispose();
@@ -200,6 +204,27 @@ public partial class MainWindow : Window
                 return;
             }
 
+            if (IsZoomOutKey(e.Key))
+            {
+                e.Handled = true;
+                MindMap.ZoomOut();
+                return;
+            }
+
+            if (IsZoomInKey(e.Key))
+            {
+                e.Handled = true;
+                MindMap.ZoomIn();
+                return;
+            }
+
+            if (IsResetZoomKey(e.Key))
+            {
+                e.Handled = true;
+                MindMap.ResetZoom();
+                return;
+            }
+
             if (e.Key == Key.S && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
                 e.Handled = true;
@@ -274,6 +299,21 @@ public partial class MainWindow : Window
         }
 
         return modifiers.HasFlag(KeyModifiers.Control);
+    }
+
+    private static bool IsZoomInKey(Key key)
+    {
+        return key is Key.OemPlus or Key.Add;
+    }
+
+    private static bool IsZoomOutKey(Key key)
+    {
+        return key is Key.OemMinus or Key.Subtract;
+    }
+
+    private static bool IsResetZoomKey(Key key)
+    {
+        return key is Key.D0 or Key.NumPad0;
     }
 
     private void HandleTitleBarDragPressed(object? sender, PointerPressedEventArgs e)

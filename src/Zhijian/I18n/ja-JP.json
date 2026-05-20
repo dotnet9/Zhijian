@@ -41,6 +41,7 @@
       "OutlineShortcutsTip": "アウトラインのショートカット\n方向キー: 選択ノードを切り替え\nEnter: 兄弟ノードを追加（中心トピック: 子ノードを追加）\nTab: 直前の兄弟の子へ下げる\nShift+Tab: 親階層へ上げる\nAlt+Up/Down: 兄弟内で移動",
       "MindMapShortcuts": "マインドマップのショートカット",
       "MindMapShortcutsTip": "マインドマップのショートカット\n方向キー: 選択トピックを切り替え\nEnter: 兄弟ノードを追加（中心トピック: 子ノードを追加）\nTab / Shift+Tab: 子ノードを追加\nAlt+Up/Down: 兄弟内で移動\nDelete: 選択したトピックを削除",
+      "ViewMenu": "表示",
       "ThemeMenu": "テーマ",
       "DarkTheme": "ダークテーマ",
       "LightTheme": "ライトテーマ",

@@ -231,6 +231,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(MarkdownStatsSummary));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
         OnPropertyChanged(nameof(CenterRootToolTip));
+        OnPropertyChanged(nameof(ZoomOutToolTip));
+        OnPropertyChanged(nameof(ZoomInToolTip));
+        OnPropertyChanged(nameof(ResetZoomToolTip));
+        OnPropertyChanged(nameof(ToggleWorkspacePaneText));
         OnPropertyChanged(nameof(ToggleWorkspacePaneToolTip));
         OnPropertyChanged(nameof(SelectedNodeSummary));
         OnPropertyChanged(nameof(HistorySummary));
@@ -302,6 +306,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private void OnIsWorkspacePaneVisibleChanged(bool value)
     {
         OnPropertyChanged(nameof(IsWorkspacePaneHidden));
+        OnPropertyChanged(nameof(ToggleWorkspacePaneText));
         OnPropertyChanged(nameof(ToggleWorkspacePaneToolTip));
     }
 

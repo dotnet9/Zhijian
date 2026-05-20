@@ -321,8 +321,8 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ZoomOutClicked"
-                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ZoomOut}}"
-                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.ZoomOut}}">
+                                     AutomationProperties.Name="{Binding ZoomOutToolTip}"
+                                     atom:ToolTip.Tip="{Binding ZoomOutToolTip}">
                             <icons:ZoomOutOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <TextBlock Width="48"
@@ -335,16 +335,16 @@
                                      Height="28"
                                      Padding="7,4"
                                      Click="ZoomInClicked"
-                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ZoomIn}}"
-                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.ZoomIn}}">
+                                     AutomationProperties.Name="{Binding ZoomInToolTip}"
+                                     atom:ToolTip.Tip="{Binding ZoomInToolTip}">
                             <icons:ZoomInOutlined Width="14" Height="14" Foreground="{Binding SecondaryTextBrush}"/>
                         </atom:Button>
                         <atom:Button MinWidth="42"
                                      Height="28"
                                      Padding="8,4"
                                      Click="ResetZoomClicked"
-                                     AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ResetZoom}}"
-                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.ResetZoom}}">
+                                     AutomationProperties.Name="{Binding ResetZoomToolTip}"
+                                     atom:ToolTip.Tip="{Binding ResetZoomToolTip}">
                             <TextBlock Text="100%"
                                        FontSize="11"
                                        Foreground="{Binding SecondaryTextBrush}"/>
