@@ -20,6 +20,98 @@ namespace Zhijian.Views;
 
 public partial class OutlineEditor : UserControl
 {
+    private const string DefaultCenterTopicPlaceholder = "Center topic";
+    private const string DefaultTopicPlaceholder = "Topic";
+    private const string DefaultNotePlaceholder = "Note";
+    private const string DefaultAddChildText = "Add child";
+    private const string DefaultAddSiblingText = "Add sibling";
+    private const string DefaultPromoteText = "Promote";
+    private const string DefaultDemoteText = "Demote";
+    private const string DefaultMoveUpText = "Move up";
+    private const string DefaultMoveDownText = "Move down";
+    private const string DefaultAddNoteText = "Add note";
+    private const string DefaultEditNoteText = "Edit note";
+    private const string DefaultDeleteNodeText = "Delete node";
+    private const string DefaultDragNodeTip = "Drop in the middle to make it a child; drop near the edges to reorder siblings";
+    private const string DefaultDropAsChildText = "Set as child";
+    private const string DefaultDropBeforeText = "Insert above";
+    private const string DefaultDropAfterText = "Insert below";
+
+    private const double IndentSize = 24;
+    private const double DragHandleColumnWidth = 28;
+    private const double OutlineDotSize = 8;
+    private const double OutlineDotGlowSize = 20;
+    private const double DropEdgeRatio = 0.28;
+    private const double DragStartDistance = 6;
+    private const double DropPreviewLineThickness = 3;
+    private const double DropPreviewLabelSpacing = 6;
+    private const double DropPreviewLabelMinWidth = 72;
+    private const double DropPreviewLabelMinHeight = 26;
+    private const double DropPreviewLabelPaddingX = 8;
+    private const double DropPreviewLabelPaddingY = 4;
+    private const double DropPreviewLabelCornerRadius = 4;
+    private const double DropPreviewLabelBorderThickness = 1;
+    private const double DropPreviewLabelFontSize = 12;
+    private const double DropPreviewLineLeftPadding = 4;
+    private const double DropPreviewLineRightPadding = 8;
+    private const double DropPreviewLineMinWidth = 48;
+    private const double DropPreviewChildLabelOffsetX = 10;
+    private const double DropPreviewOverlayPadding = 8;
+    private const double DropPreviewLabelFallbackWidth = 96;
+    private const double DropPreviewLabelFallbackHeight = 26;
+    private const double OutlinePanelSpacing = 2;
+    private const double OutlinePanelMarginX = 10;
+    private const double OutlinePanelMarginY = 8;
+    private const double RowFrameCornerRadius = 4;
+    private const double RowFrameBorderThickness = 1;
+    private const double RowFrameDropChildBorderThickness = 2;
+    private const double RowFramePaddingX = 2;
+    private const double RowFramePaddingY = 1;
+    private const double RowFrameMinHeight = 32;
+    private const double DragHandleMinHeight = 30;
+    private const double TitleEditorMarginRight = 4;
+    private const double TitleEditorMarginY = 1;
+    private const double TitleEditorMinHeight = 28;
+    private const double NoteEditorMinHeight = 26;
+    private const double NoteEditorMaxHeight = 94;
+    private const double NoteEditorPaddingBottom = 3;
+    private const double NoteFrameMarginRight = 4;
+    private const double NoteFrameMarginBottom = 4;
+    private const int RebuildRowBatchSize = 80;
+
+    private const string DropPreviewBoxShadow = "0 6 18 0 #22000000";
+    private const string DropChildAccentBrush = "#22C55E";
+    private const string DropSiblingAccentBrush = "#2563EB";
+    private const string DropChildLabelBackgroundDark = "#064E3B";
+    private const string DropChildLabelBackgroundLight = "#ECFDF5";
+    private const string DropSiblingLabelBackgroundDark = "#172554";
+    private const string DropSiblingLabelBackgroundLight = "#EFF6FF";
+    private const string DropChildLabelForegroundDark = "#DCFCE7";
+    private const string DropChildLabelForegroundLight = "#166534";
+    private const string DropSiblingLabelForegroundDark = "#DBEAFE";
+    private const string DropSiblingLabelForegroundLight = "#1D4ED8";
+    private const string DropChildRowBackgroundDark = "#064E3B33";
+    private const string DropChildRowBackgroundLight = "#ECFDF5";
+    private const string DropSiblingRowBackgroundDark = "#1D4ED833";
+    private const string DropSiblingRowBackgroundLight = "#EFF6FF";
+    private const string SelectedRowBorderDark = "#64748B";
+    private const string SelectedRowBorderLight = "#CBD5E1";
+    private const string TransparentBrushText = "#00000000";
+    private const string DragHandleGlowBackgroundDark = "#FFFFFF24";
+    private const string DragHandleGlowBackgroundLight = "#00000018";
+    private const string DragHandleActiveBorderDark = "#93C5FD";
+    private const string DragHandleActiveBorderLight = "#2563EB";
+    private const string DragHandleHoverBorderDark = "#FFFFFF33";
+    private const string DragHandleHoverBorderLight = "#00000022";
+    private const string PrimaryTextBrushDark = "#F9FAFB";
+    private const string PrimaryTextBrushLight = "#111827";
+    private const string SecondaryTextBrushDark = "#9CA3AF";
+    private const string SecondaryTextBrushLight = "#6B7280";
+    private const string PlaceholderTextBrushDark = "#94A3B8";
+    private const string PlaceholderTextBrushLight = "#667085";
+    private const string DragDotBrushDark = "#F8FAFC";
+    private const string DragDotBrushLight = "#111111";
+
     public static readonly StyledProperty<ObservableCollection<MindMapNode>?> RootsProperty =
         AvaloniaProperty.Register<OutlineEditor, ObservableCollection<MindMapNode>?>(nameof(Roots));
 
@@ -35,67 +127,57 @@ public partial class OutlineEditor : UserControl
         AvaloniaProperty.Register<OutlineEditor, bool>(nameof(IsDarkTheme));
 
     public static readonly StyledProperty<string> CenterTopicPlaceholderProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(CenterTopicPlaceholder), "中心主题");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(CenterTopicPlaceholder), DefaultCenterTopicPlaceholder);
 
     public static readonly StyledProperty<string> TopicPlaceholderProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(TopicPlaceholder), "主题");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(TopicPlaceholder), DefaultTopicPlaceholder);
 
     public static readonly StyledProperty<string> NotePlaceholderProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(NotePlaceholder), "备注");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(NotePlaceholder), DefaultNotePlaceholder);
 
     public static readonly StyledProperty<string> AddChildTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddChildText), "添加子级");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddChildText), DefaultAddChildText);
 
     public static readonly StyledProperty<string> AddSiblingTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddSiblingText), "添加同级");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddSiblingText), DefaultAddSiblingText);
 
     public static readonly StyledProperty<string> PromoteTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(PromoteText), "提升为父节点");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(PromoteText), DefaultPromoteText);
 
     public static readonly StyledProperty<string> DemoteTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DemoteText), "降级为子节点");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DemoteText), DefaultDemoteText);
 
     public static readonly StyledProperty<string> MoveUpTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(MoveUpText), "上移");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(MoveUpText), DefaultMoveUpText);
 
     public static readonly StyledProperty<string> MoveDownTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(MoveDownText), "下移");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(MoveDownText), DefaultMoveDownText);
 
     public static readonly StyledProperty<string> AddNoteTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddNoteText), "添加备注");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(AddNoteText), DefaultAddNoteText);
 
     public static readonly StyledProperty<string> EditNoteTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(EditNoteText), "编辑备注");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(EditNoteText), DefaultEditNoteText);
 
     public static readonly StyledProperty<string> DeleteNodeTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DeleteNodeText), "删除节点");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DeleteNodeText), DefaultDeleteNodeText);
 
     public static readonly StyledProperty<string> DragNodeTipProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DragNodeTip), "拖到节点中部成为子节点，拖到上下边缘成为同级节点");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DragNodeTip), DefaultDragNodeTip);
 
     public static readonly StyledProperty<string> DropAsChildTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropAsChildText), "设为子节点");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropAsChildText), DefaultDropAsChildText);
 
     public static readonly StyledProperty<string> DropBeforeTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropBeforeText), "插入到上方");
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropBeforeText), DefaultDropBeforeText);
 
     public static readonly StyledProperty<string> DropAfterTextProperty =
-        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropAfterText), "插入到下方");
-
-    private const double IndentSize = 24;
-    private const double DragHandleColumnWidth = 28;
-    private const double OutlineDotSize = 8;
-    private const double OutlineDotGlowSize = 20;
-    private const double DropEdgeRatio = 0.28;
-    private const double DragStartDistance = 6;
-    private const double DropPreviewLineThickness = 3;
-    private const double DropPreviewLabelSpacing = 6;
-    private const int RebuildRowBatchSize = 80;
+        AvaloniaProperty.Register<OutlineEditor, string>(nameof(DropAfterText), DefaultDropAfterText);
 
     private readonly StackPanel _itemsPanel = new()
     {
-        Spacing = 2,
-        Margin = new Thickness(10, 8)
+        Spacing = OutlinePanelSpacing,
+        Margin = new Thickness(OutlinePanelMarginX, OutlinePanelMarginY)
     };
 
     private readonly ScrollViewer _scrollViewer;
@@ -112,7 +194,7 @@ public partial class OutlineEditor : UserControl
     };
     private readonly TextBlock _dropPreviewText = new()
     {
-        FontSize = 12,
+        FontSize = DropPreviewLabelFontSize,
         FontWeight = FontWeight.SemiBold,
         TextWrapping = TextWrapping.NoWrap
     };
@@ -450,12 +532,12 @@ public partial class OutlineEditor : UserControl
         return new Border
         {
             BorderBrush = Brushes.Transparent,
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(4),
+            BorderThickness = new Thickness(RowFrameBorderThickness),
+            CornerRadius = new CornerRadius(RowFrameCornerRadius),
             Background = Brushes.Transparent,
             Margin = new Thickness((level - 1) * IndentSize, 0, 0, 0),
-            Padding = new Thickness(2, 1),
-            MinHeight = 32,
+            Padding = new Thickness(RowFramePaddingX, RowFramePaddingY),
+            MinHeight = RowFrameMinHeight,
             DataContext = node
         };
     }
@@ -473,11 +555,11 @@ public partial class OutlineEditor : UserControl
         var handle = new Border
         {
             Width = DragHandleColumnWidth,
-            MinHeight = 30,
+            MinHeight = DragHandleMinHeight,
             Background = Brushes.Transparent,
             BorderBrush = Brushes.Transparent,
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(4),
+            BorderThickness = new Thickness(RowFrameBorderThickness),
+            CornerRadius = new CornerRadius(RowFrameCornerRadius),
             Cursor = isRoot ? Cursor.Default : new Cursor(StandardCursorType.SizeAll),
             IsHitTestVisible = !isRoot,
             Child = isRoot ? null : CreateDragDot(node)
@@ -510,7 +592,7 @@ public partial class OutlineEditor : UserControl
             CornerRadius = new CornerRadius(OutlineDotGlowSize / 2),
             Background = Brushes.Transparent,
             BorderBrush = Brushes.Transparent,
-            BorderThickness = new Thickness(1),
+            BorderThickness = new Thickness(RowFrameBorderThickness),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -526,7 +608,7 @@ public partial class OutlineEditor : UserControl
         var dotHost = new Grid
         {
             Width = DragHandleColumnWidth,
-            MinHeight = 30
+            MinHeight = DragHandleMinHeight
         };
         dotHost.Children.Add(glow);
         dotHost.Children.Add(dot);
@@ -539,7 +621,7 @@ public partial class OutlineEditor : UserControl
     {
         var editor = new AtomTextBox
         {
-            Margin = new Thickness(0, 1, 4, 1),
+            Margin = new Thickness(0, TitleEditorMarginY, TitleEditorMarginRight, TitleEditorMarginY),
             BorderThickness = new Thickness(0),
             Background = Brushes.Transparent,
             Foreground = GetPrimaryTextBrush(),
@@ -549,7 +631,7 @@ public partial class OutlineEditor : UserControl
             PlaceholderText = isRoot ? CenterTopicPlaceholder : TopicPlaceholder,
             AcceptsReturn = false,
             VerticalContentAlignment = VerticalAlignment.Center,
-            MinHeight = 28
+            MinHeight = TitleEditorMinHeight
         };
         editor.Text = node.Title;
         editor.PropertyChanged += (_, e) =>
@@ -580,9 +662,9 @@ public partial class OutlineEditor : UserControl
             PlaceholderText = NotePlaceholder,
             AcceptsReturn = true,
             TextWrapping = TextWrapping.Wrap,
-            MinHeight = 26,
-            MaxHeight = 94,
-            Padding = new Thickness(0, 1, 0, 3),
+            MinHeight = NoteEditorMinHeight,
+            MaxHeight = NoteEditorMaxHeight,
+            Padding = new Thickness(0, TitleEditorMarginY, 0, NoteEditorPaddingBottom),
             VerticalContentAlignment = VerticalAlignment.Top
         };
         editor.Text = node.Note;
@@ -607,7 +689,7 @@ public partial class OutlineEditor : UserControl
     {
         return new Border
         {
-            Margin = new Thickness(0, 0, 4, 4),
+            Margin = new Thickness(0, 0, NoteFrameMarginRight, NoteFrameMarginBottom),
             Background = Brushes.Transparent,
             BorderBrush = Brushes.Transparent,
             BorderThickness = new Thickness(0),
@@ -618,22 +700,22 @@ public partial class OutlineEditor : UserControl
 
     private IBrush GetPrimaryTextBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#F9FAFB" : "#111827");
+        return Brush.Parse(IsDarkTheme ? PrimaryTextBrushDark : PrimaryTextBrushLight);
     }
 
     private IBrush GetSecondaryTextBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#9CA3AF" : "#6B7280");
+        return Brush.Parse(IsDarkTheme ? SecondaryTextBrushDark : SecondaryTextBrushLight);
     }
 
     private IBrush GetPlaceholderTextBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#94A3B8" : "#667085");
+        return Brush.Parse(IsDarkTheme ? PlaceholderTextBrushDark : PlaceholderTextBrushLight);
     }
 
     private IBrush GetDragDotBrush()
     {
-        return Brush.Parse(IsDarkTheme ? "#F8FAFC" : "#111111");
+        return Brush.Parse(IsDarkTheme ? DragDotBrushDark : DragDotBrushLight);
     }
 
     private void HandleNodePropertyChanged(object? sender, PropertyChangedEventArgs e)

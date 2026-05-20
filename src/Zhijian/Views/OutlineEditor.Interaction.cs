@@ -111,7 +111,7 @@ public partial class OutlineEditor
         _dropTarget = null;
         _dragAnchor = control;
         _dragStartPointer = e.GetPosition(_itemsPanel);
-        // 短按圆点打开菜单，移动超过阈值后才进入拖拽，避免菜单和拖拽互相抢事件。
+        // A short dot click opens the node menu; only movement beyond the threshold starts dragging.
         _isDraggingNode = false;
         HideDropPreview();
         e.Pointer.Capture(_itemsPanel);
@@ -255,12 +255,12 @@ public partial class OutlineEditor
     {
         return new Border
         {
-            MinWidth = 72,
-            MinHeight = 26,
-            Padding = new Thickness(8, 4),
-            CornerRadius = new CornerRadius(4),
-            BorderThickness = new Thickness(1),
-            BoxShadow = BoxShadows.Parse("0 6 18 0 #22000000"),
+            MinWidth = DropPreviewLabelMinWidth,
+            MinHeight = DropPreviewLabelMinHeight,
+            Padding = new Thickness(DropPreviewLabelPaddingX, DropPreviewLabelPaddingY),
+            CornerRadius = new CornerRadius(DropPreviewLabelCornerRadius),
+            BorderThickness = new Thickness(DropPreviewLabelBorderThickness),
+            BoxShadow = BoxShadows.Parse(DropPreviewBoxShadow),
             Child = _dropPreviewText,
             IsHitTestVisible = false,
             IsVisible = false
@@ -275,7 +275,7 @@ public partial class OutlineEditor
             return;
         }
 
-        var translated = frame.TranslatePoint(new Point(0, 0), _dropPreviewOverlay);
+        var translated = frame.TranslatePoint(default, _dropPreviewOverlay);
         if (translated is not { } topLeft)
         {
             HideDropPreview();
@@ -306,8 +306,8 @@ public partial class OutlineEditor
         var y = placement == MindMapDropPlacement.Before
             ? bounds.Top
             : bounds.Bottom;
-        var lineLeft = bounds.Left + DragHandleColumnWidth + 4;
-        var lineWidth = Math.Max(48, bounds.Right - lineLeft - 8);
+        var lineLeft = bounds.Left + DragHandleColumnWidth + DropPreviewLineLeftPadding;
+        var lineWidth = Math.Max(DropPreviewLineMinWidth, bounds.Right - lineLeft - DropPreviewLineRightPadding);
 
         _dropPreviewLine.Width = lineWidth;
         _dropPreviewLine.Height = DropPreviewLineThickness;
@@ -326,15 +326,15 @@ public partial class OutlineEditor
     private void ApplyDropPreviewStyle(MindMapDropPlacement placement)
     {
         var isChild = placement == MindMapDropPlacement.Child;
-        var accent = Brush.Parse(isChild ? "#22C55E" : "#2563EB");
+        var accent = Brush.Parse(isChild ? DropChildAccentBrush : DropSiblingAccentBrush);
         _dropPreviewLine.Background = accent;
         _dropPreviewLabel.BorderBrush = accent;
         _dropPreviewLabel.Background = Brush.Parse(isChild
-            ? IsDarkTheme ? "#064E3B" : "#ECFDF5"
-            : IsDarkTheme ? "#172554" : "#EFF6FF");
+            ? IsDarkTheme ? DropChildLabelBackgroundDark : DropChildLabelBackgroundLight
+            : IsDarkTheme ? DropSiblingLabelBackgroundDark : DropSiblingLabelBackgroundLight);
         _dropPreviewText.Foreground = Brush.Parse(isChild
-            ? IsDarkTheme ? "#DCFCE7" : "#166534"
-            : IsDarkTheme ? "#DBEAFE" : "#1D4ED8");
+            ? IsDarkTheme ? DropChildLabelForegroundDark : DropChildLabelForegroundLight
+            : IsDarkTheme ? DropSiblingLabelForegroundDark : DropSiblingLabelForegroundLight);
     }
 
     private string GetDropPlacementText(MindMapDropPlacement placement)
@@ -351,7 +351,7 @@ public partial class OutlineEditor
     {
         var labelSize = MeasureDropPreviewLabel();
         var x = placement == MindMapDropPlacement.Child
-            ? bounds.Left + DragHandleColumnWidth + 10
+            ? bounds.Left + DragHandleColumnWidth + DropPreviewChildLabelOffsetX
             : bounds.Left + bounds.Width / 2 - labelSize.Width / 2;
         var y = placement switch
         {
@@ -362,8 +362,14 @@ public partial class OutlineEditor
 
         var overlayWidth = GetFiniteSize(_dropPreviewOverlay.Bounds.Width, _itemsPanel.Bounds.Width);
         var overlayHeight = GetFiniteSize(_dropPreviewOverlay.Bounds.Height, _itemsPanel.Bounds.Height);
-        x = Math.Clamp(x, 8, Math.Max(8, overlayWidth - labelSize.Width - 8));
-        y = Math.Clamp(y, 8, Math.Max(8, overlayHeight - labelSize.Height - 8));
+        x = Math.Clamp(
+            x,
+            DropPreviewOverlayPadding,
+            Math.Max(DropPreviewOverlayPadding, overlayWidth - labelSize.Width - DropPreviewOverlayPadding));
+        y = Math.Clamp(
+            y,
+            DropPreviewOverlayPadding,
+            Math.Max(DropPreviewOverlayPadding, overlayHeight - labelSize.Height - DropPreviewOverlayPadding));
         Canvas.SetLeft(_dropPreviewLabel, x);
         Canvas.SetTop(_dropPreviewLabel, y);
     }
@@ -373,8 +379,8 @@ public partial class OutlineEditor
         _dropPreviewLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         var size = _dropPreviewLabel.DesiredSize;
         return new Size(
-            size.Width > 0 ? size.Width : 96,
-            size.Height > 0 ? size.Height : 26);
+            size.Width > 0 ? size.Width : DropPreviewLabelFallbackWidth,
+            size.Height > 0 ? size.Height : DropPreviewLabelFallbackHeight);
     }
 
     private static double GetFiniteSize(double preferred, double fallback)
@@ -384,7 +390,9 @@ public partial class OutlineEditor
             return preferred;
         }
 
-        return !double.IsNaN(fallback) && !double.IsInfinity(fallback) && fallback > 0 ? fallback : 1000;
+        return !double.IsNaN(fallback) && !double.IsInfinity(fallback) && fallback > 0
+            ? fallback
+            : DropPreviewLabelFallbackWidth;
     }
 
     private static bool IsRightPointerPressed(PointerPointProperties properties)
@@ -527,7 +535,7 @@ public partial class OutlineEditor
 
     private void ShowNoteEditor(MindMapNode node)
     {
-        // 备注与标题共用 MindMapNode，显示策略由编辑状态和实际内容共同决定。
+        // Notes and titles share the same MindMapNode; visibility depends on edit state and content.
         _editingNoteNodes.Add(node);
         SelectNode(node);
         UpdateNoteVisibility(node);
@@ -619,13 +627,15 @@ public partial class OutlineEditor
 
             frame.Background = isDropTarget
                 ? Brush.Parse(dropAsChild
-                    ? IsDarkTheme ? "#064E3B33" : "#ECFDF5"
-                    : IsDarkTheme ? "#1D4ED833" : "#EFF6FF")
+                    ? IsDarkTheme ? DropChildRowBackgroundDark : DropChildRowBackgroundLight
+                    : IsDarkTheme ? DropSiblingRowBackgroundDark : DropSiblingRowBackgroundLight)
                 : Brushes.Transparent;
-            frame.BorderThickness = dropAsChild ? new Thickness(2) : new Thickness(1);
+            frame.BorderThickness = dropAsChild
+                ? new Thickness(RowFrameDropChildBorderThickness)
+                : new Thickness(RowFrameBorderThickness);
             frame.BorderBrush = Brush.Parse(isDropTarget
-                ? dropAsChild ? "#22C55E" : "#2563EB"
-                : selected ? IsDarkTheme ? "#64748B" : "#CBD5E1" : "#00000000");
+                ? dropAsChild ? DropChildAccentBrush : DropSiblingAccentBrush
+                : selected ? IsDarkTheme ? SelectedRowBorderDark : SelectedRowBorderLight : TransparentBrushText);
 
             if (_noteFrames.TryGetValue(node, out var noteFrame))
             {
@@ -650,12 +660,12 @@ public partial class OutlineEditor
             if (_dragHandleGlows.TryGetValue(node, out var glow))
             {
                 glow.Background = active || hovered
-                    ? Brush.Parse(IsDarkTheme ? "#FFFFFF24" : "#00000018")
+                    ? Brush.Parse(IsDarkTheme ? DragHandleGlowBackgroundDark : DragHandleGlowBackgroundLight)
                     : Brushes.Transparent;
                 glow.BorderBrush = active
-                    ? Brush.Parse(IsDarkTheme ? "#93C5FD" : "#2563EB")
+                    ? Brush.Parse(IsDarkTheme ? DragHandleActiveBorderDark : DragHandleActiveBorderLight)
                     : hovered
-                        ? Brush.Parse(IsDarkTheme ? "#FFFFFF33" : "#00000022")
+                        ? Brush.Parse(IsDarkTheme ? DragHandleHoverBorderDark : DragHandleHoverBorderLight)
                         : Brushes.Transparent;
             }
         }
