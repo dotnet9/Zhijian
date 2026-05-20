@@ -207,8 +207,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture),
                 Encoding.UTF8);
         }
-        catch
+        catch (Exception exception)
         {
+            ApplicationLogger.Warning($"Persisting the new user tour marker failed. file=\"{GetTourSeenPath()}\"", exception);
         }
     }
 
@@ -337,6 +338,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
         catch (Exception exception)
         {
+            ApplicationLogger.Error("File operation failed.", exception);
             StatusText = exception.Message;
         }
     }

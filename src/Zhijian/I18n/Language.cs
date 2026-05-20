@@ -23,6 +23,11 @@ namespace Zhijian
         public static readonly string NoRecentFiles = "Zhijian.ZhijianL.NoRecentFiles";
         public static readonly string Save = "Zhijian.ZhijianL.Save";
         public static readonly string SaveAs = "Zhijian.ZhijianL.SaveAs";
+        public static readonly string Export = "Zhijian.ZhijianL.Export";
+        public static readonly string ExportMarkdown = "Zhijian.ZhijianL.ExportMarkdown";
+        public static readonly string ExportOpml = "Zhijian.ZhijianL.ExportOpml";
+        public static readonly string ExportXMind = "Zhijian.ZhijianL.ExportXMind";
+        public static readonly string ExportDrawIo = "Zhijian.ZhijianL.ExportDrawIo";
         public static readonly string OpenFileLocation = "Zhijian.ZhijianL.OpenFileLocation";
         public static readonly string Close = "Zhijian.ZhijianL.Close";
         public static readonly string EditMenu = "Zhijian.ZhijianL.EditMenu";

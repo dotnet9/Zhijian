@@ -9,6 +9,14 @@ namespace CodeWF.MindView;
 
 public static partial class MindMapDocumentCodec
 {
+    public static bool LooksLikeDrawIo(string text)
+    {
+        return !string.IsNullOrWhiteSpace(text)
+            && (text.Contains("<mxfile", StringComparison.OrdinalIgnoreCase)
+                || text.Contains("mxGraphModel", StringComparison.OrdinalIgnoreCase)
+                || text.Contains("<mxCell", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static MindMapNode FromXml(string xml, string? filePath)
     {
         var document = XDocument.Parse(xml);
@@ -129,6 +137,23 @@ public static partial class MindMapDocumentCodec
 
     private static int AddDrawIoCells(XContainer container, MindMapNode parent)
     {
+        if (TryCreateDrawIoHierarchy(container, out var roots))
+        {
+            if (roots.Count == 1)
+            {
+                ReplaceDrawIoNodeContent(parent, roots[0]);
+            }
+            else
+            {
+                foreach (var root in roots)
+                {
+                    parent.Children.Add(root);
+                }
+            }
+
+            return roots.Sum(CountDrawIoNodes);
+        }
+
         var values = container
                      .Descendants()
                      .Select(element => element.Attribute("value")?.Value ?? element.Attribute("label")?.Value)
@@ -145,6 +170,111 @@ public static partial class MindMapDocumentCodec
         }
 
         return values.Count;
+    }
+
+    private static bool TryCreateDrawIoHierarchy(XContainer container, out List<MindMapNode> roots)
+    {
+        roots = [];
+        var nodesById = new Dictionary<string, MindMapNode>(StringComparer.Ordinal);
+        var orderedIds = new List<string>();
+        foreach (var cell in container.Descendants().Where(IsDrawIoVertexCell))
+        {
+            var id = cell.Attribute("id")?.Value;
+            if (string.IsNullOrWhiteSpace(id) || nodesById.ContainsKey(id))
+            {
+                continue;
+            }
+
+            var title = ReadDrawIoCellTitle(cell);
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                continue;
+            }
+
+            nodesById[id] = new MindMapNode(title)
+            {
+                Note = ReadDrawIoCellNote(cell)
+            };
+            orderedIds.Add(id);
+        }
+
+        if (nodesById.Count == 0)
+        {
+            return false;
+        }
+
+        var childIds = new HashSet<string>(StringComparer.Ordinal);
+        var hasEdges = false;
+        foreach (var edge in container.Descendants().Where(IsDrawIoEdgeCell))
+        {
+            var source = edge.Attribute("source")?.Value;
+            var target = edge.Attribute("target")?.Value;
+            if (string.IsNullOrWhiteSpace(source)
+                || string.IsNullOrWhiteSpace(target)
+                || !nodesById.TryGetValue(source, out var parent)
+                || !nodesById.TryGetValue(target, out var child)
+                || string.Equals(source, target, StringComparison.Ordinal)
+                || !childIds.Add(target))
+            {
+                continue;
+            }
+
+            parent.Children.Add(child);
+            hasEdges = true;
+        }
+
+        if (!hasEdges)
+        {
+            return false;
+        }
+
+        roots = orderedIds
+            .Where(id => !childIds.Contains(id))
+            .Select(id => nodesById[id])
+            .ToList();
+        return roots.Count > 0;
+    }
+
+    private static void ReplaceDrawIoNodeContent(MindMapNode target, MindMapNode source)
+    {
+        target.Title = source.Title;
+        target.Note = source.Note;
+        target.AccentColor = source.AccentColor;
+        target.Children.Clear();
+        foreach (var child in source.Children)
+        {
+            target.Children.Add(child);
+        }
+    }
+
+    private static int CountDrawIoNodes(MindMapNode node)
+    {
+        return 1 + node.Children.Sum(CountDrawIoNodes);
+    }
+
+    private static bool IsDrawIoVertexCell(XElement element)
+    {
+        return element.Name.LocalName == "mxCell"
+            && string.Equals(element.Attribute("vertex")?.Value, "1", StringComparison.Ordinal);
+    }
+
+    private static bool IsDrawIoEdgeCell(XElement element)
+    {
+        return element.Name.LocalName == "mxCell"
+            && string.Equals(element.Attribute("edge")?.Value, "1", StringComparison.Ordinal);
+    }
+
+    private static string ReadDrawIoCellTitle(XElement cell)
+    {
+        return CleanText(cell.Attribute("value")?.Value ?? cell.Attribute("label")?.Value);
+    }
+
+    private static string ReadDrawIoCellNote(XElement cell)
+    {
+        return CleanText(
+            cell.Attribute("tooltip")?.Value
+            ?? cell.Attribute("note")?.Value
+            ?? cell.Attribute("notes")?.Value);
     }
 
     private static bool TryParseDrawIoXml(string xml, out XDocument document)

@@ -26,8 +26,9 @@ public sealed class RecentFileStore(string filePath, int maxFiles)
                     .ToArray(),
                 cancellationToken);
         }
-        catch
+        catch (Exception exception)
         {
+            ApplicationLogger.Warning($"Loading recent files failed. file=\"{filePath}\"", exception);
             return [];
         }
     }

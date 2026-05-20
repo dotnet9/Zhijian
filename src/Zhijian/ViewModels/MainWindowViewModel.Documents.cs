@@ -1,6 +1,7 @@
 using CodeWF.MindView;
 using Avalonia.Threading;
 using System.Text;
+using Zhijian.Services;
 
 namespace Zhijian.ViewModels;
 
@@ -236,6 +237,16 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         });
     }
 
+    public async Task ExportDrawIoAsync()
+    {
+        await RunFileOperationAsync(async () =>
+        {
+            ApplyMarkdownEditsIfNeeded();
+            await _fileService.SaveTextAsync(MindMapFileFormat.DrawIo, MindMapDocumentCodec.ToDrawIo(Root));
+            StatusText = FormatText(ZhijianL.StatusExported, MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.DrawIo));
+        });
+    }
+
     private async Task<bool> EnsureCanChangeDocumentAsync()
     {
         if (!IsDirty)
@@ -317,6 +328,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
         catch (Exception exception)
         {
+            ApplicationLogger.Error($"Startup document load failed. file=\"{filePath}\"", exception);
             StatusText = FormatText(ZhijianL.StatusStartupLoadFailed, exception.Message);
         }
     }
@@ -354,6 +366,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         }
 
         var textContent = await File.ReadAllTextAsync(filePath, Encoding.UTF8).ConfigureAwait(false);
+        format = DetectTextFormat(format, textContent);
         return await DecodeDocumentAsync(format, textContent, null, filePath).ConfigureAwait(false);
     }
 
@@ -442,6 +455,10 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             case MindMapFileFormat.XMind:
                 var xmind = await Task.Run(() => MindMapDocumentCodec.ToXMind(Root));
                 await File.WriteAllBytesAsync(filePath, xmind);
+                break;
+            case MindMapFileFormat.DrawIo:
+                var drawIo = await Task.Run(() => MindMapDocumentCodec.ToDrawIo(Root));
+                await File.WriteAllTextAsync(filePath, drawIo, Encoding.UTF8);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, null);
@@ -552,6 +569,20 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             }
 
             var prefix = await ReadTextPrefixAsync(filePath);
+            var textFormat = DetectTextFormat(format, prefix);
+            if (textFormat == MindMapFileFormat.DrawIo)
+            {
+                var textContent = await File.ReadAllTextAsync(filePath, Encoding.UTF8);
+                var root = await Task.Run(() => MindMapDocumentCodec.FromDocument(
+                    MindMapFileFormat.DrawIo,
+                    textContent,
+                    null,
+                    filePath));
+                return string.IsNullOrWhiteSpace(root.Title)
+                    ? MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.DrawIo)
+                    : root.Title.Trim();
+            }
+
             var preview = string.Join(
                 Environment.NewLine,
                 SplitLines(prefix)
@@ -562,8 +593,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
                 ? MindMapFileFormatRegistry.GetDisplayName(format)
                 : preview;
         }
-        catch
+        catch (Exception exception)
         {
+            ApplicationLogger.Warning($"Creating file preview failed. file=\"{filePath}\"", exception);
             return T(ZhijianL.PreviewUnavailable);
         }
     }
@@ -577,6 +609,13 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         };
 
         return candidates.FirstOrDefault(File.Exists);
+    }
+
+    private static MindMapFileFormat DetectTextFormat(MindMapFileFormat format, string textContent)
+    {
+        return format == MindMapFileFormat.Xml && MindMapDocumentCodec.LooksLikeDrawIo(textContent)
+            ? MindMapFileFormat.DrawIo
+            : format;
     }
 
     private async Task LoadRecentFilesAsync()

@@ -22,6 +22,7 @@
 	<ItemGroup>
 		<PackageReference Include="AtomUI.Desktop.Controls" />
 		<PackageReference Include="Avalonia" />
+		<PackageReference Include="CodeWF.Log.Core" />
 		<PackageReference Include="Lang.Avalonia.Json" />
 	</ItemGroup>
 

@@ -49,7 +49,7 @@ public static class MindMapFileFormatRegistry
         new(MindMapFileFormat.Json, "JSON", ["json"], "json", canWrite: false, isText: true, requiresBinary: false, mimeTypes: ["application/json"]),
         new(MindMapFileFormat.Yaml, "YAML", ["yml", "yaml"], "yml", canWrite: false, isText: true, requiresBinary: false),
         new(MindMapFileFormat.Csv, "CSV", ["csv"], "csv", canWrite: false, isText: true, requiresBinary: false, mimeTypes: ["text/csv"]),
-        new(MindMapFileFormat.DrawIo, "draw.io", ["drawio", "dio"], "drawio", canWrite: false, isText: true, requiresBinary: false),
+        new(MindMapFileFormat.DrawIo, "draw.io XML", ["drawio", "drawio.xml", "dio", "xml"], "drawio", canWrite: false, isText: true, requiresBinary: false, mimeTypes: ["application/xml", "text/xml"]),
         new(MindMapFileFormat.Visio, "Visio", ["vsd", "vsdx"], "vsdx", canWrite: false, isText: false, requiresBinary: true),
         new(MindMapFileFormat.Gliffy, "Gliffy", ["gliffy"], "gliffy", canWrite: false, isText: true, requiresBinary: false),
         new(MindMapFileFormat.Lucid, "Lucid", ["lucid"], "lucid", canWrite: false, isText: true, requiresBinary: false)
@@ -58,10 +58,10 @@ public static class MindMapFileFormatRegistry
     private static readonly IReadOnlyDictionary<MindMapFileFormat, MindMapFileFormatDescriptor> DescriptorsByFormat =
         Descriptors.ToDictionary(descriptor => descriptor.Format);
 
-    private static readonly IReadOnlyDictionary<string, MindMapFileFormatDescriptor> DescriptorsByExtension =
+    private static readonly IReadOnlyList<(string Extension, MindMapFileFormatDescriptor Descriptor)> ExtensionDescriptors =
         Descriptors
             .SelectMany(descriptor => descriptor.Extensions.Select(extension => (extension, descriptor)))
-            .ToDictionary(item => item.extension, item => item.descriptor, StringComparer.OrdinalIgnoreCase);
+            .ToArray();
 
     public static IReadOnlyList<MindMapFileFormatDescriptor> ReadableFormats => Descriptors;
 
@@ -91,16 +91,14 @@ public static class MindMapFileFormatRegistry
         string filePath,
         MindMapFileFormat fallback = MindMapFileFormat.Markdown)
     {
-        var extension = Path.GetExtension(filePath).TrimStart('.');
-        return DescriptorsByExtension.TryGetValue(extension, out var descriptor)
+        return TryGetDescriptorFromPath(filePath, out var descriptor)
             ? descriptor.Format
             : fallback;
     }
 
     public static bool IsSupportedFile(string filePath)
     {
-        var extension = Path.GetExtension(filePath).TrimStart('.');
-        return DescriptorsByExtension.ContainsKey(extension);
+        return TryGetDescriptorFromPath(filePath, out _);
     }
 
     public static string GetDisplayName(MindMapFileFormat format)
@@ -130,6 +128,36 @@ public static class MindMapFileFormatRegistry
     public static bool IsTextFormat(MindMapFileFormat format)
     {
         return DescriptorsByFormat.TryGetValue(format, out var descriptor) && descriptor.IsText;
+    }
+
+    public static bool PathMatchesFormat(string filePath, MindMapFileFormat format)
+    {
+        if (!DescriptorsByFormat.TryGetValue(format, out var descriptor))
+        {
+            return false;
+        }
+
+        var fileName = Path.GetFileName(filePath);
+        return descriptor.Extensions.Any(extension =>
+            fileName.EndsWith($".{extension}", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool TryGetDescriptorFromPath(
+        string filePath,
+        out MindMapFileFormatDescriptor descriptor)
+    {
+        var fileName = Path.GetFileName(filePath);
+        foreach (var item in ExtensionDescriptors.OrderByDescending(item => item.Extension.Length))
+        {
+            if (fileName.EndsWith($".{item.Extension}", StringComparison.OrdinalIgnoreCase))
+            {
+                descriptor = item.Descriptor;
+                return true;
+            }
+        }
+
+        descriptor = null!;
+        return false;
     }
 }
 

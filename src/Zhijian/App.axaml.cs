@@ -40,6 +40,7 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         ApplicationSettings.InitializeAsync().GetAwaiter().GetResult();
+        ApplicationLogger.ConfigureLogDirectory(ApplicationSettings.UserDataDirectory);
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

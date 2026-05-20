@@ -149,3 +149,25 @@ dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
 - [Architecture](docs/architecture.md)
 - [源码设计](docs/source-design.zh-CN.md)
 - [Source Design](docs/source-design.md)
+
+## 第三方开源组件审计（2026-05-20）
+
+检查方式：`dotnet restore Zhijian.slnx --configfile <local-nuget-config>`、`dotnet list Zhijian.slnx package --include-transitive`、NuGet `.nuspec`、NuGet.org 与源码仓库信息。优先接受 MIT / Apache-2.0 / BSD；LGPL-3.0 等其它开源协议在源码与传递依赖均可追溯时单独标注。
+
+整改：
+
+- `CodeWF.EventBus` pin 到本次修复后的 `3.4.5.4`。
+- `CodeWF.Tools.Core` pin 到本次修复后的 `1.3.13.1`。
+- `Tmds.DBus.Protocol` 从传递依赖 `0.92.0` pin 到 `0.93.0`。
+
+| 包 | 使用范围 | 协议 | 源码/项目地址 | 结论 |
+| --- | --- | --- | --- | --- |
+| `AtomUI.Desktop.Controls` `6.0.0-build.2` | 桌面控件、菜单、窗口 | LGPL-3.0 | https://github.com/AtomUI/AtomUI | NuGet 包指向公开源码；按“源码与传递依赖可追溯”通过 |
+| `Avalonia` / `Avalonia.Desktop` / `Avalonia.Fonts.Inter` | 桌面运行时 | MIT | https://github.com/AvaloniaUI/Avalonia | 通过 |
+| `CodeWF.EventBus` / `CodeWF.Markdown.Lite.Themes` / `CodeWF.Tools.Core` / `Lang.Avalonia.Json` | 自研组件 | MIT | https://github.com/dotnet9 | 自研开源包，通过 |
+| `ReactiveUI.Avalonia` | MVVM | MIT | https://github.com/reactiveui/reactiveui | 通过 |
+| `VC-LTL` | Windows 兼容 | EPL-2.0 | https://github.com/Chuyu-Team/VC-LTL5 | 源码开放，按“非优先但可追溯”通过 |
+| `YY-Thunks` | Windows 兼容 | MIT | https://github.com/Chuyu-Team/YY-Thunks | 源码开放，通过 |
+| `Tmds.DBus.Protocol` | Avalonia Linux DBus 传递依赖 | MIT | https://github.com/tmds/Tmds.DBus | 通过，pin 到 `0.93.0` |
+
+传递依赖检查结论：AtomUI 链路中的 `AtomUI.Controls`、`AtomUI.Controls.Shared`、`AtomUI.Core`、`AtomUI.Fonts.AlibabaSans`、`AtomUI.Icons.AntDesign`、`AtomUI.Native` 均来自公开源码仓库；Avalonia / SkiaSharp / ANGLE、ReactiveUI / Splat、Svg.Controls.Avalonia / Svg.*、ExCSS、DynamicData、HarfBuzzSharp、MicroCom.Runtime 均有公开源码。有效 restore 未发现 `AvaloniaUI.DiagnosticsSupport`、`Semi.Avalonia.*` 黑盒扩展或 `System.Drawing.Common 4.7.0`。
