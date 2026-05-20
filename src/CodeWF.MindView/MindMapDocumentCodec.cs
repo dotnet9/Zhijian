@@ -12,10 +12,12 @@ namespace CodeWF.MindView;
 
 public static partial class MindMapDocumentCodec
 {
+    private const int RootMarkdownHeadingLevel = 1;
+
     public static string ToMarkdown(MindMapNode root)
     {
         var lines = new List<string>();
-        WriteMarkdownRoot(root, lines);
+        WriteMarkdownHeadingNode(root, RootMarkdownHeadingLevel, lines);
         return string.Join(Environment.NewLine, lines);
     }
 
@@ -266,26 +268,15 @@ public static partial class MindMapDocumentCodec
         return string.IsNullOrWhiteSpace(normalized) ? fallback : normalized;
     }
 
-    private static void WriteMarkdownRoot(MindMapNode node, List<string> lines)
+    private static void WriteMarkdownHeadingNode(MindMapNode node, int level, List<string> lines)
     {
-        lines.Add($"# {GetTitle(node)}");
+        var headingLevel = Math.Max(RootMarkdownHeadingLevel, level);
+        lines.Add($"{new string('#', headingLevel)} {GetTitle(node)}");
         WriteMarkdownNote(node.Note, string.Empty, lines);
 
         foreach (var child in node.Children)
         {
-            WriteMarkdownListNode(child, 0, lines);
-        }
-    }
-
-    private static void WriteMarkdownListNode(MindMapNode node, int level, List<string> lines)
-    {
-        var indent = new string(' ', Math.Max(0, level) * 2);
-        lines.Add($"{indent}- {GetTitle(node)}");
-        WriteMarkdownNote(node.Note, $"{indent}  ", lines);
-
-        foreach (var child in node.Children)
-        {
-            WriteMarkdownListNode(child, level + 1, lines);
+            WriteMarkdownHeadingNode(child, headingLevel + 1, lines);
         }
     }
 
