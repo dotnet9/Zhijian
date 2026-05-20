@@ -142,6 +142,31 @@ dotnet build Zhijian.slnx
 dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
 ```
 
+### macOS Packaging
+
+For distribution to other macOS users, package Zhijian as `.app` inside a `.dmg` instead of sending the raw `dotnet publish` folder. The script builds Intel and Apple Silicon DMGs by default:
+
+```bash
+./package_macos.sh
+```
+
+Build only Apple Silicon:
+
+```bash
+./package_macos.sh osx-arm64
+```
+
+Artifacts are written to `artifacts/macos/`. Without a certificate, the script uses ad-hoc signing for local testing. For real external distribution, sign with a Developer ID certificate and notarize the DMGs:
+
+```bash
+CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
+NOTARIZE=1 \
+NOTARY_KEYCHAIN_PROFILE=zhijian-notary \
+./package_macos.sh all
+```
+
+The script requires a .NET 10 SDK and automatically checks `dotnet` and `$HOME/.dotnet/dotnet`. Set `DOTNET_CMD=/path/to/dotnet` if the SDK is installed somewhere else.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)

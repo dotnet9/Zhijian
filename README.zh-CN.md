@@ -142,6 +142,31 @@ dotnet build Zhijian.slnx
 dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
 ```
 
+### macOS 打包
+
+macOS 给别人分发时建议打成 `.app` + `.dmg`，不要只发送 `dotnet publish` 输出目录。脚本会默认生成 Intel 和 Apple Silicon 两个安装镜像：
+
+```bash
+./package_macos.sh
+```
+
+只打 Apple Silicon：
+
+```bash
+./package_macos.sh osx-arm64
+```
+
+产物会输出到 `artifacts/macos/`。未配置证书时脚本会使用 ad-hoc 签名，适合本机测试；真正发给其他 macOS 用户时，建议使用 Developer ID 证书签名并公证：
+
+```bash
+CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
+NOTARIZE=1 \
+NOTARY_KEYCHAIN_PROFILE=zhijian-notary \
+./package_macos.sh all
+```
+
+脚本需要 .NET 10 SDK，会自动检查 `dotnet` 和 `$HOME/.dotnet/dotnet`。如果 SDK 安装在其他位置，可设置 `DOTNET_CMD=/path/to/dotnet`。
+
 ## 文档
 
 - [架构说明](docs/architecture.zh-CN.md)
