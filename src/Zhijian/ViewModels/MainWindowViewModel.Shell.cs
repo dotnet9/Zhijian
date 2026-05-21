@@ -229,6 +229,15 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         OnPropertyChanged(nameof(EditorPaneTitle));
         OnPropertyChanged(nameof(MarkdownStatsSummary));
+        OnPropertyChanged(nameof(QuickStartTitleText));
+        OnPropertyChanged(nameof(QuickStartDescriptionText));
+        OnPropertyChanged(nameof(NewFromTemplateText));
+        OnPropertyChanged(nameof(ProductPlanTemplateText));
+        OnPropertyChanged(nameof(ProductPlanTemplateDescriptionText));
+        OnPropertyChanged(nameof(MeetingNotesTemplateText));
+        OnPropertyChanged(nameof(MeetingNotesTemplateDescriptionText));
+        OnPropertyChanged(nameof(StudyNotesTemplateText));
+        OnPropertyChanged(nameof(StudyNotesTemplateDescriptionText));
         OnPropertyChanged(nameof(ToggleEditorToolTip));
         OnPropertyChanged(nameof(CenterRootToolTip));
         OnPropertyChanged(nameof(ZoomOutToolTip));

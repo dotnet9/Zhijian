@@ -11,6 +11,7 @@ Repository: <https://github.com/dotnet9/Zhijian>
 ## Highlights
 
 - Starts with a blank mind map. The bundled `使用手册.md` can be opened from Help -> Open User Manual as a richer multi-level sample and help manual.
+- Blank mind maps offer quick Product Brief, Meeting Notes, and Study Notes templates, also available from File -> New from Template, to reduce first-use friction.
 - File menu for New, New Window, Open Editable File, Import, Open Folder, Recent Files, Save, Save As Editable Format, Open File Location, and Close.
 - Edit menu for Undo, Redo, Add Sibling, Add Child, Promote, Demote, Move, Delete, and Copy as Markdown.
 - Theme, Language, Help, and About menus are grouped in the title bar with icons and shortcuts where useful.

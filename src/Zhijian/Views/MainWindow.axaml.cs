@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private const double OutlinePaneMinWidth = 280;
     private const double OutlinePaneMaxWidth = 560;
     private const double SplitterWidth = 14;
+    private const double CompactTitleBarHeight = 30;
 
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
     private IDisposable? _titleBarTitleBinding;
@@ -45,7 +46,12 @@ public partial class MainWindow : Window
     {
         return oldTitleBar ?? new WindowTitleBar
         {
-            Name = "PART_TitleBar"
+            Name = "PART_TitleBar",
+            Height = CompactTitleBarHeight,
+            MinHeight = CompactTitleBarHeight,
+            MaxHeight = CompactTitleBarHeight,
+            Padding = new Thickness(8, 0),
+            FontSize = 12
         };
     }
 
@@ -341,7 +347,7 @@ public partial class MainWindow : Window
     private bool IsTitleBarDragSource(PointerPressedEventArgs e)
     {
         var point = e.GetPosition(this);
-        if (point.Y > 40)
+        if (point.Y > CompactTitleBarHeight)
         {
             return false;
         }

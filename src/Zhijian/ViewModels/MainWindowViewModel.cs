@@ -17,6 +17,20 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private const string MarkdownStatsSummaryKey = "Zhijian.ZhijianL.MarkdownStatsSummary";
     private const string MarkdownStatsSavedKey = "Zhijian.ZhijianL.MarkdownStatsSaved";
     private const string MarkdownStatsUnsavedKey = "Zhijian.ZhijianL.MarkdownStatsUnsaved";
+    private const string QuickStartTitleKey = "Zhijian.ZhijianL.QuickStartTitle";
+    private const string QuickStartDescriptionKey = "Zhijian.ZhijianL.QuickStartDescription";
+    private const string NewFromTemplateKey = "Zhijian.ZhijianL.NewFromTemplate";
+    private const string ProductPlanTemplateKey = "Zhijian.ZhijianL.ProductPlanTemplate";
+    private const string ProductPlanTemplateDescriptionKey = "Zhijian.ZhijianL.ProductPlanTemplateDescription";
+    private const string ProductPlanTemplateMarkdownKey = "Zhijian.ZhijianL.ProductPlanTemplateMarkdown";
+    private const string MeetingNotesTemplateKey = "Zhijian.ZhijianL.MeetingNotesTemplate";
+    private const string MeetingNotesTemplateDescriptionKey = "Zhijian.ZhijianL.MeetingNotesTemplateDescription";
+    private const string MeetingNotesTemplateMarkdownKey = "Zhijian.ZhijianL.MeetingNotesTemplateMarkdown";
+    private const string StudyNotesTemplateKey = "Zhijian.ZhijianL.StudyNotesTemplate";
+    private const string StudyNotesTemplateDescriptionKey = "Zhijian.ZhijianL.StudyNotesTemplateDescription";
+    private const string StudyNotesTemplateMarkdownKey = "Zhijian.ZhijianL.StudyNotesTemplateMarkdown";
+    private const string StatusTemplateAppliedKey = "Zhijian.ZhijianL.StatusTemplateApplied";
+    private const string HistoryTemplateAppliedKey = "Zhijian.ZhijianL.HistoryTemplateApplied";
 
     private static readonly string[] Palette =
     [
@@ -265,6 +279,24 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         CountMarkdownCharacters(MarkdownText),
         NodeCount,
         T(IsDirty ? MarkdownStatsUnsavedKey : MarkdownStatsSavedKey));
+
+    public string QuickStartTitleText => T(QuickStartTitleKey);
+
+    public string QuickStartDescriptionText => T(QuickStartDescriptionKey);
+
+    public string NewFromTemplateText => T(NewFromTemplateKey);
+
+    public string ProductPlanTemplateText => T(ProductPlanTemplateKey);
+
+    public string ProductPlanTemplateDescriptionText => T(ProductPlanTemplateDescriptionKey);
+
+    public string MeetingNotesTemplateText => T(MeetingNotesTemplateKey);
+
+    public string MeetingNotesTemplateDescriptionText => T(MeetingNotesTemplateDescriptionKey);
+
+    public string StudyNotesTemplateText => T(StudyNotesTemplateKey);
+
+    public string StudyNotesTemplateDescriptionText => T(StudyNotesTemplateDescriptionKey);
 
     public string ToggleEditorToolTip => IsMarkdownMode ? T(ZhijianL.ToggleToOutline) : T(ZhijianL.ToggleToMarkdown);
 

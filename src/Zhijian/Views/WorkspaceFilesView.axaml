@@ -14,12 +14,12 @@
              x:DataType="vm:WorkspaceFilesViewModel">
 
     <Grid RowDefinitions="Auto,*"
-          Margin="0,8,0,0">
+          Margin="0,6,0,0">
         <TextBlock Text="{Binding FolderSummary}"
                    IsVisible="{Binding HasFolderFiles}"
-                   Margin="14,0,14,8"
+                   Margin="12,0,12,6"
                    Foreground="{Binding SecondaryTextBrush}"
-                   FontSize="12"/>
+                   FontSize="11"/>
 
         <Grid Grid.Row="1">
             <atom:ListBox ItemsSource="{Binding FolderFiles}"

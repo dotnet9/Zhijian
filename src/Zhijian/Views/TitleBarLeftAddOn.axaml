@@ -6,7 +6,8 @@
              xmlns:l="clr-namespace:Zhijian"
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.TitleBarLeftAddOn"
-             x:DataType="vm:MainWindowViewModel">
+             x:DataType="vm:MainWindowViewModel"
+             Height="28">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
@@ -22,18 +23,27 @@
             <Setter Property="Width" Value="0"/>
             <Setter Property="Margin" Value="0"/>
         </Style>
+        <Style Selector="atom|MenuItem:toplevel">
+            <Setter Property="MinHeight" Value="26"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Padding" Value="7,0"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
     </UserControl.Styles>
 
     <StackPanel Orientation="Horizontal"
                 VerticalAlignment="Center"
-                Spacing="12">
+                Spacing="8"
+                Height="28">
         <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.AppName}}"
-                   FontSize="13"
+                   FontSize="12"
                    FontWeight="SemiBold"
                    Foreground="{Binding PrimaryTextBrush}"
                    VerticalAlignment="Center"/>
 
         <atom:Menu Margin="-6,0,0,0"
+                   Height="28"
+                   FontSize="12"
                    VerticalAlignment="Center">
             <atom:MenuItem x:Name="FileMenuItem"
                            Header="{codewf:I18n {x:Static l:ZhijianL.FileMenu}}"
@@ -43,6 +53,19 @@
                                Header="{codewf:I18n {x:Static l:ZhijianL.New}}"
                                Command="{Binding NewDocumentAsync}"
                                Icon="{antdicons:AntDesignIconProvider Kind=FileAddOutlined}"/>
+                <atom:MenuItem x:Name="NewFromTemplateItem"
+                               Header="{Binding NewFromTemplateText}"
+                               Icon="{antdicons:AntDesignIconProvider Kind=BulbOutlined}">
+                    <atom:MenuItem Header="{Binding ProductPlanTemplateText}"
+                                   Command="{Binding CreateProductPlanTemplateAsync}"
+                                   Icon="{antdicons:AntDesignIconProvider Kind=BulbOutlined}"/>
+                    <atom:MenuItem Header="{Binding MeetingNotesTemplateText}"
+                                   Command="{Binding CreateMeetingNotesTemplateAsync}"
+                                   Icon="{antdicons:AntDesignIconProvider Kind=FileDoneOutlined}"/>
+                    <atom:MenuItem Header="{Binding StudyNotesTemplateText}"
+                                   Command="{Binding CreateStudyNotesTemplateAsync}"
+                                   Icon="{antdicons:AntDesignIconProvider Kind=ReadOutlined}"/>
+                </atom:MenuItem>
                 <atom:MenuItem x:Name="NewWindowItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.NewWindow}}"
                                Command="{Binding NewWindow}"

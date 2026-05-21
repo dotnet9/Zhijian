@@ -107,6 +107,21 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         });
     }
 
+    public async Task CreateProductPlanTemplateAsync()
+    {
+        await RunFileOperationAsync(() => ApplyStarterTemplateAsync(ProductPlanTemplateKey, ProductPlanTemplateMarkdownKey));
+    }
+
+    public async Task CreateMeetingNotesTemplateAsync()
+    {
+        await RunFileOperationAsync(() => ApplyStarterTemplateAsync(MeetingNotesTemplateKey, MeetingNotesTemplateMarkdownKey));
+    }
+
+    public async Task CreateStudyNotesTemplateAsync()
+    {
+        await RunFileOperationAsync(() => ApplyStarterTemplateAsync(StudyNotesTemplateKey, StudyNotesTemplateMarkdownKey));
+    }
+
     public async Task OpenRecentFileAsync(string? filePath)
     {
         if (string.IsNullOrWhiteSpace(filePath))
@@ -286,6 +301,35 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         {
             _isLoadingDocument = false;
         }
+    }
+
+    private async Task ApplyStarterTemplateAsync(string templateNameKey, string markdownKey)
+    {
+        if (!await EnsureCanChangeDocumentAsync())
+        {
+            return;
+        }
+
+        var templateName = T(templateNameKey);
+        var historyLabel = FormatText(HistoryTemplateAppliedKey, templateName);
+        try
+        {
+            _isLoadingDocument = true;
+            var root = MindMapDocumentCodec.FromMarkdown(T(markdownKey));
+            ReplaceTree(root, historyLabel, recordHistory: false);
+            ResetHistory(historyLabel);
+            CurrentFilePath = null;
+            _currentFileFormat = MindMapFileFormat.Markdown;
+            WorkspaceTabIndex = 1;
+            IsWorkspacePaneVisible = true;
+        }
+        finally
+        {
+            _isLoadingDocument = false;
+        }
+
+        MarkDocumentDirty();
+        StatusText = FormatText(StatusTemplateAppliedKey, templateName);
     }
 
     private async Task OpenFolderFileAsync(MindMapFileItem file)
