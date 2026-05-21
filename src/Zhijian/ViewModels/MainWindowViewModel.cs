@@ -76,6 +76,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     private MindMapFileItem? _selectedFolderFile;
     private bool _isNewUserTourOpen;
     private bool _isWorkspacePaneVisible = true;
+    private int _mindMapViewportResetRequestId;
 
     public MainWindowViewModel()
         : this(new DisabledMindMapFileService(), new DisabledApplicationActionService())
@@ -266,6 +267,12 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     }
 
     public bool IsWorkspacePaneHidden => !IsWorkspacePaneVisible;
+
+    public int MindMapViewportResetRequestId
+    {
+        get => _mindMapViewportResetRequestId;
+        private set => SetProperty(ref _mindMapViewportResetRequestId, value);
+    }
 
     public MindMapNode Root => Roots[0];
 

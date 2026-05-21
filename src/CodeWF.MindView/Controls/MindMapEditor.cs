@@ -128,7 +128,7 @@ public partial class MindMapEditor : UserControl
 
     private double MinCanvasWidth => GetResourceDouble(MindViewStyleKeys.MinCanvasWidthResource, 920);
     private double MinCanvasHeight => GetResourceDouble(MindViewStyleKeys.MinCanvasHeightResource, 620);
-    private double MinCanvasHorizontalPadding => GetResourceDouble(MindViewStyleKeys.MinCanvasHorizontalPaddingResource, 240);
+    private double MinCanvasHorizontalPadding => GetResourceDouble(MindViewStyleKeys.MinCanvasHorizontalPaddingResource, 560);
     private double MinCanvasVerticalPadding => GetResourceDouble(MindViewStyleKeys.MinCanvasVerticalPaddingResource, 180);
     private double MinZoom => GetResourceDouble(MindViewStyleKeys.MinZoomResource, 0.1);
     private double MaxZoom => GetResourceDouble(MindViewStyleKeys.MaxZoomResource, 2.0);
@@ -141,6 +141,7 @@ public partial class MindMapEditor : UserControl
     private double DragStartDistance => GetResourceDouble(MindViewStyleKeys.DragStartDistanceResource, 6);
     private double DropEdgeRatio => GetResourceDouble(MindViewStyleKeys.DropEdgeRatioResource, 0.28);
     private double NodeMenuWidth => GetResourceDouble(MindViewStyleKeys.NodeMenuWidthResource, 224);
+    private const double RootViewportLeftInset = 72;
     private const string DropAsChildTextResourceKey = "CodeWF.MindView.MindViewL.DropAsChildText";
     private const string DropBeforeTextResourceKey = "CodeWF.MindView.MindViewL.DropBeforeText";
     private const string DropAfterTextResourceKey = "CodeWF.MindView.MindViewL.DropAfterText";
@@ -205,6 +206,7 @@ public partial class MindMapEditor : UserControl
     private bool _isPanningCanvas;
     private bool _isSpacePressed;
     private bool _isPinching;
+    private bool _shouldPlaceRootNearLeftCenter;
     private double _pinchStartZoom = 1;
     private RoutedEventArgs? _lastHandledTouchPadMagnifyEvent;
     private RoutedEventArgs? _lastHandledPinchEvent;
@@ -239,8 +241,8 @@ public partial class MindMapEditor : UserControl
         {
             Content = _zoomHost,
             Background = _canvas.Background,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
-            VerticalScrollBarVisibility = ScrollBarVisibility.Hidden
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
         };
         RefreshLocalizedText(recreateChrome: false);
         _nodeToolbar = CreateNodeToolbar();

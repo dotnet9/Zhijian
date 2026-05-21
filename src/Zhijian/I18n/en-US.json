@@ -179,7 +179,7 @@
       "TourMindMapTitle": "Edit the visual mind map",
       "TourMindMapDescription": "Mind-map nodes support inline titles and notes, right-click menus, floating tools, and drag/drop hierarchy changes. The control also includes basic node operations.",
       "TourCanvasTitle": "Pan and zoom the canvas",
-      "TourCanvasDescription": "Pinch with two fingers on a touchpad to zoom; two-finger scroll or the mouse wheel pans. Ctrl/⌘ + wheel also zooms at the pointer, and Space+left drag or middle drag pans.",
+      "TourCanvasDescription": "Pinch with two fingers on a touchpad to zoom; two-finger scroll or the mouse wheel pans. Ctrl/⌘ + wheel also zooms at the pointer, and dragging the center topic, Space+left drag, or middle drag pans.",
       "TourStatusTitle": "Navigate from the status bar",
       "TourStatusDescription": "Undo, redo, left-pane visibility, mini map, center root, zoom, and mind-map shortcuts live here. The Help menu reopens this guide at any time."
     }

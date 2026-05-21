@@ -5,8 +5,8 @@ namespace CodeWF.MindView;
 /// </summary>
 public static class MindMapTreeLayout
 {
-    private static double DefaultRootX => GetDouble(MindViewStyleKeys.DefaultRootXResource, 72);
-    private static double DefaultRootY => GetDouble(MindViewStyleKeys.DefaultRootYResource, 72);
+    private static double DefaultRootX => GetDouble(MindViewStyleKeys.DefaultRootXResource, 420);
+    private static double DefaultRootY => GetDouble(MindViewStyleKeys.DefaultRootYResource, 220);
     private static double DefaultMinNodeY => GetDouble(MindViewStyleKeys.DefaultMinNodeYResource, 24);
 
     public static void Arrange(IEnumerable<MindMapNode> roots)

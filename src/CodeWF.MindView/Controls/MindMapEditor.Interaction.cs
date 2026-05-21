@@ -399,13 +399,14 @@ public partial class MindMapEditor
     {
         var point = e.GetCurrentPoint(_scrollViewer);
         var isLeftSpaceDrag = _isSpacePressed && IsLeftPointerPressed(point.Properties);
+        var isRootLeftDrag = IsLeftPointerPressed(point.Properties) && IsRootPanSource(e.Source);
         var isMiddleDrag = IsMiddlePointerPressed(point.Properties);
         var isRightDrag = IsRightPointerPressed(point.Properties);
 
         if (_isPanningCanvas
             || _dragNode is not null
-            || !IsCanvasPanSource(e.Source)
-            || (!isLeftSpaceDrag && !isMiddleDrag && !isRightDrag))
+            || (!isRootLeftDrag && !IsCanvasPanSource(e.Source))
+            || (!isLeftSpaceDrag && !isRootLeftDrag && !isMiddleDrag && !isRightDrag))
         {
             return;
         }
@@ -586,6 +587,12 @@ public partial class MindMapEditor
         Dispatcher.UIThread.Post(() => CenterNode(root), DispatcherPriority.Loaded);
     }
 
+    public void PlaceRootNearLeftCenter()
+    {
+        _shouldPlaceRootNearLeftCenter = true;
+        Dispatcher.UIThread.Post(TryPlaceRootNearLeftCenter, DispatcherPriority.Loaded);
+    }
+
     public void CenterViewportAt(Point canvasPoint)
     {
         var offset = new Vector(
@@ -729,6 +736,34 @@ public partial class MindMapEditor
         CenterViewportAt(center);
     }
 
+    private void TryPlaceRootNearLeftCenter()
+    {
+        if (!_shouldPlaceRootNearLeftCenter
+            || _isRebuildingVisuals
+            || _zoomScale <= 0
+            || _scrollViewer.Viewport.Width <= 0
+            || _scrollViewer.Viewport.Height <= 0)
+        {
+            return;
+        }
+
+        var root = Roots?.FirstOrDefault();
+        if (root is null)
+        {
+            _shouldPlaceRootNearLeftCenter = false;
+            return;
+        }
+
+        EnsureCanvasSize();
+        var rootSize = GetRenderedNodeSize(root);
+        var rootCenterY = root.Y + rootSize.Height / 2;
+        _shouldPlaceRootNearLeftCenter = false;
+        _scrollViewer.Offset = ClampScrollOffset(new Vector(
+            root.X * _zoomScale - RootViewportLeftInset,
+            rootCenterY * _zoomScale - _scrollViewer.Viewport.Height / 2));
+        UpdateViewportBounds();
+    }
+
     private void HandleScrollViewerPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Property == ScrollViewer.ViewportProperty)
@@ -741,6 +776,7 @@ public partial class MindMapEditor
             || e.Property == ScrollViewer.ExtentProperty)
         {
             UpdateViewportBounds();
+            TryPlaceRootNearLeftCenter();
         }
     }
 
@@ -790,6 +826,38 @@ public partial class MindMapEditor
         }
 
         return true;
+    }
+
+    private bool IsRootPanSource(object? source)
+    {
+        if (source is not Visual visual)
+        {
+            return false;
+        }
+
+        for (var current = visual; current is not null; current = current.GetVisualParent())
+        {
+            if (current is Button or ScrollBar or Thumb)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(current, _nodeToolbar)
+                || ReferenceEquals(current, _nodeMenu))
+            {
+                return false;
+            }
+
+            foreach (var (node, frame) in _nodeFrames)
+            {
+                if (ReferenceEquals(current, frame))
+                {
+                    return IsRootNode(node);
+                }
+            }
+        }
+
+        return false;
     }
 
     private bool IsCanvasWheelSource(object? source)

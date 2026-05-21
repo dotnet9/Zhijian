@@ -22,7 +22,7 @@ Repository: <https://github.com/dotnet9/Zhijian>
 - Outline, Markdown, and mind-map views share the same `MindMapNode` tree.
 - Inline title and note editing in both outline and mind-map views.
 - User-friendly outline and mind-map menus for adding siblings or children, promoting or demoting nodes, moving nodes, editing notes, and deleting nodes.
-- Mind-map panning, zooming, center-topic navigation, and a real mini-map based on current node coordinates.
+- Mind-map panning by dragging the center topic or canvas, zooming, center-topic navigation, and a real mini-map based on current node coordinates.
 - Copy as Markdown writes the current document Markdown to the clipboard and shows a desktop global message.
 - Open Editable File and Save As Editable Format focus on editable Markdown, OPML, and XMind files; Import covers broader read-only conversion formats without implying original-format save support.
 - Desktop shell with title-bar menus, dialogs, list controls, tooltips, global messages, and dark theme.
@@ -79,7 +79,7 @@ Useful keyboard behavior while editing a node title:
 - `Two-finger touchpad scroll` or `mouse wheel`: pan the mind-map canvas.
 - `⌘ + mouse wheel` on macOS or `Ctrl + mouse wheel` on Windows/Linux: zoom the mind-map canvas around the pointer.
 - `Shift + mouse wheel`: pan the mind-map canvas horizontally.
-- `Space + left drag` or `middle-button drag`: pan the mind-map canvas.
+- `Drag the center topic`, `Space + left drag`, or `middle-button drag`: pan the mind-map canvas.
 - `⌘ + L` on macOS or `Ctrl + L` on Windows/Linux: return to the center topic.
 
 ## File Formats

@@ -101,7 +101,7 @@ The file tab uses an application-layer list to show the current opened or import
 - title and note editors left-align within the same content width, including short text and notes that need refocus
 - drag/drop reparenting and sibling reordering
 - dashed drop previews
-- touchpad pinch zoom, pointer-centered zoom, two-finger/wheel panning, and `Space + left drag` or middle-button canvas panning
+- touchpad pinch zoom, pointer-centered zoom, two-finger/wheel panning, center-topic drag panning, and `Space + left drag` or middle-button canvas panning
 - viewport tracking for the mini-map
 - floating node actions for common structure edits, note editing, and deletion
 

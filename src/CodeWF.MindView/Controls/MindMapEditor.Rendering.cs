@@ -194,6 +194,7 @@ public partial class MindMapEditor
         ApplySelectionState();
         EnsureCanvasSize();
         UpdateViewportBounds();
+        Dispatcher.UIThread.Post(TryPlaceRootNearLeftCenter, DispatcherPriority.Loaded);
     }
 
     private void DetachTreeSubscriptions()

@@ -2,6 +2,10 @@
 
 ## 12.0.3.13（2026-05-19）
 
+- ✨[Add]-Allowed dragging the center topic to pan the whole mind-map canvas, matching the existing touchpad, wheel, `Space + left drag`, and middle-button panning behavior.
+- 🔧[Optimize]-Increased the default invisible left, right, and top canvas space so center-topic drag panning is less likely to hit boundaries too early, and restored on-demand horizontal/vertical mind-map scrollbars.
+- 🔧[Optimize]-After opening, importing, or applying a built-in template, the mind-map view now places the center topic near the left middle of the viewport so users do not need to hunt for the root.
+- 🧪[Test]-Built `CodeWF.MindView`, `CodeWF.MindView.Themes`, and `Zhijian -f net10.0` to verify the center-topic drag panning interaction changes compile cleanly.
 - ✨[Add]-Added a blank-document quick-start strip in the mind-map panel with direct actions for adding a child node, opening the user manual, importing files, and switching to Markdown.
 - 🔧[Optimize]-Reworked the empty Files pane with AtomUI `Empty` and icon buttons, restored meaningful native window titles, and made the status bar keep its tool buttons stable at minimum window size.
 - 🧪[Test]-Built `src/Zhijian/Zhijian.csproj -f net10.0-windows`, launched the desktop app, and verified the blank-document start strip, Files empty state, native title, and minimum-size status bar with screenshots.

@@ -185,6 +185,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             var formatName = MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.Markdown);
             ReplaceTree(document.Root, FormatText(ZhijianL.StatusImported, formatName), document.MarkdownSnapshot);
             StatusText = FormatText(ZhijianL.StatusImported, formatName);
+            RequestMindMapViewportReset();
         });
     }
 
@@ -202,6 +203,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             var formatName = MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.Opml);
             ReplaceTree(document.Root, FormatText(ZhijianL.StatusImported, formatName), document.MarkdownSnapshot);
             StatusText = FormatText(ZhijianL.StatusImported, formatName);
+            RequestMindMapViewportReset();
         });
     }
 
@@ -219,6 +221,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             var formatName = MindMapFileFormatRegistry.GetDisplayName(MindMapFileFormat.XMind);
             ReplaceTree(document.Root, FormatText(ZhijianL.StatusImported, formatName), document.MarkdownSnapshot);
             StatusText = FormatText(ZhijianL.StatusImported, formatName);
+            RequestMindMapViewportReset();
         });
     }
 
@@ -296,6 +299,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             _currentFileFormat = MindMapFileFormat.Markdown;
             WorkspaceTabIndex = 1;
             MarkDocumentClean();
+            RequestMindMapViewportReset();
         }
         finally
         {
@@ -330,6 +334,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         MarkDocumentDirty();
         StatusText = FormatText(StatusTemplateAppliedKey, templateName);
+        RequestMindMapViewportReset();
     }
 
     private async Task OpenFolderFileAsync(MindMapFileItem file)
@@ -442,6 +447,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
             await AddFileToFileListAsync(filePath);
             WorkspaceTabIndex = 1;
             StatusText = FormatText(ZhijianL.StatusOpened, Path.GetFileName(filePath));
+            RequestMindMapViewportReset();
         }
         finally
         {
@@ -737,6 +743,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         IsDocumentBusy = false;
         DocumentBusyText = string.Empty;
+    }
+
+    private void RequestMindMapViewportReset()
+    {
+        MindMapViewportResetRequestId++;
     }
 
     private sealed class DocumentBusyScope(MainWindowViewModel viewModel) : IDisposable

@@ -22,6 +22,7 @@ public partial class MainWindow : Window
     private IDisposable? _titleBarTitleBinding;
     private MainWindowViewModel? _viewModel;
     private Avalonia.Controls.GridLength _lastOutlinePaneWidth = new(DefaultOutlinePaneWidth);
+    private int _lastMindMapViewportResetRequestId;
     private bool _isCloseConfirmed;
 
     public MainWindow()
@@ -92,6 +93,7 @@ public partial class MainWindow : Window
         }
 
         _viewModel = viewModel;
+        _lastMindMapViewportResetRequestId = 0;
         if (_viewModel is not null)
         {
             _viewModel.PropertyChanged += HandleViewModelPropertyChanged;
@@ -100,6 +102,10 @@ public partial class MainWindow : Window
         ApplyTitleBarDataContext();
         WorkspaceOutlineView.Controller = viewModel;
         UpdateWorkspacePaneColumns(_viewModel?.IsWorkspacePaneVisible ?? true);
+        if (viewModel is not null)
+        {
+            HandleMindMapViewportResetRequest(viewModel);
+        }
     }
 
     private void HandleViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -109,6 +115,22 @@ public partial class MainWindow : Window
         {
             UpdateWorkspacePaneColumns(viewModel.IsWorkspacePaneVisible);
         }
+        else if (e.PropertyName == nameof(MainWindowViewModel.MindMapViewportResetRequestId)
+            && sender is MainWindowViewModel resetViewModel)
+        {
+            HandleMindMapViewportResetRequest(resetViewModel);
+        }
+    }
+
+    private void HandleMindMapViewportResetRequest(MainWindowViewModel viewModel)
+    {
+        if (viewModel.MindMapViewportResetRequestId <= _lastMindMapViewportResetRequestId)
+        {
+            return;
+        }
+
+        _lastMindMapViewportResetRequestId = viewModel.MindMapViewportResetRequestId;
+        MindMap.PlaceRootNearLeftCenter();
     }
 
     private void UpdateWorkspacePaneColumns(bool isVisible)
