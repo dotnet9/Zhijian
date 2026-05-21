@@ -1,0 +1,27 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:atom="using:AtomUI.Desktop.Controls"
+        xmlns:codewf="https://codewf.com">
+    <Style Selector="codewf|MarkdownViewer.changelogMarkdown">
+        <Setter Property="TextBrush" Value="#1F2328" />
+        <Setter Property="MutedTextBrush" Value="#667085" />
+        <Setter Property="BorderLineBrush" Value="#D0D7DE" />
+        <Setter Property="AccentBrush" Value="#4B5563" />
+        <Setter Property="QuoteBackgroundBrush" Value="#F6F7F9" />
+        <Setter Property="CodeBackgroundBrush" Value="#F6F8FA" />
+        <Setter Property="InlineCodeBackgroundBrush" Value="#F6F7F9" />
+        <Setter Property="TableHeaderBackgroundBrush" Value="#EAECF0" />
+        <Setter Property="AccentForegroundBrush" Value="#FFFFFF" />
+    </Style>
+
+    <Style Selector="atom|Window.dark codewf|MarkdownViewer.changelogMarkdown">
+        <Setter Property="TextBrush" Value="#E6EDF3" />
+        <Setter Property="MutedTextBrush" Value="#9BA7B4" />
+        <Setter Property="BorderLineBrush" Value="#30363D" />
+        <Setter Property="AccentBrush" Value="#D1D5DB" />
+        <Setter Property="QuoteBackgroundBrush" Value="#252933" />
+        <Setter Property="CodeBackgroundBrush" Value="#0D1117" />
+        <Setter Property="InlineCodeBackgroundBrush" Value="#252933" />
+        <Setter Property="TableHeaderBackgroundBrush" Value="#303643" />
+        <Setter Property="AccentForegroundBrush" Value="#0D1117" />
+    </Style>
+</Styles>

@@ -16,6 +16,10 @@
         <vm:ChangelogWindowViewModel />
     </Design.DataContext>
 
+    <atom:Window.Styles>
+        <StyleInclude Source="/Styles/ChangelogWindow.axaml" />
+    </atom:Window.Styles>
+
     <Border Padding="24,20">
         <Grid RowDefinitions="Auto,*" RowSpacing="14">
 
@@ -37,7 +41,8 @@
             <ScrollViewer Grid.Row="1"
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
-				<codewf:MarkdownViewer Markdown="{Binding Markdown}"
+				<codewf:MarkdownViewer Classes="changelogMarkdown"
+                                       Markdown="{Binding Markdown}"
                                        TypographyTheme="{x:Static codewf:MarkdownTypographyThemes.Simple}"
                                        TypographySize="{x:Static codewf:MarkdownTypographySizes.Small}" />
             </ScrollViewer>
