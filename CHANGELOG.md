@@ -1,189 +1,189 @@
-# Changelog
+# 更新日志
 
 ## 12.0.3.13（2026-05-19）
 
-- ✨[Add]-Allowed dragging the center topic to pan the whole mind-map canvas, matching the existing touchpad, wheel, `Space + left drag`, and middle-button panning behavior.
-- 🔧[Optimize]-Increased the default invisible left, right, and top canvas space so center-topic drag panning is less likely to hit boundaries too early, and restored on-demand horizontal/vertical mind-map scrollbars.
-- 🔧[Optimize]-After opening, importing, or applying a built-in template, the mind-map view now places the center topic near the left middle of the viewport so users do not need to hunt for the root.
-- 🧪[Test]-Built `CodeWF.MindView`, `CodeWF.MindView.Themes`, and `Zhijian -f net10.0` to verify the center-topic drag panning interaction changes compile cleanly.
-- ✨[Add]-Added a blank-document quick-start strip in the mind-map panel with direct actions for adding a child node, opening the user manual, importing files, and switching to Markdown.
-- 🔧[Optimize]-Reworked the empty Files pane with AtomUI `Empty` and icon buttons, restored meaningful native window titles, and made the status bar keep its tool buttons stable at minimum window size.
-- 🧪[Test]-Built `src/Zhijian/Zhijian.csproj -f net10.0-windows`, launched the desktop app, and verified the blank-document start strip, Files empty state, native title, and minimum-size status bar with screenshots.
-- 🔧[Optimize]-Added `CodeWF.Tools.Core` and switched the About window to read `Version` and `CompileTime` from `AssemblyExtensions` instead of hard-coded metadata.
-- 🔧[Optimize]-Moved About-window labels and description into language resources so the new compile-time label follows the app localization model.
-- 🧪[Test]-Built `Zhijian.slnx`, verified MSBuild resolves version `12.0.3.13`, and checked the localized About window metadata with the desktop app.
-- 🔧[Fix]-Aligned `Directory.Build.props` package version and About-window fallback metadata with the latest changelog release version.
-- 🧪[Test]-Built `Zhijian.slnx` and searched release metadata so the app version now resolves to `12.0.3.13`.
-- 🔧[Optimize]-Matched the mind-map shortcut help icon to the outline shortcut question icon, removed the status-bar onboarding shortcut, and moved onboarding tour access into the Help menu.
-- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified the mind-map shortcut question button plus Help menu onboarding entry with UI Automation screenshots.
-- 🔧[Fix]-Kept outline title editing focus stable after `Tab`, `Shift+Tab`, `Alt+Up`, and `Alt+Down`, while `Enter` still transfers focus to the newly created node.
-- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified continuous keyboard typing after outline `Enter`, `Tab`, `Shift+Tab`, `Alt+Up`, and `Alt+Down` with UI Automation and screenshots.
-- 🔧[Optimize]-Added a compact mind-map shortcut help button with view-specific guidance, making it clear that visual `Tab` and `Shift+Tab` add child topics instead of changing outline hierarchy.
-- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and verified wrapped, left-aligned shortcut tooltips for both the mind-map and outline help buttons with screenshots.
-- 🔧[Optimize]-Left-aligned the outline shortcut tooltip content and audited tooltip usage so the app consistently uses AtomUI tooltip styling rather than native Avalonia tooltips.
-- 🧪[Test]-Built `Zhijian.slnx`, searched the codebase for native tooltip usage, launched the desktop app, and verified the left-aligned AtomUI tooltip screenshot.
-- 🔧[Fix]-Separated visual mind-map `Tab` handling from outline hierarchy editing: in the mind-map canvas `Tab` and `Shift+Tab` now add a child topic, while the outline keeps `Tab` demote and `Shift+Tab` promote behavior.
-- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, verified visual `Tab` and `Shift+Tab` child creation with UI Automation screenshots, and rechecked outline `Tab` demotion.
-- 🔧[Optimize]-Added a compact outline shortcut help button in the bottom toolbar so users can discover `Enter`, `Tab`, `Shift+Tab`, and `Alt+Up/Alt+Down` without reading the README.
-- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, hovered the new outline shortcut help button with UI Automation, and verified the tooltip screenshot.
-- 📝[Docs]-Updated README, the user manual, and controller comments so outline shortcuts match the current behavior: center-topic `Enter` adds a child, normal-node `Enter` adds a sibling, `Tab` demotes, and `Alt+Up`/`Alt+Down` reorder siblings.
-- 🔧[Optimize]-Made `Alt+Up`/`Alt+Down` work while editing topic titles, matching the shortcuts already shown in the node context menu and title-bar edit menu.
-- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, created `Root/A/B` with UI Automation, and verified `Alt+Up`/`Alt+Down` reorder both the outline and mind-map views with screenshots.
-- ✨[Add]-Added `osx-x64` and `osx-arm64` publish profiles and included them in the default publish scripts so release packaging covers Windows, Linux, and macOS.
-- 🧪[Test]-Published `osx-x64` and `osx-arm64` from `src/Zhijian/Zhijian.csproj` and confirmed the macOS executables are generated under `publish/osx-x64/Zhijian/Zhijian` and `publish/osx-arm64/Zhijian/Zhijian`.
-- 🔧[Fix]-Restored the outline editor's connection to the main mind-map controller when hosted inside `WorkspaceOutlineView`, bringing back `Enter`, `Tab`, `Shift+Tab`, empty-title deletion, and synchronized visual updates.
-- 🔧[Optimize]-Centralized outline/mind-map title keyboard routing in `MindMapKeyboardGestureRouter` and coalesced outline rebuild/focus restoration to reduce repeated redraws during fast editing.
-- 🧪[Test]-Built `Zhijian.slnx`, launched the desktop app, and used UI Automation screenshots to verify root `Enter`, node `Enter`, `Tab` demote, and `Shift+Tab` promote across the outline and mind-map views.
+- ✨[新增]-脑图中心主题支持左键拖拽平移整张画布，和已有触控板、滚轮、`Space + 左键`、中键平移保持一致。
+- 🔧[优化]-加大脑图默认左侧、右侧和上方不可见画布空间，让拖拽中心主题平移时不容易过早撞到边界，并恢复脑图水平/竖直滚动条的按需显示。
+- 🔧[优化]-打开、导入或应用内置模板后，脑图视图会自动把中心主题放到左侧中线附近，减少加载后手动找根节点的步骤。
+- 🧪[测试]-构建 `CodeWF.MindView`、`CodeWF.MindView.Themes` 和 `Zhijian -f net10.0`，确认中心主题拖拽平移相关交互改动编译通过。
+- ✨[新增]-在脑图面板为空白文档增加快速开始操作条，可直接添加子节点、打开使用手册、导入文件或切换到 Markdown。
+- 🔧[优化]-文件页空状态改用 AtomUI `Empty` 与图标按钮，恢复有意义的系统窗口标题，并让状态栏工具按钮在最小窗口尺寸下保持稳定。
+- 🧪[测试]-构建 `src/Zhijian/Zhijian.csproj -f net10.0-windows`，启动桌面程序，并截图验证空白文档起步条、文件空状态、系统标题和最小尺寸状态栏。
+- 🔧[优化]-新增 `CodeWF.Tools.Core`，About 窗口改为通过 `AssemblyExtensions` 读取 `Version` 和 `CompileTime`，移除硬编码版本元数据。
+- 🔧[优化]-将 About 窗口标签和说明文案迁入语言资源，让新增的编译时间标签也遵循应用本地化模型。
+- 🧪[测试]-构建 `Zhijian.slnx`，验证 MSBuild 版本解析为 `12.0.3.13`，并运行桌面程序检查本地化后的 About 窗口元数据。
+- 🔧[修复]-将 `Directory.Build.props` 包版本和 About 窗口兜底版本元数据对齐到最新更新日志版本。
+- 🧪[测试]-构建 `Zhijian.slnx`，并检索发布元数据，确认应用版本现在解析为 `12.0.3.13`。
+- 🔧[优化]-将脑图快捷键帮助图标统一为和大纲快捷键一致的问号图标，移除状态栏新手引导快捷入口，并把新手引导移动到帮助菜单。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 截图验证脑图快捷键问号按钮和帮助菜单中的新手引导入口。
+- 🔧[修复]-保持大纲标题编辑焦点在 `Tab`、`Shift+Tab`、`Alt+Up` 和 `Alt+Down` 后仍停留在当前节点，同时 `Enter` 仍切换到新建节点。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 验证大纲 `Enter`、`Tab`、`Shift+Tab`、`Alt+Up`、`Alt+Down` 后都能连续键盘输入，并截图确认。
+- 🔧[优化]-在脑图底部工具区新增紧凑的快捷键帮助按钮，用独立文案明确脑图视图中 `Tab` 和 `Shift+Tab` 是新增子主题，而不是调整大纲层级。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，并截图验证脑图和大纲快捷键 Tooltip 均可换行、左对齐且不被裁切。
+- 🔧[优化]-将大纲快捷键 Tooltip 内容改为左对齐，并检查 Tooltip 用法，确认界面统一使用 AtomUI Tooltip 样式而非 Avalonia 原生 Tooltip。
+- 🧪[测试]-构建 `Zhijian.slnx`，检索原生 Tooltip 用法，启动桌面程序，并截图验证左对齐的 AtomUI Tooltip。
+- 🔧[修复]-将右侧脑图画布的 `Tab` 逻辑与左侧大纲层级编辑拆开：脑图中 `Tab` 和 `Shift+Tab` 现在新增子主题，大纲中仍保留 `Tab` 降级、`Shift+Tab` 提升。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 截图验证脑图 `Tab` 和 `Shift+Tab` 新增子节点，并复测大纲 `Tab` 降级。
+- 🔧[优化]-在大纲底部工具区新增紧凑的快捷键帮助按钮，让用户不用翻 README 也能发现 `Enter`、`Tab`、`Shift+Tab` 和 `Alt+Up/Alt+Down`。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 悬停新的大纲快捷键帮助按钮，并截图验证 Tooltip 展示效果。
+- 📝[文档]-同步 README、使用手册和控制器注释中的大纲快捷键说明，明确中心主题 `Enter` 添加子节点、普通节点 `Enter` 添加同级、`Tab` 降级、`Alt+Up/Alt+Down` 调整同级顺序。
+- 🔧[优化]-让标题编辑状态下的 `Alt+Up`/`Alt+Down` 真正执行同级上移/下移，与右键菜单和标题栏菜单展示的快捷键保持一致。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 创建 `Root/A/B`，并模拟 `Alt+Up`、`Alt+Down` 截图验证大纲和脑图排序同步。
+- ✨[新增]-新增 `osx-x64` 和 `osx-arm64` 发布配置，默认发布脚本覆盖 Windows、Linux 和 macOS 三个平台。
+- 🧪[测试]-分别执行 `dotnet publish` 验证 `osx-x64` 与 `osx-arm64` 发布链路，确认生成 `publish/osx-x64/Zhijian/Zhijian` 和 `publish/osx-arm64/Zhijian/Zhijian`。
+- 🔧[修复]-修复大纲视图被独立 `WorkspaceOutlineView` 包裹后无法拿到主窗口脑图控制器的问题，恢复 `Enter`、`Tab`、`Shift+Tab`、空标题删除与左右视图同步。
+- 🔧[优化]-将大纲/脑图标题快捷键解析集中到 `MindMapKeyboardGestureRouter`，并合并大纲树重建与焦点恢复，减少连续操作时的重复重绘。
+- 🧪[测试]-构建 `Zhijian.slnx`，启动桌面程序，用 UI Automation 模拟根节点 `Enter`、普通节点 `Enter`、`Tab` 降级和 `Shift+Tab` 提升，并截图验证大纲与脑图同步。
 
-- ✨[Add]-Added an immersive mind-map mode with a left-pane hide/show toggle near the outline/mind-map boundary and a `Ctrl/⌘ + B` shortcut.
-- 🔨[Optimize]-Added visible outline quick actions for adding child nodes, adding sibling nodes, copying Markdown, and switching between outline and Markdown editing.
-- 🔨[Optimize]-When users open a folder or start the onboarding tour, the left pane is restored automatically so file navigation and guided targets remain visible.
-- 🔨[Optimize]-Moved `CodeWF.MindView` editor chrome, placeholders, messages, and selected format names into its own `Lang.Avalonia.Json` resources with T4-generated keys.
-- 🔨[Optimize]-Kept blank and fallback node titles empty through Markdown, OPML, XMind, JSON, XML, HTML, CSV, and text import paths, so localized placeholders do not become user content.
-- 🔨[Optimize]-Softened second-level mind-map branch nodes with tinted backgrounds, accent borders, dark readable text, and matching mini-map previews.
-- 🔨[Optimize]-Added lightweight hover, selected, and drag motion feedback for mind-map nodes using brush and shadow transitions without changing node layout.
-- 🔨[Optimize]-Tightened horizontal mind-map spacing so common four-level maps fit better in a normal desktop window.
-- 🔨[Optimize]-Moved `CodeWF.MindView` node metrics, shadows, colors, menus, and mini-map styling into `CodeWF.MindView.Themes` Shared/Light/Dark resources, following the resource organization style used by Ursa.Avalonia.
-- 🔨[Optimize]-Split the left Files and Outline/Markdown panes into dedicated `UserControl` views and ViewModels, using `CodeWF.EventBus` for request/state decoupling from the main window ViewModel.
-- 🔨[Optimize]-Switched workspace messaging to `EventBus.Default` with attribute-based handlers and preserved `CodeWF.EventBus` for Native AOT trimming.
-- 🔨[Optimize]-Kept the app icon and product name only in the left title-bar area while showing the current document name after the menus, avoiding repeated app names in the window title.
-- 🔨[Optimize]-Applied AtomUI buttons to the `CodeWF.MindView` floating toolbar and context menu for smoother motion and click feedback.
-- 🔨[Optimize]-Refined floating mind-map toolbar spacing so the delete action no longer sits tight against the toolbar border.
-- 🔨[Optimize]-Let the mind-map canvas, toolbar, menu, node shadows, and placeholder colors follow the bound light/dark theme state consistently.
-- 🔨[Optimize]-Softened mind-map placeholder foregrounds and rounded third-level selected node surfaces so empty hints read as secondary content.
-- 🔨[Optimize]-Added clearer spacing between the bottom history-step text and undo/redo controls.
-- 🔨[Fix]-Fixed the empty Files pane action buttons being too short and clipping localized text descenders across Chinese, English, and Japanese layouts.
-- 🔨[Fix]-Restored double-click maximize/restore behavior for the custom title bar to match standard desktop window interaction.
-- 🔨[Optimize]-Localized outline editor text and wired startup file arguments into the main window flow.
-- 🧪[Test]-Built `Zhijian.slnx`, ran the desktop app, and verified visible, immersive, restored pane, multi-level node color, language switching, empty Files buttons, title-bar double click, and custom node titles not being translated with screenshots.
+- ✨[新增]-新增沉浸式脑图模式，左侧视图隐藏/显示按钮放在大纲与脑图边界附近，并支持 `Ctrl/⌘ + B` 快捷键。
+- 🔨[优化]-大纲底部新增清晰可见的常用操作：添加子节点、添加同级节点、复制 Markdown、切换大纲/Markdown 编辑。
+- 🔨[优化]-用户打开文件夹或启动新手引导时，自动恢复左侧视图，确保文件导航和引导高亮目标不会被隐藏。
+- 🔨[优化]-将 `CodeWF.MindView` 编辑器界面、占位符、消息和部分格式名迁入控件库自己的 `Lang.Avalonia.Json` 资源，并使用 T4 生成资源键。
+- 🔨[优化]-Markdown、OPML、XMind、JSON、XML、HTML、CSV 和文本导入链路保留空白/兜底节点标题为空，避免本地化占位提示变成用户内容。
+- 🔨[优化]-二级脑图分支节点改为柔和浅底、强调色边线和深色可读文字，小图预览同步降噪。
+- 🔨[优化]-脑图节点新增轻量 hover、选中和拖拽动效，仅过渡颜色和阴影，避免改变节点布局。
+- 🔨[优化]-收紧脑图默认横向层距，让常见四层结构在普通桌面窗口中更容易完整查看。
+- 🔨[优化]-参考 Ursa.Avalonia 的资源组织方式，将 `CodeWF.MindView` 的节点尺寸、阴影、色彩、菜单和小图样式集中到 `CodeWF.MindView.Themes` 的 Shared/Light/Dark 资源中。
+- 🔨[优化]-将左侧“文件”和“大纲/Markdown”页拆为独立 `UserControl` 与 ViewModel，并引入 `CodeWF.EventBus` 做主窗口与子 ViewModel 的请求/状态解耦。
+- 🔨[优化]-工作区消息改为使用 `EventBus.Default` 与特性式处理函数，并在 Native AOT 裁剪配置中保留 `CodeWF.EventBus`。
+- 🔨[优化]-标题栏仅在左侧保留应用图标和软件名称，当前文件名显示在菜单后方，不再由窗口标题重复追加软件名。
+- 🔨[优化]-`CodeWF.MindView` 悬浮工具条和右键菜单改用 AtomUI 按钮，提升悬停、点击动效与反馈质感。
+- 🔨[优化]-细化脑图悬浮工具条间距，删除按钮不再贴近工具条右边框。
+- 🔨[优化]-脑图画布、工具条、菜单、节点阴影和占位符颜色统一跟随绑定的浅色/深色主题状态。
+- 🔨[优化]-弱化脑图占位符前景色，并给三层文本节点的选中背景增加圆角，让空提示与真实内容主次更清楚。
+- 🔨[优化]-拉开底部历史步骤文字与撤销/重做按钮的距离，状态栏阅读节奏更清晰。
+- 🔨[修复]-修复文件空状态操作按钮高度不足导致中英日等语言文字下半部分被裁切的问题。
+- 🔨[修复]-补齐自定义标题栏双击最大化/还原行为，匹配桌面窗口常规交互。
+- 🔨[优化]-补齐大纲编辑器内置文案的本地化注入，并打通启动文件参数到主窗口加载流程。
+- 🧪[测试]-构建 `Zhijian.slnx`，实际运行桌面程序，并截图验证左侧显示、沉浸隐藏、恢复显示、多层节点配色、语言切换、文件空状态按钮、标题栏双击和自定义节点标题不随语言翻译。
 
 ## 12.0.3.12（2026-05-18）
 
-- 🔨[Optimize]-Hid the mind-map canvas scrollbars while keeping wheel, touchpad, mini-map, and drag navigation active, reducing visual noise on laptop-sized windows.
-- 🧪[Test]-Ran the desktop app and checked light/dark theme screenshots at 1366×768, 1100×720, and the minimum window size.
+- 🔨[优化]-隐藏脑图画布滚动条，同时保留滚轮、触控板、小图和拖拽导航能力，减少笔记本尺寸窗口下的视觉噪声。
+- 🧪[测试]-运行桌面程序，检查 1366×768、1100×720 和最小窗口尺寸下的浅色/深色主题截图。
 
 ## 12.0.3.11（2026-05-18）
 
-- 🔨[Fix]-Added Avalonia `PinchGestureRecognizer` handling to the mind-map canvas and strengthened native touchpad magnify handling so laptop touchpad two-finger pinch can zoom the canvas.
-- 🔨[Optimize]-Touchpad pinch zoom keeps the gesture position anchored while preserving `Ctrl/⌘ + wheel`, two-finger panning, and middle/`Space + left` canvas drag.
-- 📝[Docs]-Updated README, the user manual, onboarding copy, and design docs for touchpad pinch zoom.
+- 🔨[修复]-脑图画布新增 Avalonia `PinchGestureRecognizer` 捏合手势处理，并补强触控板原生放大事件，让笔记本触控板双指捏合可以缩放画布。
+- 🔨[优化]-触控板捏合缩放围绕手势位置保持焦点，保留 `Ctrl/⌘ + 滚轮`、双指滑动平移和中键/`Space + 左键` 拖动画布。
+- 📝[文档]-同步更新 README、使用手册、引导文案和设计文档中的触控板捏合缩放说明。
 
 ## 12.0.3.10（2026-05-18）
 
-- 🔨[Optimize]-Added Open Editable File, Import, Open Folder, and Open User Manual actions to the empty Files pane so users do not need to discover the title-bar File menu first.
-- 🔨[Optimize]-Changed Files pane summary and empty-state wording from mind-map/folder-specific copy to file-oriented copy, matching the fact that importable reference files also appear in the list.
-- 🔨[Optimize]-Changed import history labels to "Import {0}" so imported files are not mixed with editable-file open actions.
-- 🧪[Test]-Built `src\Zhijian\Zhijian.csproj` and checked the File menu and empty Files pane with UI Automation.
+- 🔨[优化]-左侧“文件”空状态新增打开可编辑文件、导入、打开文件夹和打开使用手册入口，让普通用户不必先发现标题栏文件菜单。
+- 🔨[优化]-文件页统计和空状态文案从“脑图文件/打开文件夹”调整为更准确的“文件”，匹配可导入资料也会出现在列表中的行为。
+- 🔨[优化]-导入文件后的历史记录标签显示为“导入 {0}”，避免和打开可编辑文件混淆。
+- 🧪[测试]-构建 `src\Zhijian\Zhijian.csproj` 并通过 UI Automation 检查文件菜单和文件页空状态。
 
 ## 12.0.3.9（2026-05-18）
 
-- 🔨[Optimize]-Split the product meaning of Open Editable File and Import: Open now shows only reliably writable Markdown, OPML, and XMind files, while Import keeps the broader read-only conversion formats.
-- 🔨[Optimize]-Renamed Save As to Save As Editable Format so readable import formats do not imply original-format write-back support.
-- 📝[Docs]-Updated README, the user manual, architecture docs, and source-design docs for the Open, Import, and Save As behavior.
-- 🧪[Test]-Built `src\Zhijian\Zhijian.csproj` successfully.
+- 🔨[优化]-从产品语义上拆分“打开可编辑文件”和“导入文件”：打开只展示可可靠继续保存的 Markdown、OPML、XMind，导入保留更广的只读转换格式。
+- 🔨[优化]-将“另存为”明确为“另存为可编辑格式”，避免用户误以为所有可打开格式都支持原格式回写。
+- 📝[文档]-同步 README、使用手册、架构和源码设计文档中的打开、导入、另存为说明。
+- 🧪[测试]-构建 `src\Zhijian\Zhijian.csproj` 验证通过。
 
 ## 12.0.3.8（2026-05-18）
 
-- ✨[Add]-Added an "Open User Manual" entry to the empty file pane and title-bar Help menu for loading the bundled `使用手册.md`.
-- ✨[Add]-Added an AtomUI centered loading overlay for large mind-map files and batched outline/mind-map rebuilding to reduce frozen-window feedback while reading, parsing, and rendering.
-- 🔨[Optimize]-Adapted canvas navigation for laptop touchpads with two-finger/wheel panning, `Ctrl/⌘ + scroll` pointer-centered zoom, `Shift + wheel` horizontal panning, and middle-button drag panning.
-- 🔨[Optimize]-Completed localized strings for opening, importing, exporting, history, node actions, and loading states across Simplified Chinese, Traditional Chinese, English, and Japanese.
-- 📝[Docs]-Updated README, the user manual, architecture docs, and source-design docs with the new canvas pan/zoom behavior.
-- 🧪[Test]-Built `src\Zhijian\Zhijian.csproj` and smoke-started the desktop app to verify the main window appears.
+- ✨[新增]-在空文件面板和标题栏帮助菜单中新增“打开使用手册”，可直接加载随程序输出的 `使用手册.md`。
+- ✨[新增]-加载大脑图文件时显示 AtomUI 居中等待提示框，并将大纲/脑图重建改为分批渲染，读取、解析和重建期间减少界面假死感。
+- 🔨[优化]-脑图画布适配笔记本触控板习惯，支持双指/滚轮平移、`Ctrl/⌘ + 滚动` 指针位置缩放、`Shift + 滚轮` 横向平移和中键拖拽平移。
+- 🔨[优化]-补齐打开、导入、导出、历史记录、节点操作和加载状态的中繁英日本地化文案，减少界面残留硬编码文本。
+- 📝[文档]-同步更新 README、使用手册、架构和源码设计文档中的画布平移/缩放说明。
+- 🧪[测试]-构建 `src\Zhijian\Zhijian.csproj`，并启动桌面程序验证主窗口可正常显示。
 
 ## 12.0.3.7（2026-05-18）
 
-- ✨[Add]-Added application icon metadata from `logo.ico` and NuGet package icon metadata from `logo.png`, with author and project website information.
-- ✨[Add]-Expanded readable import coverage across mainstream mind-map, draw.io, image, office, document, and data formats while keeping native Markdown, OPML, and XMind export paths explicit.
-- 🔨[Optimize]-Changed startup back to an empty document while keeping the bundled `使用手册.md` available as a richer help/manual file.
-- 🔨[Optimize]-Moved document loading, saving, recent files, folder scanning, and import decoding onto async paths to reduce visible pauses on large documents.
-- 🔨[Optimize]-Replaced CommunityToolkit.Mvvm with ReactiveUI/Avalonia-compatible view models and direct async public-method command binding.
-- 🔨[Optimize]-Refactored the main view model, mind-map editor, outline editor, document codec, file-format metadata, recent-file storage, and tree layout into clearer responsibility-focused components.
-- 🔨[Optimize]-Centralized file-format metadata in `MindMapFileFormatRegistry` and document import strategies in a registry-style codec pipeline.
-- 🔨[Optimize]-Simplified Native AOT trimming setup and added a focused AtomUI enum-array compatibility guard so the win-x64 Native AOT build starts correctly.
-- 🔨[Fix]-Improved mind-map canvas padding and note-height layout so zooming, panning, and long node notes no longer squeeze content into unusable overlap.
-- 🔨[Fix]-Kept Avalonia desktop startup synchronous while using non-capturing async configuration reads, restoring the main window for `dotnet run` and published builds.
-- 🔨[Fix]-Removed duplicate title-bar filename rendering so the current document name appears only after the title-bar menus.
-- 🧪[Test]-Built `Zhijian.slnx`, published win-x64 Native AOT, and verified the published `Zhijian.exe` stays running after startup.
+- ✨[新增]-应用程序使用 `logo.ico` 作为程序图标，NuGet 包使用 `logo.png` 作为包图标，并补充作者与项目网站信息。
+- ✨[新增]-扩展只读导入覆盖范围，支持更多主流脑图、draw.io、图片、Office、文档和数据格式，同时保留 Markdown、OPML、XMind 的明确导出路径。
+- 🔨[优化]-启动时恢复为空白文档，`使用手册.md` 继续随程序输出，并作为更丰富、更真实的帮助手册使用。
+- 🔨[优化]-文件打开、保存、最近文件、文件夹扫描和导入解析改为异步路径，减少大文档加载时的明显卡顿。
+- 🔨[优化]-从 CommunityToolkit.Mvvm 切换到与 ReactiveUI/Avalonia 更统一的 ViewModel 基类，并使用 Avalonia 直接绑定 public/async 方法作为命令。
+- 🔨[优化]-按职责拆分主 ViewModel、脑图编辑器、大纲编辑器、文档编解码、文件格式元数据、最近文件存储和树布局，代码阅读路径更清晰。
+- 🔨[优化]-新增 `MindMapFileFormatRegistry` 集中文件格式元数据，并将导入解析整理为注册表/策略式管线。
+- 🔨[优化]-简化 Native AOT 裁剪配置，新增聚焦的 AtomUI 枚举数组兼容保护，确保 win-x64 Native AOT 发布产物可正常启动。
+- 🔨[修复]-改进脑图画布留白和备注高度布局，缩放、拖动画布和长备注节点不再把内容挤到重叠或难以平移的位置。
+- 🔨[修复]-保持 Avalonia 桌面启动入口同步，并让异步配置读取不捕获 UI 上下文，恢复 `dotnet run` 和发布产物的主窗口显示。
+- 🔨[修复]-移除标题栏重复文件名显示，当前文档名只保留在标题栏菜单后方。
+- 🧪[测试]-构建 `Zhijian.slnx`，发布 win-x64 Native AOT，并验证发布后的 `Zhijian.exe` 启动后保持运行。
 
 ## 12.0.3.6（2026-05-18）
 
-- 🔨[Optimize]-Changed onboarding to precisely highlight the title-bar File menu, outline editor, Markdown switch, mind-map canvas, and bottom navigation instead of using the whole left pane as the file entry.
-- 🔨[Optimize]-Show individually opened files in the left file list, while keeping folder-open behavior scoped to files inside the chosen folder.
-- 🔨[Optimize]-Load the bundled `使用手册.md` on startup so the first screen demonstrates the full editing workflow.
-- 🔨[Optimize]-Added built-in basic node creation, deletion, promotion, demotion, sibling reordering, drag/drop moves, and auto layout to `MindMapEditor`, so simple hosts can bind only `Roots` / `SelectedNode`.
-- 📝[Docs]-Reduced repeated UI-framework mentions in product docs and focused README, docs, website documentation, and the article on Zhijian features.
-- 📝[Docs]-Regenerated key screenshots/GIFs with the bundled manual loaded by default for clearer file-list, mini-map, zoom, canvas-panning, and hierarchy demos.
-- ✨[Add]-Expanded onboarding to cover file/outline tabs, Markdown switching, outline shortcuts, mind-map dragging, canvas panning, mini-map preview, zoom, and status-bar navigation, with a Skip button.
-- 🔨[Optimize]-Use `⌘` as the primary command modifier on macOS for title-bar menus, window shortcuts, and mind-map wheel zoom while keeping `Ctrl` on Windows/Linux.
-- 🔨[Optimize]-Left-align mind-map titles and notes inside the same content width, including short text and note editors that need to regain focus.
-- 🔨[Optimize]-Centralized onboarding, default culture, recent-file count, history depth, and runtime state file names in `src/Zhijian/App.config` through `ApplicationSettings`.
-- 📝[Docs]-Updated README, architecture, and source-design docs for macOS shortcuts, onboarding, centralized configuration, node creation, node dragging, and mini-map media.
-- 🧪[Test]-Built `Zhijian.slnx` with .NET 10 and ran a ViewModel workflow covering create, add, delete, promote, demote, notes, and Markdown synchronization.
+- 🔨[优化]-新手引导改为精准高亮标题栏文件菜单、大纲编辑区、Markdown 切换、脑图画布和底部导航，避免用整块左侧面板代替文件入口。
+- 🔨[优化]-单独打开的文件会显示在左侧文件列表中；打开文件夹仍然只列出所选目录下的支持文件。
+- 🔨[优化]-启动时默认加载随程序输出的 `使用手册.md`，首屏即可展示完整编辑流程。
+- 🔨[优化]-`MindMapEditor` 内置基础节点创建、删除、升降级、同级移动、拖拽移动和自动布局，普通接入只绑定 `Roots` / `SelectedNode` 即可使用。
+- 📝[文档]-减少正文中对 UI 框架的重复描述，突出枝见自身功能；同步更新 README、docs、网站文档和公众号文章。
+- 📝[文档]-使用默认加载的使用手册重新生成重点截图/GIF，更适合展示文件列表、小图、缩放、画布拖拽和层级调整。
+- ✨[新增]-新手引导扩展到文件/大纲 Tab、Markdown 切换、大纲快捷键、脑图拖拽、画布平移、小图预览、缩放和状态栏导航，并新增“跳过”按钮。
+- 🔨[优化]-macOS 下标题栏菜单、窗口快捷键和脑图滚轮缩放统一使用 `⌘` 作为主命令键，Windows/Linux 继续使用 `Ctrl`。
+- 🔨[优化]-脑图节点标题和备注统一在同一内容宽度内左对齐，短文本节点和备注输入都能稳定重新获得焦点。
+- 🔨[优化]-将新手引导开关、默认语言、最近文件数、历史步数和运行状态文件名集中到 `src/Zhijian/App.config`，由 `ApplicationSettings` 统一读取。
+- 📝[文档]-补充 README、架构和源码设计文档中的 macOS 快捷键、新手引导、配置集中管理、节点创建、节点拖拽和小图素材说明。
+- 🧪[测试]-使用 .NET 10 构建 `Zhijian.slnx`，并通过 ViewModel 模拟新建、添加、删除、升降级、备注和 Markdown 同步流程。
 
 ## 12.0.3.5（2026-05-17）
 
-- ✨[Add]-Expanded the File menu into a product workflow: New, New Window, Open, Open Folder, Recent Files, Save, Save As, Open File Location, and Close.
-- ✨[Add]-Added folder mode with `Files` and `Outline` tabs so a selected folder can list supported mind-map files before loading one into the editor.
-- ✨[Add]-Added recent-file persistence in the application directory and unsaved-change prompts for Save, Save As, and Close.
-- 🔨[Optimize]-Changed startup to an empty document with one editable center topic instead of preloaded sample content.
-- 🔨[Optimize]-Made level-2 mind-map nodes use stronger generated accent backgrounds and adjusted note text to a gray, slightly larger style for clearer title/note separation.
-- 🔨[Fix]-Fixed title-bar File/About buttons being intercepted by window-drag hit testing.
-- 🔨[Fix]-Fixed mind-map node title and note editing by treating inner TextBox visuals as editor input sources.
-- 🔨[Fix]-Aligned mind-map notes with their node titles and let short-text nodes refocus from the empty hit area.
-- 🔨[Optimize]-Changed outline and mind-map notes to use only smaller text and muted foreground color, without note backgrounds, left borders, or block padding.
-- 🔨[Optimize]-Replaced splitter resizing with explicit column-width dragging while keeping the outline pane constrained to 320-640 px.
-- 🔨[Optimize]-Unified tooltips with a compact dark floating style closer to AtomUI.
-- 🔨[Optimize]-Moved title-bar add-ons, the About window, and the changelog window into AXML plus view models, using AtomUI `Menu/MenuItem` for title-bar menus to reduce C# UI composition.
-- ✨[Add]-Added a title-bar About > Thanks action with an AtomUI thanks window listing Dotnet, Avalonia UI, Semi.Avalonia, Ursa.Avalonia, and AtomUI links.
-- ✨[Add]-Added Edit, Theme, Language, and Help title-bar menus with icons, shortcuts, feedback links, and copy-as-Markdown.
-- ✨[Add]-Added `Lang.Avalonia.Json` localization resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
-- ✨[Add]-Added a first-run AtomUI Tour that introduces title-bar menus, the outline input area, Markdown switching, the mind-map canvas, and status-bar navigation.
-- 🔨[Optimize]-Moved the current document name into the visual center of the title bar instead of placing it directly after the menus.
-- 🔨[Optimize]-Changed important command feedback to AtomUI global messages, including Copy as Markdown and theme/language changes.
-- 📝[Docs]-Replaced splitter-focused documentation media with actual workflow media for opening folders, node menus, note sync, mini-map navigation, zoom, and canvas panning.
-- 📝[Docs]-Added real running-app screenshots and GIFs for title-bar menus, onboarding, theme/language switching, and copy-as-Markdown feedback.
-- 📝[Docs]-Added the open source thanks list to the README and design documentation.
-- 📝[Docs]-Expanded the repository README and docs with paired English/Chinese versions plus runtime screenshots and GIFs captured from the actual desktop app.
-- 🧪[Test]-Reran the desktop app with screenshots for menus, splitter drag, mind-map title/note input, zoom, canvas scrolling, and maximized layout.
-- 🧪[Test]-Verified the centered title, AtomUI menus, global message, Tour onboarding, theme readability, language switching, and splitter drag with real window screenshots.
+- ✨[新增]-将“文件”菜单扩展为完整产品工作流：新建、新建窗口、打开、打开文件夹、最近文件、保存、另存为、打开文件位置和关闭。
+- ✨[新增]-新增文件夹模式，左侧通过“文件 / 大纲”两个 Tab 切换，可先列出文件夹内支持的脑图文件，再加载到编辑器。
+- ✨[新增]-新增最近文件记录，保存到程序目录，并在保存、另存为和关闭时处理未保存变更提示。
+- 🔨[优化]-启动后改为空白脑图，只保留一个可输入的中心主题，不再默认加载示例数据。
+- 🔨[优化]-二级脑图节点改为更醒目的自动强调色背景，备注文字改为灰色且略大一些，让标题和备注更容易区分。
+- 🔨[修复]-修复标题栏“文件/关于”按钮被拖窗命中逻辑抢占导致无法点击的问题。
+- 🔨[修复]-修复脑图节点标题和备注输入点击被节点拖拽逻辑拦截的问题，编辑区会识别 TextBox 内部视觉元素。
+- 🔨[修复]-修复脑图节点备注与标题水平对齐不一致的问题，并让短文本节点在空白命中区点击后也能重新进入输入。
+- 🔨[优化]-将大纲和脑图备注改为仅用小字号和弱前景色区分，去掉备注自身背景、左边框和块状填充。
+- 🔨[优化]-将左右视图分隔条改为显式拖拽调整列宽，保留 320-640 像素的大纲宽度约束。
+- 🔨[优化]-统一 ToolTip 为更接近 AtomUI 的紧凑深色浮层样式。
+- 🔨[优化]-将标题栏附加内容、关于窗口和更新日志窗口迁移到 AXML 与 ViewModel，标题栏菜单改用 AtomUI `Menu/MenuItem`，减少 C# 中的界面组装代码。
+- ✨[新增]-在标题栏“关于”菜单中新增“感谢”入口，使用 AtomUI 窗口展示 Dotnet、Avalonia UI、Semi.Avalonia、Ursa.Avalonia 和 AtomUI 链接。
+- ✨[新增]-新增“编辑”“主题”“语言”“帮助”标题栏菜单，包含图标、快捷键、反馈入口和复制为 Markdown。
+- ✨[新增]-新增 `Lang.Avalonia.Json` 本地化资源，覆盖中文简体、中文繁体、英语和日语。
+- ✨[新增]-新增首次启动 AtomUI Tour 引导，介绍标题栏菜单、左侧输入区、Markdown 切换、脑图画布和状态栏导航。
+- 🔨[优化]-将当前文档名移动到标题栏视觉中间，不再紧贴菜单右侧显示。
+- 🔨[优化]-重要操作反馈改用 AtomUI 全局消息，包括复制为 Markdown、主题切换和语言切换。
+- 📝[文档]-把以分隔条为主的文档媒体替换为更有意义的实际操作媒体：打开文件夹、节点菜单、备注同步、小图导航、缩放和画布拖拽。
+- 📝[文档]-补充来自真实运行程序的标题栏菜单、新手引导、主题/语言切换和复制 Markdown 提示截图与 GIF。
+- 📝[文档]-在 README 和设计文档中补充开源项目感谢列表。
+- 📝[文档]-完善仓库 README 与 docs 文档的中英双版本，并补充来自实际运行桌面程序的截图和 GIF。
+- 🧪[测试]-重新运行桌面程序并截图验证菜单、分隔条、脑图标题/备注输入、缩放、画布滚动和窗口最大化。
+- 🧪[测试]-通过真实窗口截图验证标题居中、AtomUI 菜单、全局消息、Tour 引导、主题可读性、语言切换和分隔条拖拽。
 
 ## 12.0.3.4（2026-05-17）
 
-- 🔨[优化]-Removed the chevrons from the title-bar File/About buttons and flattened the File menu into direct import/export actions for a lighter menu surface.
-- 🔨[优化]-Expanded the outline and mind-map menus with the common add-sibling, promote/demote, move-up/move-down actions users expect during structural editing.
-- 🧪[测试]-Reran the 30-minute automated desktop loop against the final UI, covering splitter drag, view switching, theme switching, mini-map, zoom, node create/delete, note editing, and both menus.
-- 📝[文档]-Updated the article, source design, and README with the reusable `CodeWF.MindView` integration story.
+- 🔨[优化]-去掉标题栏“文件/关于”按钮右侧箭头，并将文件菜单平铺为直接导入/导出动作，菜单入口更轻。
+- 🔨[优化]-补齐大纲和脑图菜单的“添加同级、提升/降级、上移/下移”等常用操作，提升结构编辑效率。
+- 🧪[测试]-重新跑满 30 分钟自动化桌面操作，覆盖分隔条拖拽、视图切换、主题切换、小图、缩放、节点创建/删除、备注编辑和大纲/脑图菜单。
+- 📝[文档]-同步更新文章、源码设计和 README，对新应用复用 `CodeWF.MindView` 的方式做了补充。
 
 ## 12.0.3.3（2026-05-17）
 
-- 🔨[优化]-Made the outline/mind-map splitter visible again with a dedicated drag slot and center handle while keeping `GridSplitter` resizing.
-- 🧪[测试]-Added a 30-minute automated desktop run covering splitter drag, Markdown toggles, theme toggles, mini-map, zoom, node create/delete, note add/delete, and mind-map drag operations.
-- 📝[文档]-Expanded the source design and README with guidance for using `CodeWF.MindView`, `MindMapEditor`, `MindMapNode`, and `IMindMapEditorController` from a new Avalonia app.
+- 🔨[优化]-恢复并强化大纲视图和脑图视图之间的可见拖动分隔条，使用独立拖拽槽和中间把手，同时保留 `GridSplitter` 左右调整能力。
+- 🧪[测试]-新增 30 分钟自动化桌面运行，覆盖分隔条拖拽、Markdown 切换、主题切换、小图、缩放、节点创建/删除、备注添加/删除和脑图拖拽。
+- 📝[文档]-补充新应用接入 `CodeWF.MindView`、`MindMapEditor`、`MindMapNode` 和 `IMindMapEditorController` 的说明，并说明可参考 `Zhijian` 应用层代码复用。
 
 ## 12.0.3.2（2026-05-17）
 
-- 🔨[优化]-Removed the visible mind-map node drag line while keeping a transparent drag hit area for non-root nodes.
-- ✨[新增]-Added synchronized note editing in both outline and mind-map views, including empty-note collapse and Backspace/Delete removal behavior.
-- ✨[新增]-Added AtomUI outline node dot menus with note and delete actions, while preserving drag/drop from the same dot.
-- ✨[新增]-Added a floating mind-map node toolbar with note and delete actions.
-- ✨[新增]-Added mind-map drag/drop reparenting and sibling reordering with dashed drop previews.
-- 🔨[优化]-Changed the mini-map to render a true overview from current node coordinates and viewport bounds.
-- 🔨[优化]-Improved auto layout so deeper nodes and notes participate in width/height estimation.
-- 📝[文档]-Added Chinese source-design documentation under `docs/源码设计.md`.
+- 🔨[优化]-去掉脑图节点前面的可见拖拽竖线，仅保留非根节点透明拖拽命中区。
+- ✨[新增]-大纲和脑图同步支持备注编辑，并处理空备注失焦隐藏、Backspace/Delete 删除备注输入框等细节。
+- ✨[新增]-大纲节点圆点菜单，提供备注和删除操作，同时保留圆点拖拽调整结构能力。
+- ✨[新增]-脑图节点获得输入焦点时显示悬浮操作栏，提供备注和删除入口。
+- ✨[新增]-脑图支持拖拽调整兄弟顺序和拖动为其他节点子节点，并显示虚线落点预览。
+- 🔨[优化]-小图改为按真实节点坐标和当前视口绘制脑图概览。
+- 🔨[优化]-自动布局把深层节点宽度和备注高度纳入估算，减少第 4 级以后连线与输入框挤压。
+- 📝[文档]-新增 `docs/源码设计.md`，说明源码分层、数据流、拖拽、备注、小图和主题边界。
 
 ## 12.0.3.1（2026-05-16）
 
-- 🔨[优化]-Extracted the reusable mind-map editor, mini-map, node model, and Markdown/OPML/XMind codecs into `CodeWF.MindView`.
-- 🔨[优化]-Added `CodeWF.MindView.Themes` with default Avalonia resources and wired Zhijian to consume the extracted controls while keeping the outline view in the app.
-- 🔨[优化]-Added CodeWF-style package metadata and updated project structure documentation for the new reusable libraries.
-- 🔨[优化]-Renamed the application project from `Zhijian.Desktop` to `Zhijian`, including the project path, namespace, manifest identity, and run command.
-- 🔨[优化]-Restored title-bar dragging while keeping the title-bar file menu and theme switch interactive.
-- 🔨[优化]-Replaced pane-local status text with a unified bottom status bar for node statistics, undo/redo step history, mini-map, center-topic navigation, zoom, and GitHub help.
-- 🔨[优化]-Added a draggable `GridSplitter` between the outline and mind-map panes.
-- 🔨[优化]-Improved mind-map navigation with a status-bar mini-map preview, root-topic centering, `Ctrl + L`, and more reliable `Space + left mouse` canvas panning.
-- ❌[删除]-Removed `Avalonia.Themes.Fluent` so the desktop app now runs on AtomUI styling only.
-- 🔨[优化]-Replaced remaining native text editors with AtomUI text controls, fixing invisible editor text after removing Fluent.
-- 🔨[优化]-Rebuilt the title-bar file menu as a real AtomUI `WindowTitleBar` add-on so it stays out of the work area while remaining clickable.
-- 🔨[优化]-Restored the title-bar light/dark theme switch and connected the custom outline and mind-map surfaces to the same theme state.
-- 🔨[优化]-Polished the title bar branding, outline/Markdown switch, and mind-map zoom controls, then verified the main workflow with running-app screenshots.
+- 🔨[优化]-将可复用脑图编辑器、小图、节点模型与 Markdown/OPML/XMind 编解码提取到 `CodeWF.MindView`。
+- 🔨[优化]-新增 `CodeWF.MindView.Themes` 默认 Avalonia 主题资源，Zhijian 改为引用抽出的脑图控件，大纲视图仍保留在应用工程。
+- 🔨[优化]-补充 CodeWF 风格包元数据，并更新新复用库结构说明。
+- 🔨[优化]-将应用工程从 `Zhijian.Desktop` 重命名为 `Zhijian`，同步更新项目路径、命名空间、清单标识和运行命令。
+- 🔨[优化]-恢复标题栏拖动能力，同时保持标题栏文件菜单和主题切换可交互。
+- 🔨[优化]-将左右视图局部状态信息改为统一底部状态栏，集中显示节点统计、撤销/重做步骤、小图、中心主题定位、缩放和 GitHub 帮助入口。
+- 🔨[优化]-在大纲与脑图之间加入可拖拽的 `GridSplitter`，支持调整左右布局。
+- 🔨[优化]-增强脑图导航，新增状态栏小图预览、中心主题定位、`Ctrl + L` 快捷键，并让 `Space + 左键` 画布平移更稳定。
+- ❌[删除]-移除 `Avalonia.Themes.Fluent`，桌面端界面改为仅使用 AtomUI 样式体系。
+- 🔨[优化]-将残留的原生文本编辑控件替换为 AtomUI 文本控件，修复移除 Fluent 后编辑器文字不可见的问题。
+- 🔨[优化]-将文件菜单重建为真正的 AtomUI `WindowTitleBar` 附加控件，保持在标题栏内且不占用工作区。
+- 🔨[优化]-恢复标题栏浅色/深色主题切换，并让自定义大纲与脑图区域同步跟随主题状态。
+- 🔨[优化]-优化标题栏品牌、大纲/Markdown 切换和脑图缩放控件，并通过实际运行截图验证主流程。

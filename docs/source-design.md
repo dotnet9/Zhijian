@@ -1,132 +1,132 @@
-# Zhijian Source Design
+# 枝见源码设计
 
-Chinese version: [source-design.zh-CN.md](source-design.zh-CN.md)
+English version: [source-design.md](source-design.md)
 
-Zhijian is split into a reusable Avalonia mind-map library and a product desktop application. The main design rule is simple: keep reusable document and canvas behavior in `CodeWF.MindView`, and keep product-specific desktop workflow in `Zhijian`.
+枝见拆分为可复用 Avalonia 脑图库和产品化桌面应用。核心设计规则很简单：可复用的文档和画布行为放在 `CodeWF.MindView`，桌面工作流放在 `Zhijian`。
 
-![Zhijian runtime](media/zhijian-main-window.gif)
+![枝见运行界面](media/zhijian-main-window.gif)
 
-## Design Goals
+## 设计目标
 
-- **Single model**: outline, Markdown, mind map, open/save, and export all work with `MindMapNode`.
-- **Reusable controls**: `CodeWF.MindView` references Avalonia only, so it can be used without the product shell.
-- **Application-owned experience**: windows, menus, list boxes, text boxes, buttons, dialogs, and tooltips are composed in the application layer.
-- **Localized shell**: title-bar menus and onboarding text are backed by `Lang.Avalonia.Json` resources for Chinese, English, and Japanese users.
-- **Immediate synchronization**: edits in the outline, Markdown, or mind map update the other views through the same tree.
-- **Predictable layout**: node titles and notes participate in width and height estimation, reducing overlap in deeper maps.
-- **Friendly operations**: title-bar menus, outline menus, mind-map menus, keyboard shortcuts, Tour onboarding, mini-map, zoom, and canvas panning are available from visible controls.
+- **单一模型**：大纲、Markdown、脑图、打开/保存和导出都围绕 `MindMapNode` 工作。
+- **控件可复用**：`CodeWF.MindView` 只引用 Avalonia，不依赖产品应用外壳。
+- **体验由应用层负责**：枝见的窗口、菜单、列表、文本框、按钮、对话框和 ToolTip 都在应用层组织。
+- **外壳可本地化**：标题栏菜单和新手引导文字使用 `Lang.Avalonia.Json` 资源，覆盖中文、英语和日语用户。
+- **即时同步**：大纲、Markdown 或脑图中的编辑都会通过同一棵树更新其他视图。
+- **布局可预期**：节点标题和备注都会参与宽高估算，减少深层脑图重叠。
+- **操作友好**：标题栏菜单、节点菜单、快捷键、新手引导、小图、缩放和画布拖拽都有可见入口。
 
-## Runtime Interaction Evidence
+## 真实交互素材
 
-These assets were refreshed against the current UI. The app now starts with a blank mind map; the bundled `使用手册.md` can still be opened manually when the file list, mini-map, zoom, canvas panning, and hierarchy changes need a complex sample.
+这些素材已按当前界面重新制作。应用启动默认创建空白脑图；需要展示文件列表、小图、缩放、画布拖拽和层级调整时，可手动打开随程序输出的 `使用手册.md`。
 
-![File menu](media/zhijian-file-menu.png)
+![文件菜单](media/zhijian-file-menu.png)
 
-![Title-bar menus](media/zhijian-title-menus.gif)
+![标题栏菜单](media/zhijian-title-menus.gif)
 
-![First-run onboarding](media/zhijian-onboarding.gif)
+![首次启动引导](media/zhijian-onboarding.gif)
 
-![Theme and language switching](media/zhijian-theme-language.gif)
+![主题和语言切换](media/zhijian-theme-language.gif)
 
-![Copy Markdown feedback](media/zhijian-copy-markdown.gif)
+![复制 Markdown 提示](media/zhijian-copy-markdown.gif)
 
-![File list](media/zhijian-open-folder.gif)
+![文件列表](media/zhijian-open-folder.gif)
 
-![Outline and mind-map menus](media/zhijian-node-menus.gif)
+![大纲和脑图菜单](media/zhijian-node-menus.gif)
 
-![Node creation](media/zhijian-create-node.gif)
+![创建节点](media/zhijian-create-node.gif)
 
-![Outline menu](media/zhijian-outline-menu.gif)
+![大纲菜单](media/zhijian-outline-menu.gif)
 
-![Mind-map drag hierarchy](media/zhijian-mind-drag.gif)
+![脑图拖拽调整层级](media/zhijian-mind-drag.gif)
 
-![Mini-map](media/zhijian-minimap.gif)
+![小图](media/zhijian-minimap.gif)
 
-![Zoom](media/zhijian-zoom.gif)
+![缩放](media/zhijian-zoom.gif)
 
-![Canvas panning](media/zhijian-canvas-pan.gif)
+![画布拖拽](media/zhijian-canvas-pan.gif)
 
-## Project Organization
+## 项目组织
 
 ```text
 src/
   CodeWF.MindView/
-    MindMapNode.cs              shared node model
-    MindMapLayoutMetrics.cs     node size and layout estimation
-    MindMapDropPlacement.cs     before / after / child drop semantics
-    MindMapDocumentCodec.cs     Markdown / OPML / XMind codecs
-    IMindMapEditorController.cs editor host contract
-    IMindMapFileService.cs      file service abstraction used by the app
+    MindMapNode.cs              共享节点模型
+    MindMapLayoutMetrics.cs     节点尺寸和布局估算
+    MindMapDropPlacement.cs     前 / 后 / 子级拖拽语义
+    MindMapDocumentCodec.cs     Markdown / OPML / XMind 编解码
+    IMindMapEditorController.cs 编辑器宿主接口
+    IMindMapFileService.cs      应用使用的文件服务抽象
     Controls/
-      MindMapEditor.cs          main mind-map editing control
-      MindMapMiniMap.cs         mini-map overview control
+      MindMapEditor.cs          主要脑图编辑控件
+      MindMapMiniMap.cs         小图概览控件
   CodeWF.MindView.Themes/
-    Themes/Common.axaml         default mind-map resources
+    Themes/Common.axaml         默认脑图资源
   Zhijian/
-    Views/MainWindow.axaml      main desktop layout
-    Views/OutlineEditor.cs      application-layer outline editor
-    Views/*Window.axaml         dialogs and about/changelog/thanks windows
-    Services/                  Avalonia file and app action services
+    Views/MainWindow.axaml      主桌面布局
+    Views/OutlineEditor.cs      应用层大纲编辑器
+    Views/*Window.axaml         对话框、关于、更新日志、感谢窗口
+    Services/                  Avalonia 文件和应用动作服务
     ViewModels/MainWindowViewModel.cs
 ```
 
-## Data Model
+## 数据模型
 
-`MindMapNode` is the shared document model. It stores title, note, accent color, layout coordinates, and children. `MainWindowViewModel` owns the root collection and current selection:
+`MindMapNode` 是共享文档模型。它保存标题、备注、强调色、布局坐标和子节点。`MainWindowViewModel` 持有根集合和当前选择：
 
 ```csharp
 public ObservableCollection<MindMapNode> Roots { get; }
 public MindMapNode? SelectedNode { get; set; }
 ```
 
-The outline editor, Markdown editor, mind-map editor, mini-map, and file codecs all read and write this same model. Structure changes re-subscribe node notifications so newly created nodes stay part of the synchronization pipeline.
+大纲编辑器、Markdown 编辑器、脑图编辑器、小图和文件编解码都读写同一个模型。结构变化后会重新订阅节点通知，确保新建节点继续参与同步。
 
-## Desktop Workflow
+## 桌面工作流
 
-The File menu is application-layer workflow. It creates blank documents, launches a new editor process, opens editable files, imports other formats, opens folders into the file tab, tracks recent files in `recent-files.json`, saves the current document, saves as an editable format, opens the current file location, and asks whether to save unsaved changes before closing. The app starts with a blank document; the bundled `使用手册.md` remains available from the Help menu as a manual and complex mind-map sample. Any individually opened or imported file is also inserted into the left file list for quick switching.
+文件菜单属于应用层工作流。它负责创建空白文档、启动新编辑器进程、打开可编辑文件、导入其他格式、把文件夹加载到文件 Tab、把最近文件保存到 `recent-files.json`、保存当前文档、另存为可编辑格式、打开当前文件位置，以及关闭前询问是否保存未保存改动。应用启动时默认创建空白文档；随程序输出的 `使用手册.md` 保留为可从帮助菜单打开的帮助和复杂脑图示例。单独打开或导入的文件也会插入左侧文件列表，便于后续切换。
 
-Edit, Theme, Language, Help, and About are also title-bar menus. They expose structural commands, copy-as-Markdown, dark/light theme switching, Simplified Chinese / Traditional Chinese / English / Japanese switching, feedback links, repository links, changelog, thanks, and about windows. Copy-as-Markdown uses the platform clipboard and then reports success through a desktop global message.
+编辑、主题、语言、帮助和关于也都属于标题栏菜单。它们提供结构编辑命令、复制为 Markdown、深色/浅色主题切换、中文简体/中文繁体/英语/日语切换、问题反馈、需求提交、PR、仓库、更新日志、感谢和关于窗口。复制为 Markdown 会调用平台剪贴板，并显示桌面全局成功提示。
 
-First-run onboarding now targets the title-bar File menu, the left outline editor, the Markdown switch button, the right mind-map canvas, touchpad pinch zoom, two-finger/wheel panning, pointer-centered zoom, mini-map preview, zoom, and status-bar navigation. The file step no longer highlights the whole left pane, so new users do not confuse file entry points with the outline editor. The tour includes a Skip button; closing or skipping writes `new-user-tour.seen` in the application directory.
+首次启动引导会精准命中标题栏文件菜单、左侧大纲编辑区、Markdown 切换按钮、右侧脑图画布、触控板双指捏合缩放、触控板双指/滚轮平移、指针位置缩放、小图预览、缩放和状态栏导航。文件菜单步骤不再高亮整块左侧面板，避免新用户把文件入口和大纲区域混在一起。引导提供“跳过”按钮，关闭或跳过后会写入程序目录中的 `new-user-tour.seen`。
 
-`src/Zhijian/App.config` centralizes the necessary application settings: `ShowNewUserTour` controls whether onboarding can appear, `DefaultCultureName` sets the default UI culture, `RecentFilesFileName` and `TourSeenFileName` control runtime state file names, and `MaxRecentFiles` / `MaxHistorySteps` control recent-file and undo-history capacity. Runtime code reads the .NET-generated `Zhijian.dll.config` through `ApplicationSettings` and falls back to code defaults if the config is missing or malformed.
+`src/Zhijian/App.config` 集中管理必要的应用配置：`ShowNewUserTour` 控制引导是否可显示，`DefaultCultureName` 控制默认语言，`RecentFilesFileName` 和 `TourSeenFileName` 控制运行状态文件名，`MaxRecentFiles` 和 `MaxHistorySteps` 控制最近文件与撤销历史容量。运行时通过 `ApplicationSettings` 读取 .NET 编译后的 `Zhijian.dll.config`，配置损坏时回退到代码默认值，避免阻断应用启动。
 
-The file tab uses an application-layer list to show the current opened or imported file, or supported files from an opened folder, then switches back to the outline after a file is selected. Its empty state exposes Open Editable File, Import, Open Folder, and Open User Manual so users do not need to discover the title-bar menu first. Open is scoped to editable Markdown, OPML, and XMind-style formats; Import is broader and read-only by product contract; Save As only exposes formats the app can reliably write.
+文件 Tab 使用应用层列表控件展示当前打开或导入的单个文件，或打开文件夹后的支持文件，并在选择文件后自动回到大纲编辑。空状态直接提供打开可编辑文件、导入、打开文件夹和打开使用手册入口，用户不必先发现标题栏菜单。“打开”只筛选 Markdown、OPML 和 XMind 等可编辑格式；“导入”筛选更宽的只读转换格式；“另存为”只提供可可靠写出的可编辑格式。
 
-## Mind-Map Control
+## 脑图控件
 
-`MindMapEditor` renders nodes and connectors on a canvas inside a scroll viewer. It handles:
+`MindMapEditor` 在滚动视图中的 Canvas 上渲染节点和连线。它处理：
 
-- inline title and note editing
-- title and note editors left-align within the same content width, including short text and notes that need refocus
-- drag/drop reparenting and sibling reordering
-- dashed drop previews
-- touchpad pinch zoom, pointer-centered zoom, two-finger/wheel panning, center-topic drag panning, and `Space + left drag` or middle-button canvas panning
-- viewport tracking for the mini-map
-- floating node actions for common structure edits, note editing, and deletion
+- 标题和备注内联编辑
+- 标题和备注在同一内容宽度内左对齐，短文本和备注都能重新获得输入焦点
+- 拖拽重排兄弟节点和调整父子关系
+- 虚线落点预览
+- 触控板双指捏合缩放、指针位置缩放、触控板双指/滚轮平移、拖拽中心主题和 `Space + 左键` 或中键画布拖拽
+- 给小图使用的视口跟踪
+- 常用结构编辑、备注和删除的浮动节点操作
 
-Node editors use Avalonia controls, so the reusable library stays independent.
+节点编辑器使用 Avalonia 控件，所以可复用库保持独立。
 
-## Outline Editor
+## 大纲编辑器
 
-`OutlineEditor` is application-layer code that combines outline input, the node-dot menu, and drag behavior into the desktop workflow. It exposes user-friendly structure operations from the node dot menu:
+`OutlineEditor` 属于应用层代码，负责把大纲输入、圆点菜单和拖拽体验组合成桌面工作流。节点圆点菜单提供用户常用结构操作：
 
-- add child
-- add sibling
-- promote to parent
-- demote to child
-- move up
-- move down
-- edit note
-- delete
+- 添加子级
+- 添加同级
+- 提升为父节点
+- 降级为子节点
+- 上移
+- 下移
+- 编辑备注
+- 删除
 
-The same dot area supports click/right-click menus and drag/drop. A drag starts only after movement passes a threshold, so normal menu clicks remain reliable.
+同一个圆点区域支持点击/右键菜单和拖拽。只有移动距离超过阈值才进入拖拽，避免菜单点击和拖拽互相抢事件。
 
-## New App Integration
+## 新应用接入
 
-A new Avalonia application can use the reusable controls without referencing the `Zhijian` desktop app.
+新的 Avalonia 应用可以不引用 `Zhijian` 桌面应用，只复用控件库。
 
-Add project references:
+添加项目引用：
 
 ```xml
 <ItemGroup>
@@ -135,7 +135,7 @@ Add project references:
 </ItemGroup>
 ```
 
-Register default resources in `App.axaml`:
+在 `App.axaml` 注册默认资源：
 
 ```xml
 <Application
@@ -147,7 +147,7 @@ Register default resources in `App.axaml`:
 </Application>
 ```
 
-Place the editor in a view. Basic integration only binds the node collection and the current selection:
+在视图中放置编辑器。基础场景只需要绑定节点集合和当前选中节点：
 
 ```xml
 <UserControl
@@ -159,7 +159,7 @@ Place the editor in a view. Basic integration only binds the node collection and
 </UserControl>
 ```
 
-`MindMapEditor` includes basic child/sibling creation, promotion, demotion, sibling reordering, deletion, drag/drop moves, and automatic layout, so a simple host does not need to learn the full controller contract first. Implement `IMindMapEditorController` and bind `Controller` only when the host needs undo history, dirty-state tracking, business rules, or custom node creation:
+`MindMapEditor` 内置添加子级、添加同级、升降级、同级上下移动、删除、拖拽移动和自动布局，普通接入者不需要先学习完整宿主接口。需要撤销历史、未保存状态、业务限制或自定义节点创建时，再实现 `IMindMapEditorController` 并绑定 `Controller`：
 
 ```csharp
 public sealed class MindMapPageViewModel : IMindMapEditorController
@@ -185,13 +185,13 @@ public sealed class MindMapPageViewModel : IMindMapEditorController
 }
 ```
 
-If the new app also needs an outline editor, title-bar menus, file open/save, folder browsing, recent files, or Markdown editing, use `src/Zhijian` as the reference implementation. Keep in mind that those pieces are application-shell code, while `CodeWF.MindView` is the reusable Avalonia-only control library.
+如果新应用还需要大纲编辑器、标题栏菜单、文件打开/保存、文件夹浏览、最近文件或 Markdown 编辑，可以参考并复用 `src/Zhijian` 的应用层实现。需要区分的是：这些是应用外壳代码，而 `CodeWF.MindView` 是可复用的 Avalonia-only 控件库。
 
-Repository: <https://github.com/dotnet9/Zhijian>
+仓库地址：<https://github.com/dotnet9/Zhijian>
 
-## Open Source Thanks
+## 开源项目感谢
 
-Zhijian is built on excellent open source platforms and libraries:
+枝见的开发离不开这些优秀开源平台和项目：
 
 - [Dotnet](https://dotnet.microsoft.com/zh-cn/)
 - [Avalonia UI](https://avaloniaui.net/)

@@ -1,7 +1,6 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path="CHANGELOG.md" />
-    <File Path="CHANGELOG.zh-CN.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="pack.bat" />
@@ -10,11 +9,10 @@
     <File Path="publishbase.bat" />
     <File Path="README.zh-CN.md" />
     <File Path="docs/architecture.md" />
-    <File Path="docs/architecture.zh-CN.md" />
     <File Path="docs/source-design.md" />
-    <File Path="docs/source-design.zh-CN.md" />
     <File Path="logo.png" />
     <File Path="README.md" />
+    <File Path="RELEASES.md" />
     <File Path="使用手册.md" />
   </Folder>
   <Project Path="src/CodeWF.MindView.Themes/CodeWF.MindView.Themes.csproj" />

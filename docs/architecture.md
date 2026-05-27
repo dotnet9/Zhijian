@@ -1,85 +1,85 @@
-# Zhijian Architecture
+# 枝见架构说明
 
-Chinese version: [architecture.zh-CN.md](architecture.zh-CN.md)
+English version: [architecture.md](architecture.md)
 
-Zhijian is an Avalonia desktop application for editing Markdown-first mind maps. The repository separates reusable mind-map functionality from the application shell:
+枝见是一个用于编辑 Markdown-first 脑图的 Avalonia 桌面应用。仓库把可复用脑图能力和应用外壳分开：
 
-- `CodeWF.MindView` contains the shared node model, editor control, mini-map control, and Markdown/OPML/XMind codecs.
-- `CodeWF.MindView.Themes` contains default Avalonia resources for the reusable controls.
-- `Zhijian` contains the desktop shell, title-bar menus, outline editor, Markdown pane, dialogs, file services, recent-file storage, and application ViewModels.
+- `CodeWF.MindView` 包含共享节点模型、脑图编辑控件、小图控件，以及 Markdown/OPML/XMind 编解码。
+- `CodeWF.MindView.Themes` 包含可复用控件的默认 Avalonia 资源。
+- `Zhijian` 包含桌面外壳、标题栏菜单、大纲编辑器、Markdown 面板、对话框、文件服务、最近文件记录和应用 ViewModel。
 
-![Runtime architecture view](media/zhijian-main-window.gif)
+![运行时架构视图](media/zhijian-main-window.gif)
 
-## Runtime Evidence
+## 运行证据
 
-The screenshots and GIFs in `docs/media` were refreshed against the current UI. The app now starts with a blank mind map; the bundled `使用手册.md` can still be opened manually when a complex sample is useful.
+`docs/media` 中的截图和 GIF 已按当前界面重新制作。应用启动默认创建空白脑图；需要展示复杂层级时，可手动打开随程序输出的 `使用手册.md`。
 
-![File list workflow](media/zhijian-open-folder.gif)
+![文件列表流程](media/zhijian-open-folder.gif)
 
-![Title-bar menu workflow](media/zhijian-title-menus.gif)
+![标题栏菜单流程](media/zhijian-title-menus.gif)
 
-![First-run onboarding](media/zhijian-onboarding.gif)
+![首次启动引导](media/zhijian-onboarding.gif)
 
-![Theme and language workflow](media/zhijian-theme-language.gif)
+![主题和语言流程](media/zhijian-theme-language.gif)
 
-![Node menus](media/zhijian-node-menus.gif)
+![节点菜单](media/zhijian-node-menus.gif)
 
-![Node creation](media/zhijian-create-node.gif)
+![创建节点](media/zhijian-create-node.gif)
 
-![Mind-map drag hierarchy](media/zhijian-mind-drag.gif)
+![脑图拖拽调整层级](media/zhijian-mind-drag.gif)
 
-![Mini-map navigation](media/zhijian-minimap.gif)
+![小图导航](media/zhijian-minimap.gif)
 
-![Canvas panning](media/zhijian-canvas-pan.gif)
+![画布拖拽](media/zhijian-canvas-pan.gif)
 
-## Dependency Direction
+## 依赖方向
 
 ```text
 Zhijian
-  |-- references desktop UI dependencies, CodeWF.MindView, CodeWF.MindView.Themes
-  |-- owns desktop shell, menus, dialogs, file pickers, and ViewModels
+  |-- 引用桌面 UI 依赖、CodeWF.MindView、CodeWF.MindView.Themes
+  |-- 负责桌面外壳、菜单、对话框、文件选择器和 ViewModel
   |
   +--> CodeWF.MindView.Themes
-       |-- references CodeWF.MindView resources
+       |-- 引用 CodeWF.MindView 资源
        |
        +--> CodeWF.MindView
-            |-- references Avalonia only
-            |-- owns model, mind-map editor, mini-map, and codecs
+            |-- 只引用 Avalonia
+            |-- 负责模型、脑图编辑器、小图和编解码
 ```
 
-`CodeWF.MindView` intentionally has no desktop-shell dependency. This keeps the mind-map editor reusable in a plain Avalonia application, while Zhijian can still compose windows, menus, list controls, buttons, text boxes, tooltips, and dialogs around its product workflow.
+`CodeWF.MindView` 刻意不依赖桌面外壳库。这样脑图编辑器可以被普通 Avalonia 应用复用，而枝见应用仍然可以按自己的产品工作流组织窗口、菜单、列表、按钮、文本框、ToolTip 和对话框。
 
-## Product Scope
+## 产品范围
 
-- Startup creates a blank editable center topic; the bundled `使用手册.md` can be opened manually from the file workflow.
-- Split view with file/outline tabs or Markdown editing on the left and a graphical mind-map editor on the right.
-- The file tab offers direct empty-state actions for Open Editable File, Import, Open Folder, and Open User Manual; it lists an individually opened or imported file, or every supported file when a folder is opened.
-- File workflow for New, New Window, Open Editable File, Import, Open Folder, Recent Files, Save, Save As Editable Format, Open File Location, and Close.
-- Edit, Theme, Language, Help, and About workflows exposed from title-bar menus.
-- `Lang.Avalonia.Json` i18n/l10n resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
-- Outline editor with title editing, notes, Enter/Tab/Shift+Tab/Delete rules, drag/drop structure changes, and high-frequency structure menus.
-- Mind-map editor with left-aligned inline title/note editing, drag/drop structure changes, center-topic drag panning, touchpad pinch zoom, two-finger/wheel panning, pointer-centered zooming, `Space + left drag` or middle-button panning, mini-map navigation, and center-topic navigation.
-- Copy as Markdown writes the current Markdown to the clipboard and reports success with a desktop global message.
-- First-run onboarding precisely highlights the File menu, outline editor, Markdown switch, mind-map canvas, and status bar, with a Skip button.
-- Application settings are centralized in `src/Zhijian/App.config`, including onboarding, default culture, recent-file count, history depth, and runtime state file names.
-- Title-bar menus, about, changelog, thanks, and unsaved-changes dialogs belong to the application shell layer.
-- Markdown, OPML, and XMind open/save support, with broader external formats handled as read-only imports and Save As limited to reliable editable formats.
+- 启动时创建只有中心主题的空白文档；随程序输出的 `使用手册.md` 可通过帮助菜单手动载入。
+- 左侧文件 Tab 在空状态提供打开可编辑文件、导入、打开文件夹和打开使用手册入口；单独打开或导入文件后会显示该文件，打开文件夹时则列出该目录下所有支持文件。
+- 左侧提供文件/大纲 Tab 或 Markdown 编辑，右侧提供图形脑图编辑器。
+- 文件流程支持新建、新建窗口、打开可编辑文件、导入、打开文件夹、最近文件、保存、另存为可编辑格式、打开文件位置和关闭。
+- 编辑、主题、语言、帮助和关于流程都放在标题栏菜单中。
+- 使用 `Lang.Avalonia.Json` 提供中文简体、中文繁体、英语和日语资源。
+- 大纲编辑器支持标题、备注、Enter/Tab/Shift+Tab/Delete 规则、拖拽调整结构，以及高频结构菜单。
+- 脑图编辑器支持标题和备注左对齐内联编辑、拖拽调整结构、拖拽中心主题平移整张脑图、触控板双指捏合缩放、触控板双指/滚轮平移、指针位置缩放、`Space + 左键` 或中键画布拖拽、小图导航和回到中心主题。
+- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并通过桌面全局消息提示成功。
+- 首次启动引导精准高亮文件菜单、大纲编辑区、Markdown 切换、脑图画布和状态栏，并提供“跳过”按钮。
+- 应用设置集中在 `src/Zhijian/App.config`，包含新手引导开关、默认语言、最近文件数、历史步数和运行状态文件名。
+- 标题栏菜单、关于、更新日志、感谢和未保存确认窗口都属于应用外壳层。
+- 支持 Markdown、OPML、XMind 打开和保存；更多外部格式走只读导入，另存为仍限制在可靠写出的可编辑格式。
 
-## Data Flow
+## 数据流
 
-`MainWindowViewModel` owns an `ObservableCollection<MindMapNode> Roots` and a two-way `SelectedNode`. The outline, Markdown text, mind-map editor, and mini-map all observe the same tree model.
+`MainWindowViewModel` 持有 `ObservableCollection<MindMapNode> Roots` 和双向 `SelectedNode`。大纲、Markdown 文本、脑图编辑器和小图都观察同一棵树。
 
-Title, note, color, and tree-structure changes trigger layout recalculation, Markdown synchronization, statistics updates, history snapshots, and dirty-state tracking. Because the model is shared, editing in one view immediately updates the other views.
+标题、备注、颜色和树结构变化会触发布局重算、Markdown 同步、统计刷新、历史快照和未保存状态跟踪。因为模型共享，所以任一视图中的编辑都会立即更新其他视图。
 
-## Platform Scope
+## 平台范围
 
-The desktop application targets `net10.0`. The reusable `CodeWF.MindView` libraries multi-target `net8.0`, `net9.0`, and `net10.0` so the control can be reused outside the Zhijian desktop shell. On macOS, title-bar menus, window shortcuts, and mind-map zoom use `⌘` as the command modifier; Windows/Linux use `Ctrl`.
+桌面应用目标框架为 `net10.0`。可复用的 `CodeWF.MindView` 库多目标 `net8.0`、`net9.0` 和 `net10.0`，方便在枝见桌面外壳之外复用。macOS 下标题栏菜单、窗口快捷键和脑图缩放使用 `⌘` 作为主命令键，Windows/Linux 使用 `Ctrl`。
 
-See [source-design.md](source-design.md) for deeper implementation notes and reusable-control integration details.
+更深入的实现说明和复用接入方式见 [source-design.zh-CN.md](source-design.zh-CN.md)。
 
-## Open Source Thanks
+## 开源项目感谢
 
-Zhijian is built on excellent open source platforms and libraries:
+枝见的开发离不开这些优秀开源平台和项目：
 
 - [Dotnet](https://dotnet.microsoft.com/zh-cn/)
 - [Avalonia UI](https://avaloniaui.net/)
