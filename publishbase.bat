@@ -117,6 +117,13 @@ if exist "%publish_root%" (
         if not exist "%%f" set /a removed_pdb_count+=1
     )
     if !removed_pdb_count! gtr 0 echo   - Removed !removed_pdb_count! *.pdb file(s^)
+
+    set /a removed_zip_count=0
+    for /r "%publish_root%" %%f in (*.zip) do (
+        del /q "%%f" 2>nul
+        if not exist "%%f" set /a removed_zip_count+=1
+    )
+    if !removed_zip_count! gtr 0 echo   - Removed !removed_zip_count! stale *.zip file(s^)
 )
 
 echo   - Success: %project_name% / %rid%

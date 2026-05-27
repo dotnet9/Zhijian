@@ -142,7 +142,14 @@ Common commands:
 dotnet restore Zhijian.slnx
 dotnet build Zhijian.slnx
 dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
+.\publish.bat
+.\package_all.bat
+.\package_all.bat --force
 ```
+
+`package_all.bat` first calls `publish.bat`, then writes `Zhijian-v<Version>-<RID>.zip` archives, SHA256 files, and a release manifest under `artifacts/release/`.
+Release archives exclude debug symbol files and nested zip files.
+Existing artifacts are not overwritten unless `package_all.bat --force` is used, or `-Force` is passed to the PowerShell script directly.
 
 ### macOS Packaging
 

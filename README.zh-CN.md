@@ -142,7 +142,14 @@ Zhijian/
 dotnet restore Zhijian.slnx
 dotnet build Zhijian.slnx
 dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
+.\publish.bat
+.\package_all.bat
+.\package_all.bat --force
 ```
+
+`package_all.bat` 会先调用 `publish.bat`，再在 `artifacts/release/` 下生成 `Zhijian-v<Version>-<RID>.zip`、SHA256 文件和 release manifest。
+Release 压缩包会排除调试符号文件和嵌套 zip 文件。
+已有产物默认不会覆盖；需要覆盖时使用 `package_all.bat --force`，或直接给 PowerShell 脚本传入 `-Force`。
 
 ### macOS 打包
 
