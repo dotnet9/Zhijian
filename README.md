@@ -1,100 +1,106 @@
-# Zhijian
+# 枝见 Zhijian
 
-Zhijian is a local, Markdown-first mind-map editor built with C# and Avalonia. It keeps the outline, Markdown text, and graphical mind map synchronized over the same document model, so users can write structure quickly and inspect the result visually.
+枝见是一个基于 C# 和 Avalonia 的本地 Markdown-first 脑图编辑器。它把大纲、Markdown 文本和图形脑图绑定到同一份文档模型上，适合写文章提纲、梳理功能设计和整理项目结构。
 
-Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
-Repository: <https://github.com/dotnet9/Zhijian>
+仓库地址：<https://github.com/dotnet9/Zhijian>
 
-![Zhijian main window](docs/media/zhijian-main-window.gif)
+![枝见主窗口](docs/media/zhijian-main-window.gif)
 
-## Highlights
+## 仓库规范
 
-- Starts with a blank mind map. The bundled `使用手册.md` can be opened from Help -> Open User Manual as a richer multi-level sample and help manual.
-- Blank mind maps offer quick Product Brief, Meeting Notes, and Study Notes templates, also available from File -> New from Template, to reduce first-use friction.
-- File menu for New, New Window, Open Editable File, Import, Open Folder, Recent Files, Save, Save As Editable Format, Open File Location, and Close.
-- Edit menu for Undo, Redo, Add Sibling, Add Child, Promote, Demote, Move, Delete, and Copy as Markdown.
-- Theme, Language, Help, and About menus are grouped in the title bar with icons and shortcuts where useful.
-- Language switching uses `Lang.Avalonia.Json` resources for Simplified Chinese, Traditional Chinese, English, and Japanese.
-- First-run onboarding precisely highlights the title-bar File menu, outline editor, Markdown switch, mind-map canvas, and bottom navigation, and includes a Skip button.
-- `src/Zhijian/App.config` centralizes onboarding, default language, recent-file count, history depth, and runtime state file names.
-- `Files` and `Outline` tabs on the left: the empty file pane offers Open Editable File, Import, Open Folder, and Open User Manual; individually opened or imported files appear in the file list, and opening a folder lists every supported file in that folder.
-- Outline, Markdown, and mind-map views share the same `MindMapNode` tree.
-- Inline title and note editing in both outline and mind-map views.
-- User-friendly outline and mind-map menus for adding siblings or children, promoting or demoting nodes, moving nodes, editing notes, and deleting nodes.
-- Mind-map panning by dragging the center topic or canvas, zooming, center-topic navigation, and a real mini-map based on current node coordinates.
-- Copy as Markdown writes the current document Markdown to the clipboard and shows a desktop global message.
-- Open Editable File and Save As Editable Format focus on editable Markdown, OPML, and XMind files; Import covers broader read-only conversion formats without implying original-format save support.
-- Desktop shell with title-bar menus, dialogs, list controls, tooltips, global messages, and dark theme.
-- Reusable `CodeWF.MindView` controls depend only on Avalonia and stay separate from the desktop shell.
+- 当前版本：`12.0.3.17`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
+- NuGet 包项目统一支持 `net8.0;net10.0`；Demo、App、测试与内部应用项目统一使用 `net11.0` / `net11.0-windows`。
+- 根目录 `logo.svg`、`logo.png`、`logo.ico` 是唯一图标源，子工程只通过 MSBuild `Link` 引用，不维护图标副本。
+- 运行时帮助、Markdown 示例、内置备忘录、设计说明等业务文档按功能保留；仓库级入口文档使用根目录 `README.md` 和 `UpdateLog.md`。
 
-## Runtime Preview
+## 功能亮点
 
-The screenshots and GIFs below were refreshed against the current UI with the bundled manual loaded by default, so the file list, mini-map, zoom, and canvas-panning behavior are easier to inspect.
+- 启动后默认创建空白脑图，随程序输出的 `使用手册.md` 可从“帮助 -> 打开使用手册”手动载入，用作多层级示例和帮助手册。
+- 空白脑图提供“产品方案 / 会议纪要 / 学习笔记”快速模板，也可从“文件 -> 从模板新建”进入，降低首次起步成本。
+- 文件菜单支持新建、新建窗口、打开可编辑文件、导入、打开文件夹、最近文件、保存、另存为可编辑格式、打开文件位置和关闭。
+- 编辑菜单支持撤销、重做、添加同级、添加子级、提升、降级、上移、下移、删除节点和复制为 Markdown。
+- 主题、语言、帮助和关于菜单集中在标题栏，常用项带有图标和快捷键。
+- 语言切换使用 `Lang.Avalonia.Json` 资源，覆盖中文简体、中文繁体、英语和日语。
+- 首次启动新手引导会精准高亮标题栏文件菜单、大纲编辑区、Markdown 切换、脑图画布和底部导航，并提供“跳过”按钮。
+- `src/Zhijian/App.config` 集中管理新手引导、默认语言、最近文件数、历史步数和运行状态文件名。
+- 左侧提供“文件 / 大纲”两个 Tab：空文件页可直接打开可编辑文件、导入、打开文件夹或打开使用手册；单独打开或导入的文件会出现在文件列表中；打开文件夹时会列出该目录下所有支持文件。
+- 大纲、Markdown 和脑图视图共享同一棵 `MindMapNode` 树。
+- 大纲和脑图都支持标题、备注内联编辑。
+- 大纲和脑图菜单提供添加同级、添加子级、提升、降级、上移、下移、备注和删除等高频操作。
+- 脑图支持拖拽中心主题或画布平移、缩放、回到中心主题，以及基于真实节点坐标的小图导航。
+- 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并显示桌面全局消息。
+- “打开/另存为”聚焦 Markdown、OPML、XMind 等可编辑格式；“导入”覆盖更多只读转换格式，避免误以为能原格式保存。
+- 应用外壳提供标题栏菜单、对话框、列表控件、ToolTip、全局消息和深色主题。
+- 可复用的 `CodeWF.MindView` 控件只依赖 Avalonia，并与桌面应用外壳解耦。
 
-![File menu](docs/media/zhijian-file-menu.png)
+## 运行预览
 
-![Title bar menus](docs/media/zhijian-title-menus.gif)
+下面的截图和 GIF 已按当前界面重新制作，并使用随程序输出的使用手册，便于观察文件列表、小图、缩放和画布拖拽效果。
 
-![Onboarding tour](docs/media/zhijian-onboarding.gif)
+![文件菜单](docs/media/zhijian-file-menu.png)
 
-![Theme and language switching](docs/media/zhijian-theme-language.gif)
+![标题栏菜单](docs/media/zhijian-title-menus.gif)
 
-![Copy Markdown feedback](docs/media/zhijian-copy-markdown.gif)
+![新手引导](docs/media/zhijian-onboarding.gif)
 
-![File list workflow](docs/media/zhijian-open-folder.gif)
+![主题和语言切换](docs/media/zhijian-theme-language.gif)
 
-![Node menus](docs/media/zhijian-node-menus.gif)
+![复制 Markdown 提示](docs/media/zhijian-copy-markdown.gif)
 
-![Node creation](docs/media/zhijian-create-node.gif)
+![文件列表流程](docs/media/zhijian-open-folder.gif)
 
-![Outline menu](docs/media/zhijian-outline-menu.gif)
+![节点菜单](docs/media/zhijian-node-menus.gif)
 
-![Note synchronization](docs/media/zhijian-note-sync.gif)
+![创建节点](docs/media/zhijian-create-node.gif)
 
-![Mind-map node toolbar](docs/media/zhijian-node-toolbar.png)
+![大纲菜单](docs/media/zhijian-outline-menu.gif)
 
-![Mind-map drag hierarchy](docs/media/zhijian-mind-drag.gif)
+![备注同步](docs/media/zhijian-note-sync.gif)
 
-![Mini-map navigation](docs/media/zhijian-minimap.gif)
+![脑图节点工具条](docs/media/zhijian-node-toolbar.png)
 
-![Mini-map overview](docs/media/zhijian-minimap-overview.png)
+![脑图拖拽调整层级](docs/media/zhijian-mind-drag.gif)
 
-![Zoom](docs/media/zhijian-zoom.gif)
+![小图导航](docs/media/zhijian-minimap.gif)
 
-![Canvas panning](docs/media/zhijian-canvas-pan.gif)
+![小图概览](docs/media/zhijian-minimap-overview.png)
 
-## Editing Workflow
+![缩放](docs/media/zhijian-zoom.gif)
 
-The left pane is the main writing area. Use outline mode for structured editing, switch to Markdown when text-first editing is faster, and use the right mind-map canvas for visual inspection.
+![画布拖拽](docs/media/zhijian-canvas-pan.gif)
 
-Useful keyboard behavior while editing a node title:
+## 编辑流程
 
-- `Enter`: add a sibling node. On the center topic, `Enter` adds a child node.
-- `Tab`: demote the current node under its previous sibling.
-- `Shift + Tab`: promote a node.
-- `Alt + Up` / `Alt + Down`: move a node before or after its sibling.
-- `Delete` or `Backspace`: delete an empty non-root node.
-- `Two-finger touchpad pinch`: zoom the mind-map canvas around the pointer.
-- `Two-finger touchpad scroll` or `mouse wheel`: pan the mind-map canvas.
-- `⌘ + mouse wheel` on macOS or `Ctrl + mouse wheel` on Windows/Linux: zoom the mind-map canvas around the pointer.
-- `Shift + mouse wheel`: pan the mind-map canvas horizontally.
-- `Drag the center topic`, `Space + left drag`, or `middle-button drag`: pan the mind-map canvas.
-- `⌘ + L` on macOS or `Ctrl + L` on Windows/Linux: return to the center topic.
+左侧是主要输入区。使用大纲模式快速组织层级；需要纯文本维护时切换到 Markdown；右侧脑图会从同一份数据实时刷新。
 
-## File Formats
+节点标题编辑时常用快捷键：
 
-Zhijian uses Markdown as the default readable format. To avoid data loss, Save As only exposes stable editable formats:
+- `Enter`：添加同级节点。在中心主题上按 `Enter` 会添加子节点。
+- `Tab`：将当前节点降级为上一个同级节点的子节点。
+- `Shift + Tab`：提升节点。
+- `Alt + Up` / `Alt + Down`：在同级节点中上移或下移。
+- `Delete` 或 `Backspace`：删除空的非根节点。
+- `触控板双指捏合`：围绕指针位置缩放脑图。
+- `触控板双指滑动` 或 `鼠标滚轮`：平移脑图画布。
+- `⌘ + 鼠标滚轮`（macOS）或 `Ctrl + 鼠标滚轮`（Windows/Linux）：围绕指针位置缩放脑图。
+- `Shift + 鼠标滚轮`：横向平移脑图画布。
+- `拖拽中心主题`、`Space + 左键拖拽` 或 `鼠标中键拖拽`：拖拽脑图画布。
+- `⌘ + L`（macOS）或 `Ctrl + L`（Windows/Linux）：回到中心主题。
+
+## 文件格式
+
+枝见默认使用可读 Markdown 保存。为避免数据丢失，另存为只提供稳定可写的可编辑格式：
 
 - Markdown (`.md`, `.markdown`)
 - OPML (`.opml`)
 - XMind (`.xmind`)
 
-Other mind-map, draw.io, image, Office, document, and data files can be converted through Import, then saved as one of the editable formats above.
+其他脑图、draw.io、图片、Office、文档和数据文件可通过“导入...”转换成脑图后，再另存为上述可编辑格式。
 
-## Reusing CodeWF.MindView
+## 复用 CodeWF.MindView
 
-`src/CodeWF.MindView` is independent from the application shell. A new Avalonia app can reference `CodeWF.MindView` and `CodeWF.MindView.Themes`, register `<mindThemes:MindViewThemes />` in `App.axaml`, and place `MindMapEditor` in a view. Basic integration only needs roots and the current selection:
+`src/CodeWF.MindView` 独立于应用外壳。新的 Avalonia 应用可以引用 `CodeWF.MindView` 和 `CodeWF.MindView.Themes`，在 `App.axaml` 注册 `<mindThemes:MindViewThemes />`，然后在页面中使用 `MindMapEditor`。普通接入只需要绑定节点集合和当前选择：
 
 ```xml
 <mind:MindMapEditor
@@ -102,27 +108,26 @@ Other mind-map, draw.io, image, Office, document, and data files can be converte
     SelectedNode="{Binding SelectedNode, Mode=TwoWay}" />
 ```
 
-`MindMapEditor` includes basic child/sibling creation, promotion, demotion, sibling reordering, deletion, drag/drop moves, and automatic layout. Add `Controller="{Binding}"` only when the host needs to connect undo history, dirty state, or custom business rules through `IMindMapEditorController`. The `src/Zhijian` app is the complete reference for file workflow, outline editing, Markdown synchronization, title-bar menus, and desktop shell integration around the reusable control.
+`MindMapEditor` 内置添加子级、添加同级、升降级、同级上下移动、删除、拖拽移动和自动布局。需要接入撤销历史、保存状态或业务规则时，再把 `Controller="{Binding}"` 指向实现 `IMindMapEditorController` 的宿主 ViewModel。`src/Zhijian` 是围绕可复用控件构建文件工作流、大纲编辑、Markdown 同步和桌面外壳的完整参考。
 
-See [docs/source-design.md](docs/source-design.md) for the reusable-control integration details.
+更完整的接入说明见 [docs/source-design.md](docs/source-design.md)。
 
-## Project Structure
+## 项目结构
 
 ```text
 Zhijian/
-|-- src/CodeWF.MindView/        reusable mind-map controls and document codecs
-|-- src/CodeWF.MindView.Themes/ default resources for CodeWF.MindView
-|-- src/Zhijian/                Zhijian desktop application
-|-- docs/                       architecture and source-design documentation
-|-- docs/media/                 runtime screenshots and GIFs
-|-- CHANGELOG.md                English changelog
-|-- CHANGELOG.zh-CN.md          Chinese changelog
-`-- Zhijian.slnx                solution file
+|-- src/CodeWF.MindView/        可复用脑图控件和文档编解码
+|-- src/CodeWF.MindView.Themes/ CodeWF.MindView 默认资源
+|-- src/Zhijian/                枝见桌面应用
+|-- docs/                       架构和源码设计文档
+|-- docs/media/                 文档截图和 GIF
+|-- UpdateLog.md                更新日志
+`-- Zhijian.slnx                解决方案文件
 ```
 
-## Open Source Thanks
+## 开源项目感谢
 
-Zhijian is built on excellent open source platforms and libraries:
+枝见的开发离不开这些优秀开源平台和项目：
 
 - [Dotnet](https://dotnet.microsoft.com/zh-cn/)
 - [Avalonia UI](https://avaloniaui.net/)
@@ -130,42 +135,42 @@ Zhijian is built on excellent open source platforms and libraries:
 - [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
 - [AtomUI](https://github.com/AtomUI/AtomUI)
 
-## Development
+## 开发
 
-Requirements:
+环境要求：
 
-- .NET 10 SDK
+- .NET 11 SDK
 
-Common commands:
+常用命令：
 
 ```powershell
 dotnet restore Zhijian.slnx
 dotnet build Zhijian.slnx
-dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
+dotnet run --project src/Zhijian/Zhijian.csproj -f net11.0
 .\publish.bat
 .\package_all.bat
 .\package_all.bat --force
 ```
 
-`package_all.bat` first calls `publish.bat`, then writes `Zhijian-v<Version>-<RID>.zip` archives, SHA256 files, and a release manifest under `artifacts/release/`.
-Release archives exclude debug symbol files and nested zip files.
-Existing artifacts are not overwritten unless `package_all.bat --force` is used, or `-Force` is passed to the PowerShell script directly.
+`package_all.bat` 会先调用 `publish.bat`，再在 `artifacts/release/` 下生成 `Zhijian-v<Version>-<RID>.zip`、SHA256 文件和 release manifest。
+Release 压缩包会排除调试符号文件和嵌套 zip 文件。
+已有产物默认不会覆盖；需要覆盖时使用 `package_all.bat --force`，或直接给 PowerShell 脚本传入 `-Force`。
 
-### macOS Packaging
+### macOS 打包
 
-For distribution to other macOS users, package Zhijian as `.app` inside a `.dmg` instead of sending the raw `dotnet publish` folder. The script builds Intel and Apple Silicon DMGs by default:
+macOS 给别人分发时建议打成 `.app` + `.dmg`，不要只发送 `dotnet publish` 输出目录。脚本会默认生成 Intel 和 Apple Silicon 两个安装镜像：
 
 ```bash
 ./package_macos.sh
 ```
 
-Build only Apple Silicon:
+只打 Apple Silicon：
 
 ```bash
 ./package_macos.sh osx-arm64
 ```
 
-Artifacts are written to `artifacts/macos/`. Without a certificate, the script uses ad-hoc signing for local testing. For real external distribution, sign with a Developer ID certificate and notarize the DMGs:
+产物会输出到 `artifacts/macos/`。未配置证书时脚本会使用 ad-hoc 签名，适合本机测试；真正发给其他 macOS 用户时，建议使用 Developer ID 证书签名并公证：
 
 ```bash
 CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
@@ -174,14 +179,12 @@ NOTARY_KEYCHAIN_PROFILE=zhijian-notary \
 ./package_macos.sh all
 ```
 
-The script requires a .NET 10 SDK and automatically checks `dotnet` and `$HOME/.dotnet/dotnet`. Set `DOTNET_CMD=/path/to/dotnet` if the SDK is installed somewhere else.
+脚本需要 .NET 11 SDK，会自动检查 `dotnet` 和 `$HOME/.dotnet/dotnet`。如果 SDK 安装在其他位置，可设置 `DOTNET_CMD=/path/to/dotnet`。
 
-## Documentation
+## 文档
 
-- [Architecture](docs/architecture.md)
-- [Architecture Chinese](docs/architecture.zh-CN.md)
-- [Source Design](docs/source-design.md)
-- [Source Design Chinese](docs/source-design.zh-CN.md)
+- [架构说明](docs/architecture.md)
+- [源码设计](docs/source-design.md)
 
 ## 第三方开源组件审计（2026-05-20）
 
@@ -203,4 +206,4 @@ The script requires a .NET 10 SDK and automatically checks `dotnet` and `$HOME/.
 | `YY-Thunks` | Windows 兼容 | MIT | https://github.com/Chuyu-Team/YY-Thunks | 源码开放，通过 |
 | `Tmds.DBus.Protocol` | Avalonia Linux DBus 传递依赖 | MIT | https://github.com/tmds/Tmds.DBus | 通过，pin 到 `0.93.0` |
 
-传递依赖检查结论：AtomUI 链路中的 `AtomUI.Controls`、`AtomUI.Controls.Shared`、`AtomUI.Core`、`AtomUI.Fonts.AlibabaSans`、`AtomUI.Icons.AntDesign`、`AtomUI.Native` 均来自公开源码仓库；Avalonia/SkiaSharp/ANGLE、ReactiveUI/Splat、Svg.Controls.Avalonia/Svg.*、ExCSS、DynamicData、HarfBuzzSharp、MicroCom.Runtime 均有公开源码。有效 restore 未发现 `AvaloniaUI.DiagnosticsSupport`、`Semi.Avalonia.*` 黑盒扩展或 `System.Drawing.Common 4.7.0`。
+传递依赖检查结论：AtomUI 链路中的 `AtomUI.Controls`、`AtomUI.Controls.Shared`、`AtomUI.Core`、`AtomUI.Fonts.AlibabaSans`、`AtomUI.Icons.AntDesign`、`AtomUI.Native` 均来自公开源码仓库；Avalonia / SkiaSharp / ANGLE、ReactiveUI / Splat、Svg.Controls.Avalonia / Svg.*、ExCSS、DynamicData、HarfBuzzSharp、MicroCom.Runtime 均有公开源码。有效 restore 未发现 `AvaloniaUI.DiagnosticsSupport`、`Semi.Avalonia.*` 黑盒扩展或 `System.Drawing.Common 4.7.0`。

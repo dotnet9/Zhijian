@@ -1,19 +1,24 @@
 <Project>
-	<PropertyGroup>
-		<Version>12.0.3.15</Version>
-		<Authors>沙漠尽头的狼</Authors>
-		<Company>沙漠尽头的狼</Company>
-		<Product>Zhijian</Product>
-		<RepositoryUrl>https://github.com/dotnet9/Zhijian</RepositoryUrl>
-		<PackageProjectUrl>https://codewf.com</PackageProjectUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<RepositoryType>git</RepositoryType>
-		<Copyright>Copyright © 沙漠尽头的狼. https://codewf.com</Copyright>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
+  <PropertyGroup>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <DebugType>portable</DebugType>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <IncludeSymbols>true</IncludeSymbols>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Version>12.0.3.17</Version>
+    <Authors>沙漠尽头的狼</Authors>
+    <Company>沙漠尽头的狼</Company>
+    <Product>Zhijian</Product>
+    <RepositoryUrl>https://github.com/dotnet9/Zhijian</RepositoryUrl>
+    <PackageProjectUrl>https://codewf.com</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <Copyright>Copyright © 沙漠尽头的狼. https://codewf.com</Copyright>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 </Project>

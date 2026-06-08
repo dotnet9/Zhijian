@@ -1,6 +1,5 @@
 # 枝见架构说明
 
-English version: [architecture.md](architecture.md)
 
 枝见是一个用于编辑 Markdown-first 脑图的 Avalonia 桌面应用。仓库把可复用脑图能力和应用外壳分开：
 
@@ -75,7 +74,7 @@ Zhijian
 
 桌面应用目标框架为 `net10.0`。可复用的 `CodeWF.MindView` 库多目标 `net8.0`、`net9.0` 和 `net10.0`，方便在枝见桌面外壳之外复用。macOS 下标题栏菜单、窗口快捷键和脑图缩放使用 `⌘` 作为主命令键，Windows/Linux 使用 `Ctrl`。
 
-更深入的实现说明和复用接入方式见 [source-design.zh-CN.md](source-design.zh-CN.md)。
+更深入的实现说明和复用接入方式见 [source-design.md](source-design.md)。
 
 ## 开源项目感谢
 

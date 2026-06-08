@@ -1,5 +1,18 @@
 # 更新日志
 
+## 12.0.3.17 (2026-06-08)
+
+- 🔨[优化]-补齐根目录 logo.svg、logo.png、logo.ico 三件套，子工程通过 MSBuild Link 引用根 logo，避免维护多份图标副本。
+- 🔨[优化]-统一目标框架：NuGet 包项目支持 `net8.0;net10.0`，Demo、App、测试与内部应用项目升级到 `net11.0` / `net11.0-windows`。
+- 🔨[优化]-保留运行时帮助、Markdown 示例、内置备忘录和业务设计文档，仅收敛仓库级重复文档入口。
+
+## 12.0.3.16 (2026-06-08)
+
+- 统一版本号维护入口，只在仓库根目录 `Directory.Build.props` 中定义 `<Version>`。
+- 清理英文/双语文档入口，后续仅维护简体中文文档。
+- 完善 NuGet 发布配置，补充 Source Link、符号包和标签格式规范。
+
+
 ## 12.0.3.13（2026-05-19）
 
 - ✨[新增]-脑图中心主题支持左键拖拽平移整张画布，和已有触控板、滚轮、`Space + 左键`、中键平移保持一致。
@@ -187,3 +200,63 @@
 - 🔨[优化]-将文件菜单重建为真正的 AtomUI `WindowTitleBar` 附加控件，保持在标题栏内且不占用工作区。
 - 🔨[优化]-恢复标题栏浅色/深色主题切换，并让自定义大纲与脑图区域同步跟随主题状态。
 - 🔨[优化]-优化标题栏品牌、大纲/Markdown 切换和脑图缩放控件，并通过实际运行截图验证主流程。
+
+## 归档：GitHub Release 文案
+
+### v12.0.3.15 - 2026-05-27
+
+##### 新增
+
+- 新增 `package_all.bat` 一键 release 打包入口。
+- 新增 `scripts/package_zhijian_artifacts.ps1`，生成 GitHub Release 可直接上传的 zip 包。
+- Release 产物统一命名为 `Zhijian-v<Version>-<RID>.zip`。
+- 打包时生成 `.sha256` 校验文件和 JSON release manifest。
+
+##### 优化
+
+- `package_all.bat` 会先执行 `publish.bat`，再输出 release zip 到 `artifacts/release/`。
+- Release zip 会排除 `.pdb` 调试符号文件和嵌套 `.zip` 文件。
+- 发布流程会清理 `publish/` 下残留的旧 zip 文件。
+- 项目版本更新为 `12.0.3.15`。
+- 更新 AtomUI、`CodeWF.Markdown.Lite.Themes`、`Lang.Avalonia.Json` 等依赖版本。
+
+##### 验证
+
+- `dotnet build Zhijian.slnx`
+- `package_all.bat`
+
+### v12.0.3.13 - 2026-05-19
+
+##### 新增
+
+- 脑图中心主题支持左键拖拽平移整张画布。
+- 空白文档新增快速开始操作条，可添加子节点、打开使用手册、导入文件或切换到 Markdown。
+- 新增脑图和大纲快捷键帮助入口。
+- 新增 `osx-x64` 和 `osx-arm64` 发布配置。
+
+##### 优化
+
+- 打开、导入或应用内置模板后，中心主题会自动放到更容易开始编辑的位置。
+- 加大脑图默认画布留白，减少拖拽平移时过早撞到边界。
+- 文件页空状态改用 AtomUI `Empty` 和图标按钮。
+- 状态栏工具按钮在最小窗口尺寸下保持稳定。
+- About 窗口改为读取程序集版本和编译时间，并迁入本地化资源。
+- 统一脑图和大纲快捷键说明，明确 `Tab`、`Shift+Tab`、`Enter`、`Alt+Up/Alt+Down` 行为。
+- 大纲标题编辑在结构快捷键后保持焦点稳定。
+
+##### 修复
+
+- 修复大纲视图被 `WorkspaceOutlineView` 包裹后无法拿到主窗口脑图控制器的问题。
+- 修复大纲 `Enter`、`Tab`、`Shift+Tab`、空标题删除与右侧脑图不同步的问题。
+- 修复标题编辑状态下 `Alt+Up` / `Alt+Down` 无法稳定调整同级顺序的问题。
+
+##### 验证
+
+- `dotnet build Zhijian.slnx`
+- `package_all.bat`
+## 2026-06-08 仓库规范整理
+
+- 统一文档维护入口：每个仓库只保留根目录 `README.md` 和根目录 `UpdateLog.md`，清理重复日志、英文文档和语言切换入口。
+- 统一版本维护入口：包版本只在仓库根目录 `Directory.Build.props` 的 `<Version>` 节点维护，移除散落的程序集版本配置。
+- 不再维护 `global.json`，SDK 选择交给本机或 CI 环境；NuGet 包和应用的目标框架在项目文件中明确声明。
+- 统一 NuGet 包文档入口：包 README 统一引用仓库根 `README.md`，更新日志统一引用仓库根 `UpdateLog.md`。

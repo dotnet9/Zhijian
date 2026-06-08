@@ -1,54 +1,51 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<Title>CodeWF.MindView</Title>
-		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<LangVersion>latest</LangVersion>
-		<OutputType>Library</OutputType>
-		<IsPackable>true</IsPackable>
-		<Description>Avalonia mind-map controls and document import/export contracts for CodeWF applications.</Description>
-		<PackageId>CodeWF.MindView</PackageId>
-		<AssemblyName>CodeWF.MindView</AssemblyName>
-		<RootNamespace>CodeWF.MindView</RootNamespace>
-		<PackageIcon>logo.png</PackageIcon>
-		<PackageTags>avalonia ui,mindmap,mind-view,controls,codewf</PackageTags>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="AtomUI.Desktop.Controls" />
-		<PackageReference Include="Avalonia" />
-		<PackageReference Include="CodeWF.Log.Core" />
-		<PackageReference Include="Lang.Avalonia.Json" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\README.md" Pack="true" PackagePath="" Link="README.md" Visible="false" />
-		<None Include="..\..\logo.png" Pack="true" PackagePath="" Link="logo.png" Visible="false" />
-		<None Include="I18n\*.json" Pack="true" PackagePath="contentFiles\any\any\I18n\CodeWF.MindView\">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<TargetPath>I18n\CodeWF.MindView\%(Filename)%(Extension)</TargetPath>
-			<PackageCopyToOutput>true</PackageCopyToOutput>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Update="I18n\MindViewL.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>MindViewL.tt</DependentUpon>
-		</Compile>
-		<None Update="I18n\MindViewL.tt">
-			<Generator>TextTemplatingFileGenerator</Generator>
-			<LastGenOutput>MindViewL.cs</LastGenOutput>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-	</ItemGroup>
+  <PropertyGroup>
+    <Title>CodeWF.MindView</Title>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <OutputType>Library</OutputType>
+    <IsPackable>true</IsPackable>
+    <Description>Avalonia mind-map controls and document import/export contracts for CodeWF applications.</Description>
+    <PackageId>CodeWF.MindView</PackageId>
+    <AssemblyName>CodeWF.MindView</AssemblyName>
+    <RootNamespace>CodeWF.MindView</RootNamespace>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageTags>avalonia ui mindmap mind-view controls codewf</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" />
+    <PackageReference Include="AtomUI.Desktop.Controls" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="CodeWF.Log.Core" />
+    <PackageReference Include="Lang.Avalonia.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="" Link="README.md" Visible="false" />
+    <None Include="..\..\logo.png" Pack="true" PackagePath="" Link="logo.png" Visible="false" />
+    <None Include="I18n\*.json" Pack="true" PackagePath="contentFiles\any\any\I18n\CodeWF.MindView\">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>I18n\CodeWF.MindView\%(Filename)%(Extension)</TargetPath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="I18n\MindViewL.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MindViewL.tt</DependentUpon>
+    </Compile>
+    <None Update="I18n\MindViewL.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MindViewL.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
 </Project>
