@@ -41,6 +41,7 @@ public partial class App : Application
     {
         ApplicationSettings.InitializeAsync().GetAwaiter().GetResult();
         ApplicationLogger.ConfigureLogDirectory(ApplicationSettings.UserDataDirectory);
+        DefaultFileOpeningService.Configure();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
