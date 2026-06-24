@@ -8,8 +8,8 @@
     <File Path="Publish.Common.pubxml" />
     <File Path="publishbase.bat" />
     <File Path="README.md" />
-    <File Path="docs/architecture.md" />
-    <File Path="docs/source-design.md" />
+    <File Path="docs/架构说明.md" />
+    <File Path="docs/源码设计.md" />
     <File Path="logo.png" />
     <File Path="使用手册.md" />
   </Folder>
