@@ -5,7 +5,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IncludeSymbols>true</IncludeSymbols>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <Version>12.0.3.17</Version>
+    <Version>12.0.5.1</Version>
     <Authors>沙漠尽头的狼</Authors>
     <Company>沙漠尽头的狼</Company>
     <Product>Zhijian</Product>
@@ -16,8 +16,6 @@
     <RepositoryType>git</RepositoryType>
     <Copyright>Copyright © 沙漠尽头的狼. https://codewf.com</Copyright>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
