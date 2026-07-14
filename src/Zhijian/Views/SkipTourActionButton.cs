@@ -11,7 +11,7 @@ public class SkipTourActionButton : Button, ITourAction
     static SkipTourActionButton()
     {
         Tour.StyleTypeProperty.AddOwner<SkipTourActionButton>();
-        SizeTypeProperty.OverrideDefaultValue<SkipTourActionButton>(SizeType.Small);
+        SizeTypeProperty.OverrideDefaultValue<SkipTourActionButton>(CustomizableSizeType.Small);
         ButtonTypeProperty.OverrideDefaultValue<SkipTourActionButton>(ButtonType.Default);
     }
 

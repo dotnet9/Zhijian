@@ -93,7 +93,7 @@ public partial class MindMapEditor
             Padding = new Thickness(0),
             ButtonType = AtomUI.Desktop.Controls.ButtonType.Text,
             Shape = AtomUI.Desktop.Controls.ButtonShape.Default,
-            SizeType = SizeType.Small,
+            SizeType = CustomizableSizeType.Small,
             IsMotionEnabled = true,
             IsWaveSpiritEnabled = true,
             Content = new Viewbox
@@ -133,7 +133,7 @@ public partial class MindMapEditor
             Padding = new Thickness(0),
             ButtonType = AtomUI.Desktop.Controls.ButtonType.Primary,
             Shape = AtomUI.Desktop.Controls.ButtonShape.Circle,
-            SizeType = SizeType.Small,
+            SizeType = CustomizableSizeType.Small,
             IsMotionEnabled = true,
             IsWaveSpiritEnabled = true,
             Content = new Viewbox
@@ -244,7 +244,7 @@ public partial class MindMapEditor
             Padding = GetResourceThickness(MindViewStyleKeys.NodeMenuRowPaddingResource, new Thickness(8, 0)),
             ButtonType = AtomUI.Desktop.Controls.ButtonType.Text,
             Shape = AtomUI.Desktop.Controls.ButtonShape.Default,
-            SizeType = SizeType.Small,
+            SizeType = CustomizableSizeType.Small,
             IsMotionEnabled = true,
             IsWaveSpiritEnabled = true,
             IsEnabled = isEnabled,
