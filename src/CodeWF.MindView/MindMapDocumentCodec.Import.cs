@@ -63,11 +63,9 @@ public static partial class MindMapDocumentCodec
         }
         catch (Exception exception)
         {
-            Logger.Warn(
-                $"Mind map document import failed. format={format} file=\"{filePath}\"{Environment.NewLine}{exception}",
-                log2UI: false,
-                log2File: true,
-                log2Console: false);
+            Logger.WarnToFile(
+                $"Mind map document import failed. format={format} file=\"{filePath}\"",
+                exception);
             return CreateMetadataNode(
                 format,
                 filePath,

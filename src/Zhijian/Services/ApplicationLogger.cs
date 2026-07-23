@@ -1,4 +1,5 @@
 using CodeWF.Log.Core;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Zhijian.Services;
@@ -6,21 +7,44 @@ namespace Zhijian.Services;
 internal static class ApplicationLogger
 {
     private static readonly TimeSpan FlushTimeout = TimeSpan.FromSeconds(2);
+    private static readonly object ConfigureLock = new();
+    private static readonly ConcurrentQueue<(string Message, Exception? Exception)> PendingWarnings = new();
     private static int _configured;
 
-    public static void Configure()
+    public static void Configure(string? logDirectory = null)
     {
-        if (Interlocked.Exchange(ref _configured, 1) == 1)
+        if (Volatile.Read(ref _configured) == 1)
         {
             return;
         }
 
-        Logger.Level = LogType.Warn;
-        Logger.EnableConsoleOutput = false;
-        Logger.MaxLogFileSizeMB = 20;
-        Logger.TimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
-        ConfigureLogDirectory(GetDefaultLogDirectory());
-        Logger.RecordToFile();
+        lock (ConfigureLock)
+        {
+            if (_configured == 1)
+            {
+                return;
+            }
+
+            Logger.Initialize(new LoggerOptions
+            {
+                MinimumLevel = LogType.Warn,
+                EnableConsole = false,
+                File = new FileLogOptions
+                {
+                    DirectoryPath = string.IsNullOrWhiteSpace(logDirectory)
+                        ? GetDefaultLogDirectory()
+                        : logDirectory,
+                    MaxFileSizeBytes = 20L * 1024 * 1024,
+                    TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff"
+                }
+            });
+            Volatile.Write(ref _configured, 1);
+        }
+
+        while (PendingWarnings.TryDequeue(out var warning))
+        {
+            Logger.WarnToFile(warning.Message, warning.Exception);
+        }
 
         AppDomain.CurrentDomain.UnhandledException += (_, args) =>
         {
@@ -42,27 +66,25 @@ internal static class ApplicationLogger
         };
     }
 
-    public static void ConfigureLogDirectory(string? directory)
-    {
-        if (!string.IsNullOrWhiteSpace(directory))
-        {
-            Logger.LogDir = directory;
-        }
-    }
-
     public static void Warning(string message)
     {
-        Logger.Warn(message, log2UI: false, log2File: true, log2Console: false);
+        Warning(message, null);
     }
 
-    public static void Warning(string message, Exception exception)
+    public static void Warning(string message, Exception? exception)
     {
-        Warning($"{message}{Environment.NewLine}{exception}");
+        if (Volatile.Read(ref _configured) == 0)
+        {
+            PendingWarnings.Enqueue((message, exception));
+            return;
+        }
+
+        Logger.WarnToFile(message, exception);
     }
 
     public static void Error(string message, Exception? exception = null)
     {
-        Logger.Error(message, exception, log2UI: false, log2File: true, log2Console: false);
+        Logger.ErrorToFile(message, exception);
     }
 
     public static void Flush()
@@ -81,6 +103,25 @@ internal static class ApplicationLogger
         catch (Exception exception)
         {
             Debug.WriteLine($"Application log flush failed: {exception}");
+        }
+    }
+
+    public static void Shutdown()
+    {
+        try
+        {
+            var shutdownTask = Logger.ShutdownAsync();
+            if (shutdownTask.Wait(FlushTimeout))
+            {
+                shutdownTask.GetAwaiter().GetResult();
+                return;
+            }
+
+            Debug.WriteLine("Application log shutdown timed out.");
+        }
+        catch (Exception exception)
+        {
+            Debug.WriteLine($"Application log shutdown failed: {exception}");
         }
     }
 

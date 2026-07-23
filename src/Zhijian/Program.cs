@@ -12,7 +12,8 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        ApplicationLogger.Configure();
+        ApplicationSettings.InitializeAsync().GetAwaiter().GetResult();
+        ApplicationLogger.Configure(ApplicationSettings.UserDataDirectory);
 
         try
         {
@@ -25,7 +26,7 @@ sealed class Program
         }
         finally
         {
-            ApplicationLogger.Flush();
+            ApplicationLogger.Shutdown();
         }
     }
 
