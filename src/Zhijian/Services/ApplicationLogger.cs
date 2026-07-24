@@ -1,4 +1,5 @@
 using CodeWF.Log.Core;
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -27,7 +28,7 @@ internal static class ApplicationLogger
 
             Logger.Initialize(new LoggerOptions
             {
-                MinimumLevel = LogType.Warn,
+                MinimumLevel = LogLevel.Warning,
                 EnableConsole = false,
                 File = new FileLogOptions
                 {
