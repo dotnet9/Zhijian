@@ -5,7 +5,10 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IncludeSymbols>true</IncludeSymbols>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <Version>12.1.0.3</Version>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts\</ArtifactsPath>
+    <PackageOutputPath>$(ArtifactsPath)packages\</PackageOutputPath>
+    <Version>12.1.0.4</Version>
     <Authors>沙漠尽头的狼</Authors>
     <Company>沙漠尽头的狼</Company>
     <Product>Zhijian</Product>

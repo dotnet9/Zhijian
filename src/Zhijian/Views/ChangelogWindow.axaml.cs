@@ -14,21 +14,18 @@ public partial class ChangelogWindow : AtomWindow
     {
         InitializeComponent();
         DataContext = new ChangelogWindowViewModel();
-        SetDarkThemeClass(Application.Current?.IsDarkThemeMode() ?? false);
 
         if (Application.Current?.GetThemeManager() is { } themeManager)
         {
-            themeManager.BindingSource.PropertyChanged += HandleThemeManagerPropertyChanged;
-            Closed += (_, _) => themeManager.BindingSource.PropertyChanged -= HandleThemeManagerPropertyChanged;
+            SetDarkThemeClass(themeManager.CurrentTheme?.Appearance == ThemeAppearance.Dark);
+            themeManager.ThemeChanged += HandleThemeChanged;
+            Closed += (_, _) => themeManager.ThemeChanged -= HandleThemeChanged;
         }
     }
 
-    private void HandleThemeManagerPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    private void HandleThemeChanged(object? sender, ThemeChangedEventArgs e)
     {
-        if (e.Property == IThemeManager.IsDarkThemeModeProperty)
-        {
-            SetDarkThemeClass(e.GetNewValue<bool>());
-        }
+        SetDarkThemeClass(e.State.Appearance == ThemeAppearance.Dark);
     }
 
     private void SetDarkThemeClass(bool isDarkTheme)

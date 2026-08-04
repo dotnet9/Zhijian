@@ -3,8 +3,8 @@ using AtomUI.Controls.DesignTokens;
 using AtomUI.Desktop.Controls.Localization;
 using AtomUI.Desktop.Controls.DesignTokens;
 using AtomUI.Desktop.Controls.Primitives.DesignTokens;
-using AtomUI.Theme.Styling;
-using AtomUI.Theme.TokenSystem;
+using AtomUI.Theme.DesignTokens;
+using AtomUI.Theme.Resources;
 
 namespace Zhijian;
 

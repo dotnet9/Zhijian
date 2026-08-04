@@ -1,4 +1,6 @@
 using AtomUI.Controls;
+using AtomUI.Theme;
+using AtomUI.Theme.Configuration;
 using AtomUI.Theme.Language;
 using Avalonia;
 using CodeWF.MindView;
@@ -319,9 +321,17 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(ToggleWorkspacePaneToolTip));
     }
 
-    private void OnIsDarkThemeChanged(bool value)
+    private async void OnIsDarkThemeChanged(bool value)
     {
-        Application.Current?.SetDarkThemeMode(value);
+        try
+        {
+            await ApplyThemeAppearanceAsync(value);
+        }
+        catch (Exception exception)
+        {
+            ApplicationLogger.Error("Failed to change the application theme.", exception);
+        }
+
         OnPropertyChanged(nameof(IsLightTheme));
         OnPropertyChanged(nameof(ShellBackground));
         OnPropertyChanged(nameof(PanelBackground));
@@ -330,6 +340,41 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(TitleBarBackground));
         OnPropertyChanged(nameof(PrimaryTextBrush));
         OnPropertyChanged(nameof(SecondaryTextBrush));
+    }
+
+    private static async Task ApplyThemeAppearanceAsync(bool isDark)
+    {
+        var themeManager = Application.Current?.GetThemeManager();
+        if (themeManager is null)
+        {
+            return;
+        }
+
+        var currentTheme = themeManager.CurrentTheme;
+        var algorithms = currentTheme?.Algorithms
+            .Where(static algorithm => !string.Equals(algorithm, "Dark", StringComparison.Ordinal))
+            .ToList() ?? ["Default"];
+        if (algorithms.Count == 0)
+        {
+            algorithms.Add("Default");
+        }
+        if (isDark)
+        {
+            algorithms.Add("Dark");
+        }
+
+        var config = new ThemeConfigBuilder()
+            .WithAlgorithms(algorithms.ToArray())
+            .Build();
+        var result = await themeManager.ApplyThemeAsync(new ThemeRequest(
+            currentTheme?.ThemeId ?? IThemeManager.DEFAULT_THEME_ID,
+            config,
+            ThemeTransitionReason.UserRequest));
+        if (result.Status == ThemeTransitionStatus.Failed)
+        {
+            var message = string.Join(" ", result.Diagnostics.Select(static diagnostic => diagnostic.Message));
+            throw new ThemeLoadException(message, result.Exception);
+        }
     }
 
     private void OnSelectedNodeChanged(MindMapNode? value)

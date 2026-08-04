@@ -31,7 +31,7 @@ public partial class App : Application
         this.UseAtomUI(builder =>
         {
             builder.WithDefaultLanguageVariant(LanguageVariant.zh_CN);
-            builder.WithDefaultTheme(IThemeManager.DEFAULT_THEME_ID);
+            builder.WithInitialTheme(IThemeManager.DEFAULT_THEME_ID);
             builder.UseAlibabaSansFont();
             builder.UseDesktopControls();
         });

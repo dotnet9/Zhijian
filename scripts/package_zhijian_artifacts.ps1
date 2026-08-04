@@ -129,7 +129,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 $releaseVersion = Get-ReleaseVersion $Version
 
 if ([string]::IsNullOrWhiteSpace($PublishRoot)) {
-    $PublishRoot = Join-Path $repoRoot "publish"
+    $PublishRoot = Join-Path $repoRoot "artifacts\publish"
 }
 
 if ([string]::IsNullOrWhiteSpace($ArtifactsRoot)) {
