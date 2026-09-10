@@ -26,10 +26,6 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <atom:Window.Logo>
-        <Image Source="/Assets/logo.png"/>
-    </atom:Window.Logo>
-
     <atom:Window.Styles>
         <Style Selector="Border.panel">
             <Setter Property="BorderThickness" Value="1"/>
