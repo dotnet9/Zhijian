@@ -1,5 +1,9 @@
 # 更新日志
 
+## 12.1.0.5 (2026-10-01)
+
+- 🚀[新增]-「关于」窗口支持检查 GitHub 最新版本并下载安装更新：按当前平台自动匹配安装包（Windows / Linux / macOS），下载带进度与 SHA-256 校验，一键运行安装器升级。
+
 ## 12.1.0.4 (2026-10-01)
 
 - 🚀[新增]-CI/CD 自动发布：推送 v* 标签同时发布 `CodeWF.MindView` / `CodeWF.MindView.Themes` 到 nuget.org，并制作 Windows（Inno Setup）/ Linux（deb）/ macOS（dmg）安装包与 GitHub Release。
