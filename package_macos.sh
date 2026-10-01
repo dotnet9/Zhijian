@@ -227,7 +227,10 @@ create_app_bundle() {
   rm -rf "$app_dir"
   mkdir -p "$macos_dir" "$resources_dir"
 
+  # codesign 要求 Contents/MacOS 下只能出现可执行文件/动态库：
+  # 先整体拷入，再把主可执行文件与动态库以外的内容挪到 Contents/Resources。
   ditto "$publish_dir" "$macos_dir"
+  find "$macos_dir" -mindepth 1 -maxdepth 1 ! -name "$APP_NAME" ! -name "*.dylib" -exec mv {} "$resources_dir/" \;
   chmod +x "$macos_dir/$APP_NAME"
   create_icon "$resources_dir/$APP_NAME.icns" "$iconset_dir"
   write_info_plist "$contents_dir/Info.plist" "$macos_version"
