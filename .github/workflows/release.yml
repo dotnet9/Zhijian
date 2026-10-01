@@ -1,0 +1,182 @@
+name: release
+
+# 推送 v* 标签发布 Zhijian 桌面安装包（与 publish-nuget 同标签触发）：
+# win-x64 用 Inno Setup 生成 setup.exe，linux-x64 生成 deb，macOS 生成 dmg。
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号（不含 v），例如 12.1.0.4'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: 测试
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+
+      - name: 构建
+        run: dotnet build Zhijian.slnx -c Release
+
+  publish:
+    name: 发布 ${{ matrix.rid }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+          - rid: linux-x64
+            os: ubuntu-latest
+          - rid: osx-x64
+            os: macos-14
+          - rid: osx-arm64
+            os: macos-14
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+
+      - name: 计算版本号
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $version = '${{ inputs.version }}'.TrimStart('v', 'V')
+          } else {
+            $version = '${{ github.ref_name }}'.TrimStart('v', 'V')
+          }
+          "APP_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "版本：$version"
+
+      - name: 发布 (publish.bat 同款 pubxml 配置)
+        if: matrix.rid == 'win-x64'
+        shell: pwsh
+        run: |
+          dotnet publish src/Zhijian/Zhijian.csproj -c Release -f net11.0-windows -r win-x64 -p:PublishProfile=FolderProfile_win-x64
+          if ($LASTEXITCODE -ne 0) { throw "publish failed for win-x64" }
+
+      - name: 发布 (publish.bat 同款 pubxml 配置)
+        if: matrix.rid == 'linux-x64'
+        shell: pwsh
+        run: |
+          dotnet publish src/Zhijian/Zhijian.csproj -c Release -f net11.0 -r linux-x64 -p:PublishProfile=FolderProfile_linux-x64
+          if ($LASTEXITCODE -ne 0) { throw "publish failed for linux-x64" }
+
+      - name: 发布 + 打包 macOS dmg
+        if: startsWith(matrix.rid, 'osx-')
+        shell: bash
+        env:
+          CODEX_NO_EXPLORER: '1'
+        run: |
+          chmod +x package_macos.sh
+          ./package_macos.sh ${{ matrix.rid }}
+
+      - name: 打包 Linux deb + sha256
+        if: matrix.rid == 'linux-x64'
+        shell: pwsh
+        run: pwsh scripts/package_linux_deb.ps1 -RuntimeIdentifier linux-x64 -Version $env:APP_VERSION -Force
+
+      - name: 构建 Windows 安装包
+        if: matrix.rid == 'win-x64'
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: scripts/Zhijian.iss
+          options: >-
+            /DAppVersion=${{ env.APP_VERSION }}
+            /DSourceDir=${{ github.workspace }}\artifacts\publish\win-x64\Zhijian
+            /DOutputDir=${{ github.workspace }}\artifacts\release
+
+      - name: 计算安装包 SHA-256
+        if: matrix.rid == 'win-x64'
+        shell: pwsh
+        run: |
+          $installerName = "Zhijian-v$env:APP_VERSION-win-x64-setup.exe"
+          $installerPath = Join-Path "artifacts/release" $installerName
+          if (-not (Test-Path -LiteralPath $installerPath -PathType Leaf)) {
+            throw "Installer was not produced: $installerPath"
+          }
+          $sha = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$sha  $installerName" | Set-Content -LiteralPath "$installerPath.sha256" -Encoding ASCII
+
+      - name: 收集 macOS dmg 到发布目录
+        if: startsWith(matrix.rid, 'osx-')
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path artifacts/release -Force | Out-Null
+          Copy-Item -Path "artifacts/macos/*.dmg" -Destination artifacts/release/ -Force
+          Get-ChildItem artifacts/release | ForEach-Object { Write-Host $_.Name }
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zhijian-${{ matrix.rid }}
+          path: artifacts/release/*
+          if-no-files-found: error
+
+  release:
+    name: 创建 GitHub Release
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          pattern: Zhijian-*
+          path: artifacts/release
+          merge-multiple: true
+
+      - name: 计算版本号
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $version = '${{ inputs.version }}'.TrimStart('v', 'V')
+            $tagName = "v$version"
+          } else {
+            # 沿用被推送的原始标签，避免额外创建新标签。
+            $tagName = '${{ github.ref_name }}'
+            $version = $tagName.TrimStart('v', 'V')
+          }
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "tag_name=$tagName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: 创建 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag_name }}
+          name: Zhijian v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            artifacts/release/*.exe
+            artifacts/release/*.deb
+            artifacts/release/*.dmg
+            artifacts/release/*.sha256

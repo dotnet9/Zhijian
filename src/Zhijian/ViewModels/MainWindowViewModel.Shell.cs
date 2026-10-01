@@ -1,7 +1,9 @@
+using AtomUI;
 using AtomUI.Controls;
 using AtomUI.Theme;
+using AtomUI.Theme.Algorithms;
 using AtomUI.Theme.Configuration;
-using AtomUI.Theme.Language;
+using AtomUI.Localization;
 using Avalonia;
 using CodeWF.MindView;
 using Lang.Avalonia;
@@ -141,10 +143,22 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         CultureInfo.CurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
         I18nManager.Instance.Culture = culture;
-        Application.Current?.SetLanguageVariant(
-            culture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase)
-                ? LanguageVariant.zh_CN
-                : LanguageVariant.en_US);
+        // AtomUI 控件文案仅覆盖部分语言：繁体走 zh-TW，其余非中文回落 en-US；
+        // 应用自身的 I18n（Lang.Avalonia）仍按精确文化翻译。
+        var atomuiLanguage = culture.Name.ToUpperInvariant() switch
+        {
+            "ZH-TW" or "ZH-HK" or "ZH-MO" => LanguageTag.Parse("zh-TW"),
+            var name when name.StartsWith("ZH", StringComparison.Ordinal) => LanguageTag.Parse("zh-CN"),
+            _ => LanguageTag.Parse("en-US")
+        };
+        try
+        {
+            Application.Current?.GetLanguageManager()?.ChangeLanguage(atomuiLanguage);
+        }
+        catch (LanguageNotSupportedException)
+        {
+            // 声明外的语言保持当前 AtomUI 语言，应用级翻译不受影响。
+        }
 
         RefreshLocalizedProperties();
         StatusText = FormatText(ZhijianL.StatusLanguageChanged, GetLanguageDisplayName(culture.Name));
@@ -352,15 +366,15 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         var currentTheme = themeManager.CurrentTheme;
         var algorithms = currentTheme?.Algorithms
-            .Where(static algorithm => !string.Equals(algorithm, "Dark", StringComparison.Ordinal))
-            .ToList() ?? ["Default"];
+            .Where(static algorithm => algorithm != ThemeAlgorithm.Dark)
+            .ToList() ?? [ThemeAlgorithm.Default];
         if (algorithms.Count == 0)
         {
-            algorithms.Add("Default");
+            algorithms.Add(ThemeAlgorithm.Default);
         }
         if (isDark)
         {
-            algorithms.Add("Dark");
+            algorithms.Add(ThemeAlgorithm.Dark);
         }
 
         var config = new ThemeConfigBuilder()

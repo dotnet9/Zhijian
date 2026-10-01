@@ -1,5 +1,11 @@
 # 更新日志
 
+## 12.1.0.4 (2026-10-01)
+
+- 🚀[新增]-CI/CD 自动发布：推送 v* 标签同时发布 `CodeWF.MindView` / `CodeWF.MindView.Themes` 到 nuget.org，并制作 Windows（Inno Setup）/ Linux（deb）/ macOS（dmg）安装包与 GitHub Release。
+- ⬆️[升级]-Avalonia 12.1.3、AtomUI 6.2.2、ReactiveUI.Avalonia 14.7.1，内部包（EventBus / Log.Core / Markdown.Lite.Themes / Tools.Core / Lang.Avalonia.Json）升级到最新版，YY-Thunks 1.2.3-beta.4。
+- 🔧[适配]-AtomUI 6.2 语言系统迁移（AtomUI.Localization / LanguageTag），主题算法改用枚举 API，AOT 保留清单与 6.2.2 TokenKind 对齐；AtomUI 控件文案支持 zh-CN / zh-TW / en-US（繁体映射 zh-TW，其余语言控件文案回落 en-US，应用级四语言翻译不受影响）。
+
 ## 12.1.0.2 (2026-07-23)
 
 - 🔧[修复]-升级日志组件并重新编译 `CodeWF.MindView`，避免下游程序混用新旧日志程序集时发生方法缺失异常。

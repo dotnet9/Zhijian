@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 using AtomUI;
 using AtomUI.Desktop.Controls;
 using AtomUI.Theme;
-using AtomUI.Theme.Language;
+using AtomUI.Localization;
 using Lang.Avalonia;
 using Lang.Avalonia.Json;
 using System.Globalization;
@@ -30,7 +30,16 @@ public partial class App : Application
 
         this.UseAtomUI(builder =>
         {
-            builder.WithDefaultLanguageVariant(LanguageVariant.zh_CN);
+            // AtomUI 6.2 起语言系统迁移到 AtomUI.Localization（LanguageTag，BCP-47）。
+            // AtomUI 仅内置 zh-CN / zh-TW / en-US 的完整翻译，声明过多会在启动时校验失败。
+            builder.UseLanguages(
+                LanguageTag.Parse("zh-CN"),
+                new[]
+                {
+                    LanguageTag.Parse("zh-CN"),
+                    LanguageTag.Parse("zh-TW"),
+                    LanguageTag.Parse("en-US")
+                });
             builder.WithInitialTheme(IThemeManager.DEFAULT_THEME_ID);
             builder.UseAlibabaSansFont();
             builder.UseDesktopControls();

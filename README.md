@@ -210,3 +210,24 @@ NOTARY_KEYCHAIN_PROFILE=zhijian-notary \
 ## 包版本维护约定
 
 XML 文件统一使用两个空格缩进。`Directory.Packages.props` 统一承载 NuGet 中央包管理开关和包版本变量，包括 `AvaloniaVersion` 等共享版本属性；`Directory.Build.props` 仅保留项目构建、编译选项和 NuGet 元数据。仓库如引用 `VC-LTL`、`YY-Thunks`，这两个兼容旧版操作系统的特殊包必须使用最新预览版。
+
+## CI/CD：自动发布
+
+推送 `v*` 标签（如 `v12.1.0.4`，与 `Directory.Build.props` 的 `<Version>` 一致）会同时触发两个工作流：
+
+**[publish-nuget.yml](.github/workflows/publish-nuget.yml)**：发布 `CodeWF.MindView`、`CodeWF.MindView.Themes` 到 nuget.org（含 snupkg），认证用 NuGet Trusted Publishing（OIDC，仓库不存 secret），nuget.org 侧 key 绑定本仓库与 `publish-nuget.yml`。
+
+**[release.yml](.github/workflows/release.yml)**：构建桌面安装包并创建 GitHub Release——
+- Windows：NativeAOT 自包含发布 + Inno Setup 简体中文向导 `Zhijian-v版本-win-x64-setup.exe`
+- Linux：自包含发布 + `dpkg-deb` 打包 `Zhijian-v版本-linux-x64.deb`
+- macOS：`package_macos.sh` 产出 `Zhijian-版本-osx-arm64.dmg` / `osx-x64.dmg`（可按需加签名/公证）
+
+手工发布步骤：
+
+```bash
+# 1. 升版本：修改 Directory.Build.props 的 <Version> 并提交
+# 2. 打标签并推送，两个工作流同时触发
+git tag -a v12.1.0.5 -m "Zhijian v12.1.0.5"
+git push origin v12.1.0.5
+# 3. 到 GitHub Actions 观察 publish-nuget 与 release 两个运行
+```
