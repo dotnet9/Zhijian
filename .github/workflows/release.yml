@@ -169,11 +169,51 @@ jobs:
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "tag_name=$tagName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
+      - name: 准备发布说明
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # 优先使用手工维护的版本说明，否则退回 UpdateLog 中对应版本的段落
+          $curated = ".github/release-notes/v$env:VERSION.md"
+          $bodyPath = "artifacts/release-body.md"
+          New-Item -ItemType Directory -Path (Split-Path -Parent $bodyPath) -Force | Out-Null
+          if (Test-Path -LiteralPath $curated -PathType Leaf) {
+            Copy-Item -LiteralPath $curated -Destination $bodyPath -Force
+            Write-Host "使用发布说明：$curated"
+          }
+          else {
+            $updateLog = "UpdateLog.md"
+            $body = New-Object System.Collections.Generic.List[string]
+            if (Test-Path -LiteralPath $updateLog -PathType Leaf) {
+              $lines = Get-Content -LiteralPath $updateLog -Encoding UTF8
+              $capture = $false
+              foreach ($line in $lines) {
+                if ($line -match '^#+\s.*v?' + [regex]::Escape($env:VERSION) + '\b') {
+                  $capture = $true
+                  $body.Add($line)
+                  continue
+                }
+                if ($capture -and $line -match '^#+\s') { break }
+                if ($capture) { $body.Add($line) }
+              }
+            }
+            if ($body.Count -gt 0) {
+              $body | Set-Content -LiteralPath $bodyPath -Encoding utf8
+              Write-Host "使用 UpdateLog 段落作为发布说明。"
+            }
+            else {
+              "Zhijian v$env:VERSION" | Set-Content -LiteralPath $bodyPath -Encoding utf8
+              Write-Host "未找到版本说明，将只使用自动生成的变更列表。"
+            }
+          }
+
       - name: 创建 GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag_name }}
           name: Zhijian v${{ steps.version.outputs.version }}
+          body_path: artifacts/release-body.md
           generate_release_notes: true
           files: |
             artifacts/release/*.exe
