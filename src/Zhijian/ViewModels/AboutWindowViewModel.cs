@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Reflection;
 using CodeWF.Tools.Extensions;
+using Zhijian.Services;
 
 namespace Zhijian.ViewModels;
 
@@ -29,6 +30,8 @@ public sealed class AboutWindowViewModel : ViewModelBase
     public Uri MindViewNuGetUri => new(MindViewNuGetUrl);
 
     public Uri MindViewThemesNuGetUri => new(MindViewThemesNuGetUrl);
+
+    public UpdateViewModel Update { get; } = new((_, _, _) => { });
 
     private static string GetCompileTime()
     {

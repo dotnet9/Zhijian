@@ -108,6 +108,40 @@
                     <TextBlock Text="{Binding MindViewThemesNuGetUrl}" TextWrapping="Wrap"/>
                 </atom:HyperLinkButton>
             </Grid>
+
+            <Border Margin="0,20,0,0"
+                    Padding="14,12"
+                    CornerRadius="8"
+                    Background="#F5F7FA"
+                    DataContext="{Binding Update}">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <atom:Button Command="{Binding CheckCommand}"
+                                    Content="检查更新"
+                                    IsEnabled="{Binding !IsChecking}"/>
+                        <atom:Button Command="{Binding DownloadCommand}"
+                                    Content="下载更新"
+                                    IsVisible="{Binding CanDownload}"/>
+                        <atom:Button Command="{Binding InstallCommand}"
+                                    Content="安装更新"
+                                    IsVisible="{Binding IsReady}"/>
+                        <atom:HyperLinkButton Content="打开发布页"
+                                             Command="{Binding OpenPageCommand}"
+                                             IsVisible="{Binding NeedsReleasePage}"
+                                             Padding="0"/>
+                        <ProgressBar Width="140" Height="6"
+                                     VerticalAlignment="Center"
+                                     IsVisible="{Binding IsDownloading}"
+                                     Maximum="100"
+                                     Value="{Binding DownloadProgress}"/>
+                    </StackPanel>
+                    <TextBlock FontSize="12"
+                               Text="{Binding ResultText}"
+                               IsVisible="{Binding ResultText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               TextWrapping="Wrap"
+                               Foreground="#667085"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Border>
 
