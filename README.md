@@ -231,3 +231,7 @@ git tag -a v12.1.0.5 -m "Zhijian v12.1.0.5"
 git push origin v12.1.0.5
 # 3. 到 GitHub Actions 观察 publish-nuget 与 release 两个运行
 ```
+
+## 发布
+
+标准发布流程与发布说明规范见 [docs/RELEASE.md](docs/RELEASE.md)。
