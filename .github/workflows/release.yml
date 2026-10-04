@@ -1,4 +1,4 @@
-name: release
+﻿name: release
 
 # 推送 v* 标签发布 Zhijian 桌面安装包（与 publish-nuget 同标签触发）：
 # win-x64 用 Inno Setup 生成 setup.exe，linux-x64 生成 deb，macOS 生成 dmg。
@@ -82,11 +82,15 @@ jobs:
           dotnet publish src/Zhijian/Zhijian.csproj -c Release -f net11.0-windows -r win-x64 -p:PublishProfile=FolderProfile_win-x64
           if ($LASTEXITCODE -ne 0) { throw "publish failed for win-x64" }
 
-      - name: 发布 (publish.bat 同款 pubxml 配置)
+      - name: 安装 NativeAOT 依赖 (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+
+      - name: 发布 (publish.bat 同款 pubxml 配置 + NativeAOT)
         if: matrix.rid == 'linux-x64'
         shell: pwsh
         run: |
-          dotnet publish src/Zhijian/Zhijian.csproj -c Release -f net11.0 -r linux-x64 -p:PublishProfile=FolderProfile_linux-x64
+          dotnet publish src/Zhijian/Zhijian.csproj -c Release -f net11.0 -r linux-x64 -p:PublishProfile=FolderProfile_linux-x64 -p:PublishAot=true -p:PublishTrimmed=true -p:PublishSingleFile=false -p:IlcGenerateCompleteTypeMetadata=true -p:IlcTrimMetadata=false -p:IlcSingleThreaded=true
           if ($LASTEXITCODE -ne 0) { throw "publish failed for linux-x64" }
 
       - name: 发布 + 打包 macOS dmg

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -209,7 +209,9 @@ publish_app() {
     -r "$rid" \
     --self-contained true \
     -p:PublishProfile="FolderProfile_$rid" \
-    -p:PublishDir="$publish_dir/"
+    -p:PublishDir="$publish_dir/" \
+    -p:PublishAot=true -p:PublishTrimmed=true -p:PublishSingleFile=false \
+    -p:IlcGenerateCompleteTypeMetadata=true -p:IlcTrimMetadata=false -p:IlcSingleThreaded=true
 
   [[ -x "$publish_dir/$APP_NAME" ]] || die "Published executable was not found: $publish_dir/$APP_NAME"
 }

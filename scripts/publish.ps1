@@ -22,8 +22,8 @@ Write-Host "发布 $RuntimeIdentifier (Version=$Version)"
 
 $tfm = if ($RuntimeIdentifier.StartsWith("win-", [StringComparison]::OrdinalIgnoreCase)) { "net11.0-windows" } else { "net11.0" }
 $profile = "FolderProfile_$RuntimeIdentifier"
-# NativeAOT 的 ILC 在 preview SDK 上并行编译可能崩溃，单线程更稳
-$ilcArgs = @()
-if ($RuntimeIdentifier.StartsWith("win-", [StringComparison]::OrdinalIgnoreCase)) { $ilcArgs += "-p:IlcSingleThreaded=true" }
+# 全平台 NativeAOT：完整反射元数据保全（Prism/DryIoc），单线程 ILC 更稳
+$ilcArgs = @("-p:PublishAot=true", "-p:PublishTrimmed=true", "-p:PublishSingleFile=false",
+    "-p:IlcGenerateCompleteTypeMetadata=true", "-p:IlcTrimMetadata=false", "-p:IlcSingleThreaded=true")
 dotnet publish (Join-Path $repositoryRoot "src/Zhijian/Zhijian.csproj") -c Release -f $tfm -r $RuntimeIdentifier @ilcArgs -p:PublishProfile=$profile -p:Version=$Version
 if ($LASTEXITCODE -ne 0) { throw "publish failed for $RuntimeIdentifier" }
