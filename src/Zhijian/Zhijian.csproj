@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <IsPackable>false</IsPackable>
-    <TargetFrameworks>net11.0;net11.0-windows</TargetFrameworks>
+    <TargetFrameworks>net10.0;net10.0-windows</TargetFrameworks>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>..\..\logo.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -25,7 +25,7 @@
     <PackageReference Include="Lang.Avalonia.Json" />
     <PackageReference Include="ReactiveUI.Avalonia" />
     <PackageReference Include="VC-LTL" />
-    <PackageReference Include="YY-Thunks" Condition="'$(TargetFramework)' == 'net11.0-windows'" />
+    <PackageReference Include="YY-Thunks" Condition="'$(TargetFramework)' == 'net10.0-windows'" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeWF.MindView\CodeWF.MindView.csproj" />

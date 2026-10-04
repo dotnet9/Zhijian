@@ -205,13 +205,13 @@ publish_app() {
   echo "Publishing $APP_NAME for $rid..."
   "$DOTNET_CMD" publish "$PROJECT_PATH" \
     -c "$CONFIGURATION" \
-    -f net11.0 \
+    -f net10.0 \
     -r "$rid" \
     --self-contained true \
     -p:PublishProfile="FolderProfile_$rid" \
     -p:PublishDir="$publish_dir/"
-  # macOS 暂不走 NativeAOT：.NET 11 rc.1 工具链在 macOS 上有 swift auto-link 链接 bug
-  # （__swift_FORCE_LOAD_* 符号缺失，GA 后恢复），保持自包含单文件
+    -p:PublishAot=true -p:PublishTrimmed=true -p:PublishSingleFile=false \
+    -p:IlcGenerateCompleteTypeMetadata=true -p:IlcTrimMetadata=false -p:IlcSingleThreaded=true
 
   [[ -x "$publish_dir/$APP_NAME" ]] || die "Published executable was not found: $publish_dir/$APP_NAME"
 }
