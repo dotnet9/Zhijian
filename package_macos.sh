@@ -211,7 +211,8 @@ publish_app() {
     -p:PublishProfile="FolderProfile_$rid" \
     -p:PublishDir="$publish_dir/" \
     -p:PublishAot=true -p:PublishTrimmed=true -p:PublishSingleFile=false \
-    -p:IlcGenerateCompleteTypeMetadata=true -p:IlcTrimMetadata=false -p:IlcSingleThreaded=true
+    -p:IlcGenerateCompleteTypeMetadata=true -p:IlcTrimMetadata=false -p:IlcSingleThreaded=true \
+    -p:StripSymbols=false
 
   [[ -x "$publish_dir/$APP_NAME" ]] || die "Published executable was not found: $publish_dir/$APP_NAME"
 }
