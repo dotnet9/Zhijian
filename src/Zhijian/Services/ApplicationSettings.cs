@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace Zhijian.Services;
 
@@ -142,12 +142,47 @@ public static class ApplicationSettings
 
     private static string GetDefaultUserDataDirectory()
     {
-        var baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         if (string.IsNullOrWhiteSpace(baseDirectory))
         {
             baseDirectory = AppContext.BaseDirectory;
         }
 
-        return Path.Combine(baseDirectory, "Zhijian");
+        var directory = Path.Combine(baseDirectory, "Zhijian");
+
+        // 旧版数据在 Roaming（%APPDATA% 下），首次升级迁到 Local（应用数据标准位置）
+        var legacyBaseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        if (!string.IsNullOrWhiteSpace(legacyBaseDirectory))
+        {
+            MigrateLegacyRoot(Path.Combine(legacyBaseDirectory, "Zhijian"), directory);
+        }
+
+        return directory;
     }
+
+    /// <summary>一次性迁移：旧版把 %APPDATA%\Zhijian（Roaming）当数据根，现统一到
+    /// %LOCALAPPDATA%\Zhijian。新根没有内容而旧根有 → 整目录复制，旧目录原样保留作备份。</summary>
+    internal static void MigrateLegacyRoot(string legacyRoot, string newRoot)
+    {
+        if (!Directory.Exists(legacyRoot) || Directory.Exists(newRoot))
+        {
+            return;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(newRoot);
+            foreach (string file in Directory.EnumerateFiles(legacyRoot, "*", SearchOption.AllDirectories))
+            {
+                string target = Path.Combine(newRoot, Path.GetRelativePath(legacyRoot, file));
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                File.Copy(file, target, overwrite: false);
+            }
+        }
+        catch
+        {
+            // 迁移失败不阻塞启动：旧目录原样保留，用户数据仍可从旧位置找回
+        }
+    }
+
 }

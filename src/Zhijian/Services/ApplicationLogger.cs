@@ -1,4 +1,4 @@
-using CodeWF.Log.Core;
+﻿using CodeWF.Log.Core;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -128,7 +128,7 @@ internal static class ApplicationLogger
 
     private static string GetDefaultLogDirectory()
     {
-        var baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         return string.IsNullOrWhiteSpace(baseDirectory)
             ? AppContext.BaseDirectory
             : Path.Combine(baseDirectory, "Zhijian");
