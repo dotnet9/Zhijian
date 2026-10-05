@@ -48,11 +48,11 @@ require_command() {
   command -v "$1" >/dev/null 2>&1 || die "Missing required command: $1"
 }
 
-dotnet_has_net11_sdk() {
+dotnet_has_sdk() {
   local dotnet_path="$1"
 
   [[ -x "$dotnet_path" ]] || return 1
-  "$dotnet_path" --list-sdks 2>/dev/null | grep -Eq '^11\.'
+  "$dotnet_path" --list-sdks 2>/dev/null | grep -Eq '^1[0-9]\.'
 }
 
 resolve_dotnet() {
@@ -62,23 +62,23 @@ resolve_dotnet() {
 
   if [[ -n "$configured" ]]; then
     [[ -x "$configured" ]] || die "DOTNET_CMD does not point to an executable: $configured"
-    dotnet_has_net11_sdk "$configured" || die "DOTNET_CMD does not have a .NET 11 SDK: $configured"
+    dotnet_has_sdk "$configured" || die "DOTNET_CMD does not have a .NET 10+ SDK: $configured"
     DOTNET_CMD="$configured"
     return 0
   fi
 
   path_dotnet="$(command -v dotnet || true)"
-  if [[ -n "$path_dotnet" ]] && dotnet_has_net11_sdk "$path_dotnet"; then
+  if [[ -n "$path_dotnet" ]] && dotnet_has_sdk "$path_dotnet"; then
     DOTNET_CMD="$path_dotnet"
     return 0
   fi
 
-  if dotnet_has_net11_sdk "$home_dotnet"; then
+  if dotnet_has_sdk "$home_dotnet"; then
     DOTNET_CMD="$home_dotnet"
     return 0
   fi
 
-  die "A .NET 11 SDK is required. Install it first, or set DOTNET_CMD=/path/to/dotnet."
+  die "A .NET 10 (or newer) SDK is required. Install it first, or set DOTNET_CMD=/path/to/dotnet."
 }
 
 resolve_version() {

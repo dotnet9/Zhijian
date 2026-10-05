@@ -56,10 +56,7 @@ jobs:
       - name: 安装 .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            10.0.x
-            11.0.x
-          dotnet-quality: preview
+          dotnet-version: 10.0.x
 
       - name: 计算版本号
         id: version
