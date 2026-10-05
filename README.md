@@ -7,6 +7,14 @@
 
 ![枝见主窗口](docs/media/zhijian-main-window.gif)
 
+## 下载安装
+
+从 [GitHub Releases](https://github.com/dotnet9/Zhijian/releases/latest) 下载最新安装包（附 `.sha256` 校验）：
+
+
+- Linux x64 / arm64：`Zhijian-*-linux-x64.deb`、`Zhijian-*-linux-arm64.deb`
+- macOS x64 / arm64：`Zhijian-*-osx-x64.dmg`、`Zhijian-*-osx-arm64.dmg`
+
 ## 仓库规范
 
 - 当前版本：`12.1.0.8`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
