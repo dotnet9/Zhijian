@@ -12,13 +12,14 @@
 从 [GitHub Releases](https://github.com/dotnet9/Zhijian/releases/latest) 下载最新安装包（附 `.sha256` 校验）：
 
 
+- Windows x64：`Zhijian-v*-win-x64-setup.exe`（简体中文安装向导）
 - Linux x64 / arm64：`Zhijian-*-linux-x64.deb`、`Zhijian-*-linux-arm64.deb`
 - macOS x64 / arm64：`Zhijian-*-osx-x64.dmg`、`Zhijian-*-osx-arm64.dmg`
 
 ## 仓库规范
 
-- 当前版本：`12.1.0.8`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
-- NuGet 包项目统一支持 `net8.0;net10.0`；Demo、App、测试与内部应用项目统一使用 `net10.0` / `net10.0-windows`。
+- 当前版本：`12.1.0.9`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
+- `CodeWF.MindView` 库统一目标 `net10.0`；桌面应用、测试与内部应用项目统一使用 `net10.0` / `net10.0-windows`。
 - 根目录 `logo.svg`、`logo.png`、`logo.ico` 是唯一图标源，子工程只通过 MSBuild `Link` 引用，不维护图标副本。
 - 运行时帮助、Markdown 示例、内置备忘录、设计说明等业务文档按功能保留；仓库级入口文档使用根目录 `README.md` 和 `UpdateLog.md`。
 
@@ -160,7 +161,7 @@ dotnet run --project src/Zhijian/Zhijian.csproj -f net10.0
 .\package_all.bat --force
 ```
 
-`package_all.bat` 会先调用 `publish.bat`，再在 `artifacts/release/` 下生成 `Zhijian-v<Version>-<RID>.zip`、SHA256 文件和 release manifest。
+`package_all.bat` 会先调用 `publish.bat`，再在 `artifacts/release/` 下生成 `Zhijian-v<Version>-<RID>.zip`、SHA256 文件和 release manifest（zip 仅为本地产物；GitHub Release 资产为 Windows exe、Linux deb 与 macOS dmg 安装包）。
 Release 压缩包会排除调试符号文件和嵌套 zip 文件。
 已有产物默认不会覆盖；需要覆盖时使用 `package_all.bat --force`，或直接给 PowerShell 脚本传入 `-Force`。
 
