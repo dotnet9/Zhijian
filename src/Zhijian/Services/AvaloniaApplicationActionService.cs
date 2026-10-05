@@ -79,10 +79,33 @@ public sealed class AvaloniaApplicationActionService : IApplicationActionService
             return;
         }
 
-        Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{filePath}\"")
+        // 定位并选中文件是平台能力：Windows 用资源管理器 /select，macOS 用 Finder 的 -R，
+        // Linux 桌面差异大，退化为打开所在文件夹。此前写死 explorer.exe，非 Windows 直接抛异常。
+        if (OperatingSystem.IsWindows())
         {
-            UseShellExecute = true
-        });
+            Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{filePath}\"")
+            {
+                UseShellExecute = true
+            });
+        }
+        else if (OperatingSystem.IsMacOS())
+        {
+            Process.Start(new ProcessStartInfo("open", $"-R \"{filePath}\"")
+            {
+                UseShellExecute = true
+            });
+        }
+        else if (OperatingSystem.IsLinux())
+        {
+            var folder = Path.GetDirectoryName(Path.GetFullPath(filePath));
+            if (!string.IsNullOrEmpty(folder))
+            {
+                Process.Start(new ProcessStartInfo("xdg-open", folder)
+                {
+                    UseShellExecute = true
+                });
+            }
+        }
     }
 
     public async Task SetClipboardTextAsync(string text)
