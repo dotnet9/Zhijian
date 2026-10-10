@@ -17,17 +17,17 @@ public partial class SaveChangesWindow : AtomWindow
         DataContext = new SaveChangesWindowViewModel(documentName);
     }
 
-    private void SaveClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void SaveClicked(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close(MindMapSaveChangesDecision.Save);
     }
 
-    private void DiscardClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void DiscardClicked(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close(MindMapSaveChangesDecision.Discard);
     }
 
-    private void CancelClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void CancelClicked(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {
         Close(MindMapSaveChangesDecision.Cancel);
     }

@@ -1,6 +1,6 @@
 using System.Text;
-using Avalonia.Controls;
-using Avalonia.Platform.Storage;
+using global::Avalonia.Controls;
+using global::Avalonia.Platform.Storage;
 using CodeWF.MindView;
 using Zhijian.Views;
 

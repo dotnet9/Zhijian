@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Reflection;
-using CodeWF.Tools.Extensions;
+using CodeWF.Toolkit.Core.Extensions;
 using Zhijian.Services;
 
 namespace Zhijian.ViewModels;

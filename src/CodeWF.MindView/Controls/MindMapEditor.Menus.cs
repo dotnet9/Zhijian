@@ -1,8 +1,8 @@
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Layout;
-using Avalonia.Media;
+using global::Avalonia.Controls;
+using global::Avalonia.Input;
+using global::Avalonia.Layout;
+using global::Avalonia.Media;
 using AtomUI;
 using AtomUI.Controls;
 
@@ -74,7 +74,7 @@ public partial class MindMapEditor
     private Control CreateToolbarButton(string tooltip, Geometry icon, Action action)
     {
         var iconSize = GetResourceDouble(MindViewStyleKeys.ToolbarIconSizeResource, 15);
-        var path = new Avalonia.Controls.Shapes.Path
+        var path = new global::Avalonia.Controls.Shapes.Path
         {
             Data = icon,
             Stroke = GetSecondaryTextBrush(),
@@ -114,7 +114,7 @@ public partial class MindMapEditor
 
     private AtomUI.Desktop.Controls.Button CreateNodeAddChildButton()
     {
-        var icon = new Avalonia.Controls.Shapes.Path
+        var icon = new global::Avalonia.Controls.Shapes.Path
         {
             Data = Geometry.Parse("M12 5v14M5 12h14"),
             Stroke = Brushes.White,

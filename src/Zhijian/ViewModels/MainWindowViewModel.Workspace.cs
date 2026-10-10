@@ -1,6 +1,6 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
-using CodeWF.EventBus;
+using CodeWF.Toolkit.EventBus;
 
 namespace Zhijian.ViewModels;
 

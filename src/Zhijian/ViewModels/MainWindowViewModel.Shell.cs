@@ -6,7 +6,7 @@ using AtomUI.Theme.Configuration;
 using AtomUI.Localization;
 using Avalonia;
 using CodeWF.MindView;
-using Lang.Avalonia;
+using CodeWF.Avalonia.Lang;
 using System.Globalization;
 using System.Text;
 using Zhijian.Services;

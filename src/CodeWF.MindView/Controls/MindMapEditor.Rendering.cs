@@ -1,11 +1,11 @@
 using Avalonia;
-using Avalonia.Animation;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Layout;
-using Avalonia.Media;
-using Avalonia.Threading;
+using global::Avalonia.Animation;
+using global::Avalonia.Controls;
+using global::Avalonia.Input;
+using global::Avalonia.Interactivity;
+using global::Avalonia.Layout;
+using global::Avalonia.Media;
+using global::Avalonia.Threading;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
@@ -237,7 +237,7 @@ public partial class MindMapEditor
 
     private void AddConnector(MindMapNode parent, MindMapNode child)
     {
-        var path = new Avalonia.Controls.Shapes.Path
+        var path = new global::Avalonia.Controls.Shapes.Path
         {
             Stroke = GetConnectorBrush(),
             StrokeThickness = 2,

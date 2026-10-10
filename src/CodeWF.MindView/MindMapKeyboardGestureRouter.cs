@@ -1,4 +1,4 @@
-using Avalonia.Input;
+using global::Avalonia.Input;
 
 namespace CodeWF.MindView;
 

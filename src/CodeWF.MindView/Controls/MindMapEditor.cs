@@ -1,13 +1,13 @@
 using Avalonia;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Data;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Media;
+using global::Avalonia.Collections;
+using global::Avalonia.Controls;
+using global::Avalonia.Controls.Primitives;
+using global::Avalonia.Data;
+using global::Avalonia.Input;
+using global::Avalonia.Interactivity;
+using global::Avalonia.Media;
 using CodeWF.MindView.I18n;
-using Lang.Avalonia;
+using CodeWF.Avalonia.Lang;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
@@ -167,7 +167,7 @@ public partial class MindMapEditor : UserControl
     };
     private readonly LayoutTransformControl _zoomHost;
     private readonly ScrollViewer _scrollViewer;
-    private readonly Avalonia.Controls.Shapes.Path _dropPreviewPath = new()
+    private readonly global::Avalonia.Controls.Shapes.Path _dropPreviewPath = new()
     {
         StrokeThickness = 2,
         StrokeDashArray = new AvaloniaList<double> { 5, 4 },
@@ -179,7 +179,7 @@ public partial class MindMapEditor : UserControl
         FontSize = 12,
         FontWeight = FontWeight.SemiBold,
         TextAlignment = TextAlignment.Center,
-        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        VerticalAlignment = global::Avalonia.Layout.VerticalAlignment.Center
     };
     private readonly Border _dropPreviewLabel;
 

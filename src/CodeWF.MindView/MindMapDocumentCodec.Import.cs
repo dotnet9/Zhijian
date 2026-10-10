@@ -1,4 +1,4 @@
-using CodeWF.Log.Core;
+using CodeWF.Toolkit.Logging;
 using CodeWF.MindView.I18n;
 
 namespace CodeWF.MindView;

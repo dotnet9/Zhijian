@@ -1,7 +1,7 @@
 using AtomUI.Desktop.Controls;
-using Avalonia.Controls;
-using Avalonia.Input.Platform;
-using Avalonia.Threading;
+using global::Avalonia.Controls;
+using global::Avalonia.Input.Platform;
+using global::Avalonia.Threading;
 using System.Diagnostics;
 using Zhijian.Views;
 
@@ -19,9 +19,9 @@ public sealed class AvaloniaApplicationActionService : IApplicationActionService
     private ThanksWindow? _thanksWindow;
     private AboutWindow? _aboutWindow;
     private WindowMessageManager? _messageManager;
-    private readonly Avalonia.Controls.Window _owner;
+    private readonly global::Avalonia.Controls.Window _owner;
 
-    public AvaloniaApplicationActionService(Avalonia.Controls.Window owner)
+    public AvaloniaApplicationActionService(global::Avalonia.Controls.Window owner)
     {
         _owner = owner;
         _owner.Opened += (_, _) => EnsureMessageManager();

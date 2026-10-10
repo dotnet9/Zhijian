@@ -1,5 +1,5 @@
 using CodeWF.MindView;
-using Avalonia.Threading;
+using global::Avalonia.Threading;
 using System.Text;
 using Zhijian.Services;
 

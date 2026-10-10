@@ -2,9 +2,9 @@ using AtomUI;
 using AtomUI.Controls;
 using AtomUI.Theme;
 using Avalonia;
-using CodeWF.EventBus;
+using CodeWF.Toolkit.EventBus;
 using CodeWF.MindView;
-using Lang.Avalonia;
+using CodeWF.Avalonia.Lang;
 using System.Collections.ObjectModel;
 using Zhijian.Services;
 

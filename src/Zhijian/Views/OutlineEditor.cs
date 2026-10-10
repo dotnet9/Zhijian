@@ -1,13 +1,13 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
-using Avalonia.Data;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Layout;
-using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
+using global::Avalonia.Controls;
+using global::Avalonia.Controls.Shapes;
+using global::Avalonia.Data;
+using global::Avalonia.Input;
+using global::Avalonia.Interactivity;
+using global::Avalonia.Layout;
+using global::Avalonia.Media;
+using global::Avalonia.Threading;
+using global::Avalonia.VisualTree;
 using CodeWF.MindView;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -227,8 +227,8 @@ public partial class OutlineEditor : UserControl
         _scrollViewer = new ScrollViewer
         {
             Content = _itemsPanel,
-            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
-            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
+            HorizontalScrollBarVisibility = global::Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = global::Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
         };
         _dropPreviewLabel = CreateDropPreviewLabel();
         _dropPreviewOverlay.Children.Add(_dropPreviewLine);

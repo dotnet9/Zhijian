@@ -1,10 +1,10 @@
 using AtomUI.Icons.AntDesign;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
+using global::Avalonia.Controls;
+using global::Avalonia.Input;
+using global::Avalonia.Media;
+using global::Avalonia.Threading;
+using global::Avalonia.VisualTree;
 using CodeWF.MindView;
 using AtomMenuFlyout = AtomUI.Desktop.Controls.MenuFlyout;
 using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;

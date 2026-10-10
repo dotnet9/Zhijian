@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using CodeWF.EventBus;
+using CodeWF.Toolkit.EventBus;
 
 namespace Zhijian.ViewModels;
 

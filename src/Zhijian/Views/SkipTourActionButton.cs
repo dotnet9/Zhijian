@@ -1,6 +1,6 @@
 using AtomUI;
 using AtomUI.Desktop.Controls;
-using Avalonia.Interactivity;
+using global::Avalonia.Interactivity;
 
 namespace Zhijian.Views;
 

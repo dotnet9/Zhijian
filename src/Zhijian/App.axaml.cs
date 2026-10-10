@@ -1,12 +1,12 @@
 ﻿using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
+using global::Avalonia.Controls.ApplicationLifetimes;
+using global::Avalonia.Markup.Xaml;
 using AtomUI;
 using AtomUI.Desktop.Controls;
 using AtomUI.Theme;
 using AtomUI.Localization;
-using Lang.Avalonia;
-using Lang.Avalonia.Json;
+using CodeWF.Avalonia.Lang;
+using CodeWF.Avalonia.Lang.Json;
 using System.Globalization;
 using Zhijian.Services;
 using Zhijian.ViewModels;

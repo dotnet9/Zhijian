@@ -1,5 +1,5 @@
-using Avalonia.Markup.Xaml;
-using Avalonia.Styling;
+using global::Avalonia.Markup.Xaml;
+using global::Avalonia.Styling;
 
 namespace CodeWF.MindView.Themes;
 

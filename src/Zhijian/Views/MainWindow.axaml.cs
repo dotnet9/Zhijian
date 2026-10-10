@@ -1,10 +1,10 @@
 using AtomUI.Desktop.Controls;
 using Avalonia;
-using Avalonia.Data;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.VisualTree;
-using Lang.Avalonia;
+using global::Avalonia.Data;
+using global::Avalonia.Input;
+using global::Avalonia.Interactivity;
+using global::Avalonia.VisualTree;
+using CodeWF.Avalonia.Lang;
 using System.ComponentModel;
 using Zhijian.ViewModels;
 
@@ -21,7 +21,7 @@ public partial class MainWindow : Window
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
     private IDisposable? _titleBarTitleBinding;
     private MainWindowViewModel? _viewModel;
-    private Avalonia.Controls.GridLength _lastOutlinePaneWidth = new(DefaultOutlinePaneWidth);
+    private global::Avalonia.Controls.GridLength _lastOutlinePaneWidth = new(DefaultOutlinePaneWidth);
     private int _lastMindMapViewportResetRequestId;
     private bool _isCloseConfirmed;
 
@@ -143,9 +143,9 @@ public partial class MainWindow : Window
             outlinePaneColumn.MinWidth = OutlinePaneMinWidth;
             outlinePaneColumn.MaxWidth = OutlinePaneMaxWidth;
             outlinePaneColumn.Width = _lastOutlinePaneWidth.Value <= 0
-                ? new Avalonia.Controls.GridLength(DefaultOutlinePaneWidth)
+                ? new global::Avalonia.Controls.GridLength(DefaultOutlinePaneWidth)
                 : _lastOutlinePaneWidth;
-            splitterColumn.Width = new Avalonia.Controls.GridLength(SplitterWidth);
+            splitterColumn.Width = new global::Avalonia.Controls.GridLength(SplitterWidth);
             return;
         }
 
@@ -156,8 +156,8 @@ public partial class MainWindow : Window
 
         outlinePaneColumn.MinWidth = 0;
         outlinePaneColumn.MaxWidth = 0;
-        outlinePaneColumn.Width = new Avalonia.Controls.GridLength(0);
-        splitterColumn.Width = new Avalonia.Controls.GridLength(0);
+        outlinePaneColumn.Width = new global::Avalonia.Controls.GridLength(0);
+        splitterColumn.Width = new global::Avalonia.Controls.GridLength(0);
     }
 
     private void ToggleMiniMapClicked(object? sender, RoutedEventArgs e)
@@ -347,7 +347,7 @@ public partial class MainWindow : Window
     private void HandleTitleBarDragPressed(object? sender, PointerPressedEventArgs e)
     {
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed
-            || WindowState == Avalonia.Controls.WindowState.FullScreen
+            || WindowState == global::Avalonia.Controls.WindowState.FullScreen
             || !IsTitleBarDragSource(e))
         {
             return;
@@ -355,9 +355,9 @@ public partial class MainWindow : Window
 
         if (e.ClickCount == 2)
         {
-            WindowState = WindowState == Avalonia.Controls.WindowState.Maximized
-                ? Avalonia.Controls.WindowState.Normal
-                : Avalonia.Controls.WindowState.Maximized;
+            WindowState = WindowState == global::Avalonia.Controls.WindowState.Maximized
+                ? global::Avalonia.Controls.WindowState.Normal
+                : global::Avalonia.Controls.WindowState.Maximized;
             e.Handled = true;
             return;
         }
@@ -387,8 +387,8 @@ public partial class MainWindow : Window
         for (var current = source; current is not null; current = current.GetVisualParent())
         {
             if (current is TitleBarLeftAddOn
-                || current is Avalonia.Controls.Button
-                || current is Button or DropdownButton or ToggleSwitch or MenuItem or Avalonia.Controls.MenuItem)
+                || current is global::Avalonia.Controls.Button
+                || current is Button or DropdownButton or ToggleSwitch or MenuItem or global::Avalonia.Controls.MenuItem)
             {
                 return false;
             }
@@ -417,7 +417,7 @@ public partial class MainWindow : Window
 
         for (var current = source; current is not null; current = current.GetVisualParent())
         {
-            if (current is Avalonia.Controls.TextBox)
+            if (current is global::Avalonia.Controls.TextBox)
             {
                 return true;
             }
@@ -426,7 +426,7 @@ public partial class MainWindow : Window
         return false;
     }
 
-    private async void HandleWindowClosing(object? sender, Avalonia.Controls.WindowClosingEventArgs e)
+    private async void HandleWindowClosing(object? sender, global::Avalonia.Controls.WindowClosingEventArgs e)
     {
         if (_isCloseConfirmed || DataContext is not MainWindowViewModel viewModel)
         {

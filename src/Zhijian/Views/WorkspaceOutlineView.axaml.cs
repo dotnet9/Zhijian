@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+using global::Avalonia.Controls;
 using CodeWF.MindView;
 
 namespace Zhijian.Views;

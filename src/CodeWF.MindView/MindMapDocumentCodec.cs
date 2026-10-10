@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using CodeWF.MindView.I18n;
-using Lang.Avalonia;
+using CodeWF.Avalonia.Lang;
 using System.Globalization;
 
 namespace CodeWF.MindView;

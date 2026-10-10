@@ -1,8 +1,8 @@
 using System.Collections.Specialized;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Lang.Avalonia;
+using global::Avalonia.Controls;
+using global::Avalonia.Input;
+using global::Avalonia.Interactivity;
+using CodeWF.Avalonia.Lang;
 using Zhijian.ViewModels;
 using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
 using AtomToolTip = AtomUI.Desktop.Controls.ToolTip;

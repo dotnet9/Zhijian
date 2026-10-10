@@ -1,5 +1,5 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
+using global::Avalonia.Controls;
 using Zhijian.Services;
 
 namespace Zhijian;

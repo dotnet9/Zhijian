@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Zhijian.Services;
 using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
+using global::Avalonia.Controls.ApplicationLifetimes;
 using System.IO;
 using System.Linq;
 using System.Reflection;

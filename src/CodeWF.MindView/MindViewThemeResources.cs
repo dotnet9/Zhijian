@@ -1,7 +1,7 @@
 using System.Globalization;
 using Avalonia;
-using Avalonia.Media;
-using Avalonia.Styling;
+using global::Avalonia.Media;
+using global::Avalonia.Styling;
 using CodeWF.MindView.Controls;
 
 namespace CodeWF.MindView;

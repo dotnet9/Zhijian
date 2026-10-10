@@ -1,7 +1,7 @@
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Layout;
-using Avalonia.Media;
+using global::Avalonia.Controls;
+using global::Avalonia.Layout;
+using global::Avalonia.Media;
 
 namespace CodeWF.MindView.Controls;
 
@@ -181,7 +181,7 @@ public partial class MindMapEditor
         return geometry;
     }
 
-    private sealed record Connector(MindMapNode Parent, MindMapNode Child, Avalonia.Controls.Shapes.Path Path);
+    private sealed record Connector(MindMapNode Parent, MindMapNode Child, global::Avalonia.Controls.Shapes.Path Path);
 
     private sealed record ConnectorWorkItem(MindMapNode Parent, MindMapNode Child);
 

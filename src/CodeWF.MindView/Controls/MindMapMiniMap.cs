@@ -1,7 +1,7 @@
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Media;
+using global::Avalonia.Controls;
+using global::Avalonia.Input;
+using global::Avalonia.Media;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;

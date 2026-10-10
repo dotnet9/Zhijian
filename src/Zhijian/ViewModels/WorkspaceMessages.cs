@@ -1,4 +1,4 @@
-using CodeWF.EventBus;
+using CodeWF.Toolkit.EventBus;
 using CodeWF.MindView;
 
 namespace Zhijian.ViewModels;
