@@ -8,11 +8,11 @@
     <PackageVersion Include="Avalonia" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.4" />
-    <PackageVersion Include="CodeWF.Toolkit.EventBus" Version="1.0.0.0-preview.1" />
-    <PackageVersion Include="CodeWF.Toolkit.Logging" Version="1.0.0.0-preview.1" />
-    <PackageVersion Include="CodeWF.Avalonia.Markdown.Lite" Version="12.1.4.0-preview.1" />
-    <PackageVersion Include="CodeWF.Toolkit.Core" Version="1.0.0.0-preview.1" />
-    <PackageVersion Include="CodeWF.Avalonia.Lang" Version="12.1.4.0-preview.1" />
+    <PackageVersion Include="CodeWF.Toolkit.EventBus" Version="1.0.0.1" />
+    <PackageVersion Include="CodeWF.Toolkit.Logging" Version="1.0.0.1" />
+    <PackageVersion Include="CodeWF.Avalonia.Markdown.Lite" Version="12.1.4.1" />
+    <PackageVersion Include="CodeWF.Toolkit.Core" Version="1.0.0.1" />
+    <PackageVersion Include="CodeWF.Avalonia.Lang" Version="12.1.4.1" />
     <PackageVersion Include="ReactiveUI.Avalonia" Version="14.7.1" />
     <PackageVersion Include="Tmds.DBus.Protocol" Version="0.95.1" />
     <PackageVersion Include="VC-LTL" Version="5.3.1" />
