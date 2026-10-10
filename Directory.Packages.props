@@ -5,9 +5,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AtomUI.Desktop.Controls" Version="6.2.2" />
-    <PackageVersion Include="Avalonia" Version="12.1.3" />
-    <PackageVersion Include="Avalonia.Desktop" Version="12.1.3" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.3" />
+    <PackageVersion Include="Avalonia" Version="12.1.4" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.4" />
     <PackageVersion Include="CodeWF.Toolkit.EventBus" Version="1.0.0.0-preview.1" />
     <PackageVersion Include="CodeWF.Toolkit.Logging" Version="1.0.0.0-preview.1" />
     <PackageVersion Include="CodeWF.Avalonia.Markdown.Lite" Version="12.1.4.0-preview.1" />
