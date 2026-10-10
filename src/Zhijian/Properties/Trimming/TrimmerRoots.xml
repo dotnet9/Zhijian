@@ -8,14 +8,9 @@
   <assembly fullname="AtomUI.Desktop.Controls" preserve="all" />
   <assembly fullname="AtomUI.Icons.AntDesign" preserve="all" />
   <assembly fullname="AtomUI.Fonts.AlibabaSans" preserve="all" />
-
-  <assembly fullname="Lang.Avalonia" preserve="all" />
-  <assembly fullname="Lang.Avalonia.Json" preserve="all" />
-
-  <assembly fullname="CodeWF.EventBus" preserve="all" />
-  <assembly fullname="CodeWF.Markdown.Lite" preserve="all" />
-  <assembly fullname="CodeWF.Markdown.Lite.Themes" preserve="all" />
-
+  <assembly fullname="CodeWF.Avalonia.Lang" preserve="all" />
+  <assembly fullname="CodeWF.Toolkit.EventBus" preserve="all" />
+  <assembly fullname="CodeWF.Avalonia.Markdown.Lite" preserve="all" />
   <assembly fullname="ReactiveUI" preserve="all" />
   <assembly fullname="ReactiveUI.Avalonia" preserve="all" />
 </linker>
