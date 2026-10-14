@@ -1,9 +1,6 @@
-using AtomUI;
-using AtomUI.Controls;
-using AtomUI.Theme;
 using Avalonia;
 using CodeWF.Toolkit.EventBus;
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 using CodeWF.Avalonia.Lang;
 using System.Collections.ObjectModel;
 using Zhijian.Services;
@@ -111,7 +108,8 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 
         WatchTree();
         AssignMissingColors(Root);
-        IsDarkTheme = Application.Current?.GetThemeManager()?.CurrentTheme?.Appearance == ThemeAppearance.Dark;
+        UpdateThemeFromHost(global::Avalonia.Application.Current?.ActualThemeVariant is { } variant
+            && (variant == global::Avalonia.Styling.ThemeVariant.Dark || variant.InheritVariant == global::Avalonia.Styling.ThemeVariant.Dark));
         _selectedCultureName = I18nManager.Instance.Culture?.Name ?? ApplicationSettings.DefaultCultureName;
         StatusText = T(ZhijianL.Ready);
         SelectedNode = Root;

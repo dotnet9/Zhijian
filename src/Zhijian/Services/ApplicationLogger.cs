@@ -1,4 +1,4 @@
-﻿using CodeWF.Toolkit.Logging;
+using CodeWF.Toolkit.Logging;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;

@@ -1,11 +1,5 @@
-using AtomUI;
-using AtomUI.Controls;
-using AtomUI.Theme;
-using AtomUI.Theme.Algorithms;
-using AtomUI.Theme.Configuration;
-using AtomUI.Localization;
 using Avalonia;
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 using CodeWF.Avalonia.Lang;
 using System.Globalization;
 using System.Text;
@@ -17,7 +11,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
 {
     private void SetTheme(bool isDark)
     {
+        if (App.ThemeController is { } controller) controller.Mode = isDark ? CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Dark : CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Light;
         IsDarkTheme = isDark;
+        App.SaveThemePreferences();
         var themeName = isDark ? T(ZhijianL.DarkTheme) : T(ZhijianL.LightTheme);
         StatusText = FormatText(ZhijianL.StatusThemeChanged, themeName);
         _applicationActionService.ShowSuccessMessage(StatusText);
@@ -143,23 +139,6 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         CultureInfo.CurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
         I18nManager.Instance.Culture = culture;
-        // AtomUI 控件文案仅覆盖部分语言：繁体走 zh-TW，其余非中文回落 en-US；
-        // 应用自身的 I18n（Lang.Avalonia）仍按精确文化翻译。
-        var atomuiLanguage = culture.Name.ToUpperInvariant() switch
-        {
-            "ZH-TW" or "ZH-HK" or "ZH-MO" => LanguageTag.Parse("zh-TW"),
-            var name when name.StartsWith("ZH", StringComparison.Ordinal) => LanguageTag.Parse("zh-CN"),
-            _ => LanguageTag.Parse("en-US")
-        };
-        try
-        {
-            Application.Current?.GetLanguageManager()?.ChangeLanguage(atomuiLanguage);
-        }
-        catch (LanguageNotSupportedException)
-        {
-            // 声明外的语言保持当前 AtomUI 语言，应用级翻译不受影响。
-        }
-
         RefreshLocalizedProperties();
         StatusText = FormatText(ZhijianL.StatusLanguageChanged, GetLanguageDisplayName(culture.Name));
         _applicationActionService.ShowSuccessMessage(StatusText);
@@ -339,7 +318,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         try
         {
-            await ApplyThemeAppearanceAsync(value);
+            if (!_updatingHostTheme) await ApplyThemeAppearanceAsync(value);
         }
         catch (Exception exception)
         {
@@ -356,39 +335,11 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(SecondaryTextBrush));
     }
 
-    private static async Task ApplyThemeAppearanceAsync(bool isDark)
+    private static Task ApplyThemeAppearanceAsync(bool isDark)
     {
-        var themeManager = Application.Current?.GetThemeManager();
-        if (themeManager is null)
-        {
-            return;
-        }
-
-        var currentTheme = themeManager.CurrentTheme;
-        var algorithms = currentTheme?.Algorithms
-            .Where(static algorithm => algorithm != ThemeAlgorithm.Dark)
-            .ToList() ?? [ThemeAlgorithm.Default];
-        if (algorithms.Count == 0)
-        {
-            algorithms.Add(ThemeAlgorithm.Default);
-        }
-        if (isDark)
-        {
-            algorithms.Add(ThemeAlgorithm.Dark);
-        }
-
-        var config = new ThemeConfigBuilder()
-            .WithAlgorithms(algorithms.ToArray())
-            .Build();
-        var result = await themeManager.ApplyThemeAsync(new ThemeRequest(
-            currentTheme?.ThemeId ?? IThemeManager.DEFAULT_THEME_ID,
-            config,
-            ThemeTransitionReason.UserRequest));
-        if (result.Status == ThemeTransitionStatus.Failed)
-        {
-            var message = string.Join(" ", result.Diagnostics.Select(static diagnostic => diagnostic.Message));
-            throw new ThemeLoadException(message, result.Exception);
-        }
+        if (App.ThemeController is { } controller)
+            controller.Mode = isDark ? CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Dark : CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Light;
+        return Task.CompletedTask;
     }
 
     private void OnSelectedNodeChanged(MindMapNode? value)

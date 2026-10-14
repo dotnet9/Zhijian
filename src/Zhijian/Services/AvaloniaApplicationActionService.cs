@@ -1,4 +1,7 @@
-using AtomUI.Desktop.Controls;
+using Ursa.Controls;
+using global::Avalonia.Controls.Primitives;
+using global::Avalonia.Controls.Notifications;
+using global::Avalonia.VisualTree;
 using global::Avalonia.Controls;
 using global::Avalonia.Input.Platform;
 using global::Avalonia.Threading;
@@ -18,7 +21,7 @@ public sealed class AvaloniaApplicationActionService : IApplicationActionService
     private ChangelogWindow? _changelogWindow;
     private ThanksWindow? _thanksWindow;
     private AboutWindow? _aboutWindow;
-    private WindowMessageManager? _messageManager;
+    private WindowToastManager? _messageManager;
     private readonly global::Avalonia.Controls.Window _owner;
 
     public AvaloniaApplicationActionService(global::Avalonia.Controls.Window owner)
@@ -27,7 +30,6 @@ public sealed class AvaloniaApplicationActionService : IApplicationActionService
         _owner.Opened += (_, _) => EnsureMessageManager();
         _owner.Closed += (_, _) =>
         {
-            _messageManager?.Dispose();
             _messageManager = null;
         };
     }
@@ -130,9 +132,7 @@ public sealed class AvaloniaApplicationActionService : IApplicationActionService
 
     private void ShowSuccessMessageCore(string message)
     {
-        _messageManager?.Show(new Message(
-            type: MessageType.Success,
-            content: message));
+        _messageManager?.Show(new Toast(message, NotificationType.Success, TimeSpan.FromSeconds(2.5)));
     }
 
     private void EnsureMessageManager()
@@ -142,7 +142,9 @@ public sealed class AvaloniaApplicationActionService : IApplicationActionService
             return;
         }
 
-        _messageManager = new WindowMessageManager(TopLevel.GetTopLevel(_owner) ?? _owner)
+        var layer = _owner.GetVisualDescendants().OfType<VisualLayerManager>().FirstOrDefault();
+        if (layer is null) return;
+        _messageManager = new WindowToastManager(layer)
         {
             MaxItems = 4
         };

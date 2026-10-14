@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using global::Avalonia.Controls;
 using Zhijian.Services;
 

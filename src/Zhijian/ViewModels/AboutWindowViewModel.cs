@@ -19,17 +19,13 @@ public sealed class AboutWindowViewModel : ViewModelBase
 
     public string RepositoryUrl => "https://github.com/dotnet9/Zhijian";
 
-    public string MindViewNuGetUrl => "https://www.nuget.org/packages/CodeWF.MindView";
-
-    public string MindViewThemesNuGetUrl => "https://www.nuget.org/packages/CodeWF.MindView.Themes";
+    public string MindViewNuGetUrl => "https://www.nuget.org/packages/CodeWF.Avalonia.MindView";
 
     public Uri ContactUri => new(ContactUrl);
 
     public Uri RepositoryUri => new(RepositoryUrl);
 
     public Uri MindViewNuGetUri => new(MindViewNuGetUrl);
-
-    public Uri MindViewThemesNuGetUri => new(MindViewThemesNuGetUrl);
 
     public UpdateViewModel Update { get; } = new((_, _, _) => { });
 

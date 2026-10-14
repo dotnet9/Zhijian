@@ -1,13 +1,10 @@
-using AtomUI;
-using AtomUI.Controls;
-using AtomUI.Theme;
 using Avalonia;
 using Zhijian.ViewModels;
-using AtomWindow = AtomUI.Desktop.Controls.Window;
+using AppWindow = CodeWF.Avalonia.Controls.Controls.CodeWFWindow;
 
 namespace Zhijian.Views;
 
-public partial class ChangelogWindow : AtomWindow
+public partial class ChangelogWindow : AppWindow
 {
     private const string DarkClass = "dark";
 
@@ -16,18 +13,11 @@ public partial class ChangelogWindow : AtomWindow
         InitializeComponent();
         DataContext = new ChangelogWindowViewModel();
 
-        if (Application.Current?.GetThemeManager() is { } themeManager)
-        {
-            SetDarkThemeClass(themeManager.CurrentTheme?.Appearance == ThemeAppearance.Dark);
-            themeManager.ThemeChanged += HandleThemeChanged;
-            Closed += (_, _) => themeManager.ThemeChanged -= HandleThemeChanged;
-        }
+        ActualThemeVariantChanged += (_, _) => RefreshTheme();
+        RefreshTheme();
     }
 
-    private void HandleThemeChanged(object? sender, ThemeChangedEventArgs e)
-    {
-        SetDarkThemeClass(e.State.Appearance == ThemeAppearance.Dark);
-    }
+    private void RefreshTheme() => SetDarkThemeClass(ActualThemeVariant == global::Avalonia.Styling.ThemeVariant.Dark || ActualThemeVariant.InheritVariant == global::Avalonia.Styling.ThemeVariant.Dark);
 
     private void SetDarkThemeClass(bool isDarkTheme)
     {

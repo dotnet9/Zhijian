@@ -1,4 +1,4 @@
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 using global::Avalonia.Threading;
 using System.Text;
 using Zhijian.Services;

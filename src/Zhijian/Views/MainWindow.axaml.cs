@@ -1,4 +1,5 @@
-using AtomUI.Desktop.Controls;
+using global::Avalonia.Controls;
+using CodeWF.Avalonia.Controls.Controls;
 using Avalonia;
 using global::Avalonia.Data;
 using global::Avalonia.Input;
@@ -10,7 +11,7 @@ using Zhijian.ViewModels;
 
 namespace Zhijian.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : CodeWFWindow
 {
     private const double DefaultOutlinePaneWidth = 360;
     private const double OutlinePaneMinWidth = 280;
@@ -19,7 +20,6 @@ public partial class MainWindow : Window
     private const double CompactTitleBarHeight = 30;
 
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
-    private IDisposable? _titleBarTitleBinding;
     private MainWindowViewModel? _viewModel;
     private global::Avalonia.Controls.GridLength _lastOutlinePaneWidth = new(DefaultOutlinePaneWidth);
     private int _lastMindMapViewportResetRequestId;
@@ -28,6 +28,11 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ConfigureTitleBar();
+        ActualThemeVariantChanged += (_, _) =>
+        {
+            (DataContext as MainWindowViewModel)?.UpdateThemeFromHost(ActualThemeVariant == global::Avalonia.Styling.ThemeVariant.Dark || ActualThemeVariant.InheritVariant == global::Avalonia.Styling.ThemeVariant.Dark);
+        };
         MiniMapPopup.PlacementTarget = MiniMapButton;
         OutlineTourStep.Target = WorkspaceOutlineView.EditorHost;
         EditorModeTourStep.Target = WorkspaceOutlineView.EditorModeToggleTarget;
@@ -43,38 +48,18 @@ public partial class MainWindow : Window
         Closing += HandleWindowClosing;
     }
 
-    protected override WindowTitleBar? NotifyCreateTitleBar(WindowTitleBar? oldTitleBar)
-    {
-        return oldTitleBar ?? new WindowTitleBar
-        {
-            Name = "PART_TitleBar",
-            Height = CompactTitleBarHeight,
-            MinHeight = CompactTitleBarHeight,
-            MaxHeight = CompactTitleBarHeight,
-            Padding = new Thickness(8, 0),
-            FontSize = 12
-        };
-    }
+    private void SkipGuideClick(object? sender, RoutedEventArgs e) => NewUserTour.IsOpen = false;
 
-    protected override void NotifyConfigureTitleBar(WindowTitleBar titleBar)
+    private void ConfigureTitleBar()
     {
-        base.NotifyConfigureTitleBar(titleBar);
         _titleBarLeftAddOn = new TitleBarLeftAddOn();
         _titleBarLeftAddOn.CenterRootRequested += (_, _) => CenterRootTopic();
         _titleBarLeftAddOn.ZoomOutRequested += (_, _) => MindMap.ZoomOut();
         _titleBarLeftAddOn.ZoomInRequested += (_, _) => MindMap.ZoomIn();
         _titleBarLeftAddOn.ResetZoomRequested += (_, _) => MindMap.ResetZoom();
         FileMenuTourStep.Target = _titleBarLeftAddOn.FileMenuTourTarget;
+        LeftContent = _titleBarLeftAddOn;
         ApplyTitleBarDataContext();
-        _titleBarTitleBinding?.Dispose();
-        _titleBarTitleBinding = titleBar.Bind(
-            WindowTitleBar.TitleProperty,
-            new Binding($"{nameof(DataContext)}.{nameof(MainWindowViewModel.DocumentTitle)}")
-            {
-                Source = this
-            });
-        titleBar.SetCurrentValue(WindowTitleBar.LeftAddOnProperty, _titleBarLeftAddOn);
-        titleBar.SetCurrentValue(WindowTitleBar.RightAddOnProperty, null);
     }
 
     private void ApplyTitleBarDataContext()
@@ -388,7 +373,7 @@ public partial class MainWindow : Window
         {
             if (current is TitleBarLeftAddOn
                 || current is global::Avalonia.Controls.Button
-                || current is Button or DropdownButton or ToggleSwitch or MenuItem or global::Avalonia.Controls.MenuItem)
+                || current is ToggleSwitch or MenuItem)
             {
                 return false;
             }

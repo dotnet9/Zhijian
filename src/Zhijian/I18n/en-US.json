@@ -61,7 +61,7 @@
       "Thanks": "Thanks",
       "About": "About",
       "AboutWindowTitle": "About Zhijian",
-      "AboutDescription": "A local-first, Markdown-first mind map editor built with Avalonia / AtomUI.",
+      "AboutDescription": "A local-first, Markdown-first mind map editor built with Avalonia / Semi / Ursa.",
       "AboutVersion": "Version",
       "AboutCompileTime": "Compile Time",
       "AboutAuthor": "Author",
@@ -181,7 +181,8 @@
       "TourCanvasTitle": "Pan and zoom the canvas",
       "TourCanvasDescription": "Pinch with two fingers on a touchpad to zoom; two-finger scroll or the mouse wheel pans. Ctrl/⌘ + wheel also zooms at the pointer, and dragging the center topic, Space+left drag, or middle drag pans.",
       "TourStatusTitle": "Navigate from the status bar",
-      "TourStatusDescription": "Undo, redo, left-pane visibility, mini map, center root, zoom, and mind-map shortcuts live here. The Help menu reopens this guide at any time."
+      "TourStatusDescription": "Undo, redo, left-pane visibility, mini map, center root, zoom, and mind-map shortcuts live here. The Help menu reopens this guide at any time.",
+      "SystemTheme": "Follow system"
     }
   }
 }

@@ -103,9 +103,24 @@ namespace Zhijian
         public static readonly string FolderSummaryOpen = "Zhijian.ZhijianL.FolderSummaryOpen";
         public static readonly string FilesEmptyTitle = "Zhijian.ZhijianL.FilesEmptyTitle";
         public static readonly string FilesEmptyDescription = "Zhijian.ZhijianL.FilesEmptyDescription";
+        public static readonly string QuickStartTitle = "Zhijian.ZhijianL.QuickStartTitle";
+        public static readonly string QuickStartDescription = "Zhijian.ZhijianL.QuickStartDescription";
+        public static readonly string NewFromTemplate = "Zhijian.ZhijianL.NewFromTemplate";
+        public static readonly string ProductPlanTemplate = "Zhijian.ZhijianL.ProductPlanTemplate";
+        public static readonly string ProductPlanTemplateDescription = "Zhijian.ZhijianL.ProductPlanTemplateDescription";
+        public static readonly string ProductPlanTemplateMarkdown = "Zhijian.ZhijianL.ProductPlanTemplateMarkdown";
+        public static readonly string MeetingNotesTemplate = "Zhijian.ZhijianL.MeetingNotesTemplate";
+        public static readonly string MeetingNotesTemplateDescription = "Zhijian.ZhijianL.MeetingNotesTemplateDescription";
+        public static readonly string MeetingNotesTemplateMarkdown = "Zhijian.ZhijianL.MeetingNotesTemplateMarkdown";
+        public static readonly string StudyNotesTemplate = "Zhijian.ZhijianL.StudyNotesTemplate";
+        public static readonly string StudyNotesTemplateDescription = "Zhijian.ZhijianL.StudyNotesTemplateDescription";
+        public static readonly string StudyNotesTemplateMarkdown = "Zhijian.ZhijianL.StudyNotesTemplateMarkdown";
         public static readonly string NodeSummary = "Zhijian.ZhijianL.NodeSummary";
         public static readonly string NodeSummarySelected = "Zhijian.ZhijianL.NodeSummarySelected";
         public static readonly string HistorySummary = "Zhijian.ZhijianL.HistorySummary";
+        public static readonly string MarkdownStatsSummary = "Zhijian.ZhijianL.MarkdownStatsSummary";
+        public static readonly string MarkdownStatsSaved = "Zhijian.ZhijianL.MarkdownStatsSaved";
+        public static readonly string MarkdownStatsUnsaved = "Zhijian.ZhijianL.MarkdownStatsUnsaved";
         public static readonly string StatusNewDocument = "Zhijian.ZhijianL.StatusNewDocument";
         public static readonly string StatusNewWindow = "Zhijian.ZhijianL.StatusNewWindow";
         public static readonly string StatusOpening = "Zhijian.ZhijianL.StatusOpening";
@@ -145,6 +160,7 @@ namespace Zhijian
         public static readonly string StatusMoveNode = "Zhijian.ZhijianL.StatusMoveNode";
         public static readonly string HistoryEditTopic = "Zhijian.ZhijianL.HistoryEditTopic";
         public static readonly string HistoryEditMarkdown = "Zhijian.ZhijianL.HistoryEditMarkdown";
+        public static readonly string HistoryTemplateApplied = "Zhijian.ZhijianL.HistoryTemplateApplied";
         public static readonly string HistoryOpen = "Zhijian.ZhijianL.HistoryOpen";
         public static readonly string HistoryImport = "Zhijian.ZhijianL.HistoryImport";
         public static readonly string SuggestedUntitledMindMap = "Zhijian.ZhijianL.SuggestedUntitledMindMap";
@@ -156,6 +172,7 @@ namespace Zhijian
         public static readonly string StatusShowNewUserTour = "Zhijian.ZhijianL.StatusShowNewUserTour";
         public static readonly string StatusWorkspacePaneHidden = "Zhijian.ZhijianL.StatusWorkspacePaneHidden";
         public static readonly string StatusWorkspacePaneShown = "Zhijian.ZhijianL.StatusWorkspacePaneShown";
+        public static readonly string StatusTemplateApplied = "Zhijian.ZhijianL.StatusTemplateApplied";
         public static readonly string TourSkip = "Zhijian.ZhijianL.TourSkip";
         public static readonly string TourWelcomeTitle = "Zhijian.ZhijianL.TourWelcomeTitle";
         public static readonly string TourWelcomeDescription = "Zhijian.ZhijianL.TourWelcomeDescription";
@@ -171,5 +188,7 @@ namespace Zhijian
         public static readonly string TourCanvasDescription = "Zhijian.ZhijianL.TourCanvasDescription";
         public static readonly string TourStatusTitle = "Zhijian.ZhijianL.TourStatusTitle";
         public static readonly string TourStatusDescription = "Zhijian.ZhijianL.TourStatusDescription";
+        public static readonly string SystemTheme = "Zhijian.ZhijianL.SystemTheme";
     }
+
 }

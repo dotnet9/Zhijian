@@ -1,4 +1,4 @@
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 
 namespace Zhijian.Services;
 

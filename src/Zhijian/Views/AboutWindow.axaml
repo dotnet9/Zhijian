@@ -1,6 +1,5 @@
-<atom:Window xmlns="https://github.com/avaloniaui"
+<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:atom="using:AtomUI.Desktop.Controls"
              xmlns:codewf="https://codewf.com"
              xmlns:l="clr-namespace:Zhijian"
              xmlns:vm="using:Zhijian.ViewModels"
@@ -30,7 +29,7 @@
 
             <Grid Margin="0,18,0,0"
                   ColumnDefinitions="Auto,*"
-                  RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                  RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                   RowSpacing="10">
                 <TextBlock Grid.Row="0"
                            Text="{codewf:I18n {x:Static l:ZhijianL.AboutVersion}}"
@@ -59,73 +58,60 @@
                 <TextBlock Grid.Row="3"
                            Text="{codewf:I18n {x:Static l:ZhijianL.AboutContact}}"
                            Classes="aboutLabel"/>
-                <atom:HyperLinkButton Grid.Row="3"
+                <Button Grid.Row="3"
                                       Grid.Column="1"
-                                      NavigateUri="{Binding ContactUri}"
+                                      Click="OpenLinkClick" Tag="{Binding ContactUri}"
                                       Padding="0"
                                       HorizontalAlignment="Left"
                                       HorizontalContentAlignment="Left"
                                       VerticalAlignment="Center">
                     <TextBlock Text="{Binding ContactUrl}" TextWrapping="Wrap"/>
-                </atom:HyperLinkButton>
+                </Button>
 
                 <TextBlock Grid.Row="4"
                            Text="{codewf:I18n {x:Static l:ZhijianL.AboutRepository}}"
                            Classes="aboutLabel"/>
-                <atom:HyperLinkButton Grid.Row="4"
+                <Button Grid.Row="4"
                                       Grid.Column="1"
-                                      NavigateUri="{Binding RepositoryUri}"
+                                      Click="OpenLinkClick" Tag="{Binding RepositoryUri}"
                                       Padding="0"
                                       HorizontalAlignment="Left"
                                       HorizontalContentAlignment="Left"
                                       VerticalAlignment="Center">
                     <TextBlock Text="{Binding RepositoryUrl}" TextWrapping="Wrap"/>
-                </atom:HyperLinkButton>
+                </Button>
 
                 <TextBlock Grid.Row="5"
                            Text="{codewf:I18n {x:Static l:ZhijianL.AboutMindViewPackage}}"
                            Classes="aboutLabel"/>
-                <atom:HyperLinkButton Grid.Row="5"
+                <Button Grid.Row="5"
                                       Grid.Column="1"
-                                      NavigateUri="{Binding MindViewNuGetUri}"
+                                      Click="OpenLinkClick" Tag="{Binding MindViewNuGetUri}"
                                       Padding="0"
                                       HorizontalAlignment="Left"
                                       HorizontalContentAlignment="Left"
                                       VerticalAlignment="Center">
                     <TextBlock Text="{Binding MindViewNuGetUrl}" TextWrapping="Wrap"/>
-                </atom:HyperLinkButton>
-
-                <TextBlock Grid.Row="6"
-                           Text="{codewf:I18n {x:Static l:ZhijianL.AboutThemesPackage}}"
-                           Classes="aboutLabel"/>
-                <atom:HyperLinkButton Grid.Row="6"
-                                      Grid.Column="1"
-                                      NavigateUri="{Binding MindViewThemesNuGetUri}"
-                                      Padding="0"
-                                      HorizontalAlignment="Left"
-                                      HorizontalContentAlignment="Left"
-                                      VerticalAlignment="Center">
-                    <TextBlock Text="{Binding MindViewThemesNuGetUrl}" TextWrapping="Wrap"/>
-                </atom:HyperLinkButton>
+                </Button>
             </Grid>
 
             <Border Margin="0,20,0,0"
                     Padding="14,12"
                     CornerRadius="8"
-                    Background="#F5F7FA"
+                    Background="{DynamicResource StudioSurface}"
                     DataContext="{Binding Update}">
                 <StackPanel Spacing="8">
                     <StackPanel Orientation="Horizontal" Spacing="10">
-                        <atom:Button Command="{Binding CheckCommand}"
+                        <Button Command="{Binding CheckCommand}"
                                     Content="检查更新"
                                     IsEnabled="{Binding !IsChecking}"/>
-                        <atom:Button Command="{Binding DownloadCommand}"
+                        <Button Command="{Binding DownloadCommand}"
                                     Content="下载更新"
                                     IsVisible="{Binding CanDownload}"/>
-                        <atom:Button Command="{Binding InstallCommand}"
+                        <Button Command="{Binding InstallCommand}"
                                     Content="安装更新"
                                     IsVisible="{Binding IsReady}"/>
-                        <atom:HyperLinkButton Content="打开发布页"
+                        <Button Content="打开发布页"
                                              Command="{Binding OpenPageCommand}"
                                              IsVisible="{Binding NeedsReleasePage}"
                                              Padding="0"/>
@@ -145,7 +131,7 @@
         </StackPanel>
     </Border>
 
-    <atom:Window.Styles>
+    <codewf:CodeWFWindow.Styles>
         <Style Selector="TextBlock.aboutLabel">
             <Setter Property="Foreground" Value="#667085"/>
             <Setter Property="Margin" Value="0,0,16,0"/>
@@ -155,5 +141,5 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-    </atom:Window.Styles>
-</atom:Window>
+    </codewf:CodeWFWindow.Styles>
+</codewf:CodeWFWindow>

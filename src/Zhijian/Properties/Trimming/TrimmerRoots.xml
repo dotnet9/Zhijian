@@ -1,13 +1,13 @@
 <linker>
-  <!-- XAML, localization and AtomUI theme resources still use reflection/resource lookup under Native AOT. -->
+  <!-- Preserve XAML, localization and shared control/theme resources under Native AOT. -->
   <assembly fullname="Zhijian" preserve="all" />
-  <assembly fullname="CodeWF.MindView" preserve="all" />
-  <assembly fullname="CodeWF.MindView.Themes" preserve="all" />
-
-  <assembly fullname="AtomUI.Controls" preserve="all" />
-  <assembly fullname="AtomUI.Desktop.Controls" preserve="all" />
-  <assembly fullname="AtomUI.Icons.AntDesign" preserve="all" />
-  <assembly fullname="AtomUI.Fonts.AlibabaSans" preserve="all" />
+  <assembly fullname="CodeWF.Avalonia.MindView" preserve="all" />
+  <assembly fullname="CodeWF.Avalonia.Controls" preserve="all" />
+  <assembly fullname="Semi.Avalonia" preserve="all" />
+  <assembly fullname="Ursa" preserve="all" />
+  <assembly fullname="Ursa.Themes.Semi" preserve="all" />
+  <assembly fullname="Irihi.Avalonia.Shared" preserve="all" />
+  <assembly fullname="Irihi.Avalonia.Shared.Contracts" preserve="all" />
   <assembly fullname="CodeWF.Avalonia.Lang" preserve="all" />
   <assembly fullname="CodeWF.Toolkit.EventBus" preserve="all" />
   <assembly fullname="CodeWF.Avalonia.Markdown.Lite" preserve="all" />

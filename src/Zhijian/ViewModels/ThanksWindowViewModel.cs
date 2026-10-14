@@ -12,7 +12,7 @@ public sealed class ThanksWindowViewModel : ViewModelBase
         new("Avalonia UI", "https://avaloniaui.net/"),
         new("Semi.Avalonia", "https://github.com/irihitech/Semi.Avalonia"),
         new("Ursa.Avalonia", "https://github.com/irihitech/Ursa.Avalonia"),
-        new("AtomUI", "https://github.com/AtomUI/AtomUI")
+        new("Semi / Ursa", "https://github.com/irihitech/Ursa.Avalonia")
     ];
 }
 

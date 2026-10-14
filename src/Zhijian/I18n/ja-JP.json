@@ -61,7 +61,7 @@
       "Thanks": "謝辞",
       "About": "情報",
       "AboutWindowTitle": "Zhijian について",
-      "AboutDescription": "ローカルファースト、Markdown-first の Avalonia / AtomUI マインドマップエディターです。",
+      "AboutDescription": "ローカルファースト、Markdown-first の Avalonia / Semi / Ursa マインドマップエディターです。",
       "AboutVersion": "バージョン",
       "AboutCompileTime": "ビルド日時",
       "AboutAuthor": "作者",
@@ -181,7 +181,8 @@
       "TourCanvasTitle": "キャンバスを移動・ズーム",
       "TourCanvasDescription": "タッチパッドの2本指ピンチでズーム、2本指スクロールまたはホイールでキャンバスを移動できます。Ctrl/⌘ + ホイールでもポインター位置でズームし、中心トピックのドラッグ、Space+左ドラッグ、または中ボタンドラッグで移動できます。",
       "TourStatusTitle": "ステータスバーでナビゲート",
-      "TourStatusDescription": "元に戻す、やり直す、左ペイン表示、ミニマップ、中心へ戻る、ズーム、マインドマップのショートカットがあります。このガイドはヘルプメニューからいつでも再表示できます。"
+      "TourStatusDescription": "元に戻す、やり直す、左ペイン表示、ミニマップ、中心へ戻る、ズーム、マインドマップのショートカットがあります。このガイドはヘルプメニューからいつでも再表示できます。",
+      "SystemTheme": "システムに従う"
     }
   }
 }

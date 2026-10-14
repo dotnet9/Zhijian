@@ -1,6 +1,6 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 
 namespace Zhijian.ViewModels;
 

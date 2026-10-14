@@ -1,9 +1,6 @@
-﻿<atom:Window xmlns="https://github.com/avaloniaui"
+<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:atom="using:AtomUI.Desktop.Controls"
-             xmlns:antdicons="https://atomui.net/icons/antdesign"
              xmlns:codewf="https://codewf.com"
-             xmlns:icons="using:AtomUI.Icons.AntDesign"
              xmlns:l="clr-namespace:Zhijian"
              xmlns:mind="https://codewf.com"
              xmlns:views="using:Zhijian.Views"
@@ -20,13 +17,13 @@
              MinWidth="980"
              MinHeight="640"
              Title="{Binding WindowTitle}"
-             TitleBarFrameBackground="{Binding TitleBarBackground}">
+             TitleBarBackground="{DynamicResource StudioBackground}" TitleBarHeight="34">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <atom:Window.Styles>
+    <codewf:CodeWFWindow.Styles>
         <Style Selector="Border.panel">
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
@@ -36,23 +33,20 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-        <Style Selector="atom|TabControl.workspaceTabs">
-            <Setter Property="TabAndContentGutter" Value="4"/>
-        </Style>
-        <Style Selector="atom|TabControl.workspaceTabs /template/ ItemsPresenter#PART_ItemsPresenter StackPanel">
+        <Style Selector="TabControl.workspaceTabs /template/ ItemsPresenter#PART_ItemsPresenter StackPanel">
             <Setter Property="Spacing" Value="24"/>
         </Style>
-        <Style Selector="atom|TabControl.workspaceTabs atom|TabItem">
+        <Style Selector="TabControl.workspaceTabs TabItem">
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="0,5"/>
+            <Setter Property="Padding" Value="12,5"/>
             <Setter Property="MinHeight" Value="30"/>
         </Style>
         <Style Selector="TextBlock.muted">
-            <Setter Property="Foreground" Value="#667085"/>
+            <Setter Property="Foreground" Value="{DynamicResource StudioMuted}"/>
         </Style>
         <Style Selector="Border.statusBar">
-            <Setter Property="Background" Value="{Binding PanelBackground}"/>
-            <Setter Property="BorderBrush" Value="{Binding PanelBorderBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource StudioSurface}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource StudioBorder}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="BoxShadow" Value="0 4 14 0 #0F000000"/>
@@ -64,9 +58,9 @@
                 </ControlTemplate>
             </Setter>
         </Style>
-    </atom:Window.Styles>
+    </codewf:CodeWFWindow.Styles>
 
-    <Grid Background="{Binding ShellBackground}">
+    <Grid Background="{DynamicResource StudioBackground}">
         <Grid RowDefinitions="*,Auto">
             <Grid x:Name="PaneGrid" Grid.Row="0" Margin="16,16,16,6">
                 <Grid.ColumnDefinitions>
@@ -79,23 +73,21 @@
                         Grid.Column="0"
                         Classes="panel"
                         IsVisible="{Binding IsWorkspacePaneVisible}"
-                        Background="{Binding PanelBackground}"
-                        BorderBrush="{Binding PanelBorderBrush}">
-                    <atom:TabControl Classes="workspaceTabs"
-                                     SelectedIndex="{Binding WorkspaceTabIndex, Mode=TwoWay}"
-                                     SizeType="Small"
-                                     TabAlignmentCenter="True">
-                        <atom:TabItem x:Name="FilesTabItem"
+                        Background="{DynamicResource StudioSurface}"
+                        BorderBrush="{DynamicResource StudioBorder}">
+                    <TabControl Classes="workspaceTabs"
+                                     SelectedIndex="{Binding WorkspaceTabIndex, Mode=TwoWay}">
+                        <TabItem x:Name="FilesTabItem"
                                        Header="{codewf:I18n {x:Static l:ZhijianL.FilesTab}}">
                             <views:WorkspaceFilesView DataContext="{Binding FilesPane}"/>
-                        </atom:TabItem>
+                        </TabItem>
 
-                        <atom:TabItem x:Name="OutlineTabItem"
+                        <TabItem x:Name="OutlineTabItem"
                                        Header="{codewf:I18n {x:Static l:ZhijianL.OutlineTab}}">
                             <views:WorkspaceOutlineView x:Name="WorkspaceOutlineView"
                                                         DataContext="{Binding OutlinePane}"/>
-                        </atom:TabItem>
-                    </atom:TabControl>
+                        </TabItem>
+                    </TabControl>
                 </Border>
 
                 <Grid x:Name="PaneSplitterVisual"
@@ -106,21 +98,21 @@
                       IsHitTestVisible="False">
                     <Border Width="1"
                             HorizontalAlignment="Center"
-                            Background="{Binding PanelBorderBrush}"/>
+                            Background="{DynamicResource StudioBorder}"/>
                     <Border Width="8"
                             Height="54"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Background="{Binding PanelBackground}"
-                            BorderBrush="{Binding PanelBorderBrush}"
+                            Background="{DynamicResource StudioSurface}"
+                            BorderBrush="{DynamicResource StudioBorder}"
                             BorderThickness="1"
                             CornerRadius="4">
                         <StackPanel HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Spacing="3">
-                            <Border Width="2" Height="4" CornerRadius="1" Background="{Binding SecondaryTextBrush}"/>
-                            <Border Width="2" Height="4" CornerRadius="1" Background="{Binding SecondaryTextBrush}"/>
-                            <Border Width="2" Height="4" CornerRadius="1" Background="{Binding SecondaryTextBrush}"/>
+                            <Border Width="2" Height="4" CornerRadius="1" Background="{DynamicResource StudioMuted}"/>
+                            <Border Width="2" Height="4" CornerRadius="1" Background="{DynamicResource StudioMuted}"/>
+                            <Border Width="2" Height="4" CornerRadius="1" Background="{DynamicResource StudioMuted}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -138,9 +130,9 @@
                               ShowsPreview="False"
                               DragIncrement="1"
                               KeyboardIncrement="16"
-                              atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.PaneResizeTip}}"/>
+                              ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.PaneResizeTip}}"/>
 
-                <atom:Button Grid.Column="1"
+                <Button Grid.Column="1"
                              Width="32"
                              Height="30"
                              Margin="0,18,0,0"
@@ -150,35 +142,34 @@
                              Command="{Binding ToggleWorkspacePane}"
                              IsVisible="{Binding IsWorkspacePaneVisible}"
                              AutomationProperties.Name="{Binding ToggleWorkspacePaneToolTip}"
-                             atom:ToolTip.Tip="{Binding ToggleWorkspacePaneToolTip}">
-                    <icons:MenuFoldOutlined Width="16"
+                             ToolTip.Tip="{Binding ToggleWorkspacePaneToolTip}">
+                    <PathIcon Data="M3,4 L13,4 M3,8 L13,8 M3,12 L13,12 M6,6 L3,8 L6,10" Width="16"
                                             Height="16"
-                                            Foreground="{Binding SecondaryTextBrush}"/>
-                </atom:Button>
+                                            Foreground="{DynamicResource StudioMuted}"/>
+                </Button>
 
                 <Border x:Name="MindMapPanel"
                         Grid.Column="2"
                         Classes="panel"
-                        Background="{Binding PanelBackground}"
-                        BorderBrush="{Binding PanelBorderBrush}"
+                        Background="{DynamicResource StudioSurface}"
+                        BorderBrush="{DynamicResource StudioBorder}"
                         Padding="10,0,10,10">
                     <Grid RowDefinitions="Auto,14,Auto,*"
                           RowSpacing="0">
                         <Grid ColumnDefinitions="Auto,*"
                               Height="30">
-                            <atom:Button Width="28"
+                            <Button Width="28"
                                          Height="24"
-                                         SizeType="Small"
                                          Padding="6,4"
                                          ZIndex="1"
                                          Command="{Binding ToggleWorkspacePane}"
                                          IsVisible="{Binding IsWorkspacePaneHidden}"
                                          AutomationProperties.Name="{Binding ToggleWorkspacePaneToolTip}"
-                                         atom:ToolTip.Tip="{Binding ToggleWorkspacePaneToolTip}">
-                                <icons:MenuUnfoldOutlined Width="12"
+                                         ToolTip.Tip="{Binding ToggleWorkspacePaneToolTip}">
+                                <PathIcon Data="M3,4 L13,4 M3,8 L13,8 M3,12 L13,12 M10,6 L13,8 L10,10" Width="12"
                                                           Height="12"
-                                                          Foreground="{Binding SecondaryTextBrush}"/>
-                            </atom:Button>
+                                                          Foreground="{DynamicResource StudioMuted}"/>
+                            </Button>
                             <Grid Grid.ColumnSpan="2"
                                   Width="42"
                                   RowDefinitions="*,2"
@@ -188,21 +179,21 @@
                                 <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.MindMapTitle}}"
                                            FontSize="13"
                                            FontWeight="Normal"
-                                           Foreground="#1677FF"
+                                           Foreground="{DynamicResource StudioAccent}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                                 <Border Grid.Row="1"
                                         Width="28"
                                         Height="2"
-                                        Background="#1677FF"
+                                        Background="{DynamicResource StudioAccent}"
                                         HorizontalAlignment="Center"/>
                             </Grid>
                         </Grid>
 
                         <Border Grid.Row="2"
                                 IsVisible="{Binding IsBlankDocument}"
-                                Background="{Binding PanelFooterBackground}"
-                                BorderBrush="{Binding PanelBorderBrush}"
+                                Background="{DynamicResource StudioRaised}"
+                                BorderBrush="{DynamicResource StudioBorder}"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 Margin="0,0,0,6"
@@ -212,80 +203,73 @@
                                 <StackPanel Orientation="Horizontal"
                                             Spacing="8"
                                             VerticalAlignment="Center">
-                                    <icons:BulbOutlined Width="16"
+                                    <PathIcon Data="M8,1 A5,5 0 0 0 5,10 L5,13 L11,13 L11,10 A5,5 0 0 0 8,1 M5,15 L11,15" Width="16"
                                                        Height="16"
-                                                       Foreground="{Binding SecondaryTextBrush}"/>
+                                                       Foreground="{DynamicResource StudioMuted}"/>
                                     <TextBlock Text="{Binding QuickStartTitleText}"
                                                FontSize="12"
                                                FontWeight="SemiBold"
-                                               Foreground="{Binding PrimaryTextBrush}"
+                                               Foreground="{DynamicResource StudioText}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock Grid.Row="1"
                                            Text="{Binding QuickStartDescriptionText}"
                                            FontSize="12"
-                                           Foreground="{Binding SecondaryTextBrush}"
+                                           Foreground="{DynamicResource StudioMuted}"
                                            TextWrapping="Wrap"/>
                                 <WrapPanel Grid.Row="2"
                                            HorizontalAlignment="Left">
-                                    <atom:Button ButtonType="Primary"
+                                    <Button
                                                  MinHeight="30"
                                                  Margin="0,0,8,8"
                                                  Padding="10,0"
                                                  Command="{Binding CreateProductPlanTemplateAsync}"
                                                  Content="{Binding ProductPlanTemplateText}"
-                                                 Icon="{antdicons:AntDesignIconProvider Kind=BulbOutlined}"
                                                  AutomationProperties.Name="{Binding ProductPlanTemplateText}"
-                                                 atom:ToolTip.Tip="{Binding ProductPlanTemplateDescriptionText}"/>
-                                    <atom:Button MinHeight="30"
+                                                 ToolTip.Tip="{Binding ProductPlanTemplateDescriptionText}"/>
+                                    <Button MinHeight="30"
                                                  Margin="0,0,8,8"
                                                  Padding="10,0"
                                                  Command="{Binding CreateMeetingNotesTemplateAsync}"
                                                  Content="{Binding MeetingNotesTemplateText}"
-                                                 Icon="{antdicons:AntDesignIconProvider Kind=FileDoneOutlined}"
                                                  AutomationProperties.Name="{Binding MeetingNotesTemplateText}"
-                                                 atom:ToolTip.Tip="{Binding MeetingNotesTemplateDescriptionText}"/>
-                                    <atom:Button MinHeight="30"
+                                                 ToolTip.Tip="{Binding MeetingNotesTemplateDescriptionText}"/>
+                                    <Button MinHeight="30"
                                                  Margin="0,0,8,8"
                                                  Padding="10,0"
                                                  Command="{Binding CreateStudyNotesTemplateAsync}"
                                                  Content="{Binding StudyNotesTemplateText}"
-                                                 Icon="{antdicons:AntDesignIconProvider Kind=ReadOutlined}"
                                                  AutomationProperties.Name="{Binding StudyNotesTemplateText}"
-                                                 atom:ToolTip.Tip="{Binding StudyNotesTemplateDescriptionText}"/>
-                                    <atom:Button MinHeight="30"
+                                                 ToolTip.Tip="{Binding StudyNotesTemplateDescriptionText}"/>
+                                    <Button MinHeight="30"
                                                  Margin="0,0,8,8"
                                                  Padding="10,0"
                                                  Command="{Binding AddChildToSelected}"
                                                  Content="{codewf:I18n {x:Static l:ZhijianL.AddChild}}"
-                                                 Icon="{antdicons:AntDesignIconProvider Kind=SubnodeOutlined}"
                                                  AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.AddChild}}"/>
-                                    <atom:Button MinHeight="30"
+                                    <Button MinHeight="30"
                                                  Margin="0,0,8,8"
                                                  Padding="10,0"
                                                  Command="{Binding OpenUserManualAsync}"
                                                  Content="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"
-                                                 Icon="{antdicons:AntDesignIconProvider Kind=ReadOutlined}"
                                                  AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OpenUserManual}}"/>
-                                    <atom:Button MinHeight="30"
+                                    <Button MinHeight="30"
                                                  Margin="0,0,8,8"
                                                  Padding="10,0"
                                                  Command="{Binding ImportDocumentAsync}"
                                                  Content="{codewf:I18n {x:Static l:ZhijianL.Import}}"
-                                                 Icon="{antdicons:AntDesignIconProvider Kind=ImportOutlined}"
                                                  AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Import}}"/>
-                                    <atom:Button ButtonType="Text"
+                                    <Button
                                                  MinHeight="30"
                                                  Padding="8,0"
                                                  Command="{Binding ToggleEditorMode}"
                                                  Content="{codewf:I18n {x:Static l:ZhijianL.MarkdownPlaceholder}}"
-                                                 Icon="{antdicons:AntDesignIconProvider Kind=FileMarkdownOutlined}"
                                                  AutomationProperties.Name="{Binding ToggleEditorToolTip}"/>
                                 </WrapPanel>
                             </Grid>
                         </Border>
 
-                        <mind:MindMapEditor x:Name="MindMap"
+                        <mind:MindMapEditor AccentColor="{Binding AccentColor}" x:Name="MindMap"
                                             Grid.Row="3"
                                             IsDarkTheme="{Binding IsDarkTheme}"
                                             Roots="{Binding Roots}"
@@ -308,19 +292,19 @@
                           MinWidth="0"
                           VerticalAlignment="Center">
                         <TextBlock Text="{Binding SelectedNodeSummary}"
-                                   Foreground="{Binding SecondaryTextBrush}"
+                                   Foreground="{DynamicResource StudioMuted}"
                                    FontSize="12"
                                    VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1"
                                    Text="{Binding StatusText}"
-                                   Foreground="{Binding SecondaryTextBrush}"
+                                   Foreground="{DynamicResource StudioMuted}"
                                    FontSize="12"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"/>
 
                         <TextBlock Grid.Column="2"
                                Text="{Binding HistorySummary}"
-                               Foreground="{Binding SecondaryTextBrush}"
+                               Foreground="{DynamicResource StudioMuted}"
                                FontSize="12"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"/>
@@ -330,126 +314,118 @@
                                 Orientation="Horizontal"
                                 Spacing="3"
                                 VerticalAlignment="Center">
-                        <atom:Button Width="28"
+                        <Button Width="28"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="6,3"
                                      Command="{Binding Undo}"
                                      IsEnabled="{Binding CanUndo}"
                                      AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Undo}}"
-                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.Undo}}">
-                            <icons:UndoOutlined Width="13" Height="13" Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
-                        <atom:Button Width="28"
+                                     ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.Undo}}">
+                            <PathIcon Data="M3,5 L8,5 A5,5 0 0 1 8,15 M3,2 L0,5 L3,8" Width="13" Height="13" Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
+                        <Button Width="28"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="6,3"
                                      Command="{Binding Redo}"
                                      IsEnabled="{Binding CanRedo}"
                                      AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.Redo}}"
-                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.Redo}}">
-                            <icons:RedoOutlined Width="13" Height="13" Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
+                                     ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.Redo}}">
+                            <PathIcon Data="M13,5 L8,5 A5,5 0 0 0 8,15 M13,2 L16,5 L13,8" Width="13" Height="13" Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
                         <Border Width="1"
                                 Height="16"
                                 Margin="3,0"
-                                Background="{Binding PanelBorderBrush}"/>
-                        <atom:Button x:Name="MiniMapButton"
+                                Background="{DynamicResource StudioBorder}"/>
+                        <Button x:Name="MiniMapButton"
                                      Width="28"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="6,3"
                                      Click="ToggleMiniMapClicked"
                                      AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.MiniMap}}"
-                                     atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.MiniMap}}">
-                            <icons:PictureOutlined Width="13" Height="13" Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
-                        <atom:Button Width="28"
+                                     ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.MiniMap}}">
+                            <PathIcon Data="M1,2 L15,2 L15,14 L1,14 Z M3,11 L7,7 L10,10 L12,8 L14,11" Width="13" Height="13" Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
+                        <Button Width="28"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="6,3"
                                      Click="CenterRootClicked"
                                      AutomationProperties.Name="{Binding CenterRootToolTip}"
-                                     atom:ToolTip.Tip="{Binding CenterRootToolTip}">
-                            <icons:AimOutlined Width="13" Height="13" Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
+                                     ToolTip.Tip="{Binding CenterRootToolTip}">
+                            <PathIcon Data="M8,0 L8,4 M8,12 L8,16 M0,8 L4,8 M12,8 L16,8 M8,3 A5,5 0 1 0 8,13 A5,5 0 1 0 8,3" Width="13" Height="13" Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
                         <Border Width="1"
                                 Height="16"
                                 Margin="3,0"
-                                Background="{Binding PanelBorderBrush}"/>
-                        <atom:Button Width="28"
+                                Background="{DynamicResource StudioBorder}"/>
+                        <Button Width="28"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="6,3"
                                      Click="ZoomOutClicked"
                                      AutomationProperties.Name="{Binding ZoomOutToolTip}"
-                                     atom:ToolTip.Tip="{Binding ZoomOutToolTip}">
-                            <icons:ZoomOutOutlined Width="13" Height="13" Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
+                                     ToolTip.Tip="{Binding ZoomOutToolTip}">
+                            <PathIcon Data="M7,1 A6,6 0 1 0 7,13 A6,6 0 1 0 7,1 M11,11 L16,16 M4,7 L10,7" Width="13" Height="13" Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
                         <TextBlock Width="44"
                                    Text="{Binding ZoomText, ElementName=MindMap}"
-                                   Foreground="{Binding SecondaryTextBrush}"
+                                   Foreground="{DynamicResource StudioMuted}"
                                    TextAlignment="Center"
                                    FontSize="12"
                                    VerticalAlignment="Center"/>
-                        <atom:Button Width="28"
+                        <Button Width="28"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="6,3"
                                      Click="ZoomInClicked"
                                      AutomationProperties.Name="{Binding ZoomInToolTip}"
-                                     atom:ToolTip.Tip="{Binding ZoomInToolTip}">
-                            <icons:ZoomInOutlined Width="13" Height="13" Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
-                        <atom:Button MinWidth="40"
+                                     ToolTip.Tip="{Binding ZoomInToolTip}">
+                            <PathIcon Data="M7,1 A6,6 0 1 0 7,13 A6,6 0 1 0 7,1 M11,11 L16,16 M4,7 L10,7 M7,4 L7,10" Width="13" Height="13" Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
+                        <Button MinWidth="40"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="7,3"
                                      Click="ResetZoomClicked"
                                      AutomationProperties.Name="{Binding ResetZoomToolTip}"
-                                     atom:ToolTip.Tip="{Binding ResetZoomToolTip}">
+                                     ToolTip.Tip="{Binding ResetZoomToolTip}">
                             <TextBlock Text="100%"
                                        FontSize="12"
-                                       Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
+                                       Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
                         <Border Width="1"
                                 Height="16"
                                 Margin="3,0"
-                                Background="{Binding PanelBorderBrush}"/>
-                        <atom:Button Width="28"
+                                Background="{DynamicResource StudioBorder}"/>
+                        <Button Width="28"
                                      Height="24"
-                                     SizeType="Small"
                                      Padding="6,3"
                                      AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.MindMapShortcuts}}"
-                                     atom:ToolTip.Placement="TopEdgeAlignedRight">
-                            <atom:ToolTip.Tip>
+                                     ToolTip.Placement="TopEdgeAlignedRight">
+                            <ToolTip.Tip>
                                 <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.MindMapShortcutsTip}}"
                                            TextAlignment="Left"
                                            TextWrapping="Wrap"
                                            HorizontalAlignment="Left"/>
-                            </atom:ToolTip.Tip>
-                            <icons:QuestionCircleOutlined Width="13" Height="13" Foreground="{Binding SecondaryTextBrush}"/>
-                        </atom:Button>
+                            </ToolTip.Tip>
+                            <PathIcon Data="M8,1 A7,7 0 1 0 8,15 A7,7 0 1 0 8,1 M5,5 C5,2 12,2 10,7 L8,9 M8,11 L8,12" Width="13" Height="13" Foreground="{DynamicResource StudioMuted}"/>
+                        </Button>
                     </StackPanel>
 
-                    <atom:Popup x:Name="MiniMapPopup"
+                    <Popup x:Name="MiniMapPopup"
                                 Grid.ColumnSpan="4"
-                                RequestedPlacement="TopEdgeAlignedRight"
-                                IsLightDismissEnabled="True"
-                                MarginToAnchor="8">
+                                Placement="TopEdgeAlignedRight"
+                                IsLightDismissEnabled="True">
                         <Border Width="282"
                                 Padding="10"
-                                Background="{Binding PanelBackground}"
-                                BorderBrush="{Binding PanelBorderBrush}"
+                                Background="{DynamicResource StudioSurface}"
+                                BorderBrush="{DynamicResource StudioBorder}"
                                 BorderThickness="1"
                                 CornerRadius="8"
                                 BoxShadow="0 8 28 0 #24000000">
                             <Grid RowDefinitions="Auto,*" RowSpacing="8">
                                 <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.MiniMap}}"
                                            FontSize="12"
-                                           Foreground="{Binding SecondaryTextBrush}"
+                                           Foreground="{DynamicResource StudioMuted}"
                                            HorizontalAlignment="Center"/>
                                 <mind:MindMapMiniMap x:Name="MiniMap"
+                                                     AccentColor="{Binding AccentColor}"
                                                      Grid.Row="1"
                                                      Width="260"
                                                      Height="160"
@@ -458,7 +434,7 @@
                                                      ViewportBounds="{Binding ViewportBounds, ElementName=MindMap}"/>
                             </Grid>
                         </Border>
-                    </atom:Popup>
+                    </Popup>
                 </Grid>
             </Border>
         </Grid>
@@ -471,61 +447,58 @@
                     Padding="24,22"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Background="{Binding PanelBackground}"
-                    BorderBrush="{Binding PanelBorderBrush}"
+                    Background="{DynamicResource StudioSurface}"
+                    BorderBrush="{DynamicResource StudioBorder}"
                     BorderThickness="1"
                     CornerRadius="8"
                     BoxShadow="0 14 42 0 #3A000000">
                 <StackPanel Spacing="14"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center">
-                    <atom:SpinIndicator SizeType="Large"
+                    <ProgressBar
                                         HorizontalAlignment="Center"/>
                     <TextBlock Text="{Binding DocumentBusyText}"
                                MaxWidth="260"
                                FontSize="14"
                                FontWeight="SemiBold"
-                               Foreground="{Binding PrimaryTextBrush}"
+                               Foreground="{DynamicResource StudioText}"
                                TextAlignment="Center"
                                TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
             </Border>
         </Border>
 
-        <atom:Tour x:Name="NewUserTour"
+        <codewf:Guide x:Name="NewUserTour"
                    IsOpen="{Binding IsNewUserTourOpen, Mode=TwoWay}">
-            <atom:Tour.CustomActions>
-                <views:SkipTourActionButton Content="{codewf:I18n {x:Static l:ZhijianL.TourSkip}}"/>
-            </atom:Tour.CustomActions>
-            <atom:Tour.Indicator>
-                <atom:TextTourIndicator/>
-            </atom:Tour.Indicator>
-            <atom:TourStep Title="{codewf:I18n {x:Static l:ZhijianL.TourWelcomeTitle}}"
+            <codewf:Guide.CustomActions><Button Content="{codewf:I18n {x:Static l:ZhijianL.TourSkip}}" Click="SkipGuideClick" /></codewf:Guide.CustomActions>
+
+
+            <codewf:GuideStep Title="{codewf:I18n {x:Static l:ZhijianL.TourWelcomeTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourWelcomeDescription}}"/>
-            <atom:TourStep x:Name="FileMenuTourStep"
+            <codewf:GuideStep x:Name="FileMenuTourStep"
                            Placement="Bottom"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourFilesTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourFilesDescription}}"/>
-            <atom:TourStep x:Name="OutlineTourStep"
+            <codewf:GuideStep x:Name="OutlineTourStep"
                            Placement="Right"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourOutlineTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourOutlineDescription}}"/>
-            <atom:TourStep x:Name="EditorModeTourStep"
+            <codewf:GuideStep x:Name="EditorModeTourStep"
                            Placement="Right"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourToggleTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourToggleDescription}}"/>
-            <atom:TourStep Target="{Binding ElementName=MindMapPanel}"
+            <codewf:GuideStep Target="{Binding ElementName=MindMapPanel}"
                            Placement="Left"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourMindMapTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourMindMapDescription}}"/>
-            <atom:TourStep Target="{Binding ElementName=MindMap}"
+            <codewf:GuideStep Target="{Binding ElementName=MindMap}"
                            Placement="Left"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourCanvasTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourCanvasDescription}}"/>
-            <atom:TourStep Target="{Binding ElementName=StatusBar}"
+            <codewf:GuideStep Target="{Binding ElementName=StatusBar}"
                            Placement="Top"
                            Title="{codewf:I18n {x:Static l:ZhijianL.TourStatusTitle}}"
                            Description="{codewf:I18n {x:Static l:ZhijianL.TourStatusDescription}}"/>
-        </atom:Tour>
+        </codewf:Guide>
     </Grid>
-</atom:Window>
+</codewf:CodeWFWindow>

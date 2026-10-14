@@ -1,6 +1,5 @@
-<atom:Window xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:atom="using:AtomUI.Desktop.Controls"
+<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:codewf="https://codewf.com"
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.ThanksWindow"
              x:DataType="vm:ThanksWindowViewModel"
@@ -39,14 +38,14 @@
                                                FontSize="16"
                                                FontWeight="SemiBold"
                                                TextWrapping="Wrap"/>
-                                    <atom:HyperLinkButton Grid.Row="1"
-                                                          NavigateUri="{Binding Uri}"
+                                    <Button Grid.Row="1"
+                                                          Click="OpenLinkClick" Tag="{Binding Uri}"
                                                           Padding="0"
                                                           HorizontalAlignment="Left"
                                                           HorizontalContentAlignment="Left"
                                                           VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Url}" TextWrapping="Wrap"/>
-                                    </atom:HyperLinkButton>
+                                    </Button>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -56,12 +55,12 @@
         </Grid>
     </Border>
 
-    <atom:Window.Styles>
+    <codewf:CodeWFWindow.Styles>
         <Style Selector="Border.projectItem">
             <Setter Property="Padding" Value="0,0,0,10"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="BorderBrush" Value="#E5E7EB"/>
         </Style>
-    </atom:Window.Styles>
-</atom:Window>
+    </codewf:CodeWFWindow.Styles>
+</codewf:CodeWFWindow>

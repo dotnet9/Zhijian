@@ -1,5 +1,4 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:atom="using:AtomUI.Desktop.Controls"
         xmlns:codewf="https://codewf.com">
     <Style Selector="codewf|MarkdownViewer.changelogMarkdown">
         <Setter Property="TextBrush" Value="#1F2328" />
@@ -13,7 +12,7 @@
         <Setter Property="AccentForegroundBrush" Value="#FFFFFF" />
     </Style>
 
-    <Style Selector="atom|Window.dark codewf|MarkdownViewer.changelogMarkdown">
+    <Style Selector="Window.dark codewf|MarkdownViewer.changelogMarkdown">
         <Setter Property="TextBrush" Value="#E6EDF3" />
         <Setter Property="MutedTextBrush" Value="#9BA7B4" />
         <Setter Property="BorderLineBrush" Value="#30363D" />

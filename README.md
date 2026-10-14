@@ -19,7 +19,7 @@
 ## 仓库规范
 
 - 当前版本：`12.1.0.9`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
-- `CodeWF.MindView` 库统一目标 `net10.0`；桌面应用、测试与内部应用项目统一使用 `net10.0` / `net10.0-windows`。
+- `CodeWF.Avalonia.MindView` 库统一目标 `net10.0`；桌面应用、测试与内部应用项目统一使用 `net10.0` / `net10.0-windows`。
 - 根目录 `logo.svg`、`logo.png`、`logo.ico` 是唯一图标源，子工程只通过 MSBuild `Link` 引用，不维护图标副本。
 - 运行时帮助、Markdown 示例、内置备忘录、设计说明等业务文档按功能保留；仓库级入口文档使用根目录 `README.md` 和 `UpdateLog.md`。
 
@@ -30,7 +30,7 @@
 - 文件菜单支持新建、新建窗口、打开可编辑文件、导入、打开文件夹、最近文件、保存、另存为可编辑格式、打开文件位置和关闭。
 - 编辑菜单支持撤销、重做、添加同级、添加子级、提升、降级、上移、下移、删除节点和复制为 Markdown。
 - 主题、语言、帮助和关于菜单集中在标题栏，常用项带有图标和快捷键。
-- 语言切换使用 `Lang.Avalonia.Json` 资源，覆盖中文简体、中文繁体、英语和日语。
+- 语言切换使用 `CodeWF.Avalonia.Lang` 资源，覆盖中文简体、中文繁体、英语和日语。
 - 首次启动新手引导会精准高亮标题栏文件菜单、大纲编辑区、Markdown 切换、脑图画布和底部导航，并提供“跳过”按钮。
 - `src/Zhijian/App.config` 集中管理新手引导、默认语言、最近文件数、历史步数和运行状态文件名。
 - 左侧提供“文件 / 大纲”两个 Tab：空文件页可直接打开可编辑文件、导入、打开文件夹或打开使用手册；单独打开或导入的文件会出现在文件列表中；打开文件夹时会列出该目录下所有支持文件。
@@ -41,7 +41,8 @@
 - 复制为 Markdown 会把当前文档 Markdown 写入剪贴板，并显示桌面全局消息。
 - “打开/另存为”聚焦 Markdown、OPML、XMind 等可编辑格式；“导入”覆盖更多只读转换格式，避免误以为能原格式保存。
 - 应用外壳提供标题栏菜单、对话框、列表控件、ToolTip、全局消息和深色主题。
-- 可复用的 `CodeWF.MindView` 控件只依赖 Avalonia，并与桌面应用外壳解耦。
+- 外壳采用 Semi、Ursa 和 CodeWF.Avalonia.Controls；主题菜单提供八套配色及浅色、深色、跟随系统三态，节点和缩略图同步主题色。
+- 可复用的 `CodeWF.Avalonia.MindView` 控件依赖 Avalonia、Markdig 与 CodeWF.Avalonia.Lang，并与桌面应用外壳解耦。
 
 ## 运行预览
 
@@ -107,9 +108,9 @@
 
 其他脑图、draw.io、图片、Office、文档和数据文件可通过“导入...”转换成脑图后，再另存为上述可编辑格式。
 
-## 复用 CodeWF.MindView
+## 复用 CodeWF.Avalonia.MindView
 
-`src/CodeWF.MindView` 独立于应用外壳。新的 Avalonia 应用可以引用 `CodeWF.MindView` 和 `CodeWF.MindView.Themes`，在 `App.axaml` 注册 `<mindThemes:MindViewThemes />`，然后在页面中使用 `MindMapEditor`。普通接入只需要绑定节点集合和当前选择：
+脑图库已迁到 [CodeWF.Avalonia](https://github.com/dotnet9/CodeWF.Avalonia) 仓库，枝见通过 NuGet 引用，不再携带库源码。新的 Avalonia 应用可以引用 `CodeWF.Avalonia.MindView`（内含主题），在 `App.axaml` 注册 `<mindThemes:MindViewThemes />`，然后在页面中使用 `MindMapEditor`。普通接入只需要绑定节点集合和当前选择：
 
 ```xml
 <mind:MindMapEditor
@@ -125,8 +126,6 @@
 
 ```text
 Zhijian/
-|-- src/CodeWF.MindView/        可复用脑图控件和文档编解码
-|-- src/CodeWF.MindView.Themes/ CodeWF.MindView 默认资源
 |-- src/Zhijian/                枝见桌面应用
 |-- docs/                       架构和源码设计文档
 |-- docs/media/                 文档截图和 GIF
@@ -142,7 +141,9 @@ Zhijian/
 - [Avalonia UI](https://avaloniaui.net/)
 - [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
 - [Ursa.Avalonia](https://github.com/irihitech/Ursa.Avalonia)
-- [AtomUI](https://github.com/AtomUI/AtomUI)
+- [Semi.Avalonia](https://github.com/irihitech/Semi.Avalonia)
+- [Ursa](https://github.com/irihitech/Ursa.Avalonia)
+- [CodeWF.Avalonia](https://github.com/dotnet9/CodeWF.Avalonia)
 
 ## 开发
 
@@ -207,7 +208,7 @@ NOTARY_KEYCHAIN_PROFILE=zhijian-notary \
 
 | 包 | 使用范围 | 协议 | 源码/项目地址 | 结论 |
 | --- | --- | --- | --- | --- |
-| `AtomUI.Desktop.Controls` `6.0.0-build.2` | 桌面控件、菜单、窗口 | LGPL-3.0 | https://github.com/AtomUI/AtomUI | NuGet 包指向公开源码；按“源码与传递依赖可追溯”通过 |
+| `Semi.Avalonia` / `Irihi.Ursa.Themes.Semi` | 主题、桌面控件与浮层 | MIT | https://github.com/irihitech | 开源主题和控件 |
 | `Avalonia` / `Avalonia.Desktop` / `Avalonia.Fonts.Inter` | 桌面运行时 | MIT | https://github.com/AvaloniaUI/Avalonia | 通过 |
 | `CodeWF.EventBus` / `CodeWF.Markdown.Lite.Themes` / `CodeWF.Tools.Core` / `Lang.Avalonia.Json` | 自研组件 | MIT | https://github.com/dotnet9 | 自研开源包，通过 |
 | `ReactiveUI.Avalonia` | MVVM | MIT | https://github.com/reactiveui/reactiveui | 通过 |
@@ -215,16 +216,15 @@ NOTARY_KEYCHAIN_PROFILE=zhijian-notary \
 | `YY-Thunks` | Windows 兼容 | MIT | https://github.com/Chuyu-Team/YY-Thunks | 源码开放，通过 |
 | `Tmds.DBus.Protocol` | Avalonia Linux DBus 传递依赖 | MIT | https://github.com/tmds/Tmds.DBus | 通过，pin 到 `0.93.0` |
 
-传递依赖检查结论：AtomUI 链路中的 `AtomUI.Controls`、`AtomUI.Controls.Shared`、`AtomUI.Core`、`AtomUI.Fonts.AlibabaSans`、`AtomUI.Icons.AntDesign`、`AtomUI.Native` 均来自公开源码仓库；Avalonia / SkiaSharp / ANGLE、ReactiveUI / Splat、Svg.Controls.Avalonia / Svg.*、ExCSS、DynamicData、HarfBuzzSharp、MicroCom.Runtime 均有公开源码。有效 restore 未发现 `AvaloniaUI.DiagnosticsSupport`、`Semi.Avalonia.*` 黑盒扩展或 `System.Drawing.Common 4.7.0`。
+当前主题和控件由 Semi、Ursa 与 CodeWF.Avalonia 提供。脑图包不依赖桌面外壳主题框架；有效还原后的依赖清单由 `dotnet list src/Zhijian/Zhijian.csproj package --include-transitive` 检查。
+
 ## 包版本维护约定
 
 XML 文件统一使用两个空格缩进。`Directory.Packages.props` 统一承载 NuGet 中央包管理开关和包版本变量，包括 `AvaloniaVersion` 等共享版本属性；`Directory.Build.props` 仅保留项目构建、编译选项和 NuGet 元数据。仓库如引用 `VC-LTL`、`YY-Thunks`，这两个兼容旧版操作系统的特殊包必须使用最新预览版。
 
 ## CI/CD：自动发布
 
-推送 `v*` 标签（如 `v12.1.0.4`，与 `Directory.Build.props` 的 `<Version>` 一致）会同时触发两个工作流：
-
-**[publish-nuget.yml](.github/workflows/publish-nuget.yml)**：发布 `CodeWF.MindView`、`CodeWF.MindView.Themes` 到 nuget.org（含 snupkg），认证用 NuGet Trusted Publishing（OIDC，仓库不存 secret），nuget.org 侧 key 绑定本仓库与 `publish-nuget.yml`。
+脑图库的打包与 NuGet 发布统一在 CodeWF.Avalonia 仓库进行。枝见的 `v*` 标签仅发布产品安装包。
 
 **[release.yml](.github/workflows/release.yml)**：构建桌面安装包并创建 GitHub Release——
 - Windows：NativeAOT 自包含发布 + Inno Setup 简体中文向导 `Zhijian-v版本-win-x64-setup.exe`

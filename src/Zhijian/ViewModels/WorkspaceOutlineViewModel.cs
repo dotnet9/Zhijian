@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 using CodeWF.Toolkit.EventBus;
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 
 namespace Zhijian.ViewModels;
 

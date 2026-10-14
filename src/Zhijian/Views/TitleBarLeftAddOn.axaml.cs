@@ -4,8 +4,8 @@ using global::Avalonia.Input;
 using global::Avalonia.Interactivity;
 using CodeWF.Avalonia.Lang;
 using Zhijian.ViewModels;
-using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
-using AtomToolTip = AtomUI.Desktop.Controls.ToolTip;
+using NativeMenuItem = global::Avalonia.Controls.MenuItem;
+using OutlineToolTip = global::Avalonia.Controls.ToolTip;
 
 namespace Zhijian.Views;
 
@@ -71,7 +71,7 @@ public partial class TitleBarLeftAddOn : UserControl
         RecentFilesMenu.Items.Clear();
         if (_viewModel is null || _viewModel.RecentFiles.Count == 0)
         {
-            RecentFilesMenu.Items.Add(new AtomMenuItem
+            RecentFilesMenu.Items.Add(new NativeMenuItem
             {
                 Header = I18nManager.Instance.GetResource(ZhijianL.NoRecentFiles) ?? "No recent files",
                 IsEnabled = false
@@ -81,13 +81,13 @@ public partial class TitleBarLeftAddOn : UserControl
 
         foreach (var file in _viewModel.RecentFiles)
         {
-            var item = new AtomMenuItem
+            var item = new NativeMenuItem
             {
                 Header = file.DisplayName,
                 DataContext = file
             };
             item.Click += RecentFileClicked;
-            AtomToolTip.SetTip(item, file.FilePath);
+            OutlineToolTip.SetTip(item, file.FilePath);
             RecentFilesMenu.Items.Add(item);
         }
     }
@@ -126,7 +126,7 @@ public partial class TitleBarLeftAddOn : UserControl
 
     private async void RecentFileClicked(object? sender, RoutedEventArgs e)
     {
-        if (sender is not AtomMenuItem { DataContext: RecentFileItem recentFile }
+        if (sender is not NativeMenuItem { DataContext: RecentFileItem recentFile }
             || _viewModel is null)
         {
             return;

@@ -1,10 +1,6 @@
-﻿using Avalonia;
+using Avalonia;
 using global::Avalonia.Controls.ApplicationLifetimes;
 using global::Avalonia.Markup.Xaml;
-using AtomUI;
-using AtomUI.Desktop.Controls;
-using AtomUI.Theme;
-using AtomUI.Localization;
 using CodeWF.Avalonia.Lang;
 using CodeWF.Avalonia.Lang.Json;
 using System.Globalization;
@@ -20,36 +16,64 @@ public partial class App : Application
     {
         base.Initialize();
         AvaloniaXamlLoader.Load(this);
-        NativeAotCompatibility.PreserveAtomUiLanguageResourceArrays();
 
         var langPlugin = new JsonLangPlugin
         {
             ResourceFolder = ResolveI18nFolder()
         };
         I18nManager.Instance.Register(langPlugin, new CultureInfo("zh-CN"), out _);
+        I18nManager.Instance.CultureChanged += (_, _) => ApplyControlCulture();
+        ApplyControlCulture();
 
-        this.UseAtomUI(builder =>
+        ThemeController = new CodeWF.Avalonia.Controls.Themes.StudioThemeController(this)
         {
-            // AtomUI 6.2 起语言系统迁移到 AtomUI.Localization（LanguageTag，BCP-47）。
-            // AtomUI 仅内置 zh-CN / zh-TW / en-US 的完整翻译，声明过多会在启动时校验失败。
-            builder.UseLanguages(
-                LanguageTag.Parse("zh-CN"),
-                new[]
-                {
-                    LanguageTag.Parse("zh-CN"),
-                    LanguageTag.Parse("zh-TW"),
-                    LanguageTag.Parse("en-US")
-                });
-            builder.WithInitialTheme(IThemeManager.DEFAULT_THEME_ID);
-            builder.UseAlibabaSansFont();
-            builder.UseDesktopControls();
-        });
+            Palette = CodeWF.Avalonia.Controls.Themes.StudioPalette.Aurora,
+            Mode = CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Light
+        };
+    }
+
+    public static CodeWF.Avalonia.Controls.Themes.StudioThemeController? ThemeController { get; private set; }
+
+    private void ApplyControlCulture()
+    {
+        var culture = I18nManager.Instance.Culture?.Name;
+        global::Avalonia.Controls.ResourceDictionary semi = culture switch
+        {
+            "en-US" => new Semi.Avalonia.Locale.en_us(),
+            "ja-JP" => new Semi.Avalonia.Locale.ja_jp(),
+            _ => new Semi.Avalonia.Locale.zh_cn()
+        };
+        global::Avalonia.Controls.ResourceDictionary ursa = culture is "en-US" or "ja-JP"
+            ? new Ursa.Themes.Semi.Locale.en_us()
+            : new Ursa.Themes.Semi.Locale.zh_cn();
+        foreach (var resource in semi) Resources[resource.Key] = resource.Value;
+        foreach (var resource in ursa) Resources[resource.Key] = resource.Value;
+    }
+
+    private static void LoadThemePreferences()
+    {
+        try
+        {
+            var path = ApplicationSettings.GetUserDataPath("appearance.txt");
+            if (!File.Exists(path) || ThemeController is null) return;
+            var values = File.ReadAllLines(path);
+            if (values.Length > 0 && Enum.TryParse<CodeWF.Avalonia.Controls.Themes.StudioPalette>(values[0], out var palette)) ThemeController.Palette = palette;
+            if (values.Length > 1 && Enum.TryParse<CodeWF.Avalonia.Controls.Themes.StudioThemeMode>(values[1], out var mode)) ThemeController.Mode = mode;
+        }
+        catch (IOException) { }
+    }
+    public static void SaveThemePreferences()
+    {
+        if (ThemeController is null) return;
+        try { File.WriteAllLines(ApplicationSettings.GetUserDataPath("appearance.txt"), new[] { ThemeController.Palette.ToString(), ThemeController.Mode.ToString() }); }
+        catch (IOException) { }
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
         ApplicationSettings.InitializeAsync().GetAwaiter().GetResult();
         DefaultFileOpeningService.Configure();
+        LoadThemePreferences();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

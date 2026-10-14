@@ -1,10 +1,10 @@
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 using Zhijian.ViewModels;
-using AtomWindow = AtomUI.Desktop.Controls.Window;
+using AppWindow = CodeWF.Avalonia.Controls.Controls.CodeWFWindow;
 
 namespace Zhijian.Views;
 
-public partial class SaveChangesWindow : AtomWindow
+public partial class SaveChangesWindow : AppWindow
 {
     public SaveChangesWindow()
         : this("未命名")

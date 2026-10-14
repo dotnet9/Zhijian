@@ -1,4 +1,4 @@
-﻿# 统一发布入口：scripts/publish.ps1
+# 统一发布入口：scripts/publish.ps1
 # 用法：pwsh scripts/publish.ps1 [-RuntimeIdentifier win-x64] [-Version 0.0.0]
 # 输出：artifacts/publish/<rid>/<AppName>/
 [CmdletBinding()]
@@ -24,6 +24,7 @@ $tfm = if ($RuntimeIdentifier.StartsWith("win-", [StringComparison]::OrdinalIgno
 $profile = "FolderProfile_$RuntimeIdentifier"
 # 全平台 NativeAOT：完整反射元数据保全（Prism/DryIoc），单线程 ILC 更稳
 $ilcArgs = @("-p:PublishAot=true", "-p:PublishTrimmed=true", "-p:PublishSingleFile=false",
+    "-p:DebugSymbols=true", "-p:DebugType=portable",
     "-p:IlcGenerateCompleteTypeMetadata=true", "-p:IlcTrimMetadata=false", "-p:IlcSingleThreaded=true")
-dotnet publish (Join-Path $repositoryRoot "src/Zhijian/Zhijian.csproj") -c Release -f $tfm -r $RuntimeIdentifier @ilcArgs -p:PublishProfile=$profile -p:Version=$Version
+dotnet publish (Join-Path $repositoryRoot "src/Zhijian/Zhijian.csproj") -m:1 -c Release -f $tfm -r $RuntimeIdentifier @ilcArgs -p:PublishProfile=$profile -p:Version=$Version
 if ($LASTEXITCODE -ne 0) { throw "publish failed for $RuntimeIdentifier" }

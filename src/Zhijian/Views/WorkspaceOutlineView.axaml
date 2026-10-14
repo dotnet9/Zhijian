@@ -1,8 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:atom="using:AtomUI.Desktop.Controls"
              xmlns:codewf="https://codewf.com"
-             xmlns:icons="using:AtomUI.Icons.AntDesign"
              xmlns:l="clr-namespace:Zhijian"
              xmlns:views="using:Zhijian.Views"
              xmlns:vm="using:Zhijian.ViewModels"
@@ -39,7 +37,7 @@
                              DropBeforeText="{codewf:I18n {x:Static l:ZhijianL.DropBeforeText}}"
                              DropAfterText="{codewf:I18n {x:Static l:ZhijianL.DropAfterText}}"/>
 
-        <atom:TextBox Grid.Row="0"
+        <TextBox Grid.Row="0"
                       IsVisible="{Binding IsMarkdownMode}"
                       Text="{Binding MarkdownText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       AcceptsReturn="True"
@@ -49,9 +47,9 @@
                       Margin="12,8,12,0"
                       Padding="10,8"
                       PlaceholderText="{codewf:I18n {x:Static l:ZhijianL.MarkdownPlaceholder}}"
-                      Foreground="{Binding PrimaryTextBrush}"
-                      Background="{Binding PanelBackground}"
-                      BorderBrush="{Binding PanelBorderBrush}"
+                      Foreground="{DynamicResource StudioText}"
+                      Background="{DynamicResource StudioSurface}"
+                      BorderBrush="{DynamicResource StudioBorder}"
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
                       AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.MarkdownPlaceholder}}"/>
 
@@ -59,84 +57,84 @@
               Margin="8,4,8,6"
               ColumnDefinitions="*,Auto">
             <TextBlock Text="{Binding EditorPaneTitle}"
-                       Foreground="{Binding SecondaryTextBrush}"
+                       Foreground="{DynamicResource StudioMuted}"
                        FontSize="11"
                        VerticalAlignment="Center"/>
             <StackPanel Grid.Column="1"
                         Orientation="Horizontal"
                         Spacing="3">
-                <atom:Button Width="28"
+                <Button Width="28"
                              Height="26"
                              Padding="6"
                              Command="{Binding AddChildToSelected}"
                              IsVisible="{Binding IsOutlineMode}"
                              AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.AddChild}}"
-                             atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.AddChild}}">
-                    <icons:SubnodeOutlined Width="14"
+                             ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.AddChild}}">
+                    <PathIcon Data="M1,1 L7,1 L7,7 L1,7 Z M7,4 L12,4 L12,9 M9,9 L15,9 L15,15 L9,15 Z" Width="14"
                                            Height="14"
-                                           Foreground="{Binding SecondaryTextBrush}"/>
-                </atom:Button>
-                <atom:Button Width="28"
+                                           Foreground="{DynamicResource StudioMuted}"/>
+                </Button>
+                <Button Width="28"
                              Height="26"
                              Padding="6"
                              Command="{Binding AddSiblingToSelected}"
                              IsEnabled="{Binding CanAddSiblingToSelectedNode}"
                              IsVisible="{Binding IsOutlineMode}"
                              AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.AddSibling}}"
-                             atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.AddSibling}}">
-                    <icons:SisternodeOutlined Width="14"
+                             ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.AddSibling}}">
+                    <PathIcon Data="M1,1 L7,1 L7,7 L1,7 Z M9,9 L15,9 L15,15 L9,15 Z" Width="14"
                                               Height="14"
-                                              Foreground="{Binding SecondaryTextBrush}"/>
-                </atom:Button>
-                <atom:Button Width="28"
+                                              Foreground="{DynamicResource StudioMuted}"/>
+                </Button>
+                <Button Width="28"
                              Height="26"
                              Padding="6"
                              IsVisible="{Binding IsOutlineMode}"
                              AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.OutlineShortcuts}}"
-                             atom:ToolTip.Placement="Top">
-                    <atom:ToolTip.Tip>
+                             ToolTip.Placement="Top">
+                    <ToolTip.Tip>
                         <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.OutlineShortcutsTip}}"
                                    TextAlignment="Left"
                                    TextWrapping="Wrap"
                                    HorizontalAlignment="Left"/>
-                    </atom:ToolTip.Tip>
-                    <icons:QuestionCircleOutlined Width="14"
+                    </ToolTip.Tip>
+                    <PathIcon Data="M8,1 A7,7 0 1 0 8,15 A7,7 0 1 0 8,1 M5,5 C5,2 12,2 10,7 L8,9 M8,11 L8,12" Width="14"
                                                   Height="14"
-                                                  Foreground="{Binding SecondaryTextBrush}"/>
-                </atom:Button>
+                                                  Foreground="{DynamicResource StudioMuted}"/>
+                </Button>
                 <Border Width="1"
                         Height="16"
                         Margin="3,0"
-                        Background="{Binding PanelBorderBrush}"
+                        Background="{DynamicResource StudioBorder}"
                         IsVisible="{Binding IsOutlineMode}"/>
-                <atom:Button Width="28"
+                <Button Width="28"
                              Height="26"
                              Padding="6"
                              Command="{Binding CopyAsMarkdownAsync}"
                              AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.CopyAsMarkdown}}"
-                             atom:ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.CopyAsMarkdown}}">
-                    <icons:CopyOutlined Width="14"
+                             ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.CopyAsMarkdown}}">
+                    <PathIcon Data="M1,1 L15,1 L15,15 L1,15 Z" Width="14"
                                         Height="14"
-                                        Foreground="{Binding SecondaryTextBrush}"/>
-                </atom:Button>
-                <atom:Button x:Name="EditorModeToggleButton"
+                                        Foreground="{DynamicResource StudioMuted}"/>
+                </Button>
+                <Button x:Name="EditorModeToggleButton"
                              Width="28"
                              Height="26"
                              Padding="6"
                              Command="{Binding ToggleEditorMode}"
                              AutomationProperties.Name="{Binding ToggleEditorToolTip}"
-                             atom:ToolTip.Tip="{Binding ToggleEditorToolTip}">
+                             ToolTip.Tip="{Binding ToggleEditorToolTip}">
                     <Grid Width="14" Height="14">
-                        <icons:FileMarkdownOutlined Width="14"
+                        <PathIcon Data="M2,1 L11,1 L14,4 L14,15 L2,15 Z M5,11 L5,6 L8,9 L11,6 L11,11" Width="14"
                                                     Height="14"
-                                                    Foreground="{Binding SecondaryTextBrush}"
+                                                    Foreground="{DynamicResource StudioMuted}"
                                                     IsVisible="{Binding IsOutlineMode}"/>
-                        <icons:UnorderedListOutlined Width="14"
+                        <PathIcon Data="M5,3 L15,3 M5,8 L15,8 M5,13 L15,13 M1,3 L2,3 M1,8 L2,8 M1,13 L2,13" Width="14"
                                                     Height="14"
-                                                    Foreground="{Binding SecondaryTextBrush}"
+                                                    Foreground="{DynamicResource StudioMuted}"
                                                     IsVisible="{Binding IsMarkdownMode}"/>
                     </Grid>
-                </atom:Button>
+                </Button>
             </StackPanel>
         </Grid>
     </Grid>

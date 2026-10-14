@@ -1,20 +1,19 @@
-using AtomUI.Icons.AntDesign;
 using Avalonia;
 using global::Avalonia.Controls;
 using global::Avalonia.Input;
 using global::Avalonia.Media;
 using global::Avalonia.Threading;
 using global::Avalonia.VisualTree;
-using CodeWF.MindView;
-using AtomMenuFlyout = AtomUI.Desktop.Controls.MenuFlyout;
-using AtomMenuItem = AtomUI.Desktop.Controls.MenuItem;
-using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
+using CodeWF.Avalonia.MindView;
+using NativeMenuFlyout = global::Avalonia.Controls.MenuFlyout;
+using NativeMenuItem = global::Avalonia.Controls.MenuItem;
+using OutlineTextBox = global::Avalonia.Controls.TextBox;
 
 namespace Zhijian.Views;
 
 public partial class OutlineEditor
 {
-    private void HandleTitleKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
+    private void HandleTitleKeyDown(MindMapNode node, OutlineTextBox? editor, KeyEventArgs e)
     {
         if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
         {
@@ -130,7 +129,7 @@ public partial class OutlineEditor
             return;
         }
 
-        if (e.Source is AtomTextBox || HasVisualAncestor<AtomTextBox>(e.Source))
+        if (e.Source is OutlineTextBox || HasVisualAncestor<OutlineTextBox>(e.Source))
         {
             return;
         }
@@ -416,61 +415,61 @@ public partial class OutlineEditor
         }
 
         var viewModel = ViewModel;
-        var menu = new AtomMenuFlyout();
+        var menu = new NativeMenuFlyout();
         menu.Items.Add(CreateNodeMenuItem(
             AddChildText,
-            new SubnodeOutlined { Width = 14, Height = 14 },
+            null,
             null,
             true,
             () => AddChildFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
             AddSiblingText,
-            new SisternodeOutlined { Width = 14, Height = 14 },
+            null,
             "Enter",
             viewModel?.IsRoot(node) != true,
             () => AddSiblingFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
             PromoteText,
-            new MenuFoldOutlined { Width = 14, Height = 14 },
+            null,
             "Shift+Tab",
             viewModel?.CanPromoteNode(node) == true,
             () => PromoteNodeFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
             DemoteText,
-            new MenuUnfoldOutlined { Width = 14, Height = 14 },
+            null,
             "Tab",
             viewModel?.CanDemoteNode(node) == true,
             () => DemoteNodeFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
             MoveUpText,
-            new ArrowUpOutlined { Width = 14, Height = 14 },
+            null,
             "Alt+Up",
             viewModel?.CanMoveNodeUp(node) == true,
             () => MoveNodeUpFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
             MoveDownText,
-            new ArrowDownOutlined { Width = 14, Height = 14 },
+            null,
             "Alt+Down",
             viewModel?.CanMoveNodeDown(node) == true,
             () => MoveNodeDownFromMenu(node)));
         menu.Items.Add(CreateNodeMenuItem(
             string.IsNullOrWhiteSpace(node.Note) ? AddNoteText : EditNoteText,
-            new CommentOutlined { Width = 14, Height = 14 },
+            null,
             null,
             true,
             () => ShowNoteEditor(node)));
         menu.Items.Add(CreateNodeMenuItem(
             DeleteNodeText,
-            new DeleteOutlined { Width = 14, Height = 14 },
+            null,
             "Delete",
             viewModel?.IsRoot(node) != true,
             () => DeleteNodeFromMenu(node)));
         menu.ShowAt(anchor);
     }
 
-    private static AtomMenuItem CreateNodeMenuItem(string header, PathIcon? icon, string? inputGesture, bool isEnabled, Action action)
+    private static NativeMenuItem CreateNodeMenuItem(string header, PathIcon? icon, string? inputGesture, bool isEnabled, Action action)
     {
-        var item = new AtomMenuItem
+        var item = new NativeMenuItem
         {
             Header = header,
             IsEnabled = isEnabled
@@ -701,7 +700,7 @@ public partial class OutlineEditor
         return null;
     }
 
-    private void HandleNoteKeyDown(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
+    private void HandleNoteKeyDown(MindMapNode node, OutlineTextBox? editor, KeyEventArgs e)
     {
         if (ReferenceEquals(_lastHandledEditorKeyEvent, e))
         {
@@ -723,7 +722,7 @@ public partial class OutlineEditor
         MarkEditorKeyEventHandled(e);
     }
 
-    private bool TryHandleTitleNavigation(MindMapNode node, AtomTextBox? editor, KeyEventArgs e)
+    private bool TryHandleTitleNavigation(MindMapNode node, OutlineTextBox? editor, KeyEventArgs e)
     {
         if (e.KeyModifiers != KeyModifiers.None)
         {
@@ -822,12 +821,12 @@ public partial class OutlineEditor
         return null;
     }
 
-    private static bool IsCaretAtStart(AtomTextBox? editor)
+    private static bool IsCaretAtStart(OutlineTextBox? editor)
     {
         return editor is null || editor.CaretIndex <= 0;
     }
 
-    private static bool IsCaretAtEnd(AtomTextBox? editor)
+    private static bool IsCaretAtEnd(OutlineTextBox? editor)
     {
         return editor is null || editor.CaretIndex >= (editor.Text?.Length ?? 0);
     }

@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using global::Avalonia.Controls;
 using global::Avalonia.Controls.Shapes;
 using global::Avalonia.Data;
@@ -8,13 +8,13 @@ using global::Avalonia.Layout;
 using global::Avalonia.Media;
 using global::Avalonia.Threading;
 using global::Avalonia.VisualTree;
-using CodeWF.MindView;
+using CodeWF.Avalonia.MindView;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using Zhijian.ViewModels;
-using AtomTextBox = AtomUI.Desktop.Controls.TextBox;
-using AtomToolTip = AtomUI.Desktop.Controls.ToolTip;
+using OutlineTextBox = global::Avalonia.Controls.TextBox;
+using OutlineToolTip = global::Avalonia.Controls.ToolTip;
 
 namespace Zhijian.Views;
 
@@ -201,8 +201,8 @@ public partial class OutlineEditor : UserControl
     private readonly Border _dropPreviewLabel;
 
     private readonly Dictionary<MindMapNode, Border> _rowFrames = [];
-    private readonly Dictionary<MindMapNode, AtomTextBox> _titleEditors = [];
-    private readonly Dictionary<MindMapNode, AtomTextBox> _noteEditors = [];
+    private readonly Dictionary<MindMapNode, OutlineTextBox> _titleEditors = [];
+    private readonly Dictionary<MindMapNode, OutlineTextBox> _noteEditors = [];
     private readonly Dictionary<MindMapNode, Border> _noteFrames = [];
     private readonly HashSet<MindMapNode> _editingNoteNodes = [];
     private readonly Dictionary<MindMapNode, Border> _dragHandles = [];
@@ -570,7 +570,7 @@ public partial class OutlineEditor : UserControl
             return handle;
         }
 
-        AtomToolTip.SetTip(handle, DragNodeTip);
+        OutlineToolTip.SetTip(handle, DragNodeTip);
         handle.PointerPressed += (sender, e) => HandleDragHandlePointerPressed(node, sender as Control, e);
         handle.PointerEntered += (_, _) => SetHoveredDragHandleNode(node);
         handle.PointerExited += (_, _) =>
@@ -617,9 +617,9 @@ public partial class OutlineEditor : UserControl
         return dotHost;
     }
 
-    private AtomTextBox CreateTitleEditor(MindMapNode node, bool isRoot)
+    private OutlineTextBox CreateTitleEditor(MindMapNode node, bool isRoot)
     {
-        var editor = new AtomTextBox
+        var editor = new OutlineTextBox
         {
             Margin = new Thickness(0, TitleEditorMarginY, TitleEditorMarginRight, TitleEditorMarginY),
             BorderThickness = new Thickness(0),
@@ -636,7 +636,7 @@ public partial class OutlineEditor : UserControl
         editor.Text = node.Title;
         editor.PropertyChanged += (_, e) =>
         {
-            if (e.Property == AtomTextBox.TextProperty && !string.Equals(node.Title, editor.Text, StringComparison.Ordinal))
+            if (e.Property == OutlineTextBox.TextProperty && !string.Equals(node.Title, editor.Text, StringComparison.Ordinal))
             {
                 node.Title = editor.Text ?? string.Empty;
             }
@@ -644,15 +644,15 @@ public partial class OutlineEditor : UserControl
         editor.GotFocus += (_, _) => SelectNode(node);
         editor.AddHandler(
             KeyDownEvent,
-            (sender, e) => HandleTitleKeyDown(node, sender as AtomTextBox, e),
+            (sender, e) => HandleTitleKeyDown(node, sender as OutlineTextBox, e),
             RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
             handledEventsToo: true);
         return editor;
     }
 
-    private AtomTextBox CreateNoteEditor(MindMapNode node)
+    private OutlineTextBox CreateNoteEditor(MindMapNode node)
     {
-        var editor = new AtomTextBox
+        var editor = new OutlineTextBox
         {
             BorderThickness = new Thickness(0),
             Background = Brushes.Transparent,
@@ -670,7 +670,7 @@ public partial class OutlineEditor : UserControl
         editor.Text = node.Note;
         editor.PropertyChanged += (_, e) =>
         {
-            if (e.Property == AtomTextBox.TextProperty && !string.Equals(node.Note, editor.Text, StringComparison.Ordinal))
+            if (e.Property == OutlineTextBox.TextProperty && !string.Equals(node.Note, editor.Text, StringComparison.Ordinal))
             {
                 node.Note = editor.Text ?? string.Empty;
             }
@@ -679,13 +679,13 @@ public partial class OutlineEditor : UserControl
         editor.LostFocus += (_, _) => CollapseEmptyNoteEditor(node);
         editor.AddHandler(
             KeyDownEvent,
-            (sender, e) => HandleNoteKeyDown(node, sender as AtomTextBox, e),
+            (sender, e) => HandleNoteKeyDown(node, sender as OutlineTextBox, e),
             RoutingStrategies.Tunnel | RoutingStrategies.Bubble,
             handledEventsToo: true);
         return editor;
     }
 
-    private static Border CreateNoteFrame(AtomTextBox noteBox)
+    private static Border CreateNoteFrame(OutlineTextBox noteBox)
     {
         return new Border
         {
@@ -743,7 +743,7 @@ public partial class OutlineEditor : UserControl
         }
     }
 
-    private static void UpdateEditorText(Dictionary<MindMapNode, AtomTextBox> editors, MindMapNode node, string text)
+    private static void UpdateEditorText(Dictionary<MindMapNode, OutlineTextBox> editors, MindMapNode node, string text)
     {
         if (editors.TryGetValue(node, out var editor)
             && !string.Equals(editor.Text, text, StringComparison.Ordinal))

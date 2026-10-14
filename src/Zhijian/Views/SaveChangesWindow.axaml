@@ -1,6 +1,5 @@
-<atom:Window xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:atom="using:AtomUI.Desktop.Controls"
+<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:codewf="https://codewf.com"
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.SaveChangesWindow"
              x:DataType="vm:SaveChangesWindowViewModel"
@@ -31,16 +30,16 @@
                         Orientation="Horizontal"
                         HorizontalAlignment="Right"
                         Spacing="8">
-                <atom:Button MinWidth="76"
+                <Button MinWidth="76"
                              Content="取消"
                              Click="CancelClicked"/>
-                <atom:Button MinWidth="76"
+                <Button MinWidth="76"
                              Content="不保存"
                              Click="DiscardClicked"/>
-                <atom:Button MinWidth="76"
+                <Button MinWidth="76"
                              Content="保存"
                              Click="SaveClicked"/>
             </StackPanel>
         </Grid>
     </Border>
-</atom:Window>
+</codewf:CodeWFWindow>
