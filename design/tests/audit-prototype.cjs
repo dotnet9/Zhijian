@@ -29,6 +29,13 @@ const { chromium } = require('playwright');
     for(const scheme of ['light','dark']){await page.emulateMedia({colorScheme:scheme});await page.waitForFunction(value=>document.documentElement.dataset.theme===value,scheme);}
     for(const culture of ['zh-CN','en-US','zh-Hant','ja-JP']){
       await page.locator('#language-menu summary').click();await page.locator('[data-language="'+culture+'"]').click();
+      const languageLabel=await page.evaluate(()=>translations[document.documentElement.lang].LanguageMenu);
+      assert.equal(await page.locator('#language-menu summary').getAttribute('title'),languageLabel);assert.equal(await page.locator('#language-menu summary').getAttribute('aria-label'),languageLabel);
+      assert.equal(await page.locator('#language-menu').evaluate(el=>el.open),false);assert.equal(await page.locator('[data-language="'+culture+'"]').getAttribute('aria-checked'),'true');
+      assert.deepEqual(await page.locator('[data-language]').allTextContents(),['简体中文','繁體中文','English','日本語']);
+      assert.equal(await page.locator('[data-window=close]').getAttribute('aria-label'),({'zh-CN':'关闭','zh-Hant':'關閉','en-US':'Close','ja-JP':'閉じる'})[culture]);
+      for(const mode of ['system','light','dark']){await selectMode(mode);assert.equal(await page.locator('#mode-toggle').getAttribute('aria-label'),await page.evaluate(()=>translations[document.documentElement.lang][({system:'SystemTheme',light:'LightTheme',dark:'DarkTheme'})[document.documentElement.dataset.mode]]));}
+      await page.locator('#language-menu summary').click();await page.locator('#language-menu summary').press('Escape');assert.equal(await page.locator('#language-menu').evaluate(el=>el.open),false);
       assert.deepEqual(await page.locator('[data-key]').evaluateAll(items=>items.filter(el=>!Object.hasOwn(window.translations[document.documentElement.lang],el.dataset.key)).map(el=>el.dataset.key)),[]);
       for(const width of [1240,980]){
         await page.setViewportSize({width,height:640});
