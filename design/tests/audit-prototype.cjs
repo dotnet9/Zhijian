@@ -14,22 +14,21 @@ const { chromium } = require('playwright');
     const errors=[];page.on('pageerror',error=>errors.push(error.message));
     const url=standalone.url;
     await page.goto(url);
-    await page.locator('#appearance summary').click();
+    const selectMode=async mode=>{for(let i=0;i<3&&await page.locator('html').getAttribute('data-mode')!==mode;i++)await page.locator('#mode-toggle').click();};
     const palettes=await page.locator('.palette').evaluateAll(items=>items.map(item=>item.dataset.palette));
     assert.equal(palettes.length,8);
     for(const palette of palettes){
       await page.locator(`.palette[data-palette="${palette}"]`).click();
       for(const mode of ['light','dark']){
-        await page.locator('#mode').selectOption(mode);
+        await selectMode(mode);
         assert.equal(await page.locator('html').getAttribute('data-theme'),mode);
         assert.equal(await page.locator('html').getAttribute('data-palette'),palette);
       }
     }
-    await page.locator('#mode').selectOption('system');
+    await selectMode('system');
     for(const scheme of ['light','dark']){await page.emulateMedia({colorScheme:scheme});await page.waitForFunction(value=>document.documentElement.dataset.theme===value,scheme);}
-    await page.locator('#appearance summary').click();
     for(const culture of ['zh-CN','en-US','zh-Hant','ja-JP']){
-      await page.locator('#language').selectOption(culture);
+      await page.locator('#language-menu summary').click();await page.locator('[data-language="'+culture+'"]').click();
       assert.deepEqual(await page.locator('[data-key]').evaluateAll(items=>items.filter(el=>!Object.hasOwn(window.translations[document.documentElement.lang],el.dataset.key)).map(el=>el.dataset.key)),[]);
       for(const width of [1240,980]){
         await page.setViewportSize({width,height:640});

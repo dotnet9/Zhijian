@@ -9,13 +9,14 @@ const fixture=require('./standalone-fixture.cjs');
   const page=await browser.newPage({viewport:{width:1280,height:840}}),errors=[];await standalone.attach(page);page.on('pageerror',e=>errors.push(e.message));await page.goto(standalone.url);
   await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important}'});
   const graph=()=>page.locator('.canvas svg [role=treeitem]');
+  assert.equal(await page.locator('#mode-toggle').count(),1);assert.equal(await page.locator('#palettes button').count(),8);
   assert.equal(await page.locator('.titlebar [data-window]').count(),3);assert.equal(await page.locator('.titlebar').evaluate(el=>el.getBoundingClientRect().height),40);
   assert.ok(await page.locator('.win').evaluate(el=>parseFloat(getComputedStyle(el).borderTopWidth)>=1));
   if(output)await page.screenshot({path:path.join(output,'studio-initial.png')});
   const expected=['New','ProductPlanTemplate','MeetingNotesTemplate','StudyNotesTemplate','NewWindow','Open','Import','OpenFolder','RecentFiles','Save','SaveAs','ExportMarkdown','ExportOpml','ExportXMind','ExportDrawIo','OpenFileLocation','Close','Undo','Redo','AddSibling','AddChild','Promote','Demote','MoveUp','MoveDown','CopyAsMarkdown','DeleteNode','HideWorkspacePane','CenterRoot','ZoomOut','ZoomIn','ResetZoom','OpenUserManual','NewUserGuide','Feedback','SubmitFeature','SubmitPr','Github','OpenWebsite','Changelog','Thanks','About'];
   for(const key of expected)assert.equal(await page.locator(`[data-command="${key}"]`).count(),1,key);
   for(const language of ['zh-CN','zh-Hant','en-US','ja-JP']){
-   await page.locator('#language').selectOption(language);
+   await page.locator('#language-menu summary').click();await page.locator('[data-language="'+language+'"]').click();
    assert.equal(await page.locator('#file-open').textContent(),await page.evaluate(()=>translations[document.documentElement.lang].FileMenu));
    await page.locator('#about-menu').click();await page.locator('#about-open').click();
    assert.equal(await page.locator('#about-build').textContent(),'2026-10-15 00:00:00');
@@ -26,7 +27,7 @@ const fixture=require('./standalone-fixture.cjs');
    assert.ok(await page.locator('#about').evaluate(el=>parseFloat(getComputedStyle(el).borderTopWidth)>=1));
    if(output)await page.screenshot({path:path.join(output,'about-'+language+'.png')});await page.locator('#about-close').click();
   }
-  await page.locator('#language').selectOption('en-US');
+  await page.locator('#language-menu summary').click();await page.locator('[data-language="en-US"]').click();
   await page.locator('#file-open').click();await page.locator('[data-command=NewFromTemplate]').click();
   await page.locator('[data-command=MeetingNotesTemplate]').click();assert.equal(await page.locator('.canvas text').first().textContent(),'Meeting Notes');assert.ok(await graph().count()>10);
   await page.locator('#files-tab').click();await page.locator('.fileitem').filter({hasText:'Studio.md'}).click();await page.locator('#outline-tab').click();
@@ -56,7 +57,7 @@ const fixture=require('./standalone-fixture.cjs');
   if(output){await exported.saveAs(path.join(output,'exported.opml'));assert.ok(fs.readFileSync(path.join(output,'exported.opml'),'utf8').includes('Grandchild'));}
   const splitter=await page.locator('#splitter').boundingBox();await page.mouse.move(splitter.x+7,splitter.y+40);await page.mouse.down();await page.mouse.move(splitter.x+77,splitter.y+40);await page.mouse.up();assert.equal(Math.round(await page.locator('.side').evaluate(el=>el.getBoundingClientRect().width)),430);
   await page.locator('#minimap-toggle').click();
-  for(const width of [1280,980]){await page.setViewportSize({width,height:840});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);if(output)await page.screenshot({path:path.join(output,'desktop-'+width+'.png')});}
+  for(const width of [1280,980]){await page.setViewportSize({width,height:840});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.ok(await page.evaluate(()=>document.querySelector('#menubar>details:nth-child(5)').getBoundingClientRect().right<=document.querySelector('.studio-title-controls').getBoundingClientRect().left));if(output)await page.screenshot({path:path.join(output,'desktop-'+width+'.png')});}
   await page.locator('#about-menu').click();await page.locator('#about-open').click();await page.locator('#update-action').click();await page.locator('#update-cancel').click();assert.equal(await page.locator('#about').getAttribute('data-state'),'canceled');await page.locator('#about-close').click();
   assert.deepEqual(errors,[]);await standalone.verify(page);
   console.log('PASS: desktop frames/time, 42 native menu entries, four literal languages, three-way tree edits, history, file drafts/import, OPML export, pointer splitter and cancellation');
