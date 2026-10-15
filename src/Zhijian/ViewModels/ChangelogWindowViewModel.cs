@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Globalization;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 
 namespace Zhijian.ViewModels;
 
@@ -45,6 +45,7 @@ public sealed class ChangelogWindowViewModel : ViewModelBase
         var candidates = new[]
         {
             Path.Combine(AppContext.BaseDirectory, fileName),
+            Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Resources", fileName)),
             Path.Combine(Directory.GetCurrentDirectory(), fileName),
             Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", fileName)),
             Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", fileName))

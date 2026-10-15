@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using System.Globalization;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using global::Avalonia.Controls;
 using global::Avalonia.Platform.Storage;
 using CodeWF.Avalonia.MindView;

@@ -5,7 +5,7 @@ using global::Avalonia.Data;
 using global::Avalonia.Input;
 using global::Avalonia.Interactivity;
 using global::Avalonia.VisualTree;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using System.ComponentModel;
 using Zhijian.ViewModels;
 

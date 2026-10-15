@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using CodeWF.Toolkit.EventBus;
 using CodeWF.Avalonia.MindView;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using System.Collections.ObjectModel;
 using Zhijian.Services;
 

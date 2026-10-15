@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 using CodeWF.Avalonia.MindView;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using System.Globalization;
 using System.Text;
 using Zhijian.Services;

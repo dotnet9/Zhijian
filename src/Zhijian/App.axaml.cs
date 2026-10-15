@@ -1,8 +1,8 @@
-using Avalonia;
+﻿using Avalonia;
 using global::Avalonia.Controls.ApplicationLifetimes;
 using global::Avalonia.Markup.Xaml;
-using CodeWF.Avalonia.Lang;
-using CodeWF.Avalonia.Lang.Json;
+using CodeWF.Toolkit.Lang;
+using CodeWF.Toolkit.Lang.Json;
 using System.Globalization;
 using Zhijian.Services;
 using Zhijian.ViewModels;

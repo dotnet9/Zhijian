@@ -655,6 +655,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         var candidates = new[]
         {
             Path.Combine(AppContext.BaseDirectory, BundledUserManualFileName),
+            Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Resources", BundledUserManualFileName)),
             Path.Combine(Directory.GetCurrentDirectory(), BundledUserManualFileName)
         };
 

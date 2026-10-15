@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Reflection;
 using CodeWF.Toolkit.Core.Extensions;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using CodeWF.Toolkit.Core.UpdateChecking;
 using ReactiveUI;
 using System.Runtime.InteropServices;

@@ -1,8 +1,8 @@
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using global::Avalonia.Controls;
 using global::Avalonia.Input;
 using global::Avalonia.Interactivity;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using Zhijian.ViewModels;
 using NativeMenuItem = global::Avalonia.Controls.MenuItem;
 using OutlineToolTip = global::Avalonia.Controls.ToolTip;

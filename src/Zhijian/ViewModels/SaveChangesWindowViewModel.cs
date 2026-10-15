@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 
 namespace Zhijian.ViewModels;
 

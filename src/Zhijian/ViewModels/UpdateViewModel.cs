@@ -2,7 +2,7 @@
 using System.Reactive.Subjects;
 using CodeWF.Toolkit.Core.UpdateChecking;
 using ReactiveUI;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using System.Globalization;
 using Avalonia.Controls.ApplicationLifetimes;
 using System.Diagnostics;
