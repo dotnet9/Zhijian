@@ -5,7 +5,11 @@
 
 仓库地址：<https://github.com/dotnet9/Zhijian>
 
-![枝见主窗口](docs/media/zhijian-main-window.gif)
+![12.1.0.16 原生主窗口](docs/media/zhijian-v12.1.0.16-main.png)
+
+当前正式 Windows NativeAOT 的真实控件离屏截图，使用隔离的 Studio 样例树。截图来源、SHA-256 和历史媒体来源见[媒体复核记录](docs/recheck24-native-media.md)。
+
+![12.1.0.16 原生深色主题](docs/media/zhijian-v12.1.0.16-dark.png)
 
 ## 下载安装
 
@@ -44,9 +48,11 @@
 - 外壳采用 Semi、Ursa 和 CodeWF.Avalonia.Controls；现有 Ursa 按钮循环浅色、深色、跟随系统，八套配色直接选择，节点和缩略图同步主题色。
 - 可复用的 `CodeWF.Avalonia.MindView` 控件依赖 Avalonia、Markdig 与 CodeWF.Avalonia.Lang，并与桌面应用外壳解耦。
 
-## 运行预览
+## 历史功能演示
 
-下面的截图和 GIF 已按当前界面重新制作，并使用随程序输出的使用手册，便于观察文件列表、小图、缩放和画布拖拽效果。
+以下截图和 GIF 为保留的历史资料，本轮没有重新录制，不能据此判断 12.1.0.16 的当前外观。各文件最后一次仓库内容更新的提交和当时项目版本见[来源表](docs/recheck24-native-media.md)；实际录制构建版本未知。当前外观以文首两张原生 PNG 为准。
+
+![历史主窗口演示](docs/media/zhijian-main-window.gif)
 
 ![文件菜单](docs/media/zhijian-file-menu.png)
 
@@ -245,8 +251,8 @@ git push origin v12.1.0.5
 
 标准发布流程与发布说明规范见 [docs/RELEASE.md](docs/RELEASE.md)。
 
-## 原生界面复核
+## 历史原生界面演示
 
 ![三态八色原生界面](docs/media/zhijian-native-palettes.gif)
 
-2026-10-15：Windows NativeAOT 发布及原生离屏验证通过，详见 [验收记录](docs/UI-VERIFICATION.md)。四语言覆盖主菜单、关于、更新、保存确认和文件选择入口。
+以上 GIF 保留自历史原生界面演示，本轮未重新录制；实际录制构建版本未知。当前 12.1.0.16 的原生检查结果见[验收记录](docs/UI-VERIFICATION.md)，当前截图与来源见文首及[媒体复核记录](docs/recheck24-native-media.md)。
