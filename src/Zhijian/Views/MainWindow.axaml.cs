@@ -24,6 +24,7 @@ public partial class MainWindow : CodeWFWindow
     private global::Avalonia.Controls.GridLength _lastOutlinePaneWidth = new(DefaultOutlinePaneWidth);
     private int _lastMindMapViewportResetRequestId;
     private bool _isCloseConfirmed;
+    private bool _isClosed;
 
     public MainWindow()
     {
@@ -50,12 +51,22 @@ public partial class MainWindow : CodeWFWindow
         if (App.ThemeController is { } controller) controller.PropertyChanged += HandleHostThemeChanged;
         Closed += (_, _) =>
         {
+            _isClosed = true;
             I18nManager.Instance.CultureChanged -= HandleHostCultureChanged;
             if (App.ThemeController is { } current) current.PropertyChanged -= HandleHostThemeChanged;
         };
     }
 
-    private void HandleHostCultureChanged(object? sender, EventArgs args) => _viewModel?.UpdateLanguageFromHost();
+    private void HandleHostCultureChanged(object? sender, EventArgs args)
+    {
+        if (_isClosed) return;
+        if (!global::Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+        {
+            global::Avalonia.Threading.Dispatcher.UIThread.Post(() => HandleHostCultureChanged(sender, args));
+            return;
+        }
+        _viewModel?.UpdateLanguageFromHost();
+    }
 
     private void HandleHostThemeChanged(object? sender, AvaloniaPropertyChangedEventArgs args) =>
         _viewModel?.UpdateThemeFromHost(ActualThemeVariant == global::Avalonia.Styling.ThemeVariant.Dark || ActualThemeVariant.InheritVariant == global::Avalonia.Styling.ThemeVariant.Dark);

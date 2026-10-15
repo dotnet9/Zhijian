@@ -11,6 +11,7 @@ namespace Zhijian.ViewModels;
 public sealed class AboutWindowViewModel : ViewModelBase, IDisposable
 {
     private static readonly Assembly AppAssembly = typeof(AboutWindowViewModel).Assembly;
+    private bool _disposed;
 
     public string Version => UpdateVersion.Display(AppAssembly);
 
@@ -24,10 +25,21 @@ public sealed class AboutWindowViewModel : ViewModelBase, IDisposable
 
     public AboutWindowViewModel() => I18nManager.Instance.CultureChanged += OnCultureChanged;
 
-    private void OnCultureChanged(object? sender, EventArgs args) => this.RaisePropertyChanged(nameof(Author));
+    private void OnCultureChanged(object? sender, EventArgs args)
+    {
+        if (_disposed) return;
+        if (!global::Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+        {
+            global::Avalonia.Threading.Dispatcher.UIThread.Post(() => OnCultureChanged(sender, args));
+            return;
+        }
+        this.RaisePropertyChanged(nameof(Author));
+    }
 
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
         I18nManager.Instance.CultureChanged -= OnCultureChanged;
         Update.Dispose();
     }

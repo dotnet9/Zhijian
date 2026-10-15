@@ -6,6 +6,7 @@ namespace Zhijian.ViewModels;
 public sealed class SaveChangesWindowViewModel : ViewModelBase, IDisposable
 {
     private readonly string? _documentName;
+    private bool _disposed;
     public SaveChangesWindowViewModel() : this(null) { }
     public SaveChangesWindowViewModel(string? documentName)
     {
@@ -17,8 +18,19 @@ public sealed class SaveChangesWindowViewModel : ViewModelBase, IDisposable
         I18nManager.Instance.GetResource(ZhijianL.SaveChangesMessage), DocumentName);
     private void OnCultureChanged(object? sender, EventArgs args)
     {
+        if (_disposed) return;
+        if (!global::Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+        {
+            global::Avalonia.Threading.Dispatcher.UIThread.Post(() => OnCultureChanged(sender, args));
+            return;
+        }
         OnPropertyChanged(nameof(DocumentName));
         OnPropertyChanged(nameof(Message));
     }
-    public void Dispose() => I18nManager.Instance.CultureChanged -= OnCultureChanged;
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        I18nManager.Instance.CultureChanged -= OnCultureChanged;
+    }
 }

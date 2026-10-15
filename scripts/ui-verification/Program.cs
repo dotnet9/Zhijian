@@ -102,8 +102,7 @@ vm.IsNewUserTourOpen = false;
         if (dark) vm.SetDarkTheme(); else vm.SetLightTheme();
         foreach (var culture in new[] { "zh-CN", "en-US", "zh-Hant", "ja-JP" })
         {
-            I18nManager.Instance.Culture = new System.Globalization.CultureInfo(culture);
-            Pump();
+            SetBackgroundCulture(culture);
             Check(!aboutModel.Update.ActionText.StartsWith("Zhijian.") && !aboutModel.Author.StartsWith("Zhijian."), "About resources change dynamically: " + culture);
             using var frame = about.CaptureRenderedFrame()!;
             frame.Save(Path.Combine(output, $"about-{culture}-{(dark ? "dark" : "light")}.png"), new PngBitmapEncoderOptions());
@@ -151,10 +150,11 @@ void VerifyControlCulture(Window owner, string[] cultures, Action<string> select
     var menu = editor.ContextFlyout as MenuFlyout ?? throw new InvalidOperationException("Semi editor menu is missing.");
     var semiTheme = Application.Current!.Styles.OfType<Semi.Avalonia.SemiTheme>().Single();
     var ursaTheme = Application.Current.Styles.OfType<Ursa.Themes.Semi.UrsaSemiTheme>().Single();
-    foreach (var direct in new[] { false, true })
+    foreach (var source in new[] { "title selector", "direct manager", "background manager" })
     foreach (var culture in cultures)
     {
-        if (direct) I18nManager.Instance.Culture = System.Globalization.CultureInfo.GetCultureInfo(culture);
+        if (source == "background manager") SetBackgroundCulture(culture);
+        else if (source == "direct manager") I18nManager.Instance.Culture = System.Globalization.CultureInfo.GetCultureInfo(culture);
         else selectTitleBar(culture);
         Pump();
         ResourceDictionary semiText = culture switch
@@ -174,11 +174,11 @@ void VerifyControlCulture(Window owner, string[] cultures, Action<string> select
         Check(((MenuItem)menu.Items[1]!).Header?.ToString() == semiText["STRING_MENU_COPY"]?.ToString() &&
               ((MenuItem)menu.Items[2]!).Header?.ToString() == semiText["STRING_MENU_PASTE"]?.ToString() &&
               editor.Text == "Locale 中文 😀" && semiTheme.Locale?.Name == (culture == "zh-Hant" ? "zh-TW" : culture),
-            "Existing Semi editor copy/paste follows " + (direct ? "direct manager" : "title selector") + ": " + culture);
+            "Existing Semi editor copy/paste follows " + source + ": " + culture);
         menu.Hide();
         Check(ursaTheme.Resources["STRING_MENU_DIALOG_CANCEL"]?.ToString() == ursaText["STRING_MENU_DIALOG_CANCEL"]?.ToString() &&
               ursaTheme.Locale?.Name == (culture == "zh-Hant" ? "zh-CN" : culture == "ja-JP" ? "en-US" : culture),
-            "Actual Ursa locale follows " + (direct ? "direct manager" : "title selector") + ": " + culture);
+            "Actual Ursa locale follows " + source + ": " + culture);
     }
     Application.Current.Resources["STRING_MENU_COPY"] = "宿主复制";
     Application.Current.Resources["STRING_MENU_DIALOG_CANCEL"] = "宿主取消";
@@ -192,6 +192,12 @@ void VerifyControlCulture(Window owner, string[] cultures, Action<string> select
     Application.Current.Resources.Remove("STRING_MENU_DIALOG_CANCEL");
     I18nManager.Instance.Culture = originalCulture; Pump();
     host.Close();
+}
+void SetBackgroundCulture(string culture)
+{
+    Task.Run(() => I18nManager.Instance.Culture = System.Globalization.CultureInfo.GetCultureInfo(culture)).GetAwaiter().GetResult();
+    Pump();
+    Check(I18nManager.Instance.Culture.Name == culture, "Background language change completes with live views: " + culture);
 }
 void Pump()
 {
@@ -267,10 +273,23 @@ void VerifyAuxiliaryWindows()
     using var saveModel = new SaveChangesWindowViewModel("Studio.md");
     var save = new Zhijian.Views.SaveChangesWindow("Studio.md");
     var thanks = new Zhijian.Views.ThanksWindow();
-    save.Show(window);thanks.Show(window);
+    var about = new Zhijian.Views.AboutWindow();
+    var changelog = new Zhijian.Views.ChangelogWindow();
+    save.Show(window); thanks.Show(window); about.Show(window); changelog.Show(window); Pump();
+    Complete(((ChangelogWindowViewModel)changelog.DataContext!).LoadChineseAsync()); Pump();
+    var markdown = changelog.GetVisualDescendants().OfType<CodeWF.Avalonia.Markdown.Controls.MarkdownViewer>().Single();
+    var originalMarkdown = markdown.Markdown;
+    var originalDocument = vm.MarkdownText;
+    var originalTree = MindMapDocumentCodec.ToMarkdown(vm.Roots[0]);
+    Check(!string.IsNullOrWhiteSpace(originalMarkdown) && markdown.Bounds.Width > 0, "Actual changelog MarkdownViewer is loaded during background culture regression");
     foreach (var culture in new[] { "zh-CN", "en-US", "zh-Hant", "ja-JP" })
     {
-        I18nManager.Instance.Culture = new System.Globalization.CultureInfo(culture);Pump();
+        SetBackgroundCulture(culture);
+        Check(markdown.Markdown == originalMarkdown && vm.MarkdownText == originalDocument && MindMapDocumentCodec.ToMarkdown(vm.Roots[0]) == originalTree,
+            "Background language change preserves actual Markdown and mind-map content: " + culture);
+        var selector = window.GetVisualDescendants().OfType<Zhijian.Views.TitleBarAppearance>().Single().FindControl<ComboBox>("TitleBarLanguageSelector")!;
+        Check(vm.SelectedTitleBarLanguage?.CultureName == culture && (selector.SelectedItem as LocalizationLanguage)?.CultureName == culture,
+            "Background language change synchronizes the actual title selector: " + culture);
         Check(save.Title == I18nManager.Instance.GetResource(Zhijian.ZhijianL.SaveChanges), "Save dialog title changes dynamically: " + culture);
         Check(saveModel.Message.Contains("Studio.md") && saveModel.Message != "Zhijian.ZhijianL.SaveChangesMessage", "Save message keeps the document name: " + culture);
         var thanksModel = (ThanksWindowViewModel)thanks.DataContext!;
@@ -284,7 +303,7 @@ void VerifyAuxiliaryWindows()
         using var thanksFrame = thanks.CaptureRenderedFrame()!;
         thanksFrame.Save(Path.Combine(output, $"thanks-{culture}.png"), new PngBitmapEncoderOptions());
     }
-    save.Close();thanks.Close();
+    save.Close(); thanks.Close(); about.Close(); changelog.Close();
 }
 
 void VerifyUpdates()
