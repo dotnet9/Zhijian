@@ -11,6 +11,11 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        if (args is ["--verify-runtime", var directory])
+        {
+            Diagnostics.RuntimeVerification.Run(directory);
+            return;
+        }
         ApplicationSettings.InitializeAsync().GetAwaiter().GetResult();
         ApplicationLogger.Configure(ApplicationSettings.UserDataDirectory);
 

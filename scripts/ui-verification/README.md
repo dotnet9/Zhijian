@@ -13,4 +13,6 @@ if ($LASTEXITCODE -ne 0) { throw 'Zhijian UI verification failed' }
 
 Windows 发布验收先运行 `scripts/publish.ps1 -RuntimeIdentifier win-x64`，并将本验证器以同样的 NativeAOT 元数据设置发布后离屏执行。锁屏环境不启动普通桌面程序或安装器。发布时保留 portable 编译符号以完成 Avalonia XAML 编译，最终发布件不带 PDB。离屏回归不能替代真实桌面、IME 和多 DPI 验证。
 
+正式发布程序提供 `Zhijian.exe --verify-runtime <独立输出目录>`：在桌面、配置和日志初始化前验证 NativeAOT、发布语言资源及 Unicode Markdown / 脑图树往返，成功后写入 `runtime-verification.txt` 并退出。托管程序明确拒绝该入口。发布脚本支持 `-OutputDirectory`、`-ArtifactsPath`、`-NuGetConfig`，用于将构建、自检和安装器输入保存在仓库外。
+
 2026-10-15 标题栏复核：CodeWF.Avalonia 12.1.4.21，托管离屏验证通过 208 项断言。此前 12.1.0.12 的 NativeAOT 验证通过 139 项；新版本原生结果记录见 [验收记录](../../docs/UI-VERIFICATION.md)。

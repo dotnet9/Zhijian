@@ -4,7 +4,10 @@
 [CmdletBinding()]
 param(
     [string] $RuntimeIdentifier = "win-x64",
-    [string] $Version = ""
+    [string] $Version = "",
+    [string] $OutputDirectory = "",
+    [string] $ArtifactsPath = "",
+    [string] $NuGetConfig = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,5 +29,9 @@ $profile = "FolderProfile_$RuntimeIdentifier"
 $ilcArgs = @("-p:PublishAot=true", "-p:PublishTrimmed=true", "-p:PublishSingleFile=false",
     "-p:DebugSymbols=true", "-p:DebugType=portable",
     "-p:IlcGenerateCompleteTypeMetadata=true", "-p:IlcTrimMetadata=false", "-p:IlcSingleThreaded=true")
-dotnet publish (Join-Path $repositoryRoot "src/Zhijian/Zhijian.csproj") -m:1 -c Release -f $tfm -r $RuntimeIdentifier @ilcArgs -p:PublishProfile=$profile -p:Version=$Version
+$publishArgs = @('publish', (Join-Path $repositoryRoot 'src/Zhijian/Zhijian.csproj'), '-m:1', '-c', 'Release', '-f', $tfm, '-r', $RuntimeIdentifier) + $ilcArgs + @("-p:PublishProfile=$profile", "-p:Version=$Version")
+if ($OutputDirectory) { $publishArgs += @('-o', $OutputDirectory) }
+if ($ArtifactsPath) { $publishArgs += @('--artifacts-path', $ArtifactsPath) }
+if ($NuGetConfig) { $publishArgs += @('--configfile', $NuGetConfig) }
+& dotnet @publishArgs
 if ($LASTEXITCODE -ne 0) { throw "publish failed for $RuntimeIdentifier" }
