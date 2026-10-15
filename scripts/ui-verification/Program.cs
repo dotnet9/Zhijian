@@ -8,7 +8,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Avalonia.LogicalTree;
 using CodeWF.Avalonia.Controls.Themes;
-using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Lang;
 using CodeWF.Avalonia.MindView;
 using CodeWF.Avalonia.MindView.Controls;
 using SkiaSharp;
@@ -68,7 +68,7 @@ foreach (var palette in Enum.GetValues<StudioPalette>()) foreach (var dark in ne
 foreach (var culture in new[] { "zh-CN", "zh-Hant", "en-US", "ja-JP" })
 {
     I18nManager.Instance.Culture = new System.Globalization.CultureInfo(culture); Pump();
-    Check(!editor.CenterTopicPlaceholder.StartsWith("CodeWF."), "MindView language is embedded: " + culture);
+    Check(I18nManager.Instance.Culture.Name == culture && !editor.CenterTopicPlaceholder.StartsWith("CodeWF."), "MindView keeps the requested embedded language: " + culture);
     ResourceDictionary controlCulture = culture switch
     {
         "en-US" => new Semi.Avalonia.Locale.en_us(),
