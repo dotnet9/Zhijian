@@ -6,6 +6,7 @@ $source = Join-Path $fixtureRoot 'scripts/prototype'
 $design = Join-Path $fixtureRoot 'design'
 try {
     New-Item -ItemType Directory -Path $source, $design -Force | Out-Null
+    [IO.File]::WriteAllText((Join-Path $fixtureRoot 'Directory.Build.props'), '<Project><PropertyGroup><Version>1.2.3.4</Version><Copyright>测试夹具</Copyright></PropertyGroup></Project>')
     Copy-Item -LiteralPath $builder -Destination (Join-Path $fixtureRoot 'scripts/build_standalone_prototype.ps1')
     $template = '<!doctype html><html><head><link rel="stylesheet" href="sample.css"></head><body><img src="./logo.svg"><script src="sample.js"></script></body></html>'
     foreach ($name in 'index.template.html', 'property-panel.template.html') { [IO.File]::WriteAllText((Join-Path $source $name), $template) }

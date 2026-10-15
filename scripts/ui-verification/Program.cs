@@ -39,6 +39,9 @@ var vm = new MainWindowViewModel();
 var window = new Zhijian.Views.MainWindow { DataContext = vm };
 window.Show(); Pump();
 VerifyTitleBar();
+VerifyControlCulture(window, ["zh-CN", "zh-Hant", "en-US", "ja-JP"], culture =>
+    window.GetVisualDescendants().OfType<Zhijian.Views.TitleBarAppearance>().Single().FindControl<ComboBox>("TitleBarLanguageSelector")!.SelectedItem =
+        vm.TitleBarLanguages.Single(item => item.CultureName == culture));
 var editor = window.FindControl<MindMapEditor>("MindMap")!;
 Check(editor.Bounds.Width > 500, "MindView has a real viewport");
 vm.Roots[0].Title = "迁移验证";
@@ -75,6 +78,7 @@ foreach (var culture in new[] { "zh-CN", "zh-Hant", "en-US", "ja-JP" })
     {
         "en-US" => new Semi.Avalonia.Locale.en_us(),
         "ja-JP" => new Semi.Avalonia.Locale.ja_jp(),
+        "zh-Hant" => new Semi.Avalonia.Locale.zh_tw(),
         _ => new Semi.Avalonia.Locale.zh_cn()
     };
     var localizedStrings = controlCulture.Where(item => item.Value is string).ToArray();
@@ -137,6 +141,57 @@ void VerifyCaptionCapabilities(Window target)
     Check(target.WindowState == WindowState.Normal, "Disabled caption guards programmatic maximization");
     target.CanMinimize = canMinimize; target.CanMaximize = canMaximize; target.WindowState = originalState; Pump();
     Check(minimize.IsEnabled == canMinimize && maximize.IsEnabled == (target.CanResize && canMaximize), "Caption capabilities restore without recreating the host window");
+}
+void VerifyControlCulture(Window owner, string[] cultures, Action<string> selectTitleBar)
+{
+    var originalCulture = I18nManager.Instance.Culture;
+    var editor = new TextBox { Text = "Locale 中文 😀" };
+    var host = new Window { Content = editor, Width = 340, Height = 110 };
+    host.Show(owner); Pump();
+    var menu = editor.ContextFlyout as MenuFlyout ?? throw new InvalidOperationException("Semi editor menu is missing.");
+    var semiTheme = Application.Current!.Styles.OfType<Semi.Avalonia.SemiTheme>().Single();
+    var ursaTheme = Application.Current.Styles.OfType<Ursa.Themes.Semi.UrsaSemiTheme>().Single();
+    foreach (var direct in new[] { false, true })
+    foreach (var culture in cultures)
+    {
+        if (direct) I18nManager.Instance.Culture = System.Globalization.CultureInfo.GetCultureInfo(culture);
+        else selectTitleBar(culture);
+        Pump();
+        ResourceDictionary semiText = culture switch
+        {
+            "en-US" => new Semi.Avalonia.Locale.en_us(),
+            "zh-Hant" => new Semi.Avalonia.Locale.zh_tw(),
+            "ja-JP" => new Semi.Avalonia.Locale.ja_jp(),
+            _ => new Semi.Avalonia.Locale.zh_cn()
+        };
+        ResourceDictionary ursaText = culture switch
+        {
+            "en-US" => new Ursa.Themes.Semi.Locale.en_us(),
+            "ja-JP" => new Ursa.Themes.Semi.Locale.en_us(),
+            _ => new Ursa.Themes.Semi.Locale.zh_cn()
+        };
+        menu.ShowAt(editor); Pump();
+        Check(((MenuItem)menu.Items[1]!).Header?.ToString() == semiText["STRING_MENU_COPY"]?.ToString() &&
+              ((MenuItem)menu.Items[2]!).Header?.ToString() == semiText["STRING_MENU_PASTE"]?.ToString() &&
+              editor.Text == "Locale 中文 😀" && semiTheme.Locale?.Name == (culture == "zh-Hant" ? "zh-TW" : culture),
+            "Existing Semi editor copy/paste follows " + (direct ? "direct manager" : "title selector") + ": " + culture);
+        menu.Hide();
+        Check(ursaTheme.Resources["STRING_MENU_DIALOG_CANCEL"]?.ToString() == ursaText["STRING_MENU_DIALOG_CANCEL"]?.ToString() &&
+              ursaTheme.Locale?.Name == (culture == "zh-Hant" ? "zh-CN" : culture == "ja-JP" ? "en-US" : culture),
+            "Actual Ursa locale follows " + (direct ? "direct manager" : "title selector") + ": " + culture);
+    }
+    Application.Current.Resources["STRING_MENU_COPY"] = "宿主复制";
+    Application.Current.Resources["STRING_MENU_DIALOG_CANCEL"] = "宿主取消";
+    I18nManager.Instance.Culture = System.Globalization.CultureInfo.GetCultureInfo("zh-CN"); Pump();
+    menu.ShowAt(editor); Pump();
+    Check(((MenuItem)menu.Items[1]!).Header?.ToString() == "宿主复制" &&
+          Application.Current.Resources["STRING_MENU_DIALOG_CANCEL"]?.ToString() == "宿主取消",
+        "Third-party locale changes preserve host resource overrides");
+    menu.Hide();
+    Application.Current.Resources.Remove("STRING_MENU_COPY");
+    Application.Current.Resources.Remove("STRING_MENU_DIALOG_CANCEL");
+    I18nManager.Instance.Culture = originalCulture; Pump();
+    host.Close();
 }
 void Pump()
 {

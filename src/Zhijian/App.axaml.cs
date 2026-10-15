@@ -36,18 +36,22 @@ public partial class App : Application
 
     private void ApplyControlCulture()
     {
-        var culture = I18nManager.Instance.Culture?.Name;
-        global::Avalonia.Controls.ResourceDictionary semi = culture switch
+        if (!global::Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
         {
-            "en-US" => new Semi.Avalonia.Locale.en_us(),
-            "ja-JP" => new Semi.Avalonia.Locale.ja_jp(),
-            _ => new Semi.Avalonia.Locale.zh_cn()
+            global::Avalonia.Threading.Dispatcher.UIThread.Post(ApplyControlCulture);
+            return;
+        }
+        if (I18nManager.Instance.Culture is not { } culture) return;
+        var semiCulture = culture.Name == "zh-Hant" ? CultureInfo.GetCultureInfo("zh-TW") : culture;
+        // 当前 Ursa 2.2.0 未提供繁体和日语资源，明确回退到简体和英语。
+        var ursaCulture = culture.Name switch
+        {
+            "zh-Hant" => CultureInfo.GetCultureInfo("zh-CN"),
+            "ja-JP" => CultureInfo.GetCultureInfo("en-US"),
+            _ => culture
         };
-        global::Avalonia.Controls.ResourceDictionary ursa = culture is "en-US" or "ja-JP"
-            ? new Ursa.Themes.Semi.Locale.en_us()
-            : new Ursa.Themes.Semi.Locale.zh_cn();
-        foreach (var resource in semi) Resources[resource.Key] = resource.Value;
-        foreach (var resource in ursa) Resources[resource.Key] = resource.Value;
+        foreach (var theme in Styles.OfType<Semi.Avalonia.SemiTheme>()) theme.Locale = semiCulture;
+        foreach (var theme in Styles.OfType<Ursa.Themes.Semi.UrsaSemiTheme>()) theme.Locale = ursaCulture;
     }
 
     private static void LoadThemePreferences()
