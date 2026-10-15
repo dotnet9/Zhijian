@@ -175,7 +175,7 @@
                                                           Foreground="{DynamicResource StudioMuted}"/>
                             </Button>
                             <Grid Grid.ColumnSpan="2"
-                                  Width="42"
+                                  MinWidth="42"
                                   RowDefinitions="*,2"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Stretch"
