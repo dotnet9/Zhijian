@@ -1,3 +1,4 @@
+const standaloneFixture = require('./standalone-fixture.cjs');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -5,11 +6,13 @@ const { chromium } = require('playwright');
 
 // 使用真实 DOM 入口验证主题、编辑切换与更新流程，不请求外部站点。
 (async () => {
+  const standalone = standaloneFixture(path.resolve(__dirname, '../index.html'));
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage({ viewport:{width:1240,height:820} });
+    await standalone.attach(page);
     const errors=[];page.on('pageerror',error=>errors.push(error.message));
-    const url=pathToFileURL(path.join(__dirname,'..','index.html')).href;
+    const url=standalone.url;
     await page.goto(url);
     await page.locator('#appearance summary').click();
     const palettes=await page.locator('.palette').evaluateAll(items=>items.map(item=>item.dataset.palette));
@@ -48,6 +51,7 @@ const { chromium } = require('playwright');
       await page.locator('#about-close').click();
     }
     assert.deepEqual(errors,[]);
+    await standalone.verify(page);
     console.log('PASS: sixteen palettes, system changes, four languages, two widths, shared editor and four update flows.');
-  } finally {await browser.close();}
+  } finally {await browser.close(); standalone.dispose();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
