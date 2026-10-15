@@ -1,4 +1,4 @@
-﻿# Zhijian 离屏回归验证
+# Zhijian 离屏回归验证
 
 加载实际 App、主窗口和 NuGet 脑图控件，通过 Avalonia.Headless 与 Skia 验证，不操作桌面。用户数据隔离到指定输出目录。
 
@@ -15,4 +15,6 @@ Windows 发布验收先运行 `scripts/publish.ps1 -RuntimeIdentifier win-x64`�
 
 正式发布程序提供 `Zhijian.exe --verify-runtime <独立输出目录>`：在桌面、配置和日志初始化前验证 NativeAOT、发布语言资源及 Unicode Markdown / 脑图树往返，成功后写入 `runtime-verification.txt` 并退出。托管程序明确拒绝该入口。发布脚本支持 `-OutputDirectory`、`-ArtifactsPath`、`-NuGetConfig`，用于将构建、自检和安装器输入保存在仓库外。
 
-2026-10-15 标题栏复核：CodeWF.Avalonia 12.1.4.21，托管离屏验证通过 208 项断言。此前 12.1.0.12 的 NativeAOT 验证通过 139 项；新版本原生结果记录见 [验收记录](../../docs/UI-VERIFICATION.md)。
+2026-10-15 标题栏复核：CodeWF.Avalonia 12.1.4.22，托管离屏验证通过 215 项断言。此前 12.1.0.12 的 NativeAOT 验证通过 139 项；新版本原生结果记录见 [验收记录](../../docs/UI-VERIFICATION.md)。
+
+真实关于窗口增加动态 CanMinimize / CanMaximize 能力、按钮禁用、程序化点击守卫与原状态恢复断言。
