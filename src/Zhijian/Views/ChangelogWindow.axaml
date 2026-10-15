@@ -1,12 +1,13 @@
-<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
+﻿<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:codewf="https://codewf.com"
              xmlns:markdownThemes="using:CodeWF.Avalonia.Markdown.Themes"
              xmlns:vm="using:Zhijian.ViewModels"
+             xmlns:l="clr-namespace:Zhijian"
              x:Class="Zhijian.Views.ChangelogWindow"
              x:DataType="vm:ChangelogWindowViewModel"
              WindowStartupLocation="CenterOwner"
-             Title="更新日志"
+             Title="{codewf:I18n {x:Static l:ZhijianL.Changelog}}"
              Width="840"
              Height="680"
              MinWidth="640"
@@ -21,24 +22,9 @@
     </codewf:CodeWFWindow.Styles>
 
     <Border Padding="24,20">
-        <Grid RowDefinitions="Auto,*" RowSpacing="14">
+        <Grid RowDefinitions="*">
 
-            <StackPanel Orientation="Horizontal"
-                        Spacing="8"
-                        HorizontalAlignment="Right">
-                <Button Content="中文"
-                             MinWidth="74"
-                             Height="30"
-                             Padding="10,4"
-                             Command="{Binding LoadChineseAsync}" />
-                <Button Content="English"
-                             MinWidth="74"
-                             Height="30"
-                             Padding="10,4"
-                             Command="{Binding LoadEnglishAsync}" />
-            </StackPanel>
-
-            <ScrollViewer Grid.Row="1"
+            <ScrollViewer Grid.Row="0"
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
 				<codewf:MarkdownViewer Classes="changelogMarkdown"

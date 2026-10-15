@@ -1,10 +1,11 @@
-<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
+﻿<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:codewf="https://codewf.com"
              xmlns:vm="using:Zhijian.ViewModels"
+             xmlns:l="clr-namespace:Zhijian"
              x:Class="Zhijian.Views.SaveChangesWindow"
              x:DataType="vm:SaveChangesWindowViewModel"
              WindowStartupLocation="CenterOwner"
-             Title="保存更改"
+             Title="{codewf:I18n {x:Static l:ZhijianL.SaveChanges}}"
              Width="420"
              Height="190"
              MinWidth="420"
@@ -18,12 +19,12 @@
     <Border Padding="22,20">
         <Grid RowDefinitions="*,Auto">
             <StackPanel Spacing="8">
-                <TextBlock Text="保存更改"
+                <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.SaveChanges}}"
                            FontSize="18"
                            FontWeight="SemiBold"/>
                 <TextBlock Text="{Binding Message}"
                            TextWrapping="Wrap"
-                           Foreground="#667085"/>
+                           Foreground="{DynamicResource StudioMuted}"/>
             </StackPanel>
 
             <StackPanel Grid.Row="1"
@@ -31,13 +32,13 @@
                         HorizontalAlignment="Right"
                         Spacing="8">
                 <Button MinWidth="76"
-                             Content="取消"
+                             Content="{codewf:I18n {x:Static l:ZhijianL.Cancel}}"
                              Click="CancelClicked"/>
                 <Button MinWidth="76"
-                             Content="不保存"
+                             Content="{codewf:I18n {x:Static l:ZhijianL.DiscardChanges}}"
                              Click="DiscardClicked"/>
                 <Button MinWidth="76"
-                             Content="保存"
+                             Content="{codewf:I18n {x:Static l:ZhijianL.Save}}"
                              Click="SaveClicked"/>
             </StackPanel>
         </Grid>

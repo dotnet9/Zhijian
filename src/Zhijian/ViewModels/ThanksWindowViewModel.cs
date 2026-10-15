@@ -1,10 +1,19 @@
+﻿using CodeWF.Avalonia.Lang;
+
 namespace Zhijian.ViewModels;
 
-public sealed class ThanksWindowViewModel : ViewModelBase
+public sealed class ThanksWindowViewModel : ViewModelBase, IDisposable
 {
-    public string Title => "感谢";
+    public ThanksWindowViewModel() => I18nManager.Instance.CultureChanged += OnCultureChanged;
+    public string Title => I18nManager.Instance.GetResource(ZhijianL.Thanks);
 
-    public string Description => "枝见感谢这些优秀开源项目提供的基础能力与设计参考。";
+    public string Description => I18nManager.Instance.GetResource(ZhijianL.ThanksDescription);
+    private void OnCultureChanged(object? sender, EventArgs args)
+    {
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Description));
+    }
+    public void Dispose() => I18nManager.Instance.CultureChanged -= OnCultureChanged;
 
     public IReadOnlyList<OpenSourceProjectInfo> Projects { get; } =
     [
@@ -12,7 +21,7 @@ public sealed class ThanksWindowViewModel : ViewModelBase
         new("Avalonia UI", "https://avaloniaui.net/"),
         new("Semi.Avalonia", "https://github.com/irihitech/Semi.Avalonia"),
         new("Ursa.Avalonia", "https://github.com/irihitech/Ursa.Avalonia"),
-        new("Semi / Ursa", "https://github.com/irihitech/Ursa.Avalonia")
+        new("CodeWF.Avalonia", "https://github.com/dotnet9/CodeWF.Avalonia")
     ];
 }
 

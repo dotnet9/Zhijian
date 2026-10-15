@@ -1,4 +1,6 @@
-using System.Text;
+﻿using System.Text;
+using System.Globalization;
+using CodeWF.Avalonia.Lang;
 
 namespace Zhijian.ViewModels;
 
@@ -34,7 +36,7 @@ public sealed class ChangelogWindowViewModel : ViewModelBase
     {
         var path = await FindBundledFileAsync(fileName);
         Markdown = path is null
-            ? $"# 更新日志\n\n未找到随程序复制的 `{fileName}` 文件。"
+            ? string.Format(CultureInfo.CurrentCulture, I18nManager.Instance.GetResource(ZhijianL.ChangelogMissing), fileName)
             : await File.ReadAllTextAsync(path, Encoding.UTF8);
     }
 

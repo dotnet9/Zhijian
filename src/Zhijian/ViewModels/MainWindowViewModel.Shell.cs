@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using CodeWF.Avalonia.MindView;
 using CodeWF.Avalonia.Lang;
 using System.Globalization;
@@ -13,6 +13,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
     {
         if (App.ThemeController is { } controller) controller.Mode = isDark ? CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Dark : CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Light;
         IsDarkTheme = isDark;
+        RefreshThemeSelection();
         App.SaveThemePreferences();
         var themeName = isDark ? T(ZhijianL.DarkTheme) : T(ZhijianL.LightTheme);
         StatusText = FormatText(ZhijianL.StatusThemeChanged, themeName);

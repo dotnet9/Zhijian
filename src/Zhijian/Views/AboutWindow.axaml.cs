@@ -1,4 +1,4 @@
-using Zhijian.ViewModels;
+﻿using Zhijian.ViewModels;
 using AppWindow = CodeWF.Avalonia.Controls.Controls.CodeWFWindow;
 
 namespace Zhijian.Views;
@@ -9,6 +9,7 @@ public partial class AboutWindow : AppWindow
     {
         InitializeComponent();
         DataContext = new AboutWindowViewModel();
+        Closed += (_, _) => (DataContext as IDisposable)?.Dispose();
     }
     private void OpenLinkClick(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e)
     {

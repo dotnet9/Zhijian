@@ -1,4 +1,4 @@
-<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
+﻿<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:codewf="https://codewf.com"
              xmlns:l="clr-namespace:Zhijian"
@@ -8,14 +8,18 @@
              WindowStartupLocation="CenterOwner"
              Title="{codewf:I18n {x:Static l:ZhijianL.AboutWindowTitle}}"
              Width="700"
-             Height="520"
+             Height="640"
              MinWidth="560"
-             MinHeight="460">
+             MinHeight="460"
+             Background="{DynamicResource StudioBackground}"
+             Foreground="{DynamicResource StudioText}"
+             TitleBarHeight="40" CaptionButtonWidth="34">
 
     <Design.DataContext>
         <vm:AboutWindowViewModel/>
     </Design.DataContext>
 
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
     <Border Padding="28,24">
         <StackPanel Spacing="0">
             <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.AppName}}"
@@ -25,11 +29,11 @@
             <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.AboutDescription}}"
                        FontSize="14"
                        TextWrapping="Wrap"
-                       Foreground="#667085"/>
+                       Foreground="{DynamicResource StudioMuted}"/>
 
             <Grid Margin="0,18,0,0"
                   ColumnDefinitions="Auto,*"
-                  RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                  RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                   RowSpacing="10">
                 <TextBlock Grid.Row="0"
                            Text="{codewf:I18n {x:Static l:ZhijianL.AboutVersion}}"
@@ -93,6 +97,10 @@
                                       VerticalAlignment="Center">
                     <TextBlock Text="{Binding MindViewNuGetUrl}" TextWrapping="Wrap"/>
                 </Button>
+                <TextBlock Grid.Row="6" Text="{codewf:I18n {x:Static l:ZhijianL.AboutPlatform}}" Classes="aboutLabel" />
+                <SelectableTextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Platform}" Classes="aboutValue" />
+                <TextBlock Grid.Row="7" Text="{codewf:I18n {x:Static l:ZhijianL.AboutCopyright}}" Classes="aboutLabel" />
+                <SelectableTextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Copyright}" Classes="aboutValue" />
             </Grid>
 
             <Border Margin="0,20,0,0"
@@ -100,40 +108,25 @@
                     CornerRadius="8"
                     Background="{DynamicResource StudioSurface}"
                     DataContext="{Binding Update}">
-                <StackPanel Spacing="8">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Button Command="{Binding CheckCommand}"
-                                    Content="检查更新"
-                                    IsEnabled="{Binding !IsChecking}"/>
-                        <Button Command="{Binding DownloadCommand}"
-                                    Content="下载更新"
-                                    IsVisible="{Binding CanDownload}"/>
-                        <Button Command="{Binding InstallCommand}"
-                                    Content="安装更新"
-                                    IsVisible="{Binding IsReady}"/>
-                        <Button Content="打开发布页"
-                                             Command="{Binding OpenPageCommand}"
-                                             IsVisible="{Binding NeedsReleasePage}"
-                                             Padding="0"/>
-                        <ProgressBar Width="140" Height="6"
-                                     VerticalAlignment="Center"
-                                     IsVisible="{Binding IsDownloading}"
-                                     Maximum="100"
-                                     Value="{Binding DownloadProgress}"/>
-                    </StackPanel>
-                    <TextBlock FontSize="12"
-                               Text="{Binding ResultText}"
-                               IsVisible="{Binding ResultText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                               TextWrapping="Wrap"
-                               Foreground="#667085"/>
+                <StackPanel Spacing="8" x:DataType="vm:UpdateViewModel">
+                    <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.UpdateCheck}}" FontWeight="SemiBold" />
+                    <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.AboutUpdateDescription}}" TextWrapping="Wrap" Foreground="{DynamicResource StudioMuted}" />
+                    <WrapPanel Orientation="Horizontal">
+                        <Button Margin="0,0,8,4" Command="{Binding UpdateCommand}" Content="{Binding ActionText}" IsEnabled="{Binding !IsBusy}" />
+                        <Button Margin="0,0,8,4" Command="{Binding CheckCommand}" Content="{codewf:I18n {x:Static l:ZhijianL.AboutRecheck}}" IsVisible="{Binding CanRecheck}" />
+                        <Button Margin="0,0,8,4" Command="{Binding CancelCommand}" Content="{codewf:I18n {x:Static l:ZhijianL.AboutCancel}}" IsVisible="{Binding IsBusy}" />
+                    </WrapPanel>
+                    <ProgressBar Height="6" IsVisible="{Binding IsDownloading}" IsIndeterminate="{Binding IsIndeterminate}" Maximum="100" Value="{Binding Progress}" />
+                    <TextBlock FontSize="12" Text="{Binding StatusText}" TextWrapping="Wrap" Foreground="{DynamicResource StudioMuted}" />
                 </StackPanel>
             </Border>
         </StackPanel>
     </Border>
+    </ScrollViewer>
 
     <codewf:CodeWFWindow.Styles>
         <Style Selector="TextBlock.aboutLabel">
-            <Setter Property="Foreground" Value="#667085"/>
+            <Setter Property="Foreground" Value="{DynamicResource StudioMuted}"/>
             <Setter Property="Margin" Value="0,0,16,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>

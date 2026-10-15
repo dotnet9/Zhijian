@@ -1,11 +1,11 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:codewf="https://codewf.com"
              xmlns:l="clr-namespace:Zhijian"
              xmlns:vm="using:Zhijian.ViewModels"
              x:Class="Zhijian.Views.TitleBarLeftAddOn"
              x:DataType="vm:MainWindowViewModel"
-             Height="28">
+             Height="32">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
@@ -15,8 +15,8 @@
 
 
         <Style Selector="MenuItem:toplevel">
-            <Setter Property="MinHeight" Value="26"/>
-            <Setter Property="Height" Value="26"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Height" Value="30"/>
             <Setter Property="Padding" Value="7,0"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
@@ -25,7 +25,7 @@
     <StackPanel Orientation="Horizontal"
                 VerticalAlignment="Center"
                 Spacing="8"
-                Height="28">
+                Height="32">
         <TextBlock Text="{codewf:I18n {x:Static l:ZhijianL.AppName}}"
                    FontSize="12"
                    FontWeight="SemiBold"
@@ -33,7 +33,7 @@
                    VerticalAlignment="Center"/>
 
         <Menu Margin="-6,0,0,0"
-                   Height="28"
+                   Height="32"
                    FontSize="12"
                    VerticalAlignment="Center">
             <MenuItem x:Name="FileMenuItem"
@@ -164,7 +164,7 @@
 
             <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}"
                            AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}">
-                <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.SystemTheme}}" Command="{Binding SetSystemTheme}"/>
+                <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.SystemTheme}}" Command="{Binding SetSystemTheme}" ToggleType="Radio" IsChecked="{Binding IsSystemTheme, Mode=OneWay}"/>
                 <MenuItem x:Name="LightThemeItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.LightTheme}}"
                                Command="{Binding SetLightTheme}"
@@ -174,16 +174,16 @@
                                Header="{codewf:I18n {x:Static l:ZhijianL.DarkTheme}}"
                                Command="{Binding SetDarkTheme}"
                                ToggleType="Radio"
-                               IsChecked="{Binding IsDarkTheme, Mode=OneWay}"/>
+                               IsChecked="{Binding IsExplicitDarkTheme, Mode=OneWay}"/>
             <Separator/>
-            <MenuItem Header="默认" Command="{Binding SelectPaletteByKey}" CommandParameter="Default"/>
-            <MenuItem Header=".NET" Command="{Binding SelectPaletteByKey}" CommandParameter="DotNet"/>
-            <MenuItem Header="极光" Command="{Binding SelectPaletteByKey}" CommandParameter="Aurora"/>
-            <MenuItem Header="余烬" Command="{Binding SelectPaletteByKey}" CommandParameter="Ember"/>
-            <MenuItem Header="水色" Command="{Binding SelectPaletteByKey}" CommandParameter="Aquatic"/>
-            <MenuItem Header="沙漠" Command="{Binding SelectPaletteByKey}" CommandParameter="Desert"/>
-            <MenuItem Header="暮色" Command="{Binding SelectPaletteByKey}" CommandParameter="Dusk"/>
-            <MenuItem Header="夜空" Command="{Binding SelectPaletteByKey}" CommandParameter="NightSky"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDefault}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Default"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDotNet}}" Command="{Binding SelectPaletteByKey}" CommandParameter="DotNet"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteAurora}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Aurora"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteEmber}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Ember"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteAquatic}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Aquatic"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDesert}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Desert"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDusk}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Dusk"/>
+            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteNightSky}}" Command="{Binding SelectPaletteByKey}" CommandParameter="NightSky"/>
             </MenuItem>
 
             <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.LanguageMenu}}"

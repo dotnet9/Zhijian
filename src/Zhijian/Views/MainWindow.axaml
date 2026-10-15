@@ -1,4 +1,4 @@
-<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
+﻿<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:codewf="https://codewf.com"
              xmlns:l="clr-namespace:Zhijian"
@@ -17,7 +17,7 @@
              MinWidth="980"
              MinHeight="640"
              Title="{Binding WindowTitle}"
-             TitleBarBackground="{DynamicResource StudioBackground}" TitleBarHeight="34">
+             TitleBarBackground="{DynamicResource StudioBackground}" TitleBarHeight="40" CaptionButtonWidth="34">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>

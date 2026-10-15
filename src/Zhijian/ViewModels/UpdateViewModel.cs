@@ -1,226 +1,185 @@
-using System.Collections.Generic;
-using System.Diagnostics;
-using Zhijian.Services;
-using Avalonia;
-using global::Avalonia.Controls.ApplicationLifetimes;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Windows.Input;
+﻿using System.Reactive;
+using System.Reactive.Subjects;
+using CodeWF.Toolkit.Core.UpdateChecking;
 using ReactiveUI;
+using CodeWF.Avalonia.Lang;
+using System.Globalization;
+using Avalonia.Controls.ApplicationLifetimes;
+using System.Diagnostics;
 
 namespace Zhijian.ViewModels;
 
-/// <summary>
-/// 更新状态机：检查 GitHub 最新版 → 下载（带进度）→ 运行安装器。
-/// 任何失败都转成可直接展示的中文提示，不抛出。
-/// </summary>
-public sealed class UpdateViewModel : ViewModelBase
+public sealed class UpdateViewModel : ReactiveObject, IDisposable
 {
-    private readonly IUpdateChecker _checker;
-    private readonly IUpdateDownloader _downloader;
-    private readonly HttpClient _http;
-    private readonly Action<string, string, Exception?> _log;
-    private CancellationTokenSource? _downloadCancellation;
-    private double _downloadProgress;
-    private bool _isChecking;
-    private bool _isDownloading;
-    private string? _downloadedPath;
-    private UpdateInfo? _pendingUpdate;
-    private string _resultText = string.Empty;
+    private readonly IUpdateService _updates;
+    private readonly bool _ownsService;
+    private readonly I18nManager _localizer;
+    private readonly Action<string> _openUrl;
+    private readonly Action _exit;
+    private readonly CancellationTokenSource _lifetime = new();
+    private readonly BehaviorSubject<bool> _canUpdate = new(true);
+    private CancellationTokenSource? _operation;
+    private UpdateInfo? _update;
+    private UpdateDownloadResult? _download;
+    private UpdateState _state;
+    private string? _error;
+    private UpdateInstallResult? _install;
+    private double? _progress;
+    private bool _disposed;
 
-    public UpdateViewModel(Action<string, string, Exception?> log)
+    /// <summary>应用只保留状态机；网络、选包、校验和安装全部由 Toolkit 提供。</summary>
+    public UpdateViewModel(Action<string, string, Exception?> log, IUpdateService? updates = null,
+        Action<string>? openUrl = null, Action? exit = null)
     {
-        _log = log;
-        _http = new HttpClient();
-        _checker = new UpdateChecker(_http, "dotnet9", "ClearC", log: (message, exception) => _log("WARN", message, exception));
-        _downloader = new UpdateDownloader(_http);
-
-        CheckCommand = ReactiveCommand.CreateFromTask(() => CheckAsync());
-        DownloadCommand = ReactiveCommand.CreateFromTask(() => DownloadAsync());
-        InstallCommand = ReactiveCommand.Create(InstallDownloaded);
-        OpenPageCommand = ReactiveCommand.Create(OpenReleasePage);
+        _updates = updates ?? new UpdateService(new UpdateServiceOptions
+        {
+            Repository = "Zhijian", ProductName = "Zhijian",
+            Log = message => log("WARN", message, null)
+        });
+        _ownsService = updates is null;
+        _localizer = I18nManager.Instance;
+        _openUrl = openUrl ?? (url => Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }));
+        _exit = exit ?? (() => (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown());
+        UpdateCommand = ReactiveCommand.CreateFromTask(AdvanceAsync, _canUpdate);
+        CheckCommand = ReactiveCommand.CreateFromTask(CheckAsync, _canUpdate);
+        CancelCommand = ReactiveCommand.Create(() => _operation?.Cancel());
+        RepositoryCommand = ReactiveCommand.Create(() => OpenUrl("https://github.com/dotnet9/Zhijian"));
+        WebsiteCommand = ReactiveCommand.Create(() => OpenUrl("https://codewf.com"));
+        _localizer.CultureChanged += OnCultureChanged;
     }
 
-    public ICommand CheckCommand { get; }
-    public ICommand DownloadCommand { get; }
-    public ICommand InstallCommand { get; }
-    public ICommand OpenPageCommand { get; }
-
-    public bool IsChecking
+    public ReactiveCommand<Unit, Unit> UpdateCommand { get; }
+    public ReactiveCommand<Unit, Unit> CheckCommand { get; }
+    public ReactiveCommand<Unit, Unit> CancelCommand { get; }
+    public ReactiveCommand<Unit, Unit> RepositoryCommand { get; }
+    public ReactiveCommand<Unit, Unit> WebsiteCommand { get; }
+    public UpdateState State => _state;
+    public bool IsBusy => _state is UpdateState.Checking or UpdateState.Downloading or UpdateState.Installing;
+    public bool IsDownloading => _state == UpdateState.Downloading;
+    public bool CanRecheck => _state is UpdateState.Available or UpdateState.Downloaded;
+    public bool IsIndeterminate => !_progress.HasValue;
+    public double Progress => _progress ?? 0;
+    public string ProgressText => _progress.HasValue ? (_progress.Value / 100).ToString("P0", (_localizer.Culture ?? CultureInfo.CurrentUICulture)) : string.Empty;
+    public string ActionText => _localizer.GetResource(_state switch
     {
-        get => _isChecking;
-        private set => SetProperty(ref _isChecking, value);
+        UpdateState.Checking => ZhijianL.AboutChecking,
+        UpdateState.Downloading => ZhijianL.AboutDownloading,
+        UpdateState.Installing => ZhijianL.AboutInstalling,
+        UpdateState.Available when !CanDownload => ZhijianL.UpdateReleasePage,
+        UpdateState.Available => ZhijianL.UpdateDownload,
+        UpdateState.Downloaded when _download?.FileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) == true => ZhijianL.AboutOpenFolder,
+        UpdateState.Downloaded => ZhijianL.UpdateInstall,
+        _ => ZhijianL.UpdateCheck
+    });
+    public string StatusText => _state switch
+    {
+        UpdateState.Checking => _localizer.GetResource(ZhijianL.AboutChecking),
+        UpdateState.Current => _localizer.GetResource(ZhijianL.AboutCurrent),
+        UpdateState.Available => string.Format(_localizer.Culture, _localizer.GetResource(ZhijianL.AboutAvailable), _update!.Tag),
+        UpdateState.Downloading => string.Format(_localizer.Culture, _localizer.GetResource(ZhijianL.AboutDownloadProgress), ProgressText),
+        UpdateState.Downloaded => _localizer.GetResource(ZhijianL.AboutDownloaded),
+        UpdateState.Failed => string.Format(_localizer.Culture, _localizer.GetResource(ZhijianL.AboutFailed), _error),
+        UpdateState.Canceled => _localizer.GetResource(ZhijianL.AboutCanceled),
+        UpdateState.Installed => _install?.Message ?? string.Empty,
+        _ => string.Empty
+    };
+    public void Cancel() => _operation?.Cancel();
+
+    public string ReleaseNotes => _update?.Notes ?? string.Empty;
+    private bool CanDownload => !string.IsNullOrWhiteSpace(_update?.AssetUrl) && !string.IsNullOrWhiteSpace(_update.ChecksumUrl);
+
+    public async Task AdvanceAsync()
+    {
+        if (IsBusy || _disposed) return;
+        if (_state == UpdateState.Available)
+        {
+            if (CanDownload) await DownloadAsync();
+            else OpenUrl(_update!.PageUrl);
+        }
+        else if (_state == UpdateState.Downloaded) await InstallAsync();
+        else await CheckAsync();
     }
 
-    public bool IsDownloading
+    public Task CheckAsync() => RunAsync(UpdateState.Checking, async token =>
     {
-        get => _isDownloading;
-        private set
+        _update = null;
+        _download = null;
+        _install = null;
+        var result = await _updates.CheckAsync(cancellationToken: token);
+        token.ThrowIfCancellationRequested();
+        if (!result.Succeeded) { _error = result.Error; SetState(UpdateState.Failed); }
+        else { _update = result.Update; SetState(_update is null ? UpdateState.Current : UpdateState.Available); }
+    });
+
+    private Task DownloadAsync() => RunAsync(UpdateState.Downloading, async token =>
+    {
+        _progress = null;
+        var progress = new Progress<UpdateDownloadProgress>(value =>
         {
-            if (SetProperty(ref _isDownloading, value))
-            {
-                OnPropertyChanged(nameof(CanDownload));
-            }
-        }
+            if (_disposed || !IsDownloading) return;
+            _progress = value.Percentage;
+            Refresh();
+        });
+        _download = await _updates.DownloadAsync(_update!, progress, token);
+        token.ThrowIfCancellationRequested();
+        SetState(UpdateState.Downloaded);
+    });
+
+    private Task InstallAsync() => RunAsync(UpdateState.Installing, async token =>
+    {
+        _install = await _updates.InstallAsync(_download!, token);
+        SetState(UpdateState.Installed);
+        if (_install.ShouldExitApplication) _exit();
+    });
+
+    private async Task RunAsync(UpdateState state, Func<CancellationToken, Task> action)
+    {
+        if (IsBusy || _disposed) return;
+        using var operation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        _operation = operation;
+        SetState(state);
+        try { await action(operation.Token); }
+        catch (OperationCanceledException) when (operation.IsCancellationRequested) { SetState(UpdateState.Canceled); }
+        catch (Exception error) { _error = error.Message; SetState(UpdateState.Failed); }
+        finally { _operation = null; }
     }
 
-    public bool IsReady => !string.IsNullOrWhiteSpace(_downloadedPath) && File.Exists(_downloadedPath);
-
-    public bool UpdateAvailable => _pendingUpdate is not null;
-
-    /// <summary>状态栏常驻按钮的文案：平时是「检查更新」，发现新版后变成版本徽标。</summary>
-    public string ButtonText => UpdateAvailable ? $"新版本 {_pendingUpdate!.Tag}" : "检查更新";
-
-    public string ResultText => _resultText;
-
-    public double DownloadProgress => _downloadProgress;
-
-    public string ProgressText => IsDownloading
-        ? _downloadProgress > 0 ? $"下载中 {_downloadProgress:0}%" : "正在准备下载…"
-        : IsReady ? "下载完成" : string.Empty;
-
-    public bool CanDownload => UpdateAvailable && !IsDownloading && !IsReady &&
-        !string.IsNullOrWhiteSpace(_pendingUpdate?.AssetUrl) &&
-        !string.IsNullOrWhiteSpace(_pendingUpdate?.ChecksumUrl);
-
-    /// <summary>没有匹配资产或缺少校验文件时，只能引导用户去 Release 页面。</summary>
-    public bool NeedsReleasePage => UpdateAvailable && !IsDownloading && !IsReady && !CanDownload;
-
-    public async Task CheckAsync()
+    private void OpenUrl(string url)
     {
-        if (IsChecking || IsDownloading)
-        {
-            return;
-        }
-
-        IsChecking = true;
-        try
-        {
-            var current = ParseCurrentVersion();
-            UpdateCheckResult result = await _checker.CheckAsync(current).ConfigureAwait(true);
-
-            if (!result.Succeeded)
-            {
-                SetResult("检查更新失败，请稍后重试");
-                return;
-            }
-
-            if (result.Update is null)
-            {
-                _pendingUpdate = null;
-                SetResult($"已是最新版本 v{current}");
-                return;
-            }
-
-            _pendingUpdate = result.Update;
-            SetResult(NeedsReleasePage
-                ? "发现新版本，但没有匹配的安装包，请到发布页下载"
-                : $"发现新版本 {result.Update.Tag}，可下载安装");
-        }
-        finally
-        {
-            IsChecking = false;
-        }
+        try { _openUrl(url); }
+        catch (Exception error) { _error = error.Message; SetState(UpdateState.Failed); }
     }
 
-    public async Task DownloadAsync()
+    private void SetState(UpdateState state)
     {
-        if (IsDownloading || _pendingUpdate?.AssetUrl is null)
-        {
-            if (NeedsReleasePage)
-            {
-                OpenReleasePage();
-            }
-            return;
-        }
-
-        _downloadCancellation?.Dispose();
-        _downloadCancellation = new CancellationTokenSource();
-        _downloadProgress = 0;
-        IsDownloading = true;
-
-        try
-        {
-            var progress = new Progress<UpdateDownloadProgress>(value =>
-            {
-                _downloadProgress = value.Percentage ?? _downloadProgress;
-                this.RaisePropertyChanged(nameof(DownloadProgress));
-                this.RaisePropertyChanged(nameof(ProgressText));
-            });
-
-            UpdateDownloadResult download = await _downloader.DownloadAsync(
-                _pendingUpdate, progress, _downloadCancellation.Token).ConfigureAwait(true);
-            _downloadedPath = download.FilePath;
-            SetResult($"已下载 {download.FileName}，可安装");
-        }
-        catch (OperationCanceledException)
-        {
-            SetResult("已取消下载");
-        }
-        catch (Exception exception)
-        {
-            SetResult($"下载失败：{exception.Message}");
-        }
-        finally
-        {
-            IsDownloading = false;
-        }
+        if (_disposed) return;
+        _state = state;
+        _canUpdate.OnNext(!IsBusy);
+        Refresh();
+    }
+    private void OnCultureChanged(object? sender, EventArgs args) => Refresh();
+    private void Refresh()
+    {
+        foreach (var property in new[] { nameof(State), nameof(IsBusy), nameof(IsDownloading), nameof(CanRecheck), nameof(IsIndeterminate),
+                     nameof(Progress), nameof(ProgressText), nameof(ActionText), nameof(StatusText), nameof(ReleaseNotes) })
+            this.RaisePropertyChanged(property);
     }
 
-    /// <summary>运行下载好的安装器（Inno Setup），主程序退出让安装器接管。</summary>
-    public void InstallDownloaded()
+    public void Dispose()
     {
-        string? path = _downloadedPath;
-        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-        {
-            SetResult("安装包不存在，请重新下载");
-            return;
-        }
-
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = path,
-                UseShellExecute = true
-            });
-            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                desktop.Shutdown();
-            }
-        }
-        catch (Exception exception)
-        {
-            SetResult($"启动安装器失败：{exception.Message}");
-        }
-    }
-
-    public void OpenReleasePage()
-    {
-        if (_pendingUpdate?.PageUrl is string url)
-        {
-            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        }
-    }
-
-    private static Version ParseCurrentVersion()
-    {
-        var informational = typeof(UpdateViewModel).Assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        return VersionUtil.Parse(informational) ?? new Version(0, 1, 0);
-    }
-
-    private void SetResult(string text)
-    {
-        _resultText = text;
-        this.RaisePropertyChanged(nameof(ResultText));
-        this.RaisePropertyChanged(nameof(UpdateAvailable));
-        this.RaisePropertyChanged(nameof(ButtonText));
-        this.RaisePropertyChanged(nameof(IsReady));
-        this.RaisePropertyChanged(nameof(CanDownload));
-        this.RaisePropertyChanged(nameof(NeedsReleasePage));
-        this.RaisePropertyChanged(nameof(ProgressText));
-        _log("INFO", text, null);
+        if (_disposed) return;
+        _disposed = true;
+        _lifetime.Cancel();
+        _localizer.CultureChanged -= OnCultureChanged;
+        _lifetime.Dispose();
+        UpdateCommand.Dispose();
+        CheckCommand.Dispose();
+        CancelCommand.Dispose();
+        RepositoryCommand.Dispose();
+        WebsiteCommand.Dispose();
+        _canUpdate.Dispose();
+        if (_ownsService && _updates is IDisposable service) service.Dispose();
     }
 }
+
+public enum UpdateState { Idle, Checking, Current, Available, Downloading, Downloaded, Installing, Installed, Failed, Canceled }

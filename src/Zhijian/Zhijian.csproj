@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <Content Include="..\..\UpdateLog.md" Link="UpdateLog.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\..\使用手册.md" Link="使用手册.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\使用手册.md" Link="manual.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <None Update="App.config">

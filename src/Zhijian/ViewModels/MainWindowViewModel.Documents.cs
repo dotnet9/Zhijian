@@ -1,4 +1,4 @@
-using CodeWF.Avalonia.MindView;
+﻿using CodeWF.Avalonia.MindView;
 using global::Avalonia.Threading;
 using System.Text;
 using Zhijian.Services;
@@ -7,7 +7,7 @@ namespace Zhijian.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorController
 {
-    private const string BundledUserManualFileName = "使用手册.md";
+    private const string BundledUserManualFileName = "manual.md";
 
     public async Task<bool> ConfirmCloseAsync()
     {

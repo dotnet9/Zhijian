@@ -1,4 +1,6 @@
-using System.Text;
+﻿using System.Text;
+using System.Globalization;
+using CodeWF.Avalonia.Lang;
 using global::Avalonia.Controls;
 using global::Avalonia.Platform.Storage;
 using CodeWF.Avalonia.MindView;
@@ -8,17 +10,19 @@ namespace Zhijian.Services;
 
 public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileService
 {
+    private static string T(string key) => I18nManager.Instance.GetResource(key);
+
     private static readonly UTF8Encoding Utf8NoBom = new(false);
 
     public async Task<MindMapFileOpenResult?> OpenAsync(CancellationToken cancellationToken = default)
     {
-        var file = await OpenFileAsync("打开可编辑脑图文件", GetEditableFileTypes());
+        var file = await OpenFileAsync(T(ZhijianL.OpenEditableMindMap), GetEditableFileTypes());
         return await ReadOpenResultAsync(file, cancellationToken);
     }
 
     public async Task<MindMapFileOpenResult?> ImportAsync(CancellationToken cancellationToken = default)
     {
-        var file = await OpenFileAsync("导入文件", GetImportFileTypes());
+        var file = await OpenFileAsync(T(ZhijianL.ImportFile), GetImportFileTypes());
         return await ReadOpenResultAsync(file, cancellationToken);
     }
 
@@ -92,7 +96,7 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
     {
         var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "打开文件夹",
+            Title = T(ZhijianL.OpenFolder),
             AllowMultiple = false
         });
 
@@ -110,7 +114,7 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         var fileType = GetFileType(writableFormat);
         var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "另存为可编辑脑图",
+            Title = T(ZhijianL.SaveEditableMindMap),
             DefaultExtension = MindMapFileFormatRegistry.GetDefaultExtension(writableFormat),
             FileTypeChoices = GetWritableFileTypes(),
             SuggestedFileType = fileType,
@@ -183,7 +187,7 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         var fileType = GetFileType(format);
         var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = $"导入 {MindMapFileFormatRegistry.GetDisplayName(format)}",
+            Title = string.Format(CultureInfo.CurrentCulture, T(ZhijianL.ImportFormat), MindMapFileFormatRegistry.GetDisplayName(format)),
             AllowMultiple = false,
             FileTypeFilter = [fileType],
             SuggestedFileType = fileType
@@ -209,11 +213,11 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
         var fileType = GetFileType(format);
         return await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = $"导出 {MindMapFileFormatRegistry.GetDisplayName(format)}",
+            Title = string.Format(CultureInfo.CurrentCulture, T(ZhijianL.ExportFormat), MindMapFileFormatRegistry.GetDisplayName(format)),
             DefaultExtension = MindMapFileFormatRegistry.GetDefaultExtension(format),
             FileTypeChoices = [fileType],
             SuggestedFileType = fileType,
-            SuggestedFileName = $"枝见.{MindMapFileFormatRegistry.GetDefaultExtension(format)}",
+            SuggestedFileName = $"{T(ZhijianL.DefaultFileName)}.{MindMapFileFormatRegistry.GetDefaultExtension(format)}",
             ShowOverwritePrompt = true
         });
     }
@@ -237,7 +241,7 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
     {
         return
         [
-            new FilePickerFileType("支持的导入格式")
+            new FilePickerFileType(T(ZhijianL.SupportedImportFormats))
             {
                 Patterns = MindMapFileFormatRegistry.ReadablePatterns,
                 MimeTypes = MindMapFileFormatRegistry.ReadableMimeTypes
@@ -250,7 +254,7 @@ public sealed class AvaloniaMindMapFileService(Window owner) : IMindMapFileServi
     {
         return
         [
-            new FilePickerFileType("可编辑脑图文件")
+            new FilePickerFileType(T(ZhijianL.EditableMindMaps))
             {
                 Patterns = MindMapFileFormatRegistry.WritablePatterns,
                 MimeTypes = MindMapFileFormatRegistry.WritableMimeTypes

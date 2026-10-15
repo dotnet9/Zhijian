@@ -1,4 +1,4 @@
-using CodeWF.Avalonia.Controls.Themes;
+﻿using CodeWF.Avalonia.Controls.Themes;
 using global::Avalonia.Media;
 
 namespace Zhijian.ViewModels;
@@ -21,12 +21,21 @@ public partial class MainWindowViewModel
     public void SetSystemTheme()
     {
         if (App.ThemeController is { } controller) controller.Mode = StudioThemeMode.System;
+        RefreshThemeSelection();
         App.SaveThemePreferences();
     }
+    private void RefreshThemeSelection()
+    {
+        OnPropertyChanged(nameof(IsLightTheme));
+        OnPropertyChanged(nameof(IsExplicitDarkTheme));
+        OnPropertyChanged(nameof(IsSystemTheme));
+    }
+
     public void UpdateThemeFromHost(bool dark)
     {
         _updatingHostTheme = true;
         try { IsDarkTheme = dark; OnPropertyChanged(nameof(AccentColor)); }
         finally { _updatingHostTheme = false; }
+        RefreshThemeSelection();
     }
 }

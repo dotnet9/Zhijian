@@ -1,19 +1,36 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
 using CodeWF.Toolkit.Core.Extensions;
-using Zhijian.Services;
+using CodeWF.Avalonia.Lang;
+using CodeWF.Toolkit.Core.UpdateChecking;
+using ReactiveUI;
+using System.Runtime.InteropServices;
 
 namespace Zhijian.ViewModels;
 
-public sealed class AboutWindowViewModel : ViewModelBase
+public sealed class AboutWindowViewModel : ViewModelBase, IDisposable
 {
     private static readonly Assembly AppAssembly = typeof(AboutWindowViewModel).Assembly;
 
-    public string Version => AppAssembly.Version() ?? string.Empty;
+    public string Version => UpdateVersion.Display(AppAssembly);
+
+    public string Platform => $"{RuntimeInformation.FrameworkDescription} · Avalonia {typeof(Avalonia.Application).Assembly.GetName().Version}";
+
+    public string Copyright => AppAssembly.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright ?? string.Empty;
 
     public string CompileTime => GetCompileTime();
 
-    public string Author => "沙漠尽头的狼";
+    public string Author => I18nManager.Instance.GetResource(ZhijianL.AboutAuthorName);
+
+    public AboutWindowViewModel() => I18nManager.Instance.CultureChanged += OnCultureChanged;
+
+    private void OnCultureChanged(object? sender, EventArgs args) => this.RaisePropertyChanged(nameof(Author));
+
+    public void Dispose()
+    {
+        I18nManager.Instance.CultureChanged -= OnCultureChanged;
+        Update.Dispose();
+    }
 
     public string ContactUrl => "https://codewf.com";
 

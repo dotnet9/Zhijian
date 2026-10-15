@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using CodeWF.Toolkit.EventBus;
 using CodeWF.Avalonia.MindView;
 using CodeWF.Avalonia.Lang;
@@ -349,7 +349,9 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         ? FormatText(ZhijianL.FolderSummaryOpen, FolderFiles.Count)
         : T(ZhijianL.FolderSummaryClosed);
 
-    public bool IsLightTheme => !IsDarkTheme;
+    public bool IsLightTheme => App.ThemeController?.Mode == CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Light;
+    public bool IsExplicitDarkTheme => App.ThemeController?.Mode == CodeWF.Avalonia.Controls.Themes.StudioThemeMode.Dark;
+    public bool IsSystemTheme => App.ThemeController?.Mode == CodeWF.Avalonia.Controls.Themes.StudioThemeMode.System;
 
     public bool IsSimplifiedChinese => string.Equals(_selectedCultureName, "zh-CN", StringComparison.OrdinalIgnoreCase);
 

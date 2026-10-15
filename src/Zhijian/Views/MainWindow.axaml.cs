@@ -1,4 +1,4 @@
-using global::Avalonia.Controls;
+﻿using global::Avalonia.Controls;
 using CodeWF.Avalonia.Controls.Controls;
 using Avalonia;
 using global::Avalonia.Data;
@@ -17,7 +17,7 @@ public partial class MainWindow : CodeWFWindow
     private const double OutlinePaneMinWidth = 280;
     private const double OutlinePaneMaxWidth = 560;
     private const double SplitterWidth = 14;
-    private const double CompactTitleBarHeight = 30;
+    private const double CompactTitleBarHeight = 40;
 
     private TitleBarLeftAddOn? _titleBarLeftAddOn;
     private MainWindowViewModel? _viewModel;

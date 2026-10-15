@@ -1,4 +1,5 @@
-using Avalonia;
+﻿using Avalonia;
+using global::Avalonia.Media;
 using global::Avalonia.Controls;
 using Zhijian.Services;
 
@@ -6,9 +7,7 @@ namespace Zhijian;
 
 sealed class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
+    // 框架初始化完成前，只初始化配置和日志。
     [STAThread]
     public static void Main(string[] args)
     {
@@ -30,10 +29,19 @@ sealed class Program
         }
     }
 
-    // Avalonia configuration, don't remove; also used by visual designer.
+    // 供应用入口和设计器共用。
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            .With(new FontManagerOptions
+            {
+                FontFallbacks =
+                [
+                    new FontFallback { FontFamily = new FontFamily("Microsoft YaHei UI") },
+                    new FontFallback { FontFamily = new FontFamily("PingFang SC") },
+                    new FontFallback { FontFamily = new FontFamily("Noto Sans CJK SC") }
+                ]
+            })
             .LogToTrace();
 }
