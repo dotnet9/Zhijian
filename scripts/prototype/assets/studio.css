@@ -3,6 +3,7 @@
 body{padding:12px;background:color-mix(in srgb,var(--background) 85%,var(--muted))}
 .win{height:calc(100dvh - 24px);min-height:600px;min-width:0;background:var(--background);border-radius:9px;overflow:hidden;box-shadow:0 10px 30px #0003;position:relative}
 .win.maximized{position:fixed;inset:0;height:100dvh;border-radius:0}
+#prototype-window-state{height:calc(100dvh - 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 .titlebar{border-bottom:1px solid var(--border);padding-right:0;gap:4px;background:var(--surface)}
 .titlebar>b{padding:0 9px}.titlebar>select{max-width:116px;font-size:11px;padding:3px}
 #menubar{display:flex;align-items:center;gap:2px}#menubar>details,#appearance{position:relative}

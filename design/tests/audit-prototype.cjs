@@ -17,10 +17,18 @@ const { chromium } = require('playwright');
     const selectMode=async mode=>{for(let i=0;i<3&&await page.locator('html').getAttribute('data-mode')!==mode;i++)await page.locator('#mode-toggle').click();};
     const palettes=await page.locator('.palette').evaluateAll(items=>items.map(item=>item.dataset.palette));
     assert.equal(palettes.length,8);
+    assert.deepEqual(palettes,['DotNet','Aurora','Ember','Default','Aquatic','Desert','Dusk','NightSky']);
+    const swatches=()=>page.locator('.palette i').evaluateAll(items=>items.map(el=>({color:getComputedStyle(el).backgroundColor,image:getComputedStyle(el).backgroundImage})));
+    const fixedSwatches=await swatches(),expectedColors=['rgb(81, 43, 212)',null,'rgb(189, 103, 77)','rgb(0, 100, 250)','rgb(0, 141, 158)','rgb(181, 117, 50)','rgb(122, 92, 196)','rgb(43, 108, 176)'];
+    assert.equal(fixedSwatches.some((item,index)=>index===1?!item.image.includes('rgb(137, 104, 255), rgb(38, 212, 204)'):item.color!==expectedColors[index]),false,'StudioSwatch .21 colors and gradient');
+    const normalWidth=await page.locator('.win').evaluate(el=>el.getBoundingClientRect().width);
+    await page.locator('[data-window=maximize]').click();assert.ok(await page.locator('.win').evaluate(el=>el.getBoundingClientRect().width)>normalWidth);await page.locator('[data-window=maximize]').click();assert.equal(await page.locator('.win').evaluate(el=>el.getBoundingClientRect().width),normalWidth);
+    for(const action of ['minimize','close']){await page.locator('[data-window='+action+']').click();assert.equal(await page.locator('.win').isVisible(),false);assert.equal(await page.locator('#restore-window').isVisible(),true);await page.locator('#restore-window').click();assert.equal(await page.locator('.win').isVisible(),true);}
     for(const palette of palettes){
       await page.locator(`.palette[data-palette="${palette}"]`).click();
       for(const mode of ['light','dark']){
         await selectMode(mode);
+        assert.deepEqual(await swatches(),fixedSwatches,'Palette dots do not follow theme Accent');
         assert.equal(await page.locator('html').getAttribute('data-theme'),mode);
         assert.equal(await page.locator('html').getAttribute('data-palette'),palette);
       }
