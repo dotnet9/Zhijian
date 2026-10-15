@@ -1,56 +1,39 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>枝见 · 界面原型</title><style>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>枝见 · 桌面界面原型</title><style>
 *{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--text);font:13px Inter,"Segoe UI","Microsoft YaHei UI",sans-serif}button,select,textarea,summary{font:inherit;color:inherit}button,summary{cursor:pointer}button{border:1px solid transparent;background:transparent;border-radius:4px;padding:6px 8px;min-height:28px}button:hover,summary:hover{background:var(--raised)}button:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}button:active{transform:translateY(1px)}button:disabled{opacity:.5}select{text-align:left;background:var(--surface);border:1px solid var(--border);padding:6px;border-radius:4px}option{text-align:left}.win{height:100dvh;min-width:980px;min-height:640px;display:flex;flex-direction:column;border:1px solid var(--border)}.titlebar{height:40px;flex-shrink:0;display:flex;align-items:center;padding:0 8px;gap:8px;font-size:12px}.spacer{flex:1}.caption{font-size:18px}summary{list-style:none;padding:6px}.menu{position:absolute;z-index:4;top:40px;width:248px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 8px 24px #0002}.menu select{width:100%}.palette{display:flex;gap:10px;align-items:center;width:100%;text-align:left}.palette i{width:12px;height:12px;border-radius:50%;background:var(--swatch)}.palette.on{background:var(--raised);box-shadow:inset 2px 0 var(--accent)}.body{flex:1;min-height:0;display:grid;grid-template-columns:360px 14px minmax(420px,1fr);margin:16px 16px 6px}.side,.panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 14px #0000000f}.side{display:flex;flex-direction:column;min-width:0}.tabs{height:38px;display:flex;gap:24px;padding:0 12px;border-bottom:1px solid var(--border)}.tabs button{padding:5px 12px;border-radius:0;color:var(--muted)}.tabs button.on{color:var(--text);font-weight:600;border-bottom:2px solid var(--accent)}.centered{justify-content:center}#outline,#files{flex:1;overflow:auto;padding:10px}h3{border:1px solid var(--border);padding:8px 12px;border-radius:4px;font-size:17px;margin:0}li{padding:8px 0}.fileitem{width:100%;text-align:left}.fileitem.on{background:var(--raised);color:var(--accent)}textarea{flex:1;min-height:0;resize:none;margin:12px;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font:14px/1.6 Consolas,"Microsoft YaHei UI",monospace}.editor-tools{display:flex;align-items:center;margin:6px 8px;gap:3px;color:var(--muted);font-size:11px}.editor-tools button{width:28px;padding:2px;font-size:15px}.splitter{cursor:col-resize;position:relative}.splitter:after{content:"";position:absolute;left:6px;top:10px;bottom:10px;background:var(--border);width:1px}.main{display:flex;flex-direction:column;min-width:0;overflow:hidden}.canvas{flex:1;min-height:0;background:var(--background);margin:0 10px 10px;border-radius:4px}svg{width:100%;height:100%}.node{fill:var(--surface);stroke:var(--border);stroke-width:1.5}.node.root{fill:var(--accent);stroke:var(--accent)}svg text{fill:var(--text);font-size:13px}svg text:first-of-type{fill:white;font-weight:600}.edge{stroke:var(--accent);stroke-width:1.5;fill:none}.status{display:flex;align-items:center;gap:8px;height:42px;margin:0 16px 10px;padding:0 8px;color:var(--muted);font-size:11px}.status button{font-size:14px;padding:2px 6px}#minimap{position:absolute;right:20px;bottom:62px;width:282px;height:180px;padding:10px}[hidden]{display:none!important}dialog{width:700px;max-width:90vw;max-height:90vh;padding:0;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 18px 60px #0004}dialog::backdrop{background:#0005}dialog header{height:40px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}dialog section{padding:24px 28px}.brand{display:flex;width:48px;height:48px;border-radius:12px;background:var(--accent);color:white;font-size:25px;align-items:center;justify-content:center}h2{font-size:26px}p{line-height:1.6;color:var(--muted)}dl{display:grid;grid-template-columns:110px 1fr;gap:12px;margin:24px 0}dt{color:var(--muted)}dd{margin:0}.update{padding:14px;border:1px solid var(--border);border-radius:6px}.actions{display:flex;justify-content:flex-end;gap:8px}#update-action{background:var(--accent);color:white;padding:6px 16px}progress{width:100%;height:6px;accent-color:var(--accent)}@media(prefers-reduced-motion:no-preference){button{transition:background .18s,transform .1s}dialog[open]{animation:appear .16s ease-out}@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}}
-</style></head><body>
-<main class="win"><header class="titlebar"><b data-key="AppName"></b><button data-key="FileMenu" id="file-open"></button><button data-key="EditMenu" id="edit-open"></button><button data-key="ViewMenu" id="view-open"></button><details id="appearance"><summary data-key="ThemeMenu"></summary><div class="menu"><select id="mode"><option value="system" data-key="SystemTheme"></option><option value="light" data-key="LightTheme"></option><option value="dark" data-key="DarkTheme"></option></select><div id="palettes"></div></div></details><select id="language"><option value="zh-CN">简体中文</option><option value="zh-Hant">繁體中文</option><option value="en-US">English</option><option value="ja-JP">日本語</option></select><button data-key="About" id="about-open"></button><span class="spacer"></span><span class="caption">—　□　×</span></header>
-<div class="body"><aside class="side"><div class="tabs"><button id="files-tab" data-key="FilesTab"></button><button id="outline-tab" class="on" data-key="OutlineTab"></button></div><div id="files" hidden><button class="fileitem on">Studio.md</button><button class="fileitem">Meeting.md</button></div><div id="outline"><h3>产品方案</h3><ul><li>功能设计<ul><li>脑图视图</li></ul></li><li>里程碑<ul><li>v1.0 内测</li></ul></li><li>风险清单</li></ul></div><textarea id="markdown" hidden aria-label="Markdown"># 产品方案
+/* 桌面外框、真实菜单和共享树编辑。 */
+body{padding:12px;background:color-mix(in srgb,var(--background) 85%,var(--muted))}
+.win{height:calc(100dvh - 24px);min-height:600px;min-width:0;background:var(--background);border-radius:9px;overflow:hidden;box-shadow:0 10px 30px #0003;position:relative}
+.win.maximized{position:fixed;inset:0;height:100dvh;border-radius:0}
+.titlebar{border-bottom:1px solid var(--border);padding-right:0;gap:4px;background:var(--surface)}
+.titlebar>b{padding:0 9px}.titlebar>select{max-width:116px;font-size:11px;padding:3px}
+#menubar{display:flex;align-items:center;gap:2px}#menubar>details,#appearance{position:relative}
+#menubar summary{white-space:nowrap;padding:7px 9px}#menubar .menu{top:32px;left:0;width:244px;max-height:calc(100dvh - 90px);overflow:visible;padding:5px;z-index:20}
+#menubar .menu>button,#menubar .submenu>summary{display:block;width:100%;text-align:left;padding:5px 10px;border-radius:3px;min-height:25px;font-size:12px}
+#menubar .submenu{position:relative}#menubar .submenu>.menu{left:100%;top:-5px;max-height:70vh;overflow:auto}
+#appearance>.menu{top:32px;right:0;z-index:21}
+.caption{display:flex;height:39px;flex:none}.caption button{border:0;border-radius:0;padding:0;width:42px;height:39px;font-size:15px}.caption button:last-child:hover{background:#c42b1c;color:white}
+.dialog-titlebar{padding:0 0 0 14px;background:var(--surface);flex:none}.dialog-titlebar .caption{margin-left:auto}
+dialog.maximized{width:calc(100vw - 40px);max-width:none;max-height:calc(100vh - 40px)}
+.topic-input{font:inherit;color:var(--text);width:100%;min-width:0;background:transparent;border:1px solid transparent;border-radius:4px;padding:5px 7px}
+.topic-input:hover{background:var(--raised)}.topic-input.selected{background:var(--raised);border-color:var(--border)}
+.topic-input:focus{outline:1px solid var(--accent)}.root-input{font-size:17px;font-weight:600;border-color:var(--border);margin-bottom:4px}
+#outline ul{padding-left:20px;margin:0}#outline li{padding:2px 0;list-style:none}
+.canvas{overflow:hidden;position:relative}.canvas svg{transform-origin:center;cursor:default}.canvas g{cursor:pointer}
+.canvas svg text,#minimap svg text{fill:var(--text);font-size:14px}.canvas svg .root-group text,#minimap svg .root-group text{fill:white;font-weight:600}
+.node.branch{fill:color-mix(in srgb,var(--accent) 10%,var(--surface));stroke:color-mix(in srgb,var(--accent) 25%,var(--border))}.node.leaf{fill:transparent;stroke:transparent}
+.selected>.node{stroke:var(--accent);stroke-width:2}.edge{stroke:color-mix(in srgb,var(--accent) 55%,var(--border));stroke-width:1.5}
+#node-count{margin-left:16px}a{color:var(--accent)}dd{overflow-wrap:anywhere}dialog section{padding-top:16px;padding-bottom:18px}dialog h2{margin:4px 0 12px}dialog dl{margin:16px 0;gap:9px}#prototype-hint{font-size:11px;margin-bottom:0}
+#menubar{display:contents}#menubar>details{order:1}#appearance{order:2}#language{order:3}#menubar>details:nth-child(n+4){order:4}.titlebar>.spacer{order:5}.titlebar>.caption{order:6}
+.root-input{text-align:center}.canvas svg text,#minimap svg text{font-size:16px}#outline li{position:relative}#outline li:before{content:'•';position:absolute;left:-9px;top:5px;color:var(--text)}
+.canvas [data-branch="1"] .branch,#minimap [data-branch="1"] .branch{fill:color-mix(in srgb,#e39246 11%,var(--surface));stroke:color-mix(in srgb,#e39246 50%,var(--border))}
+.canvas [data-branch="2"] .branch,#minimap [data-branch="2"] .branch{fill:color-mix(in srgb,#319bc2 11%,var(--surface));stroke:color-mix(in srgb,#319bc2 50%,var(--border))}
 
-## 功能设计
-### 脑图视图
-## 里程碑
-### v1.0 内测
-## 风险清单</textarea><footer class="editor-tools"><span id="editor-label" data-key="OutlineTab"></span><span class="spacer"></span><button id="add" data-title="AddChild">⊞</button><button id="undo" data-title="Undo">↶</button><button id="editor-mode" data-title="ToggleToMarkdown">M↓</button></footer></aside><div class="splitter" id="splitter" role="separator" tabindex="0" aria-orientation="vertical"></div><section class="main panel"><div class="tabs centered"><button class="on" data-key="MindMapTitle"></button></div><div class="canvas"><svg viewBox="0 0 800 440">
-          <!-- 一级 → 二级 -->
-          <path class="edge" d="M270,220 C340,220 340,120 410,120"/>
-          <path class="edge" d="M270,220 C340,220 340,220 410,220"/>
-          <path class="edge" d="M270,220 C340,220 340,330 410,330"/>
-          <!-- 二级 → 三级 -->
-          <path class="edge" d="M540,118 C580,118 570,118 600,118"/>
-          <path class="edge" d="M540,220 C580,220 570,220 600,220"/>
-          <rect class="node root" x="150" y="196" width="120" height="48" rx="9"/>
-          <text x="175" y="225">产品方案</text>
-          <rect class="node" x="410" y="96" width="130" height="44" rx="9"/>
-          <text x="432" y="123">功能设计</text>
-          <rect class="node" x="410" y="198" width="130" height="44" rx="9"/>
-          <text x="432" y="225">里程碑</text>
-          <rect class="node" x="410" y="308" width="130" height="44" rx="9"/>
-          <text x="432" y="335">风险清单</text>
-          <rect class="node" x="600" y="96" width="110" height="44" rx="9"/>
-          <text x="622" y="123">脑图视图</text>
-          <rect class="node" x="600" y="198" width="110" height="44" rx="9"/>
-          <text x="618" y="225">v1.0 内测</text>
-        </svg></div></section></div>
-<footer class="status panel"><span data-key="Ready"></span><span class="spacer"></span><button id="center" data-title="CenterRoot">⊙</button><button id="zoom-out" data-title="ZoomOut">−</button><span id="zoom">100%</span><button id="zoom-in" data-title="ZoomIn">+</button><button id="minimap-toggle" data-title="MiniMap">▧</button></footer><div id="minimap" class="panel" hidden><svg viewBox="0 0 800 440">
-          <!-- 一级 → 二级 -->
-          <path class="edge" d="M270,220 C340,220 340,120 410,120"/>
-          <path class="edge" d="M270,220 C340,220 340,220 410,220"/>
-          <path class="edge" d="M270,220 C340,220 340,330 410,330"/>
-          <!-- 二级 → 三级 -->
-          <path class="edge" d="M540,118 C580,118 570,118 600,118"/>
-          <path class="edge" d="M540,220 C580,220 570,220 600,220"/>
-          <rect class="node root" x="150" y="196" width="120" height="48" rx="9"/>
-          <text x="175" y="225">产品方案</text>
-          <rect class="node" x="410" y="96" width="130" height="44" rx="9"/>
-          <text x="432" y="123">功能设计</text>
-          <rect class="node" x="410" y="198" width="130" height="44" rx="9"/>
-          <text x="432" y="225">里程碑</text>
-          <rect class="node" x="410" y="308" width="130" height="44" rx="9"/>
-          <text x="432" y="335">风险清单</text>
-          <rect class="node" x="600" y="96" width="110" height="44" rx="9"/>
-          <text x="622" y="123">脑图视图</text>
-          <rect class="node" x="600" y="198" width="110" height="44" rx="9"/>
-          <text x="618" y="225">v1.0 内测</text>
-        </svg></div></main>
-<dialog id="about"><header><b data-key="AboutWindowTitle"></b><button id="about-close">×</button></header><section><h2 data-key="AppName"></h2><p data-key="AboutDescription"></p><dl><dt data-key="AboutVersion"></dt><dd>12.1.0.11</dd><dt data-key="AboutPlatform"></dt><dd>.NET 10 · Avalonia 12 · Windows x64</dd><dt data-key="AboutCompileTime"></dt><dd>2026-10-15 12:00:00</dd><dt data-key="AboutAuthor"></dt><dd data-key="AboutAuthorName"></dd><dt data-key="AboutContact"></dt><dd><a href="https://codewf.com">https://codewf.com</a></dd><dt data-key="AboutRepository"></dt><dd><a href="https://github.com/dotnet9/Zhijian">https://github.com/dotnet9/Zhijian</a></dd><dt data-key="AboutMindViewPackage"></dt><dd><a href="https://www.nuget.org/packages/CodeWF.Avalonia.MindView">CodeWF.Avalonia.MindView</a></dd><dt data-key="AboutCopyright"></dt><dd>Copyright © CodeWF · https://codewf.com</dd></dl><div class="update"><p id="update-status"></p><progress id="progress" max="100" value="0" hidden></progress><div class="actions"><button id="update-action"></button><button id="update-cancel" data-key="AboutCancel" hidden></button></div></div></section></dialog>
+</style></head><body>
+<main class="win"><header class="titlebar"><b data-key="AppName"></b><nav id="menubar" aria-label="Menu"></nav><details id="appearance"><summary data-key="ThemeMenu"></summary><div class="menu"><select id="mode"><option value="system" data-key="SystemTheme"></option><option value="light" data-key="LightTheme"></option><option value="dark" data-key="DarkTheme"></option></select><div id="palettes"></div></div></details><select id="language" aria-label="Language"><option value="zh-CN">简体中文</option><option value="zh-Hant">繁體中文</option><option value="en-US">English</option><option value="ja-JP">日本語</option></select><span class="spacer"></span><div class="caption" aria-label="Window controls"><button data-window="minimize" aria-label="Minimize">—</button><button data-window="maximize" aria-label="Maximize / restore">□</button><button data-window="close" aria-label="Close">×</button></div></header>
+<div class="body"><aside class="side"><div class="tabs"><button id="files-tab" data-key="FilesTab"></button><button id="outline-tab" class="on" data-key="OutlineTab"></button></div><div id="files" hidden></div><div id="outline"></div><textarea id="markdown" hidden aria-label="Markdown"></textarea><footer class="editor-tools"><span id="editor-label" data-key="OutlineTab"></span><span class="spacer"></span><button id="add" data-title="AddChild">⊞</button><button id="undo" data-title="Undo">↶</button><button id="redo" data-title="Redo">↷</button><button id="editor-mode" data-title="ToggleToMarkdown">M↓</button></footer></aside><div class="splitter" id="splitter" role="separator" tabindex="0" aria-orientation="vertical"></div><section class="main panel"><div class="tabs centered"><button class="on" data-key="MindMapTitle"></button></div><div class="canvas"><svg viewBox="0 0 900 600" role="tree" aria-label="Mind map"></svg></div></section></div>
+<footer class="status panel"><span id="status" data-key="Ready"></span><span id="node-count"></span><span class="spacer"></span><button id="center" data-title="CenterRoot">⊙</button><button id="zoom-out" data-title="ZoomOut">−</button><span id="zoom">100%</span><button id="zoom-in" data-title="ZoomIn">+</button><button id="minimap-toggle" data-title="MiniMap">▧</button></footer><div id="minimap" class="panel" hidden><svg viewBox="0 0 900 600"></svg></div></main>
+<input id="open-input" type="file" accept=".md,.markdown,.json" hidden>
+<dialog id="about"><header class="dialog-titlebar"><b data-key="AboutWindowTitle"></b><div class="caption"><button data-dialog-window="minimize" aria-label="Minimize">—</button><button data-dialog-window="maximize" aria-label="Maximize / restore">□</button><button id="about-close" aria-label="Close">×</button></div></header><section><h2 data-key="AppName"></h2><p data-key="AboutDescription"></p><dl><dt data-key="AboutVersion"></dt><dd id="about-version"></dd><dt data-key="AboutPlatform"></dt><dd>.NET 10 · Avalonia 12 · Windows / macOS / Linux</dd><dt data-key="AboutCompileTime"></dt><dd id="about-build"></dd><dt data-key="AboutAuthor"></dt><dd data-key="AboutAuthorName"></dd><dt data-key="AboutContact"></dt><dd><a href="https://codewf.com">https://codewf.com</a></dd><dt data-key="AboutRepository"></dt><dd><a href="https://github.com/dotnet9/Zhijian">https://github.com/dotnet9/Zhijian</a></dd><dt data-key="AboutMindViewPackage"></dt><dd><a href="https://www.nuget.org/packages/CodeWF.Avalonia.MindView">CodeWF.Avalonia.MindView</a></dd><dt data-key="AboutCopyright"></dt><dd id="about-copyright"></dd></dl><div class="update"><p id="update-status"></p><progress id="progress" max="100" value="0" hidden></progress><div class="actions"><button id="update-action"></button><button id="update-cancel" data-key="AboutCancel" hidden></button></div></div><p id="prototype-hint"></p></section></dialog>
 <script>
 // 由 scripts/sync_design_resources.ps1 从宿主 JSON 和固定主题数据生成。
 window.translations = {
@@ -1111,84 +1094,114 @@ window.palettes = {
 };
 
 </script><script>
-// 原型模拟编辑与更新状态，真实文件、下载和安装由桌面应用执行。
-const $ = id => document.getElementById(id);
-const media = matchMedia('(prefers-color-scheme:dark)');
+window.prototypeMetadata = {"version":"12.1.0.12","build":"2026-10-15 00:00:00","copyright":"Copyright © 沙漠尽头的狼. https://codewf.com"};
+
+</script><script>
+// 大纲、Markdown 与脑图使用同一棵树；系统窗口与安装流程仅为离线演示。
+const $ = id => document.getElementById(id), media = matchMedia('(prefers-color-scheme:dark)');
 const names = ['DotNet','Aurora','Ember','Default','Aquatic','Desert','Dusk','NightSky'];
 let culture = localStorage.getItem('culture') || 'zh-CN';
-let palette = localStorage.getItem('palette') || 'DotNet';
-let mode = localStorage.getItem('mode') || 'system';
-let state = 'idle', timer, zoom = 100, markdown = false;
+let palette = localStorage.getItem('palette') || 'DotNet', mode = localStorage.getItem('mode') || 'system';
+let state = 'idle', timer, zoom = 100, markdown = false, nextId = 1, selected, current = 0;
 const t = key => (window.translations[culture] || window.translations['en-US'])[key] || key;
-function applyTheme() {
-  const dark = mode === 'dark' || mode === 'system' && media.matches;
-  const tokens = (window.palettes[palette] || window.palettes.DotNet)[dark ? 'dark' : 'light'];
-  for (const [key,value] of Object.entries(tokens)) document.documentElement.style.setProperty('--'+key,value);
-  Object.assign(document.documentElement.dataset,{theme:dark?'dark':'light',palette,mode});
-  document.documentElement.style.colorScheme = dark?'dark':'light';
-  $('mode').value = mode;
-  document.querySelectorAll('.palette').forEach(button => button.classList.toggle('on',button.dataset.palette === palette));
-  localStorage.setItem('palette',palette);localStorage.setItem('mode',mode);
+const sampleHint = () => ({'zh-CN':'离线原型：窗口及更新为操作演示；编译时间为固定样例。','zh-Hant':'離線原型：視窗及更新為操作示範；編譯時間為固定樣例。','en-US':'Offline prototype: window and update actions are simulated; build time is a fixed sample.','ja-JP':'オフライン試作：ウィンドウと更新はデモです。ビルド日時は固定サンプルです。'}[culture]);
+const node = (text,children=[]) => ({id:String(nextId++),text,children});
+const documents = [
+  {name:'Studio.md',root:node('Studio',[node('Controls',[node('Mind map'),node('Outline')]),node('Documents',[node('Markdown'),node('OPML')]),node('Appearance',[node('Eight palettes')])]),history:[],future:[]},
+  {name:'Meeting.md',root:node('Meeting',[node('Agenda'),node('Decisions'),node('Action Items')]),history:[],future:[]}
+];
+const doc = () => documents[current], clone = value => JSON.parse(JSON.stringify(value));
+function walk(root,visit,parent=null,depth=0){visit(root,parent,depth);root.children.forEach(child=>walk(child,visit,root,depth+1));}
+function lookup(id){let found;walk(doc().root,(item,parent,depth)=>{if(item.id===id)found={item,parent,depth};});return found;}
+function snapshot(){doc().history.push({root:clone(doc().root),selected});doc().future=[];}
+function restoreHistory(redo=false){const from=redo?doc().future:doc().history,to=redo?doc().history:doc().future;if(!from.length)return;to.push({root:clone(doc().root),selected});const previous=from.pop();doc().root=previous.root;selected=previous.selected;render();}
+function serialize(root,depth=1){return '#'.repeat(Math.min(depth,6))+' '+root.text+'\n'+(root.note?root.note+'\n':'')+root.children.map(child=>serialize(child,depth+1)).join('');}
+function parseMarkdown(text){
+  const root=node(t('Untitled')),stack=[{node:root,level:0}];let hasTitle=false,inCode=false;
+  for(const line of text.split(/\r?\n/)){
+    if(/^\s*```/.test(line)){inCode=!inCode;continue;}if(inCode)continue;
+    const heading=/^(#{1,6})\s+(.+)$/.exec(line),list=/^(\s*)[-*+]\s+(.+)$/.exec(line);if(!heading&&!list){if(line.trim()){const item=stack.at(-1).node;item.note=(item.note?item.note+'\n':'')+line;}continue;}
+    const level=heading?heading[1].length:2+Math.floor(list[1].replace(/\t/g,'  ').length/2),title=(heading?heading[2]:list[2]).trim();
+    if(heading&&level===1&&!hasTitle&&root.children.length===0){root.text=title;hasTitle=true;stack[0].level=1;continue;}
+    while(stack.length>1&&stack.at(-1).level>=level)stack.pop();const child=node(title);stack.at(-1).node.children.push(child);stack.push({node:child,level});
+  }return root;
 }
-function translate() {
-  document.documentElement.lang = culture;
-  document.querySelectorAll('[data-key]').forEach(el => el.textContent = t(el.dataset.key));
-  document.querySelectorAll('[data-title]').forEach(el => el.title = t(el.dataset.title));
-  $('language').value = culture;
-  $('editor-label').textContent = markdown?'Markdown':t('OutlineTab');
-  localStorage.setItem('culture',culture);renderUpdate();
+function mutate(action){snapshot();action();if(!lookup(selected))selected=doc().root.id;render();}
+function select(id){selected=id;document.querySelectorAll('[data-node]').forEach(el=>el.classList.toggle('selected',el.dataset.node===id));}
+function addNode(sibling=false){mutate(()=>{const found=lookup(selected)||{item:doc().root},child=node(t('TopicPlaceholder'));if(sibling&&found.parent){const list=found.parent.children;list.splice(list.indexOf(found.item)+1,0,child);}else found.item.children.push(child);selected=child.id;});}
+function removeNode(){const found=lookup(selected);if(!found?.parent)return;mutate(()=>{found.parent.children.splice(found.parent.children.indexOf(found.item),1);selected=found.parent.id;});}
+function moveNode(kind){const found=lookup(selected);if(!found?.parent)return;const list=found.parent.children,index=list.indexOf(found.item);
+  if(kind==='Promote'){const grand=lookup(found.parent.id).parent;if(!grand)return;mutate(()=>{list.splice(index,1);grand.children.splice(grand.children.indexOf(found.parent)+1,0,found.item);});}
+  if(kind==='Demote'&&index>0)mutate(()=>{list.splice(index,1);list[index-1].children.push(found.item);});
+  if((kind==='MoveUp'&&index>0)||(kind==='MoveDown'&&index<list.length-1))mutate(()=>{list.splice(index,1);list.splice(index+(kind==='MoveUp'?-1:1),0,found.item);});
 }
-for (const key of names) {
-  const button = document.createElement('button');button.className='palette';button.dataset.palette=key;
-  const swatch = document.createElement('i');swatch.style.setProperty('--swatch',window.palettes[key].light.accent);
-  const label = document.createElement('span');label.dataset.key='Palette'+key;button.append(swatch,label);
-  button.onclick=()=>{palette=key;applyTheme();};$('palettes').append(button);
+function renderOutline(){
+  $('outline').replaceChildren();
+  function row(item,root=false){const wrap=document.createElement(root?'div':'li'),input=document.createElement('input');input.className='topic-input'+(root?' root-input':'');input.value=item.text;input.dataset.node=item.id;input.classList.toggle('selected',item.id===selected);input.setAttribute('aria-label',root?t('CenterTopicPlaceholder'):t('TopicPlaceholder'));input.onfocus=()=>select(item.id);input.onchange=()=>{if(input.value.trim()!==item.text)mutate(()=>item.text=input.value.trim()||t('TopicPlaceholder'));};wrap.append(input);if(item.children.length){const list=document.createElement('ul');item.children.forEach(child=>list.append(row(child)));wrap.append(list);}return wrap;}
+  $('outline').append(row(doc().root,true));
 }
-$('mode').onchange=e=>{mode=e.target.value;applyTheme();};media.onchange=applyTheme;
-$('language').onchange=e=>{culture=e.target.value;translate();};
-function setEditor() {
-  $('outline').hidden=markdown;$('files').hidden=true;$('markdown').hidden=!markdown;
-  $('files-tab').classList.remove('on');$('outline-tab').classList.add('on');translate();
+function svgElement(tag,attrs){const el=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [key,value]of Object.entries(attrs))el.setAttribute(key,value);return el;}
+function renderMap(){
+  const svg=document.querySelector('.canvas svg'),root=doc().root,positions=new Map();let leaf=0,maxDepth=0;
+  function place(item,depth=0){maxDepth=Math.max(maxDepth,depth);let y;if(item.children.length){const children=item.children.map(child=>place(child,depth+1));y=(children[0]+children.at(-1))/2;}else y=72+(leaf++)*62;positions.set(item.id,{x:55+depth*210,y,depth});return y;}
+  place(root);const height=Math.max(520,leaf*62+80),width=Math.max(800,(maxDepth+1)*210+50),offset=height/2-positions.get(root.id).y;
+  for(const p of positions.values())p.y+=offset;
+  const nodeWidth=item=>Math.min(190,Math.max(88,[...item.text].length*8.5+30));svg.replaceChildren();svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+  walk(root,(item,parent)=>{if(!parent)return;const a=positions.get(parent.id),b=positions.get(item.id),right=a.x+nodeWidth(parent);svg.append(svgElement('path',{class:'edge',d:`M${right},${a.y} C${right+65},${a.y} ${b.x-65},${b.y} ${b.x},${b.y}`}));});
+  walk(root,item=>{const p=positions.get(item.id),group=svgElement('g',{'data-node':item.id,'data-branch':root.children.indexOf(item),class:(p.depth===0?'root-group ':'')+(item.id===selected?'selected':''),role:'treeitem',tabindex:0,'aria-label':item.text}),rect=svgElement('rect',{class:'node '+(p.depth===0?'root':p.depth===1?'branch':'leaf'),x:p.x,y:p.y-22,width:nodeWidth(item),height:44,rx:7}),text=svgElement('text',{x:p.x+13,y:p.y+5}),title=svgElement('title',{});text.textContent=item.text.length>19?item.text.slice(0,18)+'…':item.text;title.textContent=item.text;group.append(rect,text,title);group.onclick=()=>select(item.id);group.ondblclick=()=>{markdown=false;setEditor();document.querySelector(`#outline [data-node="${item.id}"]`).focus();};svg.append(group);});
+  const mini=$('minimap').querySelector('svg');mini.setAttribute('viewBox',svg.getAttribute('viewBox'));mini.innerHTML=svg.innerHTML;
 }
-$('files-tab').onclick=()=>{$('files').hidden=false;$('outline').hidden=true;$('markdown').hidden=true;$('files-tab').classList.add('on');$('outline-tab').classList.remove('on');};
-$('outline-tab').onclick=setEditor;
-$('editor-mode').onclick=()=>{markdown=!markdown;setEditor();};
-$('file-open').onclick=()=>$('files-tab').click();
-$('edit-open').onclick=setEditor;
-$('add').onclick=()=>{const li=document.createElement('li');li.textContent=t('TopicPlaceholder');$('outline').querySelector('ul').append(li);};
-$('undo').onclick=()=>{const list=$('outline').querySelector('ul');if(list.children.length>3)list.lastElementChild.remove();};
-$('markdown').oninput=e=>{
-  const title=e.target.value.split('\n').find(line=>/^# /.test(line))?.slice(2)||t('Untitled');
-  $('outline').querySelector('h3').textContent=title;
-  document.querySelectorAll('svg text:first-of-type').forEach(text=>text.textContent=title);
-};
-$('view-open').onclick=()=>{const hidden=document.querySelector('.side').hidden=!document.querySelector('.side').hidden;document.querySelector('.body').style.gridTemplateColumns=hidden?'0 0 minmax(420px,1fr)':'';};
+function renderFiles(){$('files').replaceChildren();documents.forEach((item,index)=>{const button=document.createElement('button');button.className='fileitem'+(current===index?' on':'');button.dataset.document=index;button.textContent=item.name;button.onclick=()=>{current=index;selected=doc().root.id;render();};$('files').append(button);});}
+function render(){renderFiles();renderOutline();renderMap();doc().source=serialize(doc().root);$('markdown').value=doc().source;$('undo').disabled=!doc().history.length;$('redo').disabled=!doc().future.length;let count=0;walk(doc().root,()=>count++);$('node-count').textContent=t('NodeSummary').replace('{0}',count);}
+function setEditor(){$('outline').hidden=markdown;$('files').hidden=true;$('markdown').hidden=!markdown;$('files-tab').classList.remove('on');$('outline-tab').classList.add('on');$('editor-label').textContent=markdown?'Markdown':t('OutlineTab');}
+function notify(message){$('status').removeAttribute('data-key');$('status').textContent=message;}
+function newDocument(template){const root=template?parseMarkdown(t(template+'Markdown')):node(t('Untitled'));documents.push({name:(template?t(template):t('Untitled'))+'.md',root,history:[],future:[]});current=documents.length-1;selected=root.id;render();setEditor();}
+function download(text,name,type='text/plain'){const url=URL.createObjectURL(new Blob([text],{type})),link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function xml(value){return value.replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));}
+const menuGroups=[
+ ['FileMenu','file-open',[['New'],['NewFromTemplate',[['ProductPlanTemplate'],['MeetingNotesTemplate'],['StudyNotesTemplate']]],['NewWindow'],['Open'],['Import'],['OpenFolder'],['RecentFiles',[['Studio.md'],['Meeting.md']]],['Save'],['SaveAs'],['Export',[['ExportMarkdown'],['ExportOpml'],['ExportXMind'],['ExportDrawIo']]],['OpenFileLocation'],['Close']]],
+ ['EditMenu','edit-open',[['Undo'],['Redo'],['AddSibling'],['AddChild'],['Promote'],['Demote'],['MoveUp'],['MoveDown'],['CopyAsMarkdown'],['DeleteNode']]],
+ ['ViewMenu','view-open',[['HideWorkspacePane'],['CenterRoot'],['ZoomOut'],['ZoomIn'],['ResetZoom']]],
+ ['HelpMenu','help-open',[['OpenUserManual'],['NewUserGuide'],['Feedback'],['SubmitFeature'],['SubmitPr'],['Github']]],
+ ['AboutMenu','about-menu',[['OpenWebsite'],['Changelog'],['Thanks'],['About']]]
+];
+function closeMenus(){document.querySelectorAll('#menubar details[open]').forEach(el=>el.open=false);}
+function menuItems(items){const box=document.createElement('div');box.className='menu';box.setAttribute('role','menu');for(const [key,children]of items){if(children){const sub=document.createElement('details');sub.className='submenu';const summary=document.createElement('summary');summary.textContent=t(key)+'  ›';summary.dataset.command=key;summary.setAttribute('role','menuitem');sub.append(summary,menuItems(children));box.append(sub);}else{const button=document.createElement('button');button.textContent=t(key);button.dataset.command=key;button.setAttribute('role','menuitem');if(key==='About')button.id='about-open';button.onclick=()=>{closeMenus();command(key);};box.append(button);}}return box;}
+function renderMenus(){$('menubar').replaceChildren();for(const [key,id,items]of menuGroups){const details=document.createElement('details'),summary=document.createElement('summary');summary.id=id;summary.textContent=t(key);summary.setAttribute('role','menuitem');details.append(summary,menuItems(items));details.ontoggle=()=>{if(details.open){$('appearance').open=false;document.querySelectorAll('#menubar>details').forEach(other=>{if(other!==details)other.open=false;});}};$('menubar').append(details);}}
+function command(key){
+ if(key==='Undo')return restoreHistory();if(key==='Redo')return restoreHistory(true);if(key==='AddChild')return addNode();if(key==='AddSibling')return addNode(true);if(key==='DeleteNode')return removeNode();
+ if(['Promote','Demote','MoveUp','MoveDown'].includes(key))return moveNode(key);
+ if(key==='New')return newDocument();if(key.endsWith('Template'))return newDocument(key);
+ if(['Studio.md','Meeting.md'].includes(key)){const index=documents.findIndex(item=>item.name===key);if(index>=0){current=index;selected=doc().root.id;render();}return;}
+ if(['Open','Import'].includes(key))return $('open-input').click();
+ if(['Save','SaveAs'].includes(key))return download(JSON.stringify({name:doc().name,root:doc().root},null,2),doc().name.replace(/\.md$/i,'.json'),'application/json');
+ if(key==='ExportMarkdown')return download(serialize(doc().root),doc().name,'text/markdown');
+ if(key==='ExportOpml'){const outline=item=>`<outline text="${xml(item.text)}">${item.children.map(outline).join('')}</outline>`;return download(`<?xml version="1.0" encoding="UTF-8"?><opml version="2.0"><head><title>${xml(doc().root.text)}</title></head><body>${outline(doc().root)}</body></opml>`,doc().name.replace(/\.md$/i,'.opml'),'text/xml');}
+ if(key==='CopyAsMarkdown'){const text=serialize((lookup(selected)||{item:doc().root}).item);navigator.clipboard?.writeText(text).then(()=>notify(t(key))).catch(()=>notify(text));return;}
+ if(key==='Close'){if(documents.length>1){documents.splice(current,1);current=Math.max(0,current-1);selected=doc().root.id;render();}else newDocument();return;}
+ if(key==='HideWorkspacePane'){const hidden=document.querySelector('.side').hidden=!document.querySelector('.side').hidden;document.querySelector('.body').style.gridTemplateColumns=hidden?'0 0 minmax(420px,1fr)':'';return;}
+ if(['CenterRoot','ResetZoom'].includes(key))return setZoom(100);if(key==='ZoomIn')return setZoom(zoom+10);if(key==='ZoomOut')return setZoom(zoom-10);
+ if(key==='About')return $('about').showModal();notify(t(key)+' · '+sampleHint());
+}
+function applyTheme(){const dark=mode==='dark'||mode==='system'&&media.matches,tokens=(window.palettes[palette]||window.palettes.DotNet)[dark?'dark':'light'];for(const [key,value]of Object.entries(tokens))document.documentElement.style.setProperty('--'+key,value);Object.assign(document.documentElement.dataset,{theme:dark?'dark':'light',palette,mode});document.documentElement.style.colorScheme=dark?'dark':'light';$('mode').value=mode;document.querySelectorAll('.palette').forEach(button=>button.classList.toggle('on',button.dataset.palette===palette));localStorage.setItem('palette',palette);localStorage.setItem('mode',mode);}
+function translate(){document.documentElement.lang=culture;document.querySelectorAll('[data-key]').forEach(el=>el.textContent=t(el.dataset.key));document.querySelectorAll('[data-title]').forEach(el=>el.title=t(el.dataset.title));$('language').value=culture;$('editor-label').textContent=markdown?'Markdown':t('OutlineTab');$('prototype-hint').textContent=sampleHint();localStorage.setItem('culture',culture);renderMenus();renderUpdate();render();}
+for(const key of names){const button=document.createElement('button');button.className='palette';button.dataset.palette=key;const swatch=document.createElement('i');swatch.style.setProperty('--swatch',window.palettes[key].light.accent);const label=document.createElement('span');label.dataset.key='Palette'+key;button.append(swatch,label);button.onclick=()=>{palette=key;applyTheme();};$('palettes').append(button);}
+$('appearance').ontoggle=()=>{if($('appearance').open)closeMenus();};$('mode').onchange=e=>{mode=e.target.value;applyTheme();};media.onchange=applyTheme;$('language').onchange=e=>{culture=e.target.value;translate();};
+$('files-tab').onclick=()=>{$('files').hidden=false;$('outline').hidden=true;$('markdown').hidden=true;$('files-tab').classList.add('on');$('outline-tab').classList.remove('on');};$('outline-tab').onclick=setEditor;$('editor-mode').onclick=()=>{markdown=!markdown;setEditor();};$('add').onclick=()=>addNode();$('undo').onclick=()=>restoreHistory();$('redo').onclick=()=>restoreHistory(true);
+$('markdown').oninput=e=>{if(e.target.value===doc().source)return;snapshot();doc().source=e.target.value;doc().root=parseMarkdown(e.target.value);selected=doc().root.id;renderOutline();renderMap();$('undo').disabled=false;let count=0;walk(doc().root,()=>count++);$('node-count').textContent=t('NodeSummary').replace('{0}',count);};
+$('open-input').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const text=await file.text();let root;if(file.name.endsWith('.json')){const data=JSON.parse(text);const normalize=item=>{if(!item||typeof item.text!=='string'||!Array.isArray(item.children))throw Error('Invalid tree');return {...node(item.text,item.children.map(normalize)),note:typeof item.note==='string'?item.note:undefined};};root=normalize(data.root);}else root=parseMarkdown(text);documents.push({name:file.name,root,history:[],future:[]});current=documents.length-1;selected=root.id;render();setEditor();notify(t('StatusOpened').replace('{0}',file.name));}catch(error){notify(error.message);}e.target.value='';};
 function setZoom(value){zoom=Math.max(50,Math.min(180,value));$('zoom').textContent=zoom+'%';document.querySelector('.canvas svg').style.transform=`scale(${zoom/100})`;}
-$('zoom-out').onclick=()=>setZoom(zoom-10);$('zoom-in').onclick=()=>setZoom(zoom+10);$('center').onclick=()=>setZoom(100);
-$('minimap-toggle').onclick=()=>{$('minimap').hidden=!$('minimap').hidden;};
-$('splitter').onpointerdown=e=>{
-  const start=e.clientX,width=document.querySelector('.side').getBoundingClientRect().width;
-  e.target.setPointerCapture(e.pointerId);
-  e.target.onpointermove=move=>{document.querySelector('.body').style.gridTemplateColumns=Math.max(280,Math.min(560,width+move.clientX-start))+'px 14px minmax(420px,1fr)';};
-  e.target.onpointerup=()=>{e.target.onpointermove=null;};
-};
-function renderUpdate() {
-  const action={idle:'UpdateCheck',current:'UpdateCheck',checking:'UpdateCheck',available:'UpdateDownload',downloading:'UpdateDownload',downloaded:'UpdateInstall',failed:'AboutRecheck',canceled:'AboutRecheck',manual:'UpdateReleasePage',installed:'UpdateReleasePage'};
-  const status={idle:'AboutUpdateDescription',current:'AboutCurrent',checking:'AboutChecking',available:'AboutAvailable',downloading:'AboutDownloading',downloaded:'AboutDownloaded',failed:'AboutFailed',canceled:'AboutCanceled',manual:'UpdateReleasePage',installed:'UpdateReleasePage'};
-  $('update-action').textContent=t(action[state]);$('update-status').textContent=t(status[state]).replace(/\{0\}/g,state==='available'?'99.0.0':'offline');
-  const busy=['checking','downloading'].includes(state);$('update-action').disabled=busy;$('update-cancel').hidden=!busy;$('progress').hidden=state!=='downloading';
-  $('about').dataset.state=state;
-}
-$('about-open').onclick=()=>$('about').showModal();
-$('about-close').onclick=()=>{clearTimeout(timer);if(['checking','downloading'].includes(state))state='canceled';$('about').close();};
-$('update-action').onclick=()=>{
-  if(['idle','current','failed','canceled'].includes(state)){
-    state='checking';renderUpdate();timer=setTimeout(()=>{const scenario=new URLSearchParams(location.search).get('update');state=scenario==='latest'?'current':scenario==='offline'?'failed':scenario==='noasset'?'manual':'available';renderUpdate();},220);
-  } else if(state==='available'){
-    state='downloading';$('progress').value=0;renderUpdate();timer=setTimeout(()=>{$('progress').value=100;state='downloaded';renderUpdate();},300);
-  } else if(state==='downloaded'){state='installed';renderUpdate();}
-};
-$('update-cancel').onclick=()=>{clearTimeout(timer);state='canceled';renderUpdate();};
-translate();applyTheme();
+$('zoom-out').onclick=()=>setZoom(zoom-10);$('zoom-in').onclick=()=>setZoom(zoom+10);$('center').onclick=()=>setZoom(100);$('minimap-toggle').onclick=()=>{$('minimap').hidden=!$('minimap').hidden;};
+$('splitter').onpointerdown=e=>{const start=e.clientX,width=document.querySelector('.side').getBoundingClientRect().width;e.target.setPointerCapture(e.pointerId);e.target.onpointermove=move=>{document.querySelector('.body').style.gridTemplateColumns=Math.max(280,Math.min(560,width+move.clientX-start))+'px 14px minmax(420px,1fr)';};e.target.onpointerup=()=>{e.target.onpointermove=null;};};
+document.querySelectorAll('[data-window]').forEach(button=>button.onclick=()=>{if(button.dataset.window==='maximize')document.querySelector('.win').classList.toggle('maximized');else notify(sampleHint());});
+document.querySelectorAll('[data-dialog-window]').forEach(button=>button.onclick=()=>{if(button.dataset.dialogWindow==='maximize')$('about').classList.toggle('maximized');else notify(sampleHint());});
+document.addEventListener('click',e=>{if(!e.target.closest('#menubar'))closeMenus();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenus();$('appearance').open=false;}if(e.target.closest('[role="menu"]')){const items=[...e.target.closest('[role="menu"]').querySelectorAll(':scope>button,:scope>.submenu>summary')],i=items.indexOf(document.activeElement);if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();items[(i+(e.key==='ArrowDown'?1:items.length-1))%items.length]?.focus();}if(e.key==='ArrowRight'&&e.target.matches('summary')){e.preventDefault();e.target.parentElement.open=true;e.target.parentElement.querySelector('button')?.focus();}if(e.key==='ArrowLeft'){const parent=e.target.closest('.submenu');if(parent){e.preventDefault();parent.open=false;parent.querySelector('summary').focus();}}return;}if(e.target.closest('textarea,input,select'))return;if(e.ctrlKey||e.metaKey){if(e.key.toLowerCase()==='z'){e.preventDefault();restoreHistory(e.shiftKey);}return;}if(e.key==='Enter'){e.preventDefault();addNode(true);}if(e.key==='Tab'&&e.target.closest('.canvas')){e.preventDefault();addNode();}if(e.key==='Delete'){e.preventDefault();removeNode();}});
+function renderUpdate(){const action={idle:'UpdateCheck',current:'UpdateCheck',checking:'UpdateCheck',available:'UpdateDownload',downloading:'UpdateDownload',downloaded:'UpdateInstall',failed:'AboutRecheck',canceled:'AboutRecheck',manual:'UpdateReleasePage',installed:'UpdateReleasePage'},status={idle:'AboutUpdateDescription',current:'AboutCurrent',checking:'AboutChecking',available:'AboutAvailable',downloading:'AboutDownloading',downloaded:'AboutDownloaded',failed:'AboutFailed',canceled:'AboutCanceled',manual:'UpdateReleasePage',installed:'UpdateReleasePage'};$('update-action').textContent=t(action[state]);$('update-status').textContent=t(status[state]).replace(/\{0\}/g,state==='available'?'99.0.0':'offline');const busy=['checking','downloading'].includes(state);$('update-action').disabled=busy;$('update-cancel').hidden=!busy;$('progress').hidden=state!=='downloading';$('about').dataset.state=state;}
+$('about-close').onclick=()=>{clearTimeout(timer);if(['checking','downloading'].includes(state))state='canceled';renderUpdate();$('about').close();};
+$('update-action').onclick=()=>{if(['idle','current','failed','canceled'].includes(state)){state='checking';renderUpdate();timer=setTimeout(()=>{const scenario=new URLSearchParams(location.search).get('update');state=scenario==='latest'?'current':scenario==='offline'?'failed':scenario==='noasset'?'manual':'available';renderUpdate();},220);}else if(state==='available'){state='downloading';$('progress').value=0;renderUpdate();timer=setTimeout(()=>{$('progress').value=100;state='downloaded';renderUpdate();},300);}else if(state==='downloaded'){state='installed';renderUpdate();}};
+$('update-cancel').onclick=()=>{clearTimeout(timer);state='canceled';renderUpdate();};$('about').addEventListener('cancel',()=>{clearTimeout(timer);if(['checking','downloading'].includes(state))state='canceled';renderUpdate();});
+$('about-version').textContent=window.prototypeMetadata.version;$('about-build').textContent=window.prototypeMetadata.build;$('about-copyright').textContent=window.prototypeMetadata.copyright;
+selected=doc().root.id;translate();applyTheme();
 
 </script></body></html>

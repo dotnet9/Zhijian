@@ -6,6 +6,12 @@ $sourceRoot = Join-Path $PSScriptRoot 'prototype'
 $template = Join-Path $sourceRoot 'index.template.html'
 $output = Join-Path $repositoryRoot 'design/index.html'
 $designRoot = Join-Path $repositoryRoot 'design'
+[xml] $buildProperties = Get-Content (Join-Path $repositoryRoot 'Directory.Build.props') -Raw
+$prototypeMetadata = [ordered]@{
+    version = [string] $buildProperties.Project.PropertyGroup.Version
+    build = '2026-10-15 00:00:00'
+    copyright = [string] $buildProperties.Project.PropertyGroup.Copyright
+}
 
 function Resolve-PrototypeAsset([string] $Reference, [string] $BaseDirectory) {
     if ($Reference -match '^(https?:|//)') { throw "原型运行资源不能依赖网络：$Reference" }
@@ -53,6 +59,7 @@ $html = [regex]::Replace($html, '<script\b[^>]*\bsrc\s*=\s*["''](?<path>[^"'']+)
     param($match)
     $file = Resolve-PrototypeAsset $match.Groups['path'].Value $sourceRoot
     $javascript = [IO.File]::ReadAllText($file) -replace '(?i)</script', '<\/script'
+    $javascript = $javascript.Replace('/*__ZHIJIAN_METADATA__*/', 'window.prototypeMetadata = ' + (ConvertTo-Json $prototypeMetadata -Compress) + ';')
     return "<script>`n" + $javascript + "`n</script>"
 })
 # 静态 HTML 和脚本中引用的本地图片一并内嵌；动态模板和已有 data URI 保持原样。

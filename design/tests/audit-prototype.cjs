@@ -43,7 +43,7 @@ const { chromium } = require('playwright');
     await page.locator('#editor-mode').click();assert.equal(await page.locator('#outline').isVisible(),true);
     await page.locator('#minimap-toggle').click();assert.equal(await page.locator('#minimap').isVisible(),true);
     for(const scenario of ['new','latest','offline','noasset']){
-      await page.goto(url+'?update='+scenario);await page.locator('#about-open').click();await page.locator('#update-action').click();
+      await page.goto(url+'?update='+scenario);await page.locator('#about-menu').click();await page.locator('#about-open').click();await page.locator('#update-action').click();
       await page.waitForFunction(()=>document.querySelector('#about').dataset.state!=='checking');
       const expected={new:'available',latest:'current',offline:'failed',noasset:'manual'}[scenario];
       assert.equal(await page.locator('#about').getAttribute('data-state'),expected);

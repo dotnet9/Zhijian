@@ -1,52 +1,7 @@
-﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>枝见 · 界面原型</title><link rel="stylesheet" href="assets/studio.css"></head><body>
-<main class="win"><header class="titlebar"><b data-key="AppName"></b><button data-key="FileMenu" id="file-open"></button><button data-key="EditMenu" id="edit-open"></button><button data-key="ViewMenu" id="view-open"></button><details id="appearance"><summary data-key="ThemeMenu"></summary><div class="menu"><select id="mode"><option value="system" data-key="SystemTheme"></option><option value="light" data-key="LightTheme"></option><option value="dark" data-key="DarkTheme"></option></select><div id="palettes"></div></div></details><select id="language"><option value="zh-CN">简体中文</option><option value="zh-Hant">繁體中文</option><option value="en-US">English</option><option value="ja-JP">日本語</option></select><button data-key="About" id="about-open"></button><span class="spacer"></span><span class="caption">—　□　×</span></header>
-<div class="body"><aside class="side"><div class="tabs"><button id="files-tab" data-key="FilesTab"></button><button id="outline-tab" class="on" data-key="OutlineTab"></button></div><div id="files" hidden><button class="fileitem on">Studio.md</button><button class="fileitem">Meeting.md</button></div><div id="outline"><h3>产品方案</h3><ul><li>功能设计<ul><li>脑图视图</li></ul></li><li>里程碑<ul><li>v1.0 内测</li></ul></li><li>风险清单</li></ul></div><textarea id="markdown" hidden aria-label="Markdown"># 产品方案
-
-## 功能设计
-### 脑图视图
-## 里程碑
-### v1.0 内测
-## 风险清单</textarea><footer class="editor-tools"><span id="editor-label" data-key="OutlineTab"></span><span class="spacer"></span><button id="add" data-title="AddChild">⊞</button><button id="undo" data-title="Undo">↶</button><button id="editor-mode" data-title="ToggleToMarkdown">M↓</button></footer></aside><div class="splitter" id="splitter" role="separator" tabindex="0" aria-orientation="vertical"></div><section class="main panel"><div class="tabs centered"><button class="on" data-key="MindMapTitle"></button></div><div class="canvas"><svg viewBox="0 0 800 440">
-          <!-- 一级 → 二级 -->
-          <path class="edge" d="M270,220 C340,220 340,120 410,120"/>
-          <path class="edge" d="M270,220 C340,220 340,220 410,220"/>
-          <path class="edge" d="M270,220 C340,220 340,330 410,330"/>
-          <!-- 二级 → 三级 -->
-          <path class="edge" d="M540,118 C580,118 570,118 600,118"/>
-          <path class="edge" d="M540,220 C580,220 570,220 600,220"/>
-          <rect class="node root" x="150" y="196" width="120" height="48" rx="9"/>
-          <text x="175" y="225">产品方案</text>
-          <rect class="node" x="410" y="96" width="130" height="44" rx="9"/>
-          <text x="432" y="123">功能设计</text>
-          <rect class="node" x="410" y="198" width="130" height="44" rx="9"/>
-          <text x="432" y="225">里程碑</text>
-          <rect class="node" x="410" y="308" width="130" height="44" rx="9"/>
-          <text x="432" y="335">风险清单</text>
-          <rect class="node" x="600" y="96" width="110" height="44" rx="9"/>
-          <text x="622" y="123">脑图视图</text>
-          <rect class="node" x="600" y="198" width="110" height="44" rx="9"/>
-          <text x="618" y="225">v1.0 内测</text>
-        </svg></div></section></div>
-<footer class="status panel"><span data-key="Ready"></span><span class="spacer"></span><button id="center" data-title="CenterRoot">⊙</button><button id="zoom-out" data-title="ZoomOut">−</button><span id="zoom">100%</span><button id="zoom-in" data-title="ZoomIn">+</button><button id="minimap-toggle" data-title="MiniMap">▧</button></footer><div id="minimap" class="panel" hidden><svg viewBox="0 0 800 440">
-          <!-- 一级 → 二级 -->
-          <path class="edge" d="M270,220 C340,220 340,120 410,120"/>
-          <path class="edge" d="M270,220 C340,220 340,220 410,220"/>
-          <path class="edge" d="M270,220 C340,220 340,330 410,330"/>
-          <!-- 二级 → 三级 -->
-          <path class="edge" d="M540,118 C580,118 570,118 600,118"/>
-          <path class="edge" d="M540,220 C580,220 570,220 600,220"/>
-          <rect class="node root" x="150" y="196" width="120" height="48" rx="9"/>
-          <text x="175" y="225">产品方案</text>
-          <rect class="node" x="410" y="96" width="130" height="44" rx="9"/>
-          <text x="432" y="123">功能设计</text>
-          <rect class="node" x="410" y="198" width="130" height="44" rx="9"/>
-          <text x="432" y="225">里程碑</text>
-          <rect class="node" x="410" y="308" width="130" height="44" rx="9"/>
-          <text x="432" y="335">风险清单</text>
-          <rect class="node" x="600" y="96" width="110" height="44" rx="9"/>
-          <text x="622" y="123">脑图视图</text>
-          <rect class="node" x="600" y="198" width="110" height="44" rx="9"/>
-          <text x="618" y="225">v1.0 内测</text>
-        </svg></div></main>
-<dialog id="about"><header><b data-key="AboutWindowTitle"></b><button id="about-close">×</button></header><section><h2 data-key="AppName"></h2><p data-key="AboutDescription"></p><dl><dt data-key="AboutVersion"></dt><dd>12.1.0.11</dd><dt data-key="AboutPlatform"></dt><dd>.NET 10 · Avalonia 12 · Windows x64</dd><dt data-key="AboutCompileTime"></dt><dd>2026-10-15 12:00:00</dd><dt data-key="AboutAuthor"></dt><dd data-key="AboutAuthorName"></dd><dt data-key="AboutContact"></dt><dd><a href="https://codewf.com">https://codewf.com</a></dd><dt data-key="AboutRepository"></dt><dd><a href="https://github.com/dotnet9/Zhijian">https://github.com/dotnet9/Zhijian</a></dd><dt data-key="AboutMindViewPackage"></dt><dd><a href="https://www.nuget.org/packages/CodeWF.Avalonia.MindView">CodeWF.Avalonia.MindView</a></dd><dt data-key="AboutCopyright"></dt><dd>Copyright © CodeWF · https://codewf.com</dd></dl><div class="update"><p id="update-status"></p><progress id="progress" max="100" value="0" hidden></progress><div class="actions"><button id="update-action"></button><button id="update-cancel" data-key="AboutCancel" hidden></button></div></div></section></dialog>
-<script src="assets/resources.js"></script><script src="assets/studio.js"></script></body></html>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>枝见 · 桌面界面原型</title><link rel="stylesheet" href="assets/studio.css"></head><body>
+<main class="win"><header class="titlebar"><b data-key="AppName"></b><nav id="menubar" aria-label="Menu"></nav><details id="appearance"><summary data-key="ThemeMenu"></summary><div class="menu"><select id="mode"><option value="system" data-key="SystemTheme"></option><option value="light" data-key="LightTheme"></option><option value="dark" data-key="DarkTheme"></option></select><div id="palettes"></div></div></details><select id="language" aria-label="Language"><option value="zh-CN">简体中文</option><option value="zh-Hant">繁體中文</option><option value="en-US">English</option><option value="ja-JP">日本語</option></select><span class="spacer"></span><div class="caption" aria-label="Window controls"><button data-window="minimize" aria-label="Minimize">—</button><button data-window="maximize" aria-label="Maximize / restore">□</button><button data-window="close" aria-label="Close">×</button></div></header>
+<div class="body"><aside class="side"><div class="tabs"><button id="files-tab" data-key="FilesTab"></button><button id="outline-tab" class="on" data-key="OutlineTab"></button></div><div id="files" hidden></div><div id="outline"></div><textarea id="markdown" hidden aria-label="Markdown"></textarea><footer class="editor-tools"><span id="editor-label" data-key="OutlineTab"></span><span class="spacer"></span><button id="add" data-title="AddChild">⊞</button><button id="undo" data-title="Undo">↶</button><button id="redo" data-title="Redo">↷</button><button id="editor-mode" data-title="ToggleToMarkdown">M↓</button></footer></aside><div class="splitter" id="splitter" role="separator" tabindex="0" aria-orientation="vertical"></div><section class="main panel"><div class="tabs centered"><button class="on" data-key="MindMapTitle"></button></div><div class="canvas"><svg viewBox="0 0 900 600" role="tree" aria-label="Mind map"></svg></div></section></div>
+<footer class="status panel"><span id="status" data-key="Ready"></span><span id="node-count"></span><span class="spacer"></span><button id="center" data-title="CenterRoot">⊙</button><button id="zoom-out" data-title="ZoomOut">−</button><span id="zoom">100%</span><button id="zoom-in" data-title="ZoomIn">+</button><button id="minimap-toggle" data-title="MiniMap">▧</button></footer><div id="minimap" class="panel" hidden><svg viewBox="0 0 900 600"></svg></div></main>
+<input id="open-input" type="file" accept=".md,.markdown,.json" hidden>
+<dialog id="about"><header class="dialog-titlebar"><b data-key="AboutWindowTitle"></b><div class="caption"><button data-dialog-window="minimize" aria-label="Minimize">—</button><button data-dialog-window="maximize" aria-label="Maximize / restore">□</button><button id="about-close" aria-label="Close">×</button></div></header><section><h2 data-key="AppName"></h2><p data-key="AboutDescription"></p><dl><dt data-key="AboutVersion"></dt><dd id="about-version"></dd><dt data-key="AboutPlatform"></dt><dd>.NET 10 · Avalonia 12 · Windows / macOS / Linux</dd><dt data-key="AboutCompileTime"></dt><dd id="about-build"></dd><dt data-key="AboutAuthor"></dt><dd data-key="AboutAuthorName"></dd><dt data-key="AboutContact"></dt><dd><a href="https://codewf.com">https://codewf.com</a></dd><dt data-key="AboutRepository"></dt><dd><a href="https://github.com/dotnet9/Zhijian">https://github.com/dotnet9/Zhijian</a></dd><dt data-key="AboutMindViewPackage"></dt><dd><a href="https://www.nuget.org/packages/CodeWF.Avalonia.MindView">CodeWF.Avalonia.MindView</a></dd><dt data-key="AboutCopyright"></dt><dd id="about-copyright"></dd></dl><div class="update"><p id="update-status"></p><progress id="progress" max="100" value="0" hidden></progress><div class="actions"><button id="update-action"></button><button id="update-cancel" data-key="AboutCancel" hidden></button></div></div><p id="prototype-hint"></p></section></dialog>
+<script src="assets/resources.js"></script><script src="assets/metadata.js"></script><script src="assets/studio.js"></script></body></html>

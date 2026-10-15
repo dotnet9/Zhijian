@@ -1,6 +1,6 @@
 {
   "name": "zhijian-prototype-tests",
   "private": true,
-  "scripts": { "test": "node audit-prototype.cjs" },
+  "scripts": { "test": "node audit-prototype.cjs && node audit-shared-model.cjs" },
   "devDependencies": { "playwright": "1.62.1" }
 }
