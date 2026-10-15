@@ -1,4 +1,4 @@
-﻿name: release
+name: release
 
 # 推送 v* 标签发布 Zhijian 桌面安装包（与 publish-nuget 同标签触发）：
 # win-x64 用 Inno Setup 生成 setup.exe，linux-x64 生成 deb，macOS 生成 dmg。
@@ -45,7 +45,7 @@ jobs:
           - rid: linux-arm64
             os: ubuntu-24.04-arm
           - rid: osx-x64
-            os: macos-14
+            os: macos-15-intel
           - rid: osx-arm64
             os: macos-14
     runs-on: ${{ matrix.os }}
@@ -131,6 +131,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Path artifacts/release -Force | Out-Null
           Copy-Item -Path "artifacts/macos/*.dmg" -Destination artifacts/release/ -Force
+          Copy-Item -Path "artifacts/macos/*.sha256" -Destination artifacts/release/ -Force
           Get-ChildItem artifacts/release | ForEach-Object { Write-Host $_.Name }
 
       - name: 上传构建产物
@@ -168,6 +169,10 @@ jobs:
           }
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "tag_name=$tagName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: 校验五平台安装包与 SHA-256
+        shell: pwsh
+        run: ./scripts/verify_release_installers.ps1 -Version '${{ steps.version.outputs.version }}'
 
       - name: 准备发布说明
         shell: pwsh
@@ -228,5 +233,4 @@ jobs:
             artifacts/release/*.exe
             artifacts/release/*.deb
             artifacts/release/*.dmg
-            artifacts/release/*.zip
             artifacts/release/*.sha256

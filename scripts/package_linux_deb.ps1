@@ -37,30 +37,40 @@ $stageRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("Zhijian-deb-" + [Guid
 $appPath = Join-Path $stageRoot "usr/lib/zhijian"
 $binPath = Join-Path $stageRoot "usr/bin"
 $desktopPath = Join-Path $stageRoot "usr/share/applications"
+$iconPath = Join-Path $stageRoot 'usr/share/pixmaps'
 $controlPath = Join-Path $stageRoot "DEBIAN"
 
 if ((Test-Path -LiteralPath $packagePath) -and -not $Force) {
     throw "Artifact already exists: $packagePath (use -Force to overwrite)."
 }
 New-Item -ItemType Directory -Path $outputPath -Force | Out-Null
-New-Item -ItemType Directory -Path $appPath, $binPath, $desktopPath, $controlPath -Force | Out-Null
+New-Item -ItemType Directory -Path $appPath, $binPath, $desktopPath, $iconPath, $controlPath -Force | Out-Null
 
 try {
-    Get-ChildItem -LiteralPath $sourcePath -Force | ForEach-Object {
-        Copy-Item -LiteralPath $_.FullName -Destination $appPath -Recurse -Force
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot 'logo.png') -Destination (Join-Path $iconPath 'zhijian.png')
+    # 调试符号不进入安装器，保留宿主语言资源和运行依赖。
+    Get-ChildItem -LiteralPath $sourcePath -Recurse -File -Force | ForEach-Object {
+        $relative = [IO.Path]::GetRelativePath($sourcePath, $_.FullName)
+        if ($_.Extension -in '.pdb', '.dbg' -or $relative -match '(^|[\\/])[^\\/]+\.dSYM([\\/]|$)') { return }
+        $destination = Join-Path $appPath $relative
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
     }
 
     $executable = Join-Path $appPath "Zhijian"
     if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
         throw "Published executable was not produced: $executable"
     }
-    & chmod +x $executable
+    if ($IsLinux) {
+        & chmod 755 $executable
+        if ($LASTEXITCODE -ne 0) { throw '无法设置程序启动权限。' }
+    }
 
-    @(
-        "#!/bin/sh",
-        'exec /usr/lib/zhijian/Zhijian "$@"'
-    ) | Set-Content -LiteralPath (Join-Path $binPath "zhijian") -Encoding ascii
-    & chmod +x (Join-Path $binPath "zhijian")
+    [IO.File]::WriteAllText((Join-Path $binPath 'zhijian'), "#!/bin/sh`n" + 'exec /usr/lib/zhijian/Zhijian "$@"' + "`n")
+    if ($IsLinux) {
+        & chmod 755 (Join-Path $binPath 'zhijian')
+        if ($LASTEXITCODE -ne 0) { throw '无法设置启动入口权限。' }
+    }
 
     @(
         "[Desktop Entry]",
@@ -68,22 +78,29 @@ try {
         "Name=Zhijian",
         "Comment=Zhijian mind mapping application",
         "Exec=zhijian",
+        "Icon=zhijian",
         "Terminal=false",
         "Categories=Office;ProjectManagement;"
     ) | Set-Content -LiteralPath (Join-Path $desktopPath "zhijian.desktop") -Encoding ascii
 
+    $installedSize = [Math]::Ceiling(((Get-ChildItem -LiteralPath (Join-Path $stageRoot 'usr') -Recurse -File | Measure-Object Length -Sum).Sum) / 1KB)
     @(
         "Package: zhijian",
         "Version: $cleanVersion",
         "Section: utils",
         "Priority: optional",
         "Architecture: $architecture",
+        "Installed-Size: $installedSize",
         "Maintainer: Dotnet9 <1012434131@qq.com>",
         "Depends: libc6, libx11-6, libxrandr2, libxrender1, libxi6, libfontconfig1, libfreetype6, libglib2.0-0",
         "Description: Zhijian mind mapping application",
         " A cross-platform mind mapping desktop application built with Avalonia."
     ) | Set-Content -LiteralPath (Join-Path $controlPath "control") -Encoding ascii
 
+    if ($IsLinux) {
+        & chmod 644 (Join-Path $controlPath 'control')
+        if ($LASTEXITCODE -ne 0) { throw '无法设置 DEB 元数据权限。' }
+    }
     if (Test-Path -LiteralPath $packagePath) {
         Remove-Item -LiteralPath $packagePath -Force
     }
@@ -92,6 +109,7 @@ try {
         throw "dpkg-deb failed with exit code $LASTEXITCODE."
     }
 
+    if (-not (Test-Path -LiteralPath $packagePath -PathType Leaf)) { throw "安装包未生成：$packagePath" }
     $sha = (Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash.ToLowerInvariant()
     "$sha  $packageName" | Set-Content -LiteralPath "$packagePath.sha256" -Encoding ascii
     Write-Host "Package: $packagePath"
