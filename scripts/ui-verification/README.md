@@ -1,4 +1,4 @@
-# Zhijian 离屏回归验证
+﻿# Zhijian 离屏回归验证
 
 加载实际 App、主窗口和 NuGet 脑图控件，通过 Avalonia.Headless 与 Skia 验证，不操作桌面。用户数据隔离到指定输出目录。
 
@@ -13,4 +13,4 @@ if ($LASTEXITCODE -ne 0) { throw 'Zhijian UI verification failed' }
 
 Windows 发布验收必须运行 `scripts/publish.ps1 -RuntimeIdentifier win-x64`，再启动 `artifacts/publish/win-x64/Zhijian/Zhijian.exe`。发布时保留 portable 编译符号以完成 Avalonia XAML 编译，最终发布件不带 PDB。离屏回归不能替代实际窗口、NativeAOT、IME 和多 DPI 验证。
 
-2026-10-15 验证记录：使用仅含 nuget.org 的仓库外配置及独立缓存恢复 CodeWF.Avalonia 12.1.4.15，以上回归全部通过；解析后的依赖图不含 AtomUI。Windows x64 本地脚本发布完成，原生 EXE 已启动并保持主窗口响应，PE 的 CLR 目录为空。构建仍有依赖库的裁剪 / AOT 分析警告；真实键鼠操作、中文输入法、多 DPI 和其他系统尚未完成验收。
+2026-10-15 复核：CodeWF.Avalonia 12.1.4.18 正式依赖，NativeAOT 验证器实际运行通过 139 项断言；覆盖关于窗口实际元数据、四语动态切换、八个配色菜单命令、保存 / 感谢窗口及受控更新完整状态。详见 [验收记录](../../docs/UI-VERIFICATION.md)。

@@ -1,4 +1,4 @@
-# 枝见 Zhijian
+﻿# 枝见 Zhijian
 
 枝见是一个基于 C# 和 Avalonia 的本地 Markdown-first 脑图编辑器。它把大纲、Markdown 文本和图形脑图绑定到同一份文档模型上，适合写文章提纲、梳理功能设计和整理项目结构。
 
@@ -18,7 +18,7 @@
 
 ## 仓库规范
 
-- 当前版本：`12.1.0.9`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
+- 当前版本：`12.1.0.10`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
 - `CodeWF.Avalonia.MindView` 库统一目标 `net10.0`；桌面应用、测试与内部应用项目统一使用 `net10.0` / `net10.0-windows`。
 - 根目录 `logo.svg`、`logo.png`、`logo.ico` 是唯一图标源，子工程只通过 MSBuild `Link` 引用，不维护图标副本。
 - 运行时帮助、Markdown 示例、内置备忘录、设计说明等业务文档按功能保留；仓库级入口文档使用根目录 `README.md` 和 `UpdateLog.md`。
@@ -244,3 +244,9 @@ git push origin v12.1.0.5
 ## 发布
 
 标准发布流程与发布说明规范见 [docs/RELEASE.md](docs/RELEASE.md)。
+
+## 原生界面复核
+
+![三态八色原生界面](docs/media/zhijian-native-palettes.gif)
+
+2026-10-15：Windows NativeAOT 发布及原生离屏验证通过，详见 [验收记录](docs/UI-VERIFICATION.md)。四语言覆盖主菜单、关于、更新、保存确认和文件选择入口。

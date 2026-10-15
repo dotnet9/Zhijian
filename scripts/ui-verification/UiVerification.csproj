@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia.Headless" />
+    <TrimmerRootDescriptor Include="../../src/Zhijian/Properties/Trimming/TrimmerRoots.xml" />
     <ProjectReference Include="../../src/Zhijian/Zhijian.csproj" />
   </ItemGroup>
 </Project>
