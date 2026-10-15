@@ -57,6 +57,8 @@ try {
     catch { $failed = $_.Exception.Message -match 'dpkg-deb' }
     if (-not $failed) { throw 'dpkg-deb 的失败未传递给发布任务。' }
     if ($global:CodeWFDebFixture.Inspections -ne 2) { throw '两个 Linux 架构的安装结构均应验证。' }
+    # 负向夹具已确认失败传播，避免 CI 把其预期退出码当作整个测试的结果。
+    $global:LASTEXITCODE = 0
     Write-Host 'PASS：Linux 双架构安装入口、图标、语言资源、符号剔除、体积、校验和与失败传播。'
 } finally {
     Remove-Item Function:/dpkg-deb
