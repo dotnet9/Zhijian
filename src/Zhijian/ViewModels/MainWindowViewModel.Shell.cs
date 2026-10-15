@@ -252,6 +252,7 @@ public partial class MainWindowViewModel : ViewModelBase, IMindMapEditorControll
         OnPropertyChanged(nameof(IsTraditionalChinese));
         OnPropertyChanged(nameof(IsEnglish));
         OnPropertyChanged(nameof(IsJapanese));
+        OnPropertyChanged(nameof(SelectedTitleBarLanguage));
     }
 
     private static string T(string key)

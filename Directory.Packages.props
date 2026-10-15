@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
@@ -6,17 +6,17 @@
   <ItemGroup>
     <PackageVersion Include="Semi.Avalonia" Version="12.1.0.1" />
     <PackageVersion Include="Irihi.Ursa.Themes.Semi" Version="2.2.0" />
-    <PackageVersion Include="CodeWF.Avalonia.Controls" Version="12.1.4.20" />
-    <PackageVersion Include="CodeWF.Avalonia.MindView" Version="12.1.4.20" />
+    <PackageVersion Include="CodeWF.Avalonia.Controls" Version="12.1.4.21" />
+    <PackageVersion Include="CodeWF.Avalonia.MindView" Version="12.1.4.21" />
     <PackageVersion Include="Avalonia" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Headless" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.4" />
     <PackageVersion Include="CodeWF.Toolkit.EventBus" Version="1.0.0.19" />
     <PackageVersion Include="CodeWF.Toolkit.Logging" Version="1.0.0.19" />
-    <PackageVersion Include="CodeWF.Avalonia.Markdown.Lite" Version="12.1.4.20" />
+    <PackageVersion Include="CodeWF.Avalonia.Markdown.Lite" Version="12.1.4.21" />
     <PackageVersion Include="CodeWF.Toolkit.Core" Version="1.0.0.19" />
-    <PackageVersion Include="CodeWF.Avalonia.Lang" Version="12.1.4.20" />
+    <PackageVersion Include="CodeWF.Avalonia.Lang" Version="12.1.4.21" />
     <PackageVersion Include="ReactiveUI.Avalonia" Version="14.7.1" />
     <PackageVersion Include="Tmds.DBus.Protocol" Version="0.95.1" />
     <PackageVersion Include="VC-LTL" Version="5.3.1" />

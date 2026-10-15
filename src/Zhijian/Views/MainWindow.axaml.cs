@@ -46,7 +46,19 @@ public partial class MainWindow : CodeWFWindow
         AddHandler(KeyDownEvent, HandleWindowKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
         DataContextChanged += (_, _) => WireViewModel(DataContext as MainWindowViewModel);
         Closing += HandleWindowClosing;
+        I18nManager.Instance.CultureChanged += HandleHostCultureChanged;
+        if (App.ThemeController is { } controller) controller.PropertyChanged += HandleHostThemeChanged;
+        Closed += (_, _) =>
+        {
+            I18nManager.Instance.CultureChanged -= HandleHostCultureChanged;
+            if (App.ThemeController is { } current) current.PropertyChanged -= HandleHostThemeChanged;
+        };
     }
+
+    private void HandleHostCultureChanged(object? sender, EventArgs args) => _viewModel?.UpdateLanguageFromHost();
+
+    private void HandleHostThemeChanged(object? sender, AvaloniaPropertyChangedEventArgs args) =>
+        _viewModel?.UpdateThemeFromHost(ActualThemeVariant == global::Avalonia.Styling.ThemeVariant.Dark || ActualThemeVariant.InheritVariant == global::Avalonia.Styling.ThemeVariant.Dark);
 
     private void SkipGuideClick(object? sender, RoutedEventArgs e) => NewUserTour.IsOpen = false;
 
@@ -64,6 +76,7 @@ public partial class MainWindow : CodeWFWindow
 
     private void ApplyTitleBarDataContext()
     {
+        if (RightContent is Control appearance) appearance.DataContext = DataContext;
         if (_titleBarLeftAddOn is not null)
         {
             _titleBarLeftAddOn.DataContext = DataContext;

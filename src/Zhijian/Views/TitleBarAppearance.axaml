@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:codewf="https://codewf.com" xmlns:u="https://irihi.tech/ursa"
+             xmlns:l="clr-namespace:Zhijian" xmlns:vm="using:Zhijian.ViewModels"
+             xmlns:lang="clr-namespace:CodeWF.Toolkit.Lang;assembly=CodeWF.Toolkit.Lang"
+             x:Class="Zhijian.Views.TitleBarAppearance" x:DataType="vm:MainWindowViewModel">
+  <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,8,0" VerticalAlignment="Center">
+    <ThemeVariantScope x:Name="TitleBarThemeScope" RequestedThemeVariant="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static codewf:StudioThemeModeConverter.Instance}}">
+      <ThemeVariantScope.Resources>
+        <TextBlock x:Key="STRING_THEME_TOGGLE_SYSTEM" Text="{codewf:I18n {x:Static l:ZhijianL.SystemTheme}}" />
+        <TextBlock x:Key="STRING_THEME_TOGGLE_LIGHT" Text="{codewf:I18n {x:Static l:ZhijianL.LightTheme}}" />
+        <TextBlock x:Key="STRING_THEME_TOGGLE_DARK" Text="{codewf:I18n {x:Static l:ZhijianL.DarkTheme}}" />
+      </ThemeVariantScope.Resources>
+      <u:ThemeToggleButton x:Name="TitleBarThemeToggle" Width="30" Height="30" IsThreeState="True" TargetScope="{Binding #TitleBarThemeScope}" ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}" />
+    </ThemeVariantScope>
+    <ListBox x:Name="TitleBarPalettes" Classes="studio-palettes" ItemsSource="{Binding TitleBarPalettes}" SelectedItem="{Binding SelectedTitleBarPalette, Mode=TwoWay}">
+      <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ListBox.ItemsPanel>
+      <ListBox.ItemTemplate><DataTemplate x:DataType="vm:TitleBarPalette"><Ellipse Width="13" Height="13" Fill="{Binding Swatch}" ToolTip.Tip="{codewf:I18n {Binding ResourceKey}}" /></DataTemplate></ListBox.ItemTemplate>
+    </ListBox>
+    <ComboBox x:Name="TitleBarLanguageSelector" Width="50" MinHeight="0" Height="30" Padding="6,0" ItemsSource="{Binding TitleBarLanguages}" SelectedItem="{Binding SelectedTitleBarLanguage, Mode=TwoWay}" HorizontalContentAlignment="Left" ToolTip.Tip="{codewf:I18n {x:Static l:ZhijianL.LanguageMenu}}">
+      <ComboBox.SelectionBoxItemTemplate><DataTemplate><PathIcon Width="16" Height="16" Data="{DynamicResource SemiIconLanguage}" /></DataTemplate></ComboBox.SelectionBoxItemTemplate>
+      <ComboBox.ItemTemplate><DataTemplate x:DataType="lang:LocalizationLanguage"><TextBlock MinWidth="120" Text="{Binding Description}" /></DataTemplate></ComboBox.ItemTemplate>
+    </ComboBox>
+  </StackPanel>
+</UserControl>

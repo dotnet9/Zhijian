@@ -17,6 +17,7 @@ using CodeWF.Toolkit.Core.UpdateChecking;
 using Avalonia.Media.Imaging;
 
 var output = Path.GetFullPath(args.FirstOrDefault() ?? "artifacts/ui-verification");
+var assertionCount = 0;
 Directory.CreateDirectory(output);
 var testData = Path.Combine(output, "userdata"); Directory.CreateDirectory(testData);
 var processName = Path.GetFileNameWithoutExtension(Environment.ProcessPath);
@@ -37,6 +38,7 @@ AppBuilder.Configure<Zhijian.App>().UseSkia().WithInterFont()
 var vm = new MainWindowViewModel();
 var window = new Zhijian.Views.MainWindow { DataContext = vm };
 window.Show(); Pump();
+VerifyTitleBar();
 var editor = window.FindControl<MindMapEditor>("MindMap")!;
 Check(editor.Bounds.Width > 500, "MindView has a real viewport");
 vm.Roots[0].Title = "迁移验证";
@@ -108,13 +110,60 @@ vm.IsNewUserTourOpen = false;
 VerifyAuxiliaryWindows();
 VerifyUpdates();
 window.Close();
-Console.WriteLine("Zhijian UI verification passed: " + output);
+Console.WriteLine($"Zhijian UI verification passed: {assertionCount} assertions; NativeAOT={!System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported}; {output}");
 
-void Check(bool passed, string message) { if (!passed) throw new InvalidOperationException(message); Console.WriteLine("PASS " + message); }
+void Check(bool passed, string message) { if (!passed) throw new InvalidOperationException(message); assertionCount++; Console.WriteLine("PASS " + message); }
 void Pump()
 {
     var until = Stopwatch.StartNew();
     do { Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(); Thread.Sleep(10); } while (until.ElapsedMilliseconds < 250);
+}
+
+void VerifyTitleBar()
+{
+    var controls = window.GetVisualDescendants().OfType<Zhijian.Views.TitleBarAppearance>().Single();
+    var toggle = controls.FindControl<Ursa.Controls.ThemeToggleButton>("TitleBarThemeToggle")!;
+    var palettes = controls.FindControl<ListBox>("TitleBarPalettes")!;
+    var languages = controls.FindControl<ComboBox>("TitleBarLanguageSelector")!;
+    var scope = controls.FindControl<ThemeVariantScope>("TitleBarThemeScope")!;
+    var button = toggle.GetVisualDescendants().OfType<Button>().Single(item => item.Name == "PART_ThemeButton");
+    Check(toggle.IsThreeState && palettes.Items.Count == 8, "Title bar uses one Ursa three-state button and eight flat palette dots");
+    foreach (var palette in vm.TitleBarPalettes)
+    {
+        palettes.SelectedItem = palette; vm.ThemeMode = StudioThemeMode.System;
+        foreach (var expected in new[] { StudioThemeMode.Light, StudioThemeMode.Dark, StudioThemeMode.System })
+        {
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            button.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            var saved = File.ReadAllLines(Zhijian.Services.ApplicationSettings.GetUserDataPath("appearance.txt"));
+            Check(vm.ThemeMode == expected && saved[0] == palette.Key && saved[1] == expected.ToString(), "Actual Ursa clicks preserve and persist palette and mode: " + palette.Key + " " + expected);
+            var dark = expected == StudioThemeMode.Dark || expected == StudioThemeMode.System && Application.Current!.PlatformSettings?.GetColorValues().ThemeVariant == Avalonia.Platform.PlatformThemeVariant.Dark;
+            Check(Application.Current!.RequestedThemeVariant == StudioTheme.GetVariant(Enum.Parse<StudioPalette>(palette.Key), dark), "Ursa independent scope preserves custom Studio variant: " + palette.Key + " " + expected);
+        }
+    }
+    foreach (var width in new[] { 980, 1280 })
+    {
+        window.Width = width; Pump(); window.UpdateLayout();
+        languages.IsDropDownOpen = true; Pump();
+        Check(languages.IsDropDownOpen && languages.Items.Count == vm.TitleBarLanguages.Count && languages.Items.Count == 4, "Language icon opens all four real languages at " + width);
+        foreach (var language in vm.TitleBarLanguages)
+        {
+            languages.SelectedItem = language; Pump(); window.UpdateLayout();
+            Check(I18nManager.Instance.Culture.Name == language.CultureName && ReferenceEquals(vm.SelectedTitleBarLanguage, language), "Language choice synchronizes global culture and selection: " + language.CultureName);
+            Check(new[] { "SYSTEM", "LIGHT", "DARK" }.All(key => ((TextBlock)scope.Resources["STRING_THEME_TOGGLE_" + key]!).Text == I18nManager.Instance.GetResource("Zhijian.ZhijianL." + char.ToUpperInvariant(key[0]) + key[1..].ToLowerInvariant() + "Theme")), "Ursa internal tooltips follow language: " + language.CultureName);
+            var left = (Control)window.LeftContent!;
+            var caption = window.GetVisualDescendants().OfType<Button>().Single(item => item.Name == "PART_MinimizeButton");
+            Check(controls.TranslatePoint(default, window)!.Value.X >= left.TranslatePoint(new Point(left.Bounds.Width, 0), window)!.Value.X &&
+                  controls.TranslatePoint(new Point(controls.Bounds.Width, 0), window)!.Value.X <= caption.TranslatePoint(default, window)!.Value.X, "Title menu and right controls fit without overlap: " + width + " " + language.CultureName);
+        }
+        languages.IsDropDownOpen = false;
+        Check(toggle.Bounds.Width == 30 && languages.Bounds.Height == 30 && palettes.GetVisualDescendants().OfType<ListBoxItem>().Count() == 8, "All title controls retain compact dimensions at " + width);
+        using var frame = window.CaptureRenderedFrame()!;
+        frame.Save(Path.Combine(output, "titlebar-" + width + ".png"), new PngBitmapEncoderOptions());
+    }
+    vm.SelectedTitleBarLanguage = vm.TitleBarLanguages.Single(item => item.CultureName == "zh-CN");
+    vm.SelectedTitleBarPalette = vm.TitleBarPalettes.Single(item => item.Key == "Aurora"); vm.ThemeMode = StudioThemeMode.Light;
 }
 
 IEnumerable<MenuItem> DescendMenus(IEnumerable<MenuItem> roots)
@@ -134,12 +183,7 @@ void VerifyAuxiliaryWindows()
     var titleMenu = titleBar.GetVisualDescendants().OfType<Menu>().Single();
     var titleMenus = DescendMenus(titleMenu.Items.OfType<MenuItem>()).ToArray();
     var paletteMenus = titleMenus.Where(item => item.CommandParameter is string value && Enum.TryParse<StudioPalette>(value, out _)).ToArray();
-    Check(paletteMenus.Length == 8, "Title menu exposes exactly eight palette commands: " + paletteMenus.Length);
-    foreach (var menu in paletteMenus)
-    {
-        menu.Command!.Execute(menu.CommandParameter);
-        Check(Zhijian.App.ThemeController!.Palette.ToString() == menu.CommandParameter!.ToString(), "Palette command changes the real controller");
-    }
+    Check(paletteMenus.Length == 0 && titleMenu.Items.Count == 5, "Title menu keeps five business groups without duplicate palette dropdowns");
     using var saveModel = new SaveChangesWindowViewModel("Studio.md");
     var save = new Zhijian.Views.SaveChangesWindow("Studio.md");
     var thanks = new Zhijian.Views.ThanksWindow();
@@ -151,10 +195,9 @@ void VerifyAuxiliaryWindows()
         Check(saveModel.Message.Contains("Studio.md") && saveModel.Message != "Zhijian.ZhijianL.SaveChangesMessage", "Save message keeps the document name: " + culture);
         var thanksModel = (ThanksWindowViewModel)thanks.DataContext!;
         Check(thanks.Title == thanksModel.Title && thanksModel.Description == I18nManager.Instance.GetResource(Zhijian.ZhijianL.ThanksDescription), "Thanks window changes language: " + culture);
-        foreach (var menu in paletteMenus)
+        foreach (var palette in vm.TitleBarPalettes)
         {
-            var key = "Zhijian.ZhijianL.Palette" + menu.CommandParameter;
-            Check(menu.Header?.ToString() == I18nManager.Instance.GetResource(key), "Palette menu label follows the culture: " + culture);
+            Check(I18nManager.Instance.GetResource(palette.ResourceKey) is { } label && !label.StartsWith("Zhijian."), "Palette tooltip resource follows the culture: " + culture);
         }
         using var saveFrame = save.CaptureRenderedFrame()!;
         saveFrame.Save(Path.Combine(output, $"save-{culture}.png"), new PngBitmapEncoderOptions());

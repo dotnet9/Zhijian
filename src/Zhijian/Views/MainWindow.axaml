@@ -60,6 +60,10 @@
         </Style>
     </codewf:CodeWFWindow.Styles>
 
+    <codewf:CodeWFWindow.RightContent>
+        <views:TitleBarAppearance />
+    </codewf:CodeWFWindow.RightContent>
+
     <Grid Background="{DynamicResource StudioBackground}">
         <Grid RowDefinitions="*,Auto">
             <Grid x:Name="PaneGrid" Grid.Row="0" Margin="16,16,16,6">

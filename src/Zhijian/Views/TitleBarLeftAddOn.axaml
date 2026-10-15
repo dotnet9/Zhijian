@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:codewf="https://codewf.com"
              xmlns:l="clr-namespace:Zhijian"
@@ -160,54 +160,6 @@
                                Header="{codewf:I18n {x:Static l:ZhijianL.ZoomIn}}"/>
                 <MenuItem x:Name="ResetZoomItem"
                                Header="{codewf:I18n {x:Static l:ZhijianL.ResetZoom}}"/>
-            </MenuItem>
-
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}"
-                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.ThemeMenu}}">
-                <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.SystemTheme}}" Command="{Binding SetSystemTheme}" ToggleType="Radio" IsChecked="{Binding IsSystemTheme, Mode=OneWay}"/>
-                <MenuItem x:Name="LightThemeItem"
-                               Header="{codewf:I18n {x:Static l:ZhijianL.LightTheme}}"
-                               Command="{Binding SetLightTheme}"
-                               ToggleType="Radio"
-                               IsChecked="{Binding IsLightTheme, Mode=OneWay}"/>
-                <MenuItem x:Name="DarkThemeItem"
-                               Header="{codewf:I18n {x:Static l:ZhijianL.DarkTheme}}"
-                               Command="{Binding SetDarkTheme}"
-                               ToggleType="Radio"
-                               IsChecked="{Binding IsExplicitDarkTheme, Mode=OneWay}"/>
-            <Separator/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDefault}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Default"/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDotNet}}" Command="{Binding SelectPaletteByKey}" CommandParameter="DotNet"/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteAurora}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Aurora"/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteEmber}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Ember"/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteAquatic}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Aquatic"/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDesert}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Desert"/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteDusk}}" Command="{Binding SelectPaletteByKey}" CommandParameter="Dusk"/>
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.PaletteNightSky}}" Command="{Binding SelectPaletteByKey}" CommandParameter="NightSky"/>
-            </MenuItem>
-
-            <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.LanguageMenu}}"
-                           AutomationProperties.Name="{codewf:I18n {x:Static l:ZhijianL.LanguageMenu}}">
-                <MenuItem x:Name="SimplifiedChineseItem"
-                               Header="{codewf:I18n {x:Static l:ZhijianL.SimplifiedChinese}}"
-                               Command="{Binding SelectSimplifiedChinese}"
-                               ToggleType="Radio"
-                               IsChecked="{Binding IsSimplifiedChinese, Mode=OneWay}"/>
-                <MenuItem x:Name="TraditionalChineseItem"
-                               Header="{codewf:I18n {x:Static l:ZhijianL.TraditionalChinese}}"
-                               Command="{Binding SelectTraditionalChinese}"
-                               ToggleType="Radio"
-                               IsChecked="{Binding IsTraditionalChinese, Mode=OneWay}"/>
-                <MenuItem x:Name="EnglishItem"
-                               Header="{codewf:I18n {x:Static l:ZhijianL.English}}"
-                               Command="{Binding SelectEnglish}"
-                               ToggleType="Radio"
-                               IsChecked="{Binding IsEnglish, Mode=OneWay}"/>
-                <MenuItem x:Name="JapaneseItem"
-                               Header="{codewf:I18n {x:Static l:ZhijianL.Japanese}}"
-                               Command="{Binding SelectJapanese}"
-                               ToggleType="Radio"
-                               IsChecked="{Binding IsJapanese, Mode=OneWay}"/>
             </MenuItem>
 
             <MenuItem Header="{codewf:I18n {x:Static l:ZhijianL.HelpMenu}}"
