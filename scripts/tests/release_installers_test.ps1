@@ -8,7 +8,8 @@ function New-FixtureSet([string] $Product, [string] $ArtifactVersion) {
     foreach ($old in Get-ChildItem -LiteralPath $fixture -File) { Remove-Item -LiteralPath $old.FullName -Force }
     foreach ($rid in @('win-x64', 'linux-x64', 'linux-arm64', 'osx-x64', 'osx-arm64')) {
         $suffix = if ($rid.StartsWith('win')) { '-setup.exe' } elseif ($rid.StartsWith('linux')) { '.deb' } else { '.dmg' }
-        $file = Join-Path $fixture ("$Product-v$ArtifactVersion-" + $rid + $suffix)
+        $versionPrefix = if ($rid.StartsWith('osx')) { '' } else { 'v' }
+        $file = Join-Path $fixture ("$Product-$versionPrefix$ArtifactVersion-" + $rid + $suffix)
         Set-Content -LiteralPath $file -Value ('Controlled packaging fixture ' + $rid) -Encoding utf8
         $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
         "$hash  $([IO.Path]::GetFileName($file))" | Set-Content -LiteralPath ($file + '.sha256') -Encoding ascii

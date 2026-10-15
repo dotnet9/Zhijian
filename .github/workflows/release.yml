@@ -12,6 +12,11 @@ on:
         description: '版本号（不含 v），例如 12.1.0.4'
         required: true
         type: string
+      source_ref:
+        description: '可选：产品源码标签或提交；发布门禁沿用所选工作流分支'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: write
@@ -22,6 +27,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
 
       - name: 安装 .NET SDK
         uses: actions/setup-dotnet@v4
@@ -52,6 +59,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
 
       - name: 安装 .NET SDK
         uses: actions/setup-dotnet@v4
@@ -146,6 +155,7 @@ jobs:
     needs: publish
     runs-on: ubuntu-latest
     steps:
+      # 发布校验使用工作流分支，避免旧产品标签带回已修复的门禁脚本。
       - uses: actions/checkout@v4
 
       - name: 下载构建产物

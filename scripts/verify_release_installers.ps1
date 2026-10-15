@@ -13,8 +13,8 @@ $expected = @{
     'win-x64' = "Zhijian-v$cleanVersion-win-x64-setup.exe"
     'linux-x64' = "Zhijian-v$cleanVersion-linux-x64.deb"
     'linux-arm64' = "Zhijian-v$cleanVersion-linux-arm64.deb"
-    'osx-x64' = "Zhijian-v$cleanVersion-osx-x64.dmg"
-    'osx-arm64' = "Zhijian-v$cleanVersion-osx-arm64.dmg"
+    'osx-x64' = "Zhijian-$cleanVersion-osx-x64.dmg"
+    'osx-arm64' = "Zhijian-$cleanVersion-osx-arm64.dmg"
 }
 $allowed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 foreach ($rid in $expected.Keys) {
