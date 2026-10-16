@@ -2,6 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 仓内自包含的品牌化 Finder 镜像助手。
+source "$ROOT_DIR/scripts/installer/macos/create-branded-dmg.sh"
 PROJECT_PATH="$ROOT_DIR/src/Zhijian/Zhijian.csproj"
 SOLUTION_PATH="$ROOT_DIR/Zhijian.slnx"
 APP_NAME="${APP_NAME:-Zhijian}"
@@ -284,12 +286,7 @@ create_dmg() {
   mv "$app_dir" "$dmg_stage/$APP_NAME.app" || die "Could not stage application bundle."
   ln -s /Applications "$dmg_stage/Applications" || die "Could not create Applications shortcut."
 
-  hdiutil create \
-    -volname "$APP_NAME" \
-    -srcfolder "$dmg_stage" \
-    -ov \
-    -format UDZO \
-    "$dmg_path" >/dev/null || die "Could not create DMG: $dmg_path"
+  codewf_create_branded_dmg "$dmg_stage" "$APP_NAME" "$dmg_path" "$APP_NAME" || die "Branded DMG creation failed."
   [[ -s "$dmg_path" ]] || die "DMG output is missing or empty: $dmg_path"
 
   if [[ -n "$CODESIGN_IDENTITY" ]]; then
