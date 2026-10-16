@@ -6,6 +6,7 @@
 #endif
 
 [Setup]
+LicenseFile=..\LICENSE
 AppId={{42EB940F-A2FE-44CF-8DC0-D8392A9416A1}
 AppName=Zhijian
 AppVersion={#AppVersion}
@@ -30,10 +31,11 @@ UninstallDisplayIcon={app}\Zhijian.exe
 WizardStyle=modern
 
 [Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "chinesesimplified"; MessagesFile: "Languages\ChineseSimplified.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.pdb,*.dbg,*.dSYM\*"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -43,4 +45,6 @@ Name: "{autoprograms}\Zhijian"; Filename: "{app}\Zhijian.exe"; WorkingDir: "{app
 Name: "{autodesktop}\Zhijian"; Filename: "{app}\Zhijian.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\Zhijian.exe"; Description: "Launch Zhijian"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Zhijian.exe"; Description: "{cm:LaunchProgram,Zhijian}"; Flags: nowait postinstall skipifsilent
+
+#include "installer\CodeWF.Setup.iss"
