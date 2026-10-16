@@ -1,0 +1,16 @@
+{
+  "id": "com.codewf.zhijian",
+  "package": "zhijian",
+  "command": "zhijian",
+  "name": "Zhijian",
+  "chineseName": "知笺思维导图",
+  "summary": "Organize ideas with mind maps and outlines",
+  "chineseSummary": "通过思维导图和大纲整理想法",
+  "description": "A mind mapping application with outline editing and Markdown document interchange.",
+  "chineseDescription": "提供大纲编辑及 Markdown 文档交换的思维导图应用。",
+  "categories": [
+    "Office",
+    "ProjectManagement"
+  ],
+  "homepage": "https://github.com/dotnet9/Zhijian"
+}
