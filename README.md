@@ -256,3 +256,7 @@ git push origin v12.1.0.5
 ![三态八色原生界面](docs/media/zhijian-native-palettes.gif)
 
 以上 GIF 保留自历史原生界面演示，本轮未重新录制；实际录制构建版本未知。当前 12.1.0.17 的原生检查结果见[验收记录](docs/UI-VERIFICATION.md)，当前截图与来源见文首及[媒体复核记录](docs/recheck24-native-media.md)。
+
+## 统一安装体验
+
+安装包采用统一 .NET 品牌紫设计：Windows 使用异形原生向导、真实进度核心和双语许可；macOS 使用品牌 DMG 背景与 Finder 拖放布局；Linux 提供原生 DEB 及 AppStream 品牌信息。各仓库保存自包含安装器源码，交付 EXE / DEB / DMG 和 SHA-256，不以 ZIP 代替安装包。实现、维护流程与平台验收边界见 [安装器说明](scripts/installer/README.md)。
