@@ -8,6 +8,8 @@
 
     <Application.Resources>
         <FontFamily x:Key="DefaultFontFamily">Segoe UI, Microsoft YaHei UI, PingFang SC, Noto Sans CJK SC, sans-serif</FontFamily>
+        <!-- 普通按钮使用正文色；实心主按钮继续使用 Semi 独立的成对资源。 -->
+        <SolidColorBrush x:Key="ButtonDefaultPrimaryForeground" Color="{DynamicResource StudioTextColor}" />
     </Application.Resources>
     <Application.Styles>
         <semi:SemiTheme Locale="zh-CN" />

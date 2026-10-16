@@ -35,6 +35,8 @@ AppBuilder.Configure<Zhijian.App>().UseSkia().WithInterFont()
         ]
     })
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).SetupWithoutStarting();
+ButtonPaletteVerification.Run(Zhijian.App.ThemeController!, output,
+    ("default", new Button()), ("confirm", new Button { IsDefault = true }));
 var vm = new MainWindowViewModel();
 var window = new Zhijian.Views.MainWindow { DataContext = vm };
 window.Show(); Pump();
