@@ -3,7 +3,7 @@
   "package": "zhijian",
   "command": "zhijian",
   "name": "Zhijian",
-  "chineseName": "知笺思维导图",
+  "chineseName": "枝见思维导图",
   "summary": "Organize ideas with mind maps and outlines",
   "chineseSummary": "通过思维导图和大纲整理想法",
   "description": "A mind mapping application with outline editing and Markdown document interchange.",
