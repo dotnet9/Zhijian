@@ -5,11 +5,11 @@
 
 仓库地址：<https://github.com/dotnet9/Zhijian>
 
-![12.1.0.16 原生主窗口](docs/media/zhijian-v12.1.0.16-main.png)
+![12.1.0.17 原生主窗口](docs/media/zhijian-v12.1.0.17-main.png)
 
-当前正式 Windows NativeAOT 的真实控件离屏截图，使用隔离的 Studio 样例树。截图来源、SHA-256 和历史媒体来源见[媒体复核记录](docs/recheck24-native-media.md)。
+当前正式 Windows NativeAOT 的真实控件离屏截图，使用隔离的 Studio 样例树。本次静态图来自 `12.1.0.17` 的 NativeAOT 界面验证器；当前结果见[验收记录](docs/UI-VERIFICATION.md)，此前截图与历史媒体来源保留在[媒体复核记录](docs/recheck24-native-media.md)。
 
-![12.1.0.16 原生深色主题](docs/media/zhijian-v12.1.0.16-dark.png)
+![12.1.0.17 原生深色主题](docs/media/zhijian-v12.1.0.17-dark.png)
 
 ## 下载安装
 
@@ -22,7 +22,7 @@
 
 ## 仓库规范
 
-- 当前版本：`12.1.0.16`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
+- 当前版本：`12.1.0.17`，版本号统一维护在根目录 `Directory.Build.props` 的 `<Version>` 节点。
 - `CodeWF.Avalonia.MindView` 库统一目标 `net10.0`；桌面应用、测试与内部应用项目统一使用 `net10.0` / `net10.0-windows`。
 - 根目录 `logo.svg`、`logo.png`、`logo.ico` 是唯一图标源，子工程只通过 MSBuild `Link` 引用，不维护图标副本。
 - 运行时帮助、Markdown 示例、内置备忘录、设计说明等业务文档按功能保留；仓库级入口文档使用根目录 `README.md` 和 `UpdateLog.md`。
@@ -50,7 +50,7 @@
 
 ## 历史功能演示
 
-以下截图和 GIF 为保留的历史资料，本轮没有重新录制，不能据此判断 12.1.0.16 的当前外观。各文件最后一次仓库内容更新的提交和当时项目版本见[来源表](docs/recheck24-native-media.md)；实际录制构建版本未知。当前外观以文首两张原生 PNG 为准。
+以下截图和 GIF 为保留的历史资料，本轮没有重新录制，不能据此判断 12.1.0.17 的当前外观。各文件最后一次仓库内容更新的提交和当时项目版本见[来源表](docs/recheck24-native-media.md)；实际录制构建版本未知。当前外观以文首两张原生 PNG 为准。
 
 ![历史主窗口演示](docs/media/zhijian-main-window.gif)
 
@@ -255,4 +255,4 @@ git push origin v12.1.0.5
 
 ![三态八色原生界面](docs/media/zhijian-native-palettes.gif)
 
-以上 GIF 保留自历史原生界面演示，本轮未重新录制；实际录制构建版本未知。当前 12.1.0.16 的原生检查结果见[验收记录](docs/UI-VERIFICATION.md)，当前截图与来源见文首及[媒体复核记录](docs/recheck24-native-media.md)。
+以上 GIF 保留自历史原生界面演示，本轮未重新录制；实际录制构建版本未知。当前 12.1.0.17 的原生检查结果见[验收记录](docs/UI-VERIFICATION.md)，当前截图与来源见文首及[媒体复核记录](docs/recheck24-native-media.md)。
